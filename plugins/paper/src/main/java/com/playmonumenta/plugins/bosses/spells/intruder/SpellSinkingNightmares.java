@@ -142,10 +142,10 @@ public class SpellSinkingNightmares extends Spell {
 						.spawnAsBoss();
 				}
 				if (mTicks == TELEGRAPH_DURATION - 10) {
-					new PPLightning(Particle.DUST_COLOR_TRANSITION, loc)
+					new PPLightning(Particle.DUST_COLOR_TRANSITION, loc, 16, 1, 0)
 						.count(2)
 						.data(new Particle.DustTransition(Color.BLACK, Color.GRAY, 2.4f))
-						.hopsPerBlock(1).hopXZ(1).hopY(0).maxWidth(1).height(16)
+						.hopsPerBlock(1)
 						.duration(10)
 						.spawnAsBoss();
 				}

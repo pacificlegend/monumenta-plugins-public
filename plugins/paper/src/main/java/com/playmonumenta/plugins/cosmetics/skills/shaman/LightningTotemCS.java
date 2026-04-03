@@ -18,7 +18,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public class LightningTotemCS implements CosmeticSkill {
-
 	@Override
 	public ClassAbility getAbility() {
 		return ClassAbility.LIGHTNING_TOTEM;
@@ -51,8 +50,7 @@ public class LightningTotemCS implements CosmeticSkill {
 	}
 
 	public void lightningTotemPulse(Player player, Location standLocation, double radius) {
-		PPCircle lightningArea = new PPCircle(Particle.CRIT, standLocation, radius).ringMode(false).count(40).delta(0.01).extra(0.05);
-		lightningArea.spawnAsPlayerActive(player);
+		new PPCircle(Particle.CRIT, standLocation, radius).ringMode(false).count(40).delta(0.01).extra(0.05).spawnAsPlayerActive(player);
 
 		standLocation.getWorld().playSound(standLocation, Sound.ENTITY_PLAYER_ATTACK_WEAK, 0.5f, 2f);
 		standLocation.getWorld().playSound(standLocation, Sound.BLOCK_SWEET_BERRY_BUSH_BREAK, 0.5f, 2f);
@@ -63,12 +61,11 @@ public class LightningTotemCS implements CosmeticSkill {
 	}
 
 	public void lightningTotemStrike(Player player, Location standLocation, LivingEntity target, boolean meleeActivated) {
-		PPLightning lightning = new PPLightning(Particle.END_ROD, target.getLocation()).count(8).duration(3);
-		lightning.init(4, 2.5, 0.3, 0.3);
-		lightning.spawnAsPlayerActive(player);
-
 		World world = player.getWorld();
-		Location loc = target.getLocation();
+		Location loc = target.getEyeLocation();
+		Location standHeadLoc = standLocation.clone().add(0, 0.9, 0);
+		new PPLightning(Particle.END_ROD, loc, standHeadLoc, 0.4, 0.2)
+			.minimumHops(4).hopsPerBlock(1).count(6).duration(4).spawnAsPlayerActive(player);
 
 		world.playSound(loc, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.PLAYERS, 0.5f, 2f, 3);
 		world.playSound(loc, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, SoundCategory.PLAYERS, 0.3f, 2f);
@@ -88,10 +85,8 @@ public class LightningTotemCS implements CosmeticSkill {
 	}
 
 	public void lightningTotemEnhancementStrike(Player player, Location loc, double stormRadius) {
-		PPLightning lightning = new PPLightning(Particle.END_ROD, loc).count(8).duration(3).height(4);
+		new PPLightning(Particle.END_ROD, loc, 4, 0.3, 0.3).count(8).duration(3).spawnAsPlayerActive(player);
 		player.getWorld().playSound(loc, Sound.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 1, 1.25f);
-		lightning.init(3, 2.5, 0.3, 0.3);
-		lightning.spawnAsPlayerActive(player);
 	}
 
 	public void lightningTotemExpire(Player player, Location standLocation, World world) {

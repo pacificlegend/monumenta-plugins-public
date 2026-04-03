@@ -45,7 +45,7 @@ public class NecromantiaCS extends CursedWoundCS {
 
 	@Override
 	public void onAttack(Player player, Entity entity) {
-		new PPLightning(Particle.DUST_COLOR_TRANSITION, entity.getLocation()).duration(3).init(entity.getHeight(), 1, 0.5).count(1).delta(0.3).data(BLACK).spawnAsPlayerActive(player);
+		new PPLightning(Particle.DUST_COLOR_TRANSITION, entity.getLocation(), entity.getHeight(), 0.5).duration(3).count(1).delta(0.3).data(BLACK).spawnAsPlayerActive(player);
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public class NecromantiaCS extends CursedWoundCS {
 		world.playSound(eLoc, "block.vault.open_shutter", SoundCategory.PLAYERS, 1.5f, 0.94f);
 
 		double height = Math.min(5, enemy.getHeight() + 3);
-		new PPLightning(Particle.DUST_COLOR_TRANSITION, eLoc).duration(3).init(height, 1, 0.5).count((int) height).delta(0.1).data(PURPLE_LARGE).spawnAsPlayerActive(player);
+		new PPLightning(Particle.DUST_COLOR_TRANSITION, eLoc, height, 0.5).duration(3).count((int) height).delta(0.1).data(PURPLE_LARGE).spawnAsPlayerActive(player);
 		for (int i = -1; i < 2; i += 2) {
 			for (int j = -1; j < 2; j += 2) {
 				Vector dir = new Vector(i, 0, j);

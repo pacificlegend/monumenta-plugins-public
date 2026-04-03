@@ -105,7 +105,7 @@ public class ImpalingDistortionCS extends LuminousInfusionCS {
 		world.playSound(loc, Sound.ENTITY_IRON_GOLEM_DAMAGE, SoundCategory.PLAYERS, 1.3f * volumeScaling, 0.8f);
 		world.playSound(loc, Sound.ENTITY_ALLAY_DEATH, SoundCategory.PLAYERS, 0.9f * volumeScaling, 0.8f);
 		new PartialParticle(Particle.FLASH, loc, 1, 0, 0, 0, 0).spawnAsPlayerActive(player);
-		new PPLightning(Particle.REDSTONE, loc).maxWidth(2).hopXZ(2).hopY(0).height(6 + 6 * ratio).duration(3).count(12).data(CYAN).spawnAsPlayerActive(player);
+		new PPLightning(Particle.REDSTONE, loc, 6 + 6 * ratio, 2, 0).duration(3).count(12).data(CYAN).spawnAsPlayerActive(player);
 		new BukkitRunnable() {
 			int mTicks = 0;
 

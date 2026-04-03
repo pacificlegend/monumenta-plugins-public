@@ -59,7 +59,7 @@ public class PurgingPyreCS extends CleansingRainCS {
 		world.playSound(loc, Sound.ENTITY_WARDEN_SONIC_CHARGE, SoundCategory.PLAYERS, 1.3f, 1.9f);
 		world.playSound(loc, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.PLAYERS, 1.1f, 1.7f);
 		world.playSound(loc, Sound.AMBIENT_SOUL_SAND_VALLEY_MOOD, SoundCategory.PLAYERS, 0.9f, 2.0f);
-		new PPLightning(Particle.REDSTONE, loc).count(30).init(16, 1.5, 1).duration(15).data(CYAN).spawnAsPlayerActive(player);
+		new PPLightning(Particle.REDSTONE, loc, 16, 1).count(30).duration(15).data(CYAN).spawnAsPlayerActive(player);
 		Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> {
 			world.playSound(loc, Sound.ITEM_BONE_MEAL_USE, SoundCategory.PLAYERS, 1.8f, 0.2f);
 			world.playSound(loc, Sound.ITEM_FIRECHARGE_USE, SoundCategory.PLAYERS, 1.6f, 0.8f);

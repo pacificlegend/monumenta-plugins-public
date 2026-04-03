@@ -4,25 +4,21 @@ import com.google.common.base.Preconditions;
 import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.utils.FastUtils;
+import com.playmonumenta.plugins.utils.LocationUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 public class PPLightning extends AbstractPartialParticle<PPLightning> {
 	/*
-	 * Height above mLocation to start the lightning bolt.
+	 * Length of the lightning bolt.
 	 */
-	protected double mHeight;
-
-	/*
-	 * Width within which all particles must start in spite of hop variance,
-	 * prior to applying deltas (which may then put them outside).
-	 */
-	protected double mMaxWidth;
+	protected double mLength;
 
 	/*
 	 * Random variance applied after each downward hop of the lightning's points
@@ -35,6 +31,12 @@ public class PPLightning extends AbstractPartialParticle<PPLightning> {
 	protected @Nullable BukkitRunnable mRunnable;
 
 	protected double mHopsPerBlock = 2;
+	protected int mMinimumHops = 3;
+
+	/*
+	 * Allow people to change the direction of the lightning.
+	 */
+	protected Vector mDirection;
 
 	// To prevent each line from looking too sparse (ugly),
 	// if player's particle multiplier setting is not completely off,
@@ -48,24 +50,48 @@ public class PPLightning extends AbstractPartialParticle<PPLightning> {
 	 * Constructors
 	 */
 
-	public PPLightning(Particle particle, Location strikeLocation) {
+	// Specify both ends, like PPLine
+	public PPLightning(Particle particle, Location strikeLocation, Location startLocation, double hopLength) {
+		this(particle, strikeLocation, startLocation, hopLength, hopLength);
+	}
+
+	public PPLightning(Particle particle, Location strikeLocation, Location startLocation, double hopXZ, double hopY) {
+		this(particle, strikeLocation, LocationUtils.getDirectionTo(strikeLocation, startLocation), strikeLocation.distance(startLocation), hopXZ, hopY);
+	}
+
+	// Specify strike location and height, traditional
+	public PPLightning(Particle particle, Location strikeLocation, double length, double hopLength) {
+		this(particle, strikeLocation, length, hopLength, hopLength);
+	}
+
+	public PPLightning(Particle particle, Location strikeLocation, double length, double hopXZ, double hopY) {
+		this(particle, strikeLocation, new Vector(0, -1, 0), length, hopXZ, hopY);
+	}
+
+	// Specify strike location and direction. Note that the direction points TOWARDS the strike location!
+	public PPLightning(Particle particle, Location strikeLocation, Vector direction, double length, double hopLength) {
+		this(particle, strikeLocation, direction, length, hopLength, hopLength);
+	}
+
+	public PPLightning(Particle particle, Location strikeLocation, Vector direction, double length, double hopXZ, double hopY) {
 		super(particle, strikeLocation);
+		mDirection = direction.clone().normalize();
+		mLength = length;
+		mHopXZ = hopXZ;
+		mHopY = hopY;
 	}
 
 	@Override
 	public PPLightning copy() {
-		return copy(new PPLightning(mParticle, mLocation.clone()));
+		return copy(new PPLightning(mParticle, mLocation.clone(), mDirection.clone(), mLength, mHopXZ, mHopY));
 	}
 
 	@Override
 	public PPLightning copy(PPLightning copy) {
 		super.copy(copy);
-		copy.mHeight = mHeight;
-		copy.mMaxWidth = mMaxWidth;
-		copy.mHopXZ = mHopXZ;
-		copy.mHopY = mHopY;
 		copy.mDuration = mDuration;
 		copy.mHopsPerBlock = mHopsPerBlock;
+		copy.mMinimumHops = mMinimumHops;
 		copy.mRunnable = mRunnable;
 		copy.mGeneratedHops.addAll(mGeneratedHops);
 		copy.mParticleLocations.putAll(mParticleLocations);
@@ -73,49 +99,16 @@ public class PPLightning extends AbstractPartialParticle<PPLightning> {
 	}
 
 	/*-------------------------------------------------------------------------------
-	 * Required init methods
-	 * One of these must be called prior to spawning this particle
-	 */
-
-	/*
-	 * Share the same hop length for XZ and Y.
-	 */
-	public PPLightning init(double height, double maxWidth, double hopLength) {
-		return init(height, maxWidth, hopLength, hopLength);
-	}
-
-	/*
-	 * Define attributes specific to this subclass of PartialParticle.
-	 */
-	public PPLightning init(double height, double maxWidth, double hopXZ, double hopY) {
-		mHeight = height;
-		mMaxWidth = maxWidth;
-		mHopXZ = hopXZ;
-		mHopY = hopY;
-
-		return this;
-	}
-
-	/*-------------------------------------------------------------------------------
 	 * Parameter getters and setters
 	 */
 
-	public PPLightning height(double height) {
-		mHeight = height;
+	public PPLightning length(double length) {
+		mLength = length;
 		return this;
 	}
 
-	public double height() {
-		return mHeight;
-	}
-
-	public PPLightning maxWidth(double maxWidth) {
-		mMaxWidth = maxWidth;
-		return this;
-	}
-
-	public double maxWidth() {
-		return mMaxWidth;
+	public double length() {
+		return mLength;
 	}
 
 	public PPLightning hopXZ(double hopXZ) {
@@ -137,7 +130,7 @@ public class PPLightning extends AbstractPartialParticle<PPLightning> {
 	}
 
 	public PPLightning duration(int duration) {
-		mDuration = duration;
+		mDuration = Math.max(1, duration);
 		return this;
 	}
 
@@ -150,8 +143,36 @@ public class PPLightning extends AbstractPartialParticle<PPLightning> {
 		return mHopsPerBlock;
 	}
 
+	public PPLightning minimumHops(int minimumHops) {
+		mMinimumHops = minimumHops;
+		return this;
+	}
+
+	public int minimumHops() {
+		return mMinimumHops;
+	}
+
 	public @Nullable BukkitRunnable runnable() {
 		return mRunnable;
+	}
+
+	/**
+	 * Sets the direction of the lightning. Will forcibly normalise the input vector.
+	 * @param direction Direction. Defaults to (0, -1, 0).
+	 * @return The same PPLightning
+	 */
+	public PPLightning direction(Vector direction) {
+		// Forcibly normalise to avoid shenanigans
+		mDirection = direction.clone().normalize();
+		return this;
+	}
+
+	public PPLightning endpoints(Location to, Location from) {
+		Preconditions.checkArgument(to.getWorld().equals(from.getWorld()), "Locations must be in the same world!");
+		mDirection = LocationUtils.getDirectionTo(to, from);
+		mLength = to.distance(from);
+		mLocation = to;
+		return this;
 	}
 
 	/*-------------------------------------------------------------------------------
@@ -214,53 +235,38 @@ public class PPLightning extends AbstractPartialParticle<PPLightning> {
 			return;
 		}
 
-		int hopCount = (int) Math.ceil(mHeight * mHopsPerBlock);
-		double endHeight = strikeLocation.getY();
-		double startHeight = endHeight + mHeight;
+		Vector xPrime = new Vector(0, 0, 1).crossProduct(mDirection).normalize(); // (1, 0, 0) by default
+		Vector yPrime = mDirection.clone().multiply(-1);
+		Vector zPrime = mDirection.getCrossProduct(xPrime); // (0, 0, 1) by default
+		if (xPrime.lengthSquared() == 0) {
+			xPrime = new Vector(1, 0, 0);
+			zPrime = new Vector(0, 1, 0);
+		}
 
-		double strikeX = strikeLocation.getX();
-		double strikeZ = strikeLocation.getZ();
-		double halfMaxWidth = mMaxWidth / 2;
-		double capMinX = strikeX - halfMaxWidth;
-		double capMaxX = strikeX + halfMaxWidth;
-		double capMinZ = strikeZ - halfMaxWidth;
-		double capMaxZ = strikeZ + halfMaxWidth;
-		// endHeight is always capMinY, startHeight is always capMaxY
 
-		for (int hopIndex = 0; hopIndex < hopCount; hopIndex++) {
-			double currentHeight = startHeight - (mHeight / hopCount * hopIndex);
-			Location currentHopLocation = strikeLocation.clone();
-			currentHopLocation.setY(currentHeight);
+		int hopCount = Math.max((int) Math.ceil(mLength * mHopsPerBlock), mMinimumHops);
 
+		for (int hopIndex = 0; hopIndex <= hopCount; hopIndex++) {
+			double currentLength = mLength - (mLength / hopCount * hopIndex);
+
+			// Displacement of the hop point, taking strikeLocation as the origin, in cylindrical coordinates, along the axis of mDirection
 			// First and last points don't get varied
-			if (
-				hopIndex != 0
-					&& hopIndex != hopCount - 1
-			) {
-				double currentX = currentHopLocation.getX();
-				double currentZ = currentHopLocation.getZ();
-				// Hops should randomise between the closest they can get to the
-				// nearest edge, and the furthest they can get away from current XZ,
-				// without exceeding the mMaxWidth about XZ center.
-				// Eg if we're closer to capMinX, we randomise between capMinX,
-				// and currentX + mHopXZ,
-				// rather than currentX - mHopXZ for the former,
-				// which may randomise a value outside of mMaxWidth
-				double hopMinX = Math.max(capMinX, currentX - mHopXZ);
-				double hopMaxX = Math.min(capMaxX, currentX + mHopXZ);
-				double hopMinZ = Math.max(capMinZ, currentZ - mHopXZ);
-				double hopMaxZ = Math.min(capMaxZ, currentZ + mHopXZ);
+			double radius = (hopIndex == 0 || hopIndex == hopCount) ? 0 : mHopXZ * Math.sqrt(FastUtils.randomDoubleInRange(0, 1)); // Normalise chance per unit area
+			double angle = (hopIndex == 0 || hopIndex == hopCount) ? 0 : FastUtils.randomDoubleInRange(0, 2 * Math.PI);
+			double length = Math.clamp(currentLength + FastUtils.randomDoubleInRange(-mHopY, mHopY), 0, mLength);
 
-				double hopMinY = Math.max(endHeight, currentHeight - mHopY);
-				double hopMaxY = Math.min(startHeight, currentHeight + mHopY);
-
-				currentHopLocation.set(
-					FastUtils.randomDoubleInRange(hopMinX, hopMaxX),
-					FastUtils.randomDoubleInRange(hopMinY, hopMaxY),
-					FastUtils.randomDoubleInRange(hopMinZ, hopMaxZ)
-				);
-			}
-			mGeneratedHops.add(currentHopLocation);
+			// Convert to Cartesian displacements in the cylinder
+			Vector currentHopDisplacementPrime = new Vector(
+				radius * FastUtils.cos(angle),
+				length,
+				radius * FastUtils.sin(angle));
+			// Transform according to mDirection
+			Vector currentHopDisplacement = new Vector(
+				new Vector(xPrime.getX(), yPrime.getX(), zPrime.getX()).dot(currentHopDisplacementPrime),
+				new Vector(xPrime.getY(), yPrime.getY(), zPrime.getY()).dot(currentHopDisplacementPrime),
+				new Vector(xPrime.getZ(), yPrime.getZ(), zPrime.getZ()).dot(currentHopDisplacementPrime)
+			);
+			mGeneratedHops.add(strikeLocation.clone().add(currentHopDisplacement));
 		}
 	}
 
@@ -269,9 +275,7 @@ public class PPLightning extends AbstractPartialParticle<PPLightning> {
 	// then referring to them again as the timer loops
 	private List<Location> generateParticleLocationsOnce(int hopParticleCount) {
 		@Nullable List<Location> hopParticleLocations = mParticleLocations.get(hopParticleCount);
-		if (hopParticleLocations != null) {
-			return hopParticleLocations;
-		} else {
+		if (hopParticleLocations == null) {
 			hopParticleLocations = new ArrayList<>();
 
 			for (int hopIndex = 0; hopIndex < mGeneratedHops.size(); hopIndex++) {
@@ -293,8 +297,7 @@ public class PPLightning extends AbstractPartialParticle<PPLightning> {
 				}
 			}
 			mParticleLocations.put(hopParticleCount, hopParticleLocations);
-
-			return hopParticleLocations;
 		}
+		return hopParticleLocations;
 	}
 }

@@ -198,7 +198,7 @@ public class ChainLightning extends MultipleChargeAbility {
 					MovementUtils.knockAway(mPlayer.getLocation(), target, mKnockback, 0.6f * mKnockback, true);
 				}
 
-				mCosmetic.chainLightningCast(mPlayer, mHitTargets, target, i);
+				mCosmetic.chainLightningCast(mPlayer, mHitTargets.get(i), target, i);
 
 				if (isEnhanced() && target instanceof ArmorStand) {
 					for (Ability abil : mPlugin.mAbilityManager.getPlayerAbilities(mPlayer).getAbilities()) {
@@ -211,6 +211,7 @@ public class ChainLightning extends MultipleChargeAbility {
 				}
 			}
 		}
+
 		mHitTargets.clear();
 	}
 

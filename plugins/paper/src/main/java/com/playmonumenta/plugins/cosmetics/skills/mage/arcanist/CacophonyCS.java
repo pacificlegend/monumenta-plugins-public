@@ -70,8 +70,8 @@ public class CacophonyCS extends AstralOmenCS {
 		Location loc = enemy.getEyeLocation().add(0, -0.5, 0);
 		loc.setPitch(0);
 		if (MetadataUtils.checkOnceThisTick(Plugin.getInstance(), player, CHECK_ONCE_THIS_TICK_METAKEY)) {
-			new PPLightning(Particle.DUST_COLOR_TRANSITION, loc.clone()).init(8, 10, 1, 0.35).hopsPerBlock(1.33).data(new Particle.DustTransition(BLACK_COLOR, ROSE_COLOR, 1.2f)).count(8).delta(0.005).duration(3).spawnAsPlayerActive(player);
-			new PPLightning(Particle.DUST_COLOR_TRANSITION, loc.clone()).init(8, 10, 1, 0.35).hopsPerBlock(1.33).data(new Particle.DustTransition(BLACK_COLOR, ROSE_COLOR, 1.2f)).count(8).delta(0.005).duration(3).spawnAsPlayerActive(player);
+			new PPLightning(Particle.DUST_COLOR_TRANSITION, loc.clone(), 8, 1, 0.35).hopsPerBlock(1.33).data(new Particle.DustTransition(BLACK_COLOR, ROSE_COLOR, 1.2f)).count(8).delta(0.005).duration(3).spawnAsPlayerActive(player);
+			new PPLightning(Particle.DUST_COLOR_TRANSITION, loc.clone(), 8, 1, 0.35).hopsPerBlock(1.33).data(new Particle.DustTransition(BLACK_COLOR, ROSE_COLOR, 1.2f)).count(8).delta(0.005).duration(3).spawnAsPlayerActive(player);
 			Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () ->
 				ParticleUtils.explodingRingEffect(Plugin.getInstance(), enemy.getLocation().add(0, 0.2, 0), radius, 0, 3,
 					List.of(

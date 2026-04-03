@@ -171,67 +171,69 @@ public class LightningTotem extends TotemAbility {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		if (mTotem != null && mTotem.isValid()) {
-			// Check if this is a critical strike
-			double damage = 0;
-			boolean meleeActivated = true;
-
-			// Check for arrow critical
-			if (event.getDamager() instanceof Projectile projectile && EntityUtils.isAbilityTriggeringProjectile(projectile, true)) {
-				if (!MetadataUtils.checkOnceInRecentTicks(mPlugin, enemy, "LightningTotemHit", 5)) {
-					return false;
-				}
-
-				ItemStatManager.PlayerItemStats playerItemStats = DamageListener.getProjectileItemStats(projectile);
-				if (playerItemStats == null) {
-					return false;
-				}
-				ItemStatManager.PlayerItemStats.ItemStatsMap itemStatsMap = playerItemStats.getItemStats();
-
-				double projDamageAdd = itemStatsMap.get(AttributeType.PROJECTILE_DAMAGE_ADD.getItemStat());
-				projDamageAdd += Sniper.apply(mPlayer, enemy, itemStatsMap.get(EnchantmentType.SNIPER));
-				projDamageAdd += PointBlank.apply(mPlayer, enemy, itemStatsMap.get(EnchantmentType.POINT_BLANK));
-				projDamageAdd += HexEater.calculateHexDamage(mPlugin, true, mPlayer, (int) itemStatsMap.get(EnchantmentType.HEX_EATER), enemy);
-				projDamageAdd += Smite.calculateSmiteDamage(true, mPlayer, (int) itemStatsMap.get(EnchantmentType.SMITE), enemy);
-				projDamageAdd += Slayer.calculateSlayerDamage(true, mPlayer, (int) itemStatsMap.get(EnchantmentType.SLAYER), enemy);
-				projDamageAdd += Duelist.calculateDuelistDamage(true, mPlayer, (int) itemStatsMap.get(EnchantmentType.DUELIST), enemy);
-				projDamageAdd += Chaotic.calculateChaoticDamage(true, mPlayer, (int) itemStatsMap.get(EnchantmentType.CHAOTIC), enemy);
-
-				boolean useEliteDamage = isLevelTwo() && (EntityUtils.isElite(enemy) || EntityUtils.isBoss(enemy) || EntityUtils.getMaxHealth(enemy) == enemy.getHealth());
-				damage = (useEliteDamage ? mEliteDamagePercentProj : mDamagePercentProj) * projDamageAdd;
-				meleeActivated = false;
-			} else if (event.getType() == DamageEvent.DamageType.MELEE && mPlayer.getCooledAttackStrength(0) > 0.9) {
-				if (!MetadataUtils.checkOnceInRecentTicks(mPlugin, enemy, "LightningTotemHit", 5)) {
-					return false;
-				}
-
-				final ItemStack inMainHand = mPlayer.getInventory().getItemInMainHand();
-
-				double attackDamageAdd = ItemStatUtils.getAttributeAmount(inMainHand, AttributeType.ATTACK_DAMAGE_ADD, Operation.ADD, Slot.MAINHAND) + 1;
-				attackDamageAdd += HexEater.calculateHexDamage(mPlugin, true, mPlayer, ItemStatUtils.getEnchantmentLevel(inMainHand, EnchantmentType.HEX_EATER), enemy);
-				attackDamageAdd += Smite.calculateSmiteDamage(false, mPlayer, ItemStatUtils.getEnchantmentLevel(inMainHand, EnchantmentType.SMITE), enemy);
-				attackDamageAdd += Slayer.calculateSlayerDamage(false, mPlayer, ItemStatUtils.getEnchantmentLevel(inMainHand, EnchantmentType.SLAYER), enemy);
-				attackDamageAdd += Duelist.calculateDuelistDamage(false, mPlayer, ItemStatUtils.getEnchantmentLevel(inMainHand, EnchantmentType.DUELIST), enemy);
-				attackDamageAdd += Chaotic.calculateChaoticDamage(false, mPlayer, ItemStatUtils.getEnchantmentLevel(inMainHand, EnchantmentType.CHAOTIC), enemy);
-
-				boolean useEliteDamage = isLevelTwo() && (EntityUtils.isElite(enemy) || EntityUtils.isBoss(enemy) || EntityUtils.getMaxHealth(enemy) == enemy.getHealth());
-				damage = (useEliteDamage ? mEliteDamagePercentMelee : mDamagePercentMelee) * attackDamageAdd;
-			}
-
-			if (damage > 0) {
-				damage += mDamageFlat;
-				damage *= mLightningTotemDamageMultiplier;
-				damage += mDecayedTotemBuff;
-				damage *= mSpiritualismMultiplier;
-
-				// Check if either player or mob is in totem radius
-				Location totemLocation = mTotem.getLocation();
-				if (enemy.getLocation().distance(totemLocation) <= getTotemRadius()) {
-					triggerLightningStrike(enemy, totemLocation, damage, meleeActivated);
-				}
-			}
+		if (mTotem == null || !mTotem.isValid()) {
+			return false;
+		}
+		// Check if mob is in totem radius
+		Location totemLocation = mTotem.getLocation();
+		if (enemy.getLocation().distanceSquared(totemLocation) > getTotemRadius() * getTotemRadius()) {
+			return false;
 		}
 
+		// Check if this is a critical strike
+		double damage = 0;
+		boolean meleeActivated = true;
+
+		// Check for arrow critical
+		if (event.getDamager() instanceof Projectile projectile && EntityUtils.isAbilityTriggeringProjectile(projectile, true)) {
+			if (!MetadataUtils.checkOnceInRecentTicks(mPlugin, enemy, "LightningTotemHit", 5)) {
+				return false;
+			}
+
+			ItemStatManager.PlayerItemStats playerItemStats = DamageListener.getProjectileItemStats(projectile);
+			if (playerItemStats == null) {
+				return false;
+			}
+			ItemStatManager.PlayerItemStats.ItemStatsMap itemStatsMap = playerItemStats.getItemStats();
+
+			double projDamageAdd = itemStatsMap.get(AttributeType.PROJECTILE_DAMAGE_ADD.getItemStat());
+			projDamageAdd += Sniper.apply(mPlayer, enemy, itemStatsMap.get(EnchantmentType.SNIPER));
+			projDamageAdd += PointBlank.apply(mPlayer, enemy, itemStatsMap.get(EnchantmentType.POINT_BLANK));
+			projDamageAdd += HexEater.calculateHexDamage(mPlugin, true, mPlayer, (int) itemStatsMap.get(EnchantmentType.HEX_EATER), enemy);
+			projDamageAdd += Smite.calculateSmiteDamage(true, mPlayer, (int) itemStatsMap.get(EnchantmentType.SMITE), enemy);
+			projDamageAdd += Slayer.calculateSlayerDamage(true, mPlayer, (int) itemStatsMap.get(EnchantmentType.SLAYER), enemy);
+			projDamageAdd += Duelist.calculateDuelistDamage(true, mPlayer, (int) itemStatsMap.get(EnchantmentType.DUELIST), enemy);
+			projDamageAdd += Chaotic.calculateChaoticDamage(true, mPlayer, (int) itemStatsMap.get(EnchantmentType.CHAOTIC), enemy);
+
+			boolean useEliteDamage = isLevelTwo() && (EntityUtils.isElite(enemy) || EntityUtils.isBoss(enemy) || EntityUtils.getMaxHealth(enemy) == enemy.getHealth());
+			damage = (useEliteDamage ? mEliteDamagePercentProj : mDamagePercentProj) * projDamageAdd;
+			meleeActivated = false;
+		} else if (event.getType() == DamageEvent.DamageType.MELEE && mPlayer.getCooledAttackStrength(0) > 0.9) {
+			if (!MetadataUtils.checkOnceInRecentTicks(mPlugin, enemy, "LightningTotemHit", 5)) {
+				return false;
+			}
+
+			final ItemStack inMainHand = mPlayer.getInventory().getItemInMainHand();
+
+			double attackDamageAdd = ItemStatUtils.getAttributeAmount(inMainHand, AttributeType.ATTACK_DAMAGE_ADD, Operation.ADD, Slot.MAINHAND) + 1;
+			attackDamageAdd += HexEater.calculateHexDamage(mPlugin, true, mPlayer, ItemStatUtils.getEnchantmentLevel(inMainHand, EnchantmentType.HEX_EATER), enemy);
+			attackDamageAdd += Smite.calculateSmiteDamage(false, mPlayer, ItemStatUtils.getEnchantmentLevel(inMainHand, EnchantmentType.SMITE), enemy);
+			attackDamageAdd += Slayer.calculateSlayerDamage(false, mPlayer, ItemStatUtils.getEnchantmentLevel(inMainHand, EnchantmentType.SLAYER), enemy);
+			attackDamageAdd += Duelist.calculateDuelistDamage(false, mPlayer, ItemStatUtils.getEnchantmentLevel(inMainHand, EnchantmentType.DUELIST), enemy);
+			attackDamageAdd += Chaotic.calculateChaoticDamage(false, mPlayer, ItemStatUtils.getEnchantmentLevel(inMainHand, EnchantmentType.CHAOTIC), enemy);
+
+			boolean useEliteDamage = isLevelTwo() && (EntityUtils.isElite(enemy) || EntityUtils.isBoss(enemy) || EntityUtils.getMaxHealth(enemy) == enemy.getHealth());
+			damage = (useEliteDamage ? mEliteDamagePercentMelee : mDamagePercentMelee) * attackDamageAdd;
+		}
+
+		if (damage > 0) {
+			damage += mDamageFlat;
+			damage *= mLightningTotemDamageMultiplier;
+			damage += mDecayedTotemBuff;
+			damage *= mSpiritualismMultiplier;
+
+			triggerLightningStrike(enemy, totemLocation, damage, meleeActivated);
+		}
 		return false;
 	}
 

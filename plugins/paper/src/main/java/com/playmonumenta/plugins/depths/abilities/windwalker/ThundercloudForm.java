@@ -116,7 +116,7 @@ public class ThundercloudForm extends DepthsAbility implements AbilityWithDurati
 		world.playSound(loc, Sound.ENTITY_ZOMBIE_INFECT, SoundCategory.PLAYERS, 1f, 2f);
 		ParticleUtils.drawParticleCircleExplosion(mPlayer, loc, 0, mLaunchRadius / 2, -loc.getYaw(), -loc.getPitch(),
 			40, 0.5f, false, 0, 0, Particle.EXPLOSION_NORMAL);
-		new PPLightning(Particle.DUST_COLOR_TRANSITION, loc).init(10, 10, 1.0, 0.35).hopsPerBlock(1.33).data(new DustTransition(Color.YELLOW, Color.WHITE, 1f)).count(10).delta(0.005).duration(2).spawnAsPlayerActive(mPlayer);
+		new PPLightning(Particle.DUST_COLOR_TRANSITION, loc, 10, 1.0, 0.35).hopsPerBlock(1.33).data(new DustTransition(Color.YELLOW, Color.WHITE, 1f)).count(10).delta(0.005).duration(2).spawnAsPlayerActive(mPlayer);
 		for (int i = 0; i < 8; i++) {
 			sparkParticle(loc, VectorUtils.randomUnitVector().multiply(FastUtils.randomDoubleInRange(1, 1.5)));
 		}
@@ -249,7 +249,7 @@ public class ThundercloudForm extends DepthsAbility implements AbilityWithDurati
 
 				World world = loc.getWorld();
 				loc.add(0, 0.5, 0);
-				new PPLightning(Particle.DUST_COLOR_TRANSITION, loc).init(20, 10, 1.2, 0.4).hopsPerBlock(1.33).data(new DustTransition(Color.YELLOW, Color.YELLOW, 1.2f)).count(15).delta(0.01).duration(3).spawnAsPlayerActive(mPlayer);
+				new PPLightning(Particle.DUST_COLOR_TRANSITION, loc, 20, 1.2, 0.4).hopsPerBlock(1.33).data(new DustTransition(Color.YELLOW, Color.YELLOW, 1.2f)).count(15).delta(0.01).duration(3).spawnAsPlayerActive(mPlayer);
 				new PartialParticle(Particle.FIREWORKS_SPARK, loc, 120, 0, 0, 0, 0.4).spawnAsPlayerActive(mPlayer);
 				new PartialParticle(Particle.END_ROD, loc, 60, 0, 0, 0, 0.4).spawnAsPlayerActive(mPlayer);
 				new PartialParticle(Particle.FLASH, loc, 1).spawnAsPlayerActive(mPlayer);

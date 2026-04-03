@@ -88,8 +88,7 @@ public class RebirthCS extends CelestialBlessingCS {
 		Location loc = player.getLocation();
 
 		loc.setPitch(0);
-		new PPLightning(Particle.REDSTONE, loc)
-			.maxWidth(2).hopXZ(1.5).hopY(0).height(8)
+		new PPLightning(Particle.REDSTONE, loc, 8, 1.5, 0)
 			.data(new Particle.DustOptions(BRIGHT_AQUA, 1.2f))
 			.duration(4)
 			.count(8)

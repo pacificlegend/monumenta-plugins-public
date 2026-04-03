@@ -68,6 +68,7 @@ public class EliteFinishers {
 			.put(TwinkleTwinkleLittleStar.NAME, new TwinkleTwinkleLittleStar())
 			.put(USAFireworkFinisher.NAME, new USAFireworkFinisher())
 			.put(VictoryThemeFinisher.NAME, new VictoryThemeFinisher())
+			.put(VolcanicDemiseFinisher.NAME, new VolcanicDemiseFinisher())
 			.put(WarmFireworkFinisher.NAME, new WarmFireworkFinisher())
 			.put(Whirlpool.NAME, new Whirlpool())
 			.put(Woolerman.NAME, new Woolerman())

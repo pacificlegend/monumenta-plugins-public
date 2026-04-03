@@ -381,7 +381,7 @@ public class DepthsUtils {
 		return material.isSolid() && material != Material.ICE && material != Material.SPAWNER && material != Material.SCULK_VEIN;
 	}
 
-	private static boolean canConvertToSnow(Block b) {
+	public static boolean canConvertToSnow(Block b) {
 		if (!isSolidGround(b.getRelative(BlockFace.DOWN).getType())) {
 			return false;
 		}

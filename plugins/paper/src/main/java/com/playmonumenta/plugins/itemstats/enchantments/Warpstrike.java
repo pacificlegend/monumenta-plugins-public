@@ -14,6 +14,11 @@ import org.bukkit.util.Vector;
 
 public class Warpstrike implements Enchantment {
 
+	// There is a potential bug vector with Warpstrike. Killing a mob through a bedrock wall could get you to otherwise inaccessible areas.
+	// This is possible via Tesseract of Death + any AoE ability that goes through walls.
+	// Currently (4th April 2026) this presents no issue. Warpstrike is only available within Coalrupted Sierhaven and that place blocks Death Tess.
+	// However, any future users of the enchantment should beware these dangers.
+
 	@Override
 	public EnchantmentType getEnchantmentType() {
 		return EnchantmentType.WARPSTRIKE;

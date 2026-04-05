@@ -249,40 +249,42 @@ public class Mailbox implements Comparable<Mailbox> {
 					return;
 				}
 
-				Map<Integer, ItemStack> result = new TreeMap<>();
+				Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+					Map<Integer, ItemStack> result = new TreeMap<>();
 
-				for (Map.Entry<String, String> entry : rawMailboxItems.entrySet()) {
-					int slot;
-					try {
-						slot = Integer.parseInt(entry.getKey());
-					} catch (Exception ex) {
-						MMLog.warning("[Mailbox] Non-numeric slot ID in " + itemSlotRedisKey + ": " + entry.getKey() + ": ", ex);
-						continue;
+					for (Map.Entry<String, String> entry : rawMailboxItems.entrySet()) {
+						int slot;
+						try {
+							slot = Integer.parseInt(entry.getKey());
+						} catch (Exception ex) {
+							MMLog.warning("[Mailbox] Non-numeric slot ID in " + itemSlotRedisKey + ": " + entry.getKey() + ": ", ex);
+							continue;
+						}
+
+						JsonObject slotJson;
+						try {
+							slotJson = new Gson().fromJson(entry.getValue(), JsonObject.class);
+						} catch (Exception ex) {
+							MMLog.warning("[Mailbox] Error parsing mail json (" + itemSlotRedisKey + ", " + entry.getKey() + "): ", ex);
+							MMLog.warning(entry.getValue());
+							continue;
+						}
+
+						MailboxSlot mailboxSlot;
+						try {
+							mailboxSlot = new MailboxSlot(slotJson);
+						} catch (NullPointerException ex) {
+							MMLog.warning("[Mailbox] NPE processing mail slot json: (" + itemSlotRedisKey + ", " + entry.getKey() + "): ", ex);
+							MMLog.warning(entry.getValue());
+							continue;
+						}
+
+						result.put(slot, mailboxSlot.getGuiItem());
 					}
 
-					JsonObject slotJson;
-					try {
-						slotJson = new Gson().fromJson(entry.getValue(), JsonObject.class);
-					} catch (Exception ex) {
-						MMLog.warning("[Mailbox] Error parsing mail json (" + itemSlotRedisKey + ", " + entry.getKey() + "): ", ex);
-						MMLog.warning(entry.getValue());
-						continue;
-					}
-
-					MailboxSlot mailboxSlot;
-					try {
-						mailboxSlot = new MailboxSlot(slotJson);
-					} catch (NullPointerException ex) {
-						MMLog.warning("[Mailbox] NPE processing mail slot json: (" + itemSlotRedisKey + ", " + entry.getKey() + "): ", ex);
-						MMLog.warning(entry.getValue());
-						continue;
-					}
-
-					result.put(slot, mailboxSlot.getGuiItem());
-				}
-
-				mMailItems = result;
-				future.complete(null);
+					mMailItems = result;
+					future.complete(null);
+				});
 			});
 		}
 

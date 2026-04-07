@@ -12,7 +12,6 @@ import com.playmonumenta.plugins.utils.NamespacedKeyUtils;
 import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import com.playmonumenta.redissync.RedisAPI;
-import io.lettuce.core.RedisFuture;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +19,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -153,16 +151,21 @@ public class CommunityMissionManager {
 
 		final CommunityMissionDefinition def = targetDef;
 		final UUID uuid = player.getUniqueId();
-		final RedisAPI api = RedisAPI.getInstance();
 
 		String keyTotal = getRedisKey(currentEvent, def.mType.name(), "total");
 		String keyRanking = getRedisKey(currentEvent, def.mType.name(), "ranking");
 
-		RedisFuture<Long> futureTotal = api.async().incrby(keyTotal, amount);
-		RedisFuture<Double> futurePersonal = api.async().zincrby(keyRanking, amount, uuid.toString());
-
-		futureTotal.thenAcceptBoth(futurePersonal, (newTotal, newPersonalDouble) -> {
-			long newPersonal = newPersonalDouble.longValue();
+		// incrby and zincrby are done atomically so total and ranking stay in sync
+		RedisAPI.multi(conn -> {
+			conn.incrby(keyTotal, amount);
+			conn.zincrby(keyRanking, amount, uuid.toString());
+		}).whenComplete((result, ex) -> {
+			if (ex != null) {
+				MMLog.warning("Community Missions: Failed to add progress for " + uuid, ex);
+				return;
+			}
+			long newTotal = (Long) result.get(0);
+			long newPersonal = ((Double) result.get(1)).longValue();
 			long oldPersonal = newPersonal - amount;
 			long oldTotal = newTotal - amount;
 
@@ -188,46 +191,55 @@ public class CommunityMissionManager {
 		});
 	}
 
-	// probably an easier way to do this?
 	private void checkGlobalCompletion(CommunityEvent event) {
-		RedisAPI api = RedisAPI.getInstance();
 		String completionKey = KEY_PREFIX + ":" + event.mEventId + ":completed";
 
-		api.async().get(completionKey).thenAccept(val -> {
-			if (val != null) {
+		// batch completionKey + all mission totals in one round-trip
+		CompletableFuture<String> completionFuture;
+		List<CompletableFuture<String>> missionFutures = new ArrayList<>();
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			completionFuture = conn.get(completionKey).toCompletableFuture();
+			for (CommunityMissionDefinition def : event.mMissions) {
+				missionFutures.add(conn.get(getRedisKey(event, def.mType.name(), "total")).toCompletableFuture());
+			}
+		}
+
+		List<CompletableFuture<?>> allFutures = new ArrayList<>(missionFutures);
+		allFutures.add(completionFuture);
+		CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0])).whenComplete((unused, ex) -> {
+			if (ex != null) {
+				MMLog.warning("Community Missions: Failed to check global completion for " + event.mEventId, ex);
 				return;
 			}
-
-			List<RedisFuture<String>> futures = new ArrayList<>();
-			for (CommunityMissionDefinition def : event.mMissions) {
-				futures.add(api.async().get(getRedisKey(event, def.mType.name(), "total")));
+			if (completionFuture.join() != null) {
+				// Abort if already completed (the mission completion key is already set)
+				return;
 			}
-
-			CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(() -> {
-				boolean allComplete = true;
-				for (int i = 0; i < event.mMissions.size(); i++) {
-					try {
-						String totalStr = futures.get(i).get();
-						long total = (totalStr == null) ? 0 : Long.parseLong(totalStr);
-						if (total < event.mMissions.get(i).mGoalTier3) {
-							allComplete = false;
-							break;
-						}
-					} catch (Exception e) {
-						allComplete = false;
+			boolean allComplete = true;
+			for (int i = 0; i < event.mMissions.size(); i++) {
+				String totalStr = missionFutures.get(i).join();
+				long total = (totalStr == null) ? 0 : Long.parseLong(totalStr);
+				if (total < event.mMissions.get(i).mGoalTier3) {
+					allComplete = false;
+					break;
+				}
+			}
+			if (!allComplete) {
+				return;
+			}
+			try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+				conn.setnx(completionKey, "true").toCompletableFuture().whenComplete((success, setnxEx) -> {
+					if (setnxEx != null) {
+						MMLog.warning("Community Missions: Failed to set completion flag for " + event.mEventId, setnxEx);
+						return;
 					}
-				}
-
-				if (allComplete) {
-					api.async().setnx(completionKey, "true").thenAccept(success -> {
-						if (success) {
-							Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> {
-								sendNetworkAlert("finale", event.mEventId);
-							}, 200);
-						}
-					});
-				}
-			});
+					if (success) {
+						Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> {
+							sendNetworkAlert("finale", event.mEventId);
+						}, 200);
+					}
+				});
+			}
 		});
 	}
 
@@ -274,23 +286,28 @@ public class CommunityMissionManager {
 
 	// goal tier announcement to players that reached contrib tier 1
 	private void announceGoal(List<Player> players, CommunityEvent event, CommunityMissionDefinition def, int tier) {
-		RedisAPI api = RedisAPI.getInstance();
 		String keyRanking = getRedisKey(event, def.mType.name(), "ranking");
 		// check each players score
 		for (Player p : players) {
-			api.async().zscore(keyRanking, p.getUniqueId().toString()).thenAccept(scoreDouble -> {
-				long score = (scoreDouble != null) ? scoreDouble.longValue() : 0;
-				if (score >= def.mContribTier1) {
-					Bukkit.getScheduler().runTask(Plugin.getInstance(), () -> {
-						if (p.isOnline()) {
-							Component msg = Component.text("Community Mission Goal Reached!", NamedTextColor.GOLD, TextDecoration.BOLD)
-								.append(Component.newline())
-								.append(Component.text(def.mType.mName + " has hit Goal Tier " + tier + "!", NamedTextColor.YELLOW));
-							p.sendMessage(msg);
-						}
-					});
-				}
-			});
+			try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+				conn.zscore(keyRanking, p.getUniqueId().toString()).toCompletableFuture().whenComplete((scoreDouble, ex) -> {
+					if (ex != null) {
+						MMLog.warning("Community Missions: Failed to get score for " + p.getUniqueId() + " in " + keyRanking, ex);
+						return;
+					}
+					long score = (scoreDouble != null) ? scoreDouble.longValue() : 0;
+					if (score >= def.mContribTier1) {
+						Bukkit.getScheduler().runTask(Plugin.getInstance(), () -> {
+							if (p.isOnline()) {
+								Component msg = Component.text("Community Mission Goal Reached!", NamedTextColor.GOLD, TextDecoration.BOLD)
+									.append(Component.newline())
+									.append(Component.text(def.mType.mName + " has hit Goal Tier " + tier + "!", NamedTextColor.YELLOW));
+								p.sendMessage(msg);
+							}
+						});
+					}
+				});
+			}
 		}
 	}
 
@@ -312,19 +329,30 @@ public class CommunityMissionManager {
 	// rewards
 	public void tryClaimRewards(Player player) {
 		LocalDateTime now = DateUtils.localDateTime();
-		RedisAPI api = RedisAPI.getInstance();
 		String uuidStr = player.getUniqueId().toString();
 		// check each event and if rewards aren't claimed, calc and claim them
 		for (CommunityEvent event : mSchedule) {
 			if (event.isFinished(now)) {
 				String claimKey = uuidStr + ":" + event.mEventId;
 
-				api.async().sismember(KEY_CLAIMED_REWARDS, claimKey).thenAccept(isClaimed -> {
+				CompletableFuture<Boolean> isClaimedFuture;
+				try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+					isClaimedFuture = conn.sismember(KEY_CLAIMED_REWARDS, claimKey).toCompletableFuture();
+				}
+				isClaimedFuture.whenComplete((isClaimed, ex) -> {
+					if (ex != null) {
+						MMLog.warning("Community Missions: Failed to check claimed status for " + claimKey, ex);
+						return;
+					}
 					if (isClaimed) {
 						return;
 					}
 
-					getMissionDataInternal(event, player.getUniqueId()).thenAccept(missionDataList -> {
+					getMissionDataInternal(event, player.getUniqueId()).whenComplete((missionDataList, dataEx) -> {
+						if (dataEx != null) {
+							MMLog.warning("Community Missions: Failed to get mission data for " + player.getUniqueId(), dataEx);
+							return;
+						}
 						if (missionDataList.isEmpty()) {
 							return;
 						}
@@ -383,9 +411,12 @@ public class CommunityMissionManager {
 									ScoreboardUtils.addScore(player, HERO_SCOREBOARD, totalHeroPoints);
 									player.sendMessage(Component.text("You earned " + totalHeroPoints + " Community Hero Levels!", NamedTextColor.LIGHT_PURPLE));
 								}
-								api.async().sadd(KEY_CLAIMED_REWARDS, claimKey);
-							} else {
-								api.async().sadd(KEY_CLAIMED_REWARDS, claimKey);
+							}
+							try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+								conn.sadd(KEY_CLAIMED_REWARDS, claimKey).exceptionally(saddEx -> {
+									MMLog.warning("Community Missions: Failed to mark rewards as claimed for " + claimKey, saddEx);
+									return null;
+								});
 							}
 						});
 					});
@@ -425,41 +456,46 @@ public class CommunityMissionManager {
 	}
 
 	private CompletableFuture<List<CommunityMissionData>> getMissionDataInternal(CommunityEvent event, UUID playerUuid) {
-		RedisAPI api = RedisAPI.getInstance();
-		List<CompletableFuture<CommunityMissionData>> futures = new ArrayList<>();
+		List<CommunityMissionDefinition> missions = event.mMissions;
+		String uuidStr = playerUuid.toString();
 
-		for (CommunityMissionDefinition def : event.mMissions) {
-			String keyTotal = getRedisKey(event, def.mType.name(), "total");
-			String keyRanking = getRedisKey(event, def.mType.name(), "ranking");
+		// all reads for every mission in one atomic round-trip: 4 commands per mission
+		// order: get(total), zscore, zrevrank, zcard
+		return RedisAPI.multi(conn -> {
+			for (CommunityMissionDefinition def : missions) {
+				String keyTotal = getRedisKey(event, def.mType.name(), "total");
+				String keyRanking = getRedisKey(event, def.mType.name(), "ranking");
+				conn.get(keyTotal);
+				conn.zscore(keyRanking, uuidStr);
+				conn.zrevrank(keyRanking, uuidStr);
+				conn.zcard(keyRanking);
+			}
+		}).handle((result, ex) -> {
+			if (ex != null) {
+				MMLog.warning("Community Missions: Failed to get mission data for " + playerUuid, ex);
+				return new ArrayList<>();
+			}
+			List<CommunityMissionData> out = new ArrayList<>();
+			for (int i = 0; i < missions.size(); i++) {
+				CommunityMissionDefinition def = missions.get(i);
+				int base = i * 4;
+				try {
+					String totalStr = (String) result.get(base);
+					Double score = (Double) result.get(base + 1);
+					Long rankIdx = (Long) result.get(base + 2);
+					Long count = (Long) result.get(base + 3);
 
-			RedisFuture<String> fTotal = api.async().get(keyTotal);
-			RedisFuture<Double> fScore = api.async().zscore(keyRanking, playerUuid.toString());
-			RedisFuture<Long> fRank = api.async().zrevrank(keyRanking, playerUuid.toString());
-			RedisFuture<Long> fCount = api.async().zcard(keyRanking);
+					long total = totalStr == null ? 0 : Long.parseLong(totalStr);
+					long personal = score == null ? 0 : score.longValue();
 
-			CompletableFuture<CommunityMissionData> missionFuture = CompletableFuture.allOf(fTotal.toCompletableFuture(), fScore.toCompletableFuture(), fRank.toCompletableFuture(), fCount.toCompletableFuture())
-				.thenApply(v -> {
-					try {
-						String totalStr = fTotal.get();
-						Double score = fScore.get();
-						Long rankIdx = fRank.get();
-						Long count = fCount.get();
-
-						long total = totalStr == null ? 0 : Long.parseLong(totalStr);
-						long personal = score == null ? 0 : score.longValue();
-
-						return new CommunityMissionData(def, total, personal, rankIdx, count);
-					} catch (Exception e) {
-						MMLog.warning("Community Missions Error: Couldn't get mission data", e);
-						return new CommunityMissionData(def, 0, 0, null, 0L);
-					}
-				});
-
-			futures.add(missionFuture);
-		}
-
-		return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-			.thenApply(v -> futures.stream().map(CompletableFuture::join).collect(Collectors.toList()));
+					out.add(new CommunityMissionData(def, total, personal, rankIdx, count));
+				} catch (Exception e) {
+					MMLog.warning("Community Missions Error: Couldn't get mission data", e);
+					out.add(new CommunityMissionData(def, 0, 0, null, 0L));
+				}
+			}
+			return out;
+		});
 	}
 
 	// debuggers / for mods
@@ -470,7 +506,12 @@ public class CommunityMissionManager {
 		}
 
 		CommunityMissionDefinition def = current.mMissions.get(missionIndex);
-		RedisAPI.getInstance().async().set(getRedisKey(current, def.mType.name(), "total"), String.valueOf(amount));
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			conn.set(getRedisKey(current, def.mType.name(), "total"), String.valueOf(amount)).exceptionally(ex -> {
+				MMLog.warning("Community Missions: Failed to set total contribution for mission " + missionIndex, ex);
+				return null;
+			});
+		}
 		return true;
 	}
 
@@ -483,16 +524,30 @@ public class CommunityMissionManager {
 		CommunityMissionDefinition def = current.mMissions.get(missionIndex);
 		String keyRanking = getRedisKey(current, def.mType.name(), "ranking");
 		String keyTotal = getRedisKey(current, def.mType.name(), "total");
-		RedisAPI api = RedisAPI.getInstance();
 
-		api.async().zscore(keyRanking, uuid.toString()).thenAccept(oldScoreDouble -> {
-			long oldScore = (oldScoreDouble != null) ? oldScoreDouble.longValue() : 0;
-			long diff = newAmount - oldScore;
-			if (diff != 0) {
-				api.async().zadd(keyRanking, (double) newAmount, uuid.toString());
-				api.async().incrby(keyTotal, diff);
-			}
-		});
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			conn.zscore(keyRanking, uuid.toString()).toCompletableFuture().whenComplete((oldScoreDouble, ex) -> {
+				if (ex != null) {
+					MMLog.warning("Community Missions: Failed to get current score for " + uuid, ex);
+					return;
+				}
+				long oldScore = (oldScoreDouble != null) ? oldScoreDouble.longValue() : 0;
+				long diff = newAmount - oldScore;
+				if (diff != 0) {
+					try (RedisAPI.BorrowedCommands<String, String> conn2 = RedisAPI.borrow()) {
+						conn2.zadd(keyRanking, (double) newAmount, uuid.toString()).exceptionally(zaddEx -> {
+							MMLog.warning("Community Missions: Failed to set player contribution score for " + uuid, zaddEx);
+							return null;
+						});
+						conn2.incrby(keyTotal, diff).exceptionally(incrEx -> {
+							MMLog.warning("Community Missions: Failed to update total contribution for mission " + missionIndex, incrEx);
+							return null;
+						});
+					}
+				}
+			});
+		}
+
 		return true;
 	}
 

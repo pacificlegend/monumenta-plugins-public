@@ -151,7 +151,8 @@ public class EntityUtils {
 		EntityType.TROPICAL_FISH,
 		EntityType.PUFFERFISH,
 		EntityType.FROG,
-		EntityType.TADPOLE
+		EntityType.TADPOLE,
+		EntityType.SNIFFER
 	);
 
 	// This list is hardcoded for Crusade description & Duelist advancement

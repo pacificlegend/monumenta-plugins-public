@@ -13,7 +13,7 @@ import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.St
 
 public class CoalLauncher extends Ability {
 	private static final String SCOREBOARD = "CoalLauncher";
-	private static final int POINT_COST = 3;
+	private static final int POINT_COST = 2;
 
 	public static final AbilityInfo<CreeperMistletoe> INFO =
 		new SnowPerkGui.SnowPerkInfo<>(CreeperMistletoe.class, "Coal Launcher", CreeperMistletoe::new)

@@ -6,19 +6,23 @@ import com.playmonumenta.plugins.abilities.AbilityInfo;
 import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.guis.SnowPerkGui;
+import com.playmonumenta.plugins.managers.GlowingManager;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.InventoryUtils;
+import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.NamespacedKeyUtils;
 import com.playmonumenta.plugins.utils.ScoreboardUtils;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -56,11 +60,14 @@ public class CarbonCapture extends Ability {
 			Location loc = LocationUtils.getEntityCenter(killedEntity);
 			ItemStack coal = InventoryUtils.getItemFromLootTableOrThrow(loc, LOOT_TABLE);
 			coal.setAmount(BONUS_COAL);
-			loc.getWorld().dropItem(loc, coal);
+			ItemStatUtils.addAssignedWorld(coal, mPlayer.getWorld().getName());
+			Item droppedCoal = loc.getWorld().dropItem(loc, coal);
+			droppedCoal.setInvulnerable(true);
+			GlowingManager.startGlowing(droppedCoal, NamedTextColor.BLACK, 99999, 0);
 
 			new PartialParticle(Particle.BLOCK_CRACK, loc).count(40).delta(0.3).extra(3).data(Material.COAL_BLOCK.createBlockData()).spawnAsPlayerActive(mPlayer);
 			new PartialParticle(Particle.SMOKE_NORMAL, loc).count(20).delta(0.1).extra(0.1).spawnAsPlayerActive(mPlayer);
-			loc.getWorld().playSound(loc, Sound.ENTITY_WITHER_SKELETON_DEATH, SoundCategory.PLAYERS, 0.75f, 0.75f);
+			loc.getWorld().playSound(loc, Sound.ENTITY_WITHER_SKELETON_DEATH, SoundCategory.PLAYERS, 0.75f, 1f);
 
 			mKillCount++;
 			if (mKillCount >= MISSION_REQ && !ScoreboardUtils.checkTag(mPlayer, MISSION_COMPLETE_TAG)) {
@@ -68,11 +75,12 @@ public class CarbonCapture extends Ability {
 
 				ItemStack reward = InventoryUtils.getItemFromLootTableOrThrow(loc, LOOT_TABLE);
 				reward.setAmount(MISSION_REWARD);
+				ItemStatUtils.addAssignedWorld(reward, mPlayer.getWorld().getName());
 				InventoryUtils.giveItem(mPlayer, reward);
 
 				new PartialParticle(Particle.TOTEM, loc).count(50).delta(1).extra(0.25).spawnAsPlayerActive(mPlayer);
 				loc.getWorld().playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.PLAYERS, 0.75f, 1.7f);
-				mPlayer.sendMessage(MessagingUtils.fromMiniMessage("<dark_gray>[Fossilizer] <gray>%d Elites killed! Coal granted.".formatted(MISSION_REQ)));
+				mPlayer.sendMessage(MessagingUtils.fromMiniMessage("<dark_gray>[Carbon Capture] <gray>%d Elites killed! Coal granted.".formatted(MISSION_REQ)));
 			}
 		}
 	}

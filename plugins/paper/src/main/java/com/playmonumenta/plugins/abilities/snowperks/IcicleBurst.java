@@ -17,6 +17,7 @@ import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.LocationUtils;
+import com.playmonumenta.plugins.utils.MetadataUtils;
 import com.playmonumenta.plugins.utils.ParticleUtils;
 import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import com.playmonumenta.plugins.utils.VectorUtils;
@@ -30,7 +31,6 @@ import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.util.Vector;
 
@@ -39,8 +39,9 @@ import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.St
 public class IcicleBurst extends Ability {
 	private static final String SCOREBOARD = "IcicleBurst";
 	private static final int POINT_COST = 5;
-	private static final double DIRECT_ATTACK_CHANCE = 0.45;
-	private static final double INDIRECT_CHANCE = 0.25;
+	private static final double DIRECT_ATTACK_CHANCE = 0.50;
+	private static final double INDIRECT_CHANCE = 0.30;
+	private static final double ELITE_CHANCE = 1;
 	private static final double DAMAGE = 10;
 	private static final double RADIUS = 3;
 	private static final int FREEZE_DURATION = 50;
@@ -48,6 +49,7 @@ public class IcicleBurst extends Ability {
 	private static final int VULN_DURATION = 5 * 20;
 	public static final Color TIP_COLOR = Color.fromRGB(184, 216, 242);
 	public static final Color BASE_COLOR = Color.fromRGB(95, 159, 212);
+	private static final String DIRECT_ATTACK_METADATA = "IcicleBurstDirect";
 
 	public static final AbilityInfo<IcicleBurst> INFO =
 		new SnowPerkGui.SnowPerkInfo<>(IcicleBurst.class, "Icicle Burst", IcicleBurst::new)
@@ -65,9 +67,10 @@ public class IcicleBurst extends Ability {
 	public void entityDeathEvent(EntityDeathEvent event, boolean shouldGenDrops) {
 		LivingEntity entity = event.getEntity();
 		if (EntityUtils.isHostileMob(entity) && !ScoreboardUtils.checkTag(entity, AbilityUtils.IGNORE_TAG)) {
-			EntityDamageEvent damageEvent = entity.getLastDamageCause();
 			double chance;
-			if (damageEvent != null && damageEvent.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+			if (EntityUtils.isElite(entity)) {
+				chance = ELITE_CHANCE;
+			} else if (MetadataUtils.happenedThisTick(entity, DIRECT_ATTACK_METADATA)) {
 				chance = DIRECT_ATTACK_CHANCE;
 			} else {
 				chance = INDIRECT_CHANCE;
@@ -99,6 +102,15 @@ public class IcicleBurst extends Ability {
 		}
 	}
 
+	@Override
+	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
+		if (event.getType() == DamageEvent.DamageType.MELEE || event.getType() == DamageEvent.DamageType.PROJECTILE) {
+			// call function to tag this tick as a direct attack if the mob dies
+			MetadataUtils.checkOnceThisTick(mPlugin, enemy, DIRECT_ATTACK_METADATA);
+		}
+		return true;
+	}
+
 	public static Description<IcicleBurst> getDescription() {
 		return new FormattedDescriptionBuilder<>(() -> INFO).arrowColor(SnowPerkGui.SNOW_ARROW_COLOR)
 			.addDashedLine()
@@ -110,10 +122,12 @@ public class IcicleBurst extends Ability {
 			.addLine("%p *Vulnerability* for %t.").styles(DescriptionUtils.WHITE).statValues(stat(VULN_AMOUNT), stat(VULN_DURATION))
 			.addLine()
 			.addLine("Explosions are more likely to happen with")
-			.addLine("direct attack kills.")
+			.addLine("direct attacks and projectiles, and are")
+			.addLine("guaranteed on Elite kills.")
 			.addLine()
-			.addStat("Explosion Chance: %p *if killed by* (m)").styles(DescriptionUtils.GREY).statValues(stat(DIRECT_ATTACK_CHANCE))
-			.addStat("Explosion Chance: %p *if killed by non-*(m)").styles(DescriptionUtils.GREY).statValues(stat(INDIRECT_CHANCE))
+			.addStat("Explosion Chance: %p *if killed by* (m/p),").styles(DescriptionUtils.GREY).statValues(stat(DIRECT_ATTACK_CHANCE))
+			.tab().addLine("%p otherwise").statValues(stat(INDIRECT_CHANCE))
+			.addStat("Explosion Chance: %p *on Elites*").styles(DescriptionUtils.GREY).statValues(stat(ELITE_CHANCE))
 			.addLine()
 			.addStat("Cost: %d Snow Points").statValues(stat(POINT_COST))
 			.addDashedLine();

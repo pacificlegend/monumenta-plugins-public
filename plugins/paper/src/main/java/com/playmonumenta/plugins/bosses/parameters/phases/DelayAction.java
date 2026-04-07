@@ -21,7 +21,9 @@ public class DelayAction implements Action {
 		Bukkit.getScheduler().runTaskLater(
 			Plugin.getInstance(),
 			() -> {
-				mAction.runAction(boss);
+				if (!boss.isDead()) {
+					mAction.runAction(boss);
+				}
 			},
 			mDelay);
 	}

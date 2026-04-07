@@ -11,7 +11,6 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.plugins.utils.AdvancementUtils;
 import com.playmonumenta.plugins.utils.MMLog;
-import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.MetadataUtils;
 import com.playmonumenta.plugins.utils.NmsUtils;
 import com.playmonumenta.redissync.BukkitConfigAPI;
@@ -21,7 +20,6 @@ import com.playmonumenta.redissync.event.PlayerSaveEvent;
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadableNBT;
 import dev.jorel.commandapi.wrappers.FunctionWrapper;
-import io.lettuce.core.KeyValue;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -156,16 +156,30 @@ public class DiscoveryManager implements Listener {
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
 	public void entityRemoveEvent(EntityRemoveEvent event) {
 		if (event.getEntity() instanceof Marker marker && marker.isDead() && marker.getScoreboardTags().contains(DISCOVERY_IDENTIFIER_TAG)) {
-			Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
-				String uuid = marker.getUniqueId().toString();
-				String discoveryString = RedisAPI.getInstance().async().hget(getRedisStorageKey(), uuid).toCompletableFuture().join();
-				JsonObject discovery = new Gson().fromJson(discoveryString, JsonObject.class);
+			String uuid = marker.getUniqueId().toString();
+			try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+				conn.hget(getRedisStorageKey(), uuid).toCompletableFuture().whenComplete((discoveryString, ex) -> {
+					if (ex != null) {
+						MMLog.severe("[Discoveries] Failed to get discovery data for deletion", ex);
+						return;
+					}
+					if (discoveryString == null || discoveryString.isEmpty()) {
+						return;
+					}
+					Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+						JsonObject discovery = new Gson().fromJson(discoveryString, JsonObject.class);
+						discovery.addProperty("deleted", Instant.now().getEpochSecond());
+						String data = discovery.toString();
 
-				discovery.addProperty("deleted", Instant.now().getEpochSecond());
-
-				String data = discovery.toString();
-				RedisAPI.getInstance().async().hset(getRedisStorageKey(), uuid, data).toCompletableFuture().join();
-			});
+						try (RedisAPI.BorrowedCommands<String, String> conn2 = RedisAPI.borrow()) {
+							conn2.hset(getRedisStorageKey(), uuid, data).exceptionally(hsetEx -> {
+								MMLog.severe("[Discoveries] Failed to store discovery deletion", hsetEx);
+								return null;
+							});
+						}
+					});
+				});
+			}
 		}
 	}
 
@@ -236,15 +250,17 @@ public class DiscoveryManager implements Listener {
 			ItemDiscovery discovery = new ItemDiscovery(marker, id, tier, lootKey, functionKey);
 
 			// add to the json list if it is somehow missing or update it if present
-			Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+			try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
 				String uuid = marker.getUniqueId().toString();
-				RedisAPI.getInstance().async().hset(getRedisStorageKey(), uuid, discovery.toJson().toString()).toCompletableFuture().join();
-			});
+				conn.hset(getRedisStorageKey(), uuid, discovery.toJson().toString()).exceptionally(ex -> {
+					MMLog.severe("[Discoveries] Failed to store discovery", ex);
+					return null;
+				});
+			}
 
 			mActiveDiscoveries.add(discovery);
 		} catch (Exception e) {
-			MMLog.warning(String.format("[Discoveries] Failed to read Discovery at Location: [%s, %s, %s] in World: %s", marker.getLocation().getX(), marker.getLocation().getY(), marker.getLocation().getZ(), marker.getWorld().getName()));
-			MessagingUtils.sendStackTrace(Bukkit.getConsoleSender(), e);
+			MMLog.severe(String.format("[Discoveries] Failed to read Discovery at Location: [%s, %s, %s] in World: %s", marker.getLocation().getX(), marker.getLocation().getY(), marker.getLocation().getZ(), marker.getWorld().getName()), e);
 		}
 	}
 
@@ -304,40 +320,50 @@ public class DiscoveryManager implements Listener {
 		return mPlayerDiscoveryData.computeIfAbsent(player.getUniqueId(), uuid -> new ArrayList<>());
 	}
 
-	// returns the lowest unused id
-	private static int getNewId() {
-		return Math.toIntExact(RedisAPI.getInstance().async().incr(getRedisIdKey()).toCompletableFuture().join());
-	}
-
 	// returns the newly created discovery
-	public static @Nullable ItemDiscovery createDiscovery(Location location, NamespacedKey lootPath, ItemDiscovery.ItemDiscoveryTier tier, @Nullable NamespacedKey optionalFunction) {
-		try {
-			Marker marker = location.getWorld().spawn(location, Marker.class);
-			marker.addScoreboardTag(DISCOVERY_IDENTIFIER_TAG);
-			marker.addScoreboardTag("RespawnPersistent"); // prevent the marker from being removed by respawning structures
+	public static CompletableFuture<ItemDiscovery> createDiscovery(Location location, NamespacedKey lootPath, ItemDiscovery.ItemDiscoveryTier tier, @Nullable NamespacedKey optionalFunction) {
+		CompletableFuture<ItemDiscovery> result = new CompletableFuture<>();
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			conn.incr(getRedisIdKey()).toCompletableFuture().whenComplete((idLong, ex) -> {
+				if (ex != null) {
+					MMLog.severe("[Discoveries] Failed to get new id for discovery creation", ex);
+					result.completeExceptionally(ex);
+					return;
+				}
+				Bukkit.getScheduler().runTask(Plugin.getInstance(), () -> {
+					try {
+						Marker marker = location.getWorld().spawn(location, Marker.class);
+						marker.addScoreboardTag(DISCOVERY_IDENTIFIER_TAG);
+						marker.addScoreboardTag("RespawnPersistent"); // prevent the marker from being removed by respawning structures
 
-			ItemDiscovery discovery = new ItemDiscovery(marker, getNewId(), tier, lootPath, optionalFunction);
-			mActiveDiscoveries.add(discovery);
-			discovery.writeDataOnMarker();
+						ItemDiscovery discovery = new ItemDiscovery(marker, Math.toIntExact(idLong), tier, lootPath, optionalFunction);
+						mActiveDiscoveries.add(discovery);
+						discovery.writeDataOnMarker();
 
-			Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
-				String uuid = marker.getUniqueId().toString();
-				RedisAPI.getInstance().async().hset(getRedisStorageKey(), uuid, discovery.toJson().toString()).toCompletableFuture().join();
+						try (RedisAPI.BorrowedCommands<String, String> conn2 = RedisAPI.borrow()) {
+							String uuid = marker.getUniqueId().toString();
+							conn2.hset(getRedisStorageKey(), uuid, discovery.toJson().toString()).exceptionally(hsetEx -> {
+								MMLog.severe("[Discoveries] Failed to store new discovery", hsetEx);
+								return null;
+							});
+						}
+
+						result.complete(discovery);
+					} catch (Exception e) {
+						MMLog.severe(String.format("[Discoveries] Failed to create discovery with data [Location: %s, %s, %s, Loot table: %s, Tier: %s, Optional function: %s]",
+							location.getX(),
+							location.getY(),
+							location.getZ(),
+							lootPath.getNamespace() + ":" + lootPath.getKey(),
+							tier.name(),
+							optionalFunction == null ? "-" : (optionalFunction.getNamespace() + ":" + optionalFunction.getKey())), e);
+						result.completeExceptionally(e);
+					}
+				});
 			});
-
-			return discovery;
-		} catch (Exception e) {
-			MMLog.warning(String.format("[Discoveries] Failed to create discovery with data [Location: %s, %s, %s, Loot table: %s, Tier: %s, Optional function: %s]",
-				location.getX(),
-				location.getY(),
-				location.getZ(),
-				lootPath.getNamespace() + ":" + lootPath.getKey(),
-				tier.name(),
-				optionalFunction == null ? "-" : (optionalFunction.getNamespace() + ":" + optionalFunction.getKey())));
-			MessagingUtils.sendStackTrace(Bukkit.getConsoleSender(), e);
-
-			return null;
 		}
+
+		return result;
 	}
 
 	// returns whether the provided discovery was deleted
@@ -367,16 +393,13 @@ public class DiscoveryManager implements Listener {
 		return total;
 	}
 
-	// should be executed async
-	public static boolean removeDeleted(String uuid) {
-		List<String> allUuids = RedisAPI.getInstance().async().hkeys(getRedisStorageKey()).toCompletableFuture().join();
-
-		if (!allUuids.contains(uuid)) {
-			return false;
+	// Future completes with true if the entry was actually deleted from the hashmap, false if nothing was deleted
+	public static CompletableFuture<Boolean> removeDeleted(String uuid) {
+		CompletableFuture<Boolean> returnFuture;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			returnFuture = conn.hdel(getRedisStorageKey(), uuid).toCompletableFuture().thenApply(n -> n == 1);
 		}
-
-		RedisAPI.getInstance().async().hdel(getRedisStorageKey(), uuid).toCompletableFuture().join();
-		return true;
+		return returnFuture;
 	}
 
 	// returns whether the provided player's data was updated
@@ -444,17 +467,9 @@ public class DiscoveryManager implements Listener {
 		return discoveries;
 	}
 
-	// should be executed async
-	public static boolean setNextId(int nextId) {
-		try {
-			RedisAPI.getInstance().async().set(getRedisIdKey(), String.valueOf(nextId - 1)).toCompletableFuture().join();
-
-			return true;
-		} catch (Exception e) {
-			MMLog.warning("[Discoveries] Failed to update next id to " + nextId);
-			MessagingUtils.sendStackTrace(Bukkit.getConsoleSender(), e);
-
-			return false;
+	public static CompletableFuture<Void> setNextId(int nextId) {
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			return conn.set(getRedisIdKey(), String.valueOf(nextId - 1)).toCompletableFuture().thenAccept(res -> { });
 		}
 	}
 
@@ -462,14 +477,12 @@ public class DiscoveryManager implements Listener {
 	// will not wait for data to be stored
 	private static void updateJsonList(ItemDiscovery discovery) {
 		String uuid = discovery.mMarkerUUID.toString();
-		RedisAPI.getInstance().async().hset(getRedisStorageKey(), uuid, discovery.toJson().toString())
-			.whenComplete((unusedResult, ex) -> {
-				if (ex != null) {
-					Plugin.getInstance().getLogger().severe("Failed to store discovery updateJsonList: " + ex.getMessage());
-					ex.printStackTrace();
-				}
-			}
-		);
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			conn.hset(getRedisStorageKey(), uuid, discovery.toJson().toString()).exceptionally(ex -> {
+				MMLog.severe("[Discoveries] Failed to store discovery updateJsonList", ex);
+				return null;
+			});
+		}
 	}
 
 	// returns whether the provided discovery was updated
@@ -573,30 +586,14 @@ public class DiscoveryManager implements Listener {
 		return new ArrayList<>(mActiveDiscoveries);
 	}
 
-	// should be executed async
-	public static @Nullable List<JsonObject> getAllDiscoveries() {
-		try {
-			List<String> uuidKeys = RedisAPI.getInstance().async().hkeys(getRedisStorageKey()).toCompletableFuture().join();
-
-			// getting redis data if empty throws an error
-			if (uuidKeys.isEmpty()) {
-				return new ArrayList<>();
-			}
-
-			List<KeyValue<String, String>> pairedData = RedisAPI.getInstance().async().hmget(getRedisStorageKey(), uuidKeys.toArray(new String[0])).toCompletableFuture().join();
-
-			Gson gson = new Gson();
-			List<JsonObject> discoveryData = new ArrayList<>();
-			for (KeyValue<String, String> pair : pairedData) {
-				discoveryData.add(gson.fromJson(pair.getValue(), JsonObject.class));
-			}
-
-			return discoveryData;
-		} catch (Exception e) {
-			MMLog.warning("[Discoveries] Failed to get all discoveries");
-			MessagingUtils.sendStackTrace(Bukkit.getConsoleSender(), e);
-
-			return null;
+	public static CompletableFuture<List<JsonObject>> getAllDiscoveries() {
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			return conn.hgetall(getRedisStorageKey()).toCompletableFuture().thenApply(map -> {
+				Gson gson = new Gson();
+				return map.values().stream()
+					.map(jsonStr -> gson.fromJson(jsonStr, JsonObject.class))
+					.collect(Collectors.toList());
+			});
 		}
 	}
 }

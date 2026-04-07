@@ -6,6 +6,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.discoveries.DiscoveryManager;
 import com.playmonumenta.plugins.discoveries.ItemDiscovery;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
+import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.ParticleUtils;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.BooleanArgument;
@@ -33,7 +34,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -66,12 +66,15 @@ public class DiscoveryCommand {
 						key = functionArr[0].getKey();
 					}
 				}
-				@Nullable ItemDiscovery discovery = DiscoveryManager.createDiscovery(location, ((LootTable) args.get("loot path")).getKey(), ItemDiscovery.ItemDiscoveryTier.valueOf(args.getUnchecked("tier")), key);
-				if (discovery == null) {
-					player.sendMessage(Component.text("Failed to create discovery", MESSAGE_COLOR));
-				} else {
-					player.sendMessage(Component.text("Created discovery with id " + discovery.mId, MESSAGE_COLOR));
-				}
+				DiscoveryManager.createDiscovery(location, ((LootTable) args.get("loot path")).getKey(), ItemDiscovery.ItemDiscoveryTier.valueOf(args.getUnchecked("tier")), key)
+					.whenComplete((discovery, ex) -> {
+						if (ex != null) {
+							player.sendMessage(Component.text("Failed to create discovery: " + ex.getMessage(), MESSAGE_COLOR));
+							MessagingUtils.sendStackTrace(player, ex);
+						} else {
+							player.sendMessage(Component.text("Created discovery with id " + discovery.mId, MESSAGE_COLOR));
+						}
+					});
 			}),
 			new CommandAPICommand("getnearestid")
 				.executesPlayer((player, args) -> {
@@ -346,11 +349,14 @@ public class DiscoveryCommand {
 					new StringArgument("deleted uuid")
 				)
 				.executesPlayer((player, args) -> {
-				Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
-					if (DiscoveryManager.removeDeleted(args.getUnchecked("deleted uuid"))) {
+				DiscoveryManager.removeDeleted(args.getUnchecked("deleted uuid")).whenComplete((removed, ex) -> {
+					if (ex != null) {
+						player.sendMessage(Component.text("Failed to remove: " + ex.getMessage(), MESSAGE_COLOR));
+						MessagingUtils.sendStackTrace(player, ex);
+					} else if (removed) {
 						player.sendMessage(Component.text("Successfully removed", MESSAGE_COLOR));
 					} else {
-						player.sendMessage(Component.text("Failed to remove", MESSAGE_COLOR));
+						player.sendMessage(Component.text("Failed to remove: not found", MESSAGE_COLOR));
 					}
 				});
 			}),
@@ -359,12 +365,13 @@ public class DiscoveryCommand {
 					new IntegerArgument("value")
 				)
 				.executesPlayer((player, args) -> {
-				Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
-					int nextId = args.getUnchecked("value");
-					if (DiscoveryManager.setNextId(nextId)) {
-						player.sendMessage(Component.text("Updated next id to " + nextId, MESSAGE_COLOR));
+				int nextId = args.getUnchecked("value");
+				DiscoveryManager.setNextId(nextId).whenComplete((unused, ex) -> {
+					if (ex != null) {
+						player.sendMessage(Component.text("Failed to update: " + ex.getMessage(), MESSAGE_COLOR));
+						MessagingUtils.sendStackTrace(player, ex);
 					} else {
-						player.sendMessage(Component.text("Failed to update", MESSAGE_COLOR));
+						player.sendMessage(Component.text("Updated next id to " + nextId, MESSAGE_COLOR));
 					}
 				});
 			})
@@ -520,32 +527,36 @@ public class DiscoveryCommand {
 	}
 
 	private static void showAllDiscoveryInfo(Player player, int providedPage, boolean showExisting, boolean showDeleted) {
-		Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
-			@Nullable List<JsonObject> allDiscoveries = DiscoveryManager.getAllDiscoveries();
-
-			if (allDiscoveries == null) {
-				player.sendMessage(Component.text("Could not get all discoveries", MESSAGE_COLOR));
+		DiscoveryManager.getAllDiscoveries().whenComplete((allDiscoveries, ex) -> {
+			if (ex != null) {
+				player.sendMessage(Component.text("Could not get all discoveries: " + ex.getMessage(), MESSAGE_COLOR));
+				MessagingUtils.sendStackTrace(player, ex);
 				return;
 			}
 
-			allDiscoveries.sort(Comparator.comparingInt(o -> o.get("id").getAsInt()));
-			Collections.reverse(allDiscoveries);
+			try {
+				allDiscoveries.sort(Comparator.comparingInt(o -> o.get("id").getAsInt()));
+				Collections.reverse(allDiscoveries);
 
-			// remove entries that are not to be shown
-			allDiscoveries.removeIf(object -> (!showExisting && !object.has("deleted")) || (!showDeleted && object.has("deleted")));
+				// remove entries that are not to be shown
+				allDiscoveries.removeIf(object -> (!showExisting && !object.has("deleted")) || (!showDeleted && object.has("deleted")));
 
-			int maxPage = (int) Math.ceil((double) allDiscoveries.size() / 10);
-			int page = Math.min(providedPage, maxPage);
+				int maxPage = (int) Math.ceil((double) allDiscoveries.size() / 10);
+				int page = Math.min(providedPage, maxPage);
 
-			List<JsonObject> toShow = allDiscoveries.subList(Math.max(0, (page - 1) * 10), Math.min(page * 10, allDiscoveries.size()));
+				List<JsonObject> toShow = allDiscoveries.subList(Math.max(0, (page - 1) * 10), Math.min(page * 10, allDiscoveries.size()));
 
-			if (toShow.isEmpty()) {
-				player.sendMessage(Component.text("There is nothing to show", MESSAGE_COLOR));
-				return;
+				if (toShow.isEmpty()) {
+					player.sendMessage(Component.text("There is nothing to show", MESSAGE_COLOR));
+					return;
+				}
+
+				player.sendMessage(Component.text(String.format("Showing page %s/%s", page, maxPage), MESSAGE_COLOR).decorate(TextDecoration.UNDERLINED));
+				toShow.forEach(object -> player.sendMessage(formatDiscoveryListElement(object)));
+			} catch (Exception e) {
+				player.sendMessage(Component.text("Error processing discoveries: " + e.getMessage(), MESSAGE_COLOR));
+				MessagingUtils.sendStackTrace(player, e);
 			}
-
-			player.sendMessage(Component.text(String.format("Showing page %s/%s", page, maxPage), MESSAGE_COLOR).decorate(TextDecoration.UNDERLINED));
-			toShow.forEach(object -> player.sendMessage(formatDiscoveryListElement(object)));
 		});
 	}
 

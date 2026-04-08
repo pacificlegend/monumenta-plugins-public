@@ -239,11 +239,11 @@ public class AbilityUtils {
 		if (player == null) {
 			return false;
 		}
-		return Plugin.getInstance().mEffectManager.hasEffect(player, ABILITY_SILENCE_EFFECT_NAME);
+		return Plugin.getInstance().mEffectManager.hasEffect(player, AbilitySilence.class);
 	}
 
 	public static int getSilenceDuration(Player player) {
-		Effect effect = Plugin.getInstance().mEffectManager.getActiveEffect(player, ABILITY_SILENCE_EFFECT_NAME);
+		Effect effect = Plugin.getInstance().mEffectManager.getActiveEffect(player, AbilitySilence.class);
 		if (effect != null) {
 			return effect.getDuration();
 		} else {
@@ -937,29 +937,21 @@ public class AbilityUtils {
 	}
 
 	/**
-	 * Return the double that would be appropriate for the region scaling.
-	 *
-	 * @param player The player.
-	 * @param r1     Valley's double.
-	 * @param r2     Isle's double
-	 * @param r3     Ring's double.
-	 * @return The appropriate double.
-	 */
-	public static double regionalScale(Player player, double r1, double r2, double r3) {
-		return ServerProperties.getClassSpecializationsEnabled(player) ?
-			(ServerProperties.getAbilityEnhancementsEnabled(player) ? r3 : r2)
-			: r1;
-	}
-
-	/**
-	 * Removes the projectile by sending it to the void.
+	 * Removes the projectile. If it's a bow, send it to the void.
 	 *
 	 * @param projectile The projectile to remove.
 	 */
 	public static void removeProjectile(Projectile projectile) {
-		Location loc = projectile.getLocation();
-		loc.setY(-15);
-		projectile.teleport(loc);
+		if (projectile instanceof AbstractArrow arrow
+			&& arrow.getShooter() instanceof Player player
+			&& player.getInventory().getItemInMainHand().getType().equals(Material.BOW)
+		) {
+			Location loc = projectile.getLocation();
+			loc.setY(-15);
+			projectile.teleport(loc);
+		} else {
+			projectile.remove();
+		}
 	}
 
 	public static double getRegionScaled(Player player, double[] baseValues) {

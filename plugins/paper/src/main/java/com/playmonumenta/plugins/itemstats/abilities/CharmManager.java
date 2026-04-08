@@ -1140,8 +1140,8 @@ public class CharmManager {
 			RendingRazor.CHARM_RAZOR_RANGE,
 			RendingRazor.CHARM_RAZOR_SIZE,
 			RendingRazor.CHARM_RAZOR_PIERCE,
-			RendingRazor.CHARM_CHARGES,
 			RendingRazor.CHARM_KNOCKBACK,
+			RendingRazor.CHARM_BLEED,
 			//Shaman
 			CleansingTotem.CHARM_DURATION,
 			CleansingTotem.CHARM_RADIUS,

@@ -52,10 +52,8 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 
 	private static final int MAX_CHARGES = 2;
 	private static final int TRAP_COOLDOWN = 12 * Constants.TICKS_PER_SECOND;
-	private static final double DAMAGE_R1 = 7;
-	private static final double DAMAGE_R2 = 12;
-	private static final double DAMAGE_R3 = 16;
-	private static final double DAMAGE_R4 = 18; // It's true Region 4 exist
+	private static final double[] DAMAGE = {7, 12, 16};
+	private static final double DMG_ENHANCE = 18;
 	private static final double RADIUS_L1 = 3;
 	private static final double RADIUS_L2 = 4;
 	private static final int STAGGER_DURATION = 2 * Constants.TICKS_PER_SECOND;
@@ -120,7 +118,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 
 		mMaxCharges = MAX_CHARGES + (int) CharmManager.getLevel(player, CHARM_CHARGES);
 		mDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE,
-			isEnhanced() ? DAMAGE_R4 : AbilityUtils.regionalScale(player, DAMAGE_R1, DAMAGE_R2, DAMAGE_R3));
+			isEnhanced() ? DMG_ENHANCE : AbilityUtils.getRegionScaled(player, DAMAGE));
 		mRadius = CharmManager.getRadius(mPlayer, CHARM_RADIUS, isLevelOne() ? RADIUS_L1 : RADIUS_L2);
 		mTrapDuration = CharmManager.getDuration(mPlayer, CHARM_DURATION, DURATION);
 		mPrimingDuration = CharmManager.getDuration(mPlayer, CHARM_PRIMING_DURATION, isEnhanced() ? PRIMING_DURATION_L3 : PRIMING_DURATION_L1);
@@ -238,7 +236,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 
 						if (mPhysicsItem.isValid()) {
 							mCenter = mPhysicsItem.getLocation();
-							mPhysicsItem.setVelocity(mPhysicsItem.getVelocity().multiply(0.98));
+							mPhysicsItem.setVelocity(mPhysicsItem.getVelocity().multiply(0.96));
 						}
 
 						if (!LocationUtils.isLocationInWater(mCenter)) {
@@ -279,7 +277,6 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 							for (LivingEntity entity : EntityUtils.getNearbyMobs(mCenter, mRadius)) {
 								DamageUtils.damage(mPlayer, entity, DamageEvent.DamageType.PROJECTILE_SKILL, mDamage, mInfo.getLinkedSpell(), true);
 								EntityUtils.applyStagger(mPlugin, mStaggerDuration, entity);
-								MovementUtils.knockAway(mCenter, entity, mKnockbackHorizontal, mKnockbackVertical, true);
 
 								if (isLevelTwo()) {
 									EntityUtils.applyVulnerability(mPlugin, mVulnerabilityDuration, mVulnerability, entity);
@@ -449,8 +446,8 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 			.statValues(stat(a -> a.mTriggerRadius, TRIGGER_RADIUS))
 			.addLine("it damages and staggers nearby mobs.")
 			.addLine()
-			.addStat("Damage: %d1e_only (p)")
-			.statValues(perRegion(a -> a.mDamage, DAMAGE_R1, DAMAGE_R2, DAMAGE_R3))
+			.addStat("Damage: %d1Re_only (p)")
+			.statValues(perRegion(a -> a.mDamage, DAMAGE[0], DAMAGE[1], DAMAGE[2]))
 			.addStat("Effect: Stagger for %t")
 			.statValues(stat(a -> a.mStaggerDuration, STAGGER_DURATION))
 			.addStat("Radius: %r1")
@@ -487,8 +484,8 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 			.addLine("Increase *Steel Trap*'s damage and").styles(UNDERLINED)
 			.addLine("decrease priming duration.")
 			.addLine()
-			.addStatComparison("Damage: %d1e -> %d3")
-			.statValues(perRegion(DAMAGE_R1, DAMAGE_R2, DAMAGE_R3), stat(a -> a.mDamage, DAMAGE_R4))
+			.addStatComparison("Damage: %d1e -> %d2")
+			.statValues(perRegion(DAMAGE[0], DAMAGE[1], DAMAGE[2]), stat(a -> a.mDamage, DMG_ENHANCE))
 			.addStatComparison("Priming Duration: %t1e -> %t3")
 			.statValues(stat(PRIMING_DURATION_L1), stat(a -> a.mPrimingDuration, PRIMING_DURATION_L3))
 			.addDashedLine();

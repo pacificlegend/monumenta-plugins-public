@@ -51,6 +51,14 @@ public class PredatorStrikeCS implements CosmeticSkill {
 			.extra(0.1)
 			.spawnAsPlayerActive(player);
 
+		// #fc6532
+
+		new PPLine(Particle.DUST_COLOR_TRANSITION, startLoc, endLoc)
+			.countPerMeter(2)
+			.delta(0.3)
+			.data(new Particle.DustTransition(Color.fromRGB(252, 101, 50), Color.BLACK, 2.0f))
+			.spawnAsPlayerActive(player);
+
 		ParticleUtils.drawLine(startLoc, endLoc, 55,
 			(l, t) -> {
 				new PartialParticle(Particle.FLAME, l.clone().add(VectorUtils.randomUnitVector().multiply(1.25)))
@@ -161,8 +169,8 @@ public class PredatorStrikeCS implements CosmeticSkill {
 
 					new PartialParticle(Particle.DUST_COLOR_TRANSITION, l)
 						.count(2)
-						.delta(0.2)
-						.data(new Particle.DustTransition(Color.GRAY, Color.BLACK, 2))
+						.delta(0.25)
+						.data(new Particle.DustTransition(Color.fromRGB(252, 101, 50), Color.BLACK, 2))
 						.spawnAsPlayerActive(player);
 
 					new PartialParticle(Particle.SMOKE_NORMAL, l)

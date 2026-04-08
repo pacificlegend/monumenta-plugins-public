@@ -124,6 +124,7 @@ public class PredatorStrike extends Ability implements AbilityWithDuration {
 
 	private int mCurrDuration = -1;
 	private int mLastPrimeTick = 0;
+	private int mCastTime = Bukkit.getCurrentTick();
 
 	private final PredatorStrikeCS mCosmetic;
 
@@ -210,6 +211,8 @@ public class PredatorStrike extends Ability implements AbilityWithDuration {
 		if (mSharpshooter != null) {
 			mSharpshooter.doNotTrack(projectile);
 		}
+
+		mCastTime = Bukkit.getCurrentTick();
 
 		ItemStatManager.PlayerItemStats stats = Plugin.getInstance().mItemStatManager.getPlayerItemStatsCopy(mPlayer);
 		DamageListener.appendProjectileStats(stats, projectile);
@@ -423,7 +426,7 @@ public class PredatorStrike extends Ability implements AbilityWithDuration {
 	public static boolean hasPredatorStrikeReady(Player player) {
 		PredatorStrike pstrike = Plugin.getInstance().mAbilityManager.getPlayerAbilityIgnoringSilence(player, PredatorStrike.class);
 		if (pstrike != null) {
-			return pstrike.mDeactivationRunnable != null;
+			return pstrike.mDeactivationRunnable != null || Bukkit.getCurrentTick() - pstrike.mCastTime < 1;
 		}
 		return false;
 	}

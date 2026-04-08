@@ -11,7 +11,6 @@ import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.scout.SwiftnessCS;
-import com.playmonumenta.plugins.effects.ZeroArgumentEffect;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.network.ClientModHandler;
@@ -26,6 +25,7 @@ import com.playmonumenta.plugins.utils.ZoneUtils.ZoneProperty;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -44,15 +44,13 @@ import static net.kyori.adventure.util.TriState.FALSE;
 import static net.kyori.adventure.util.TriState.TRUE;
 
 public class Swiftness extends Ability {
-	private static final String SWIFTNESS_INVULN = "SwiftnessEnhancementInvulnerability";
-
 	private static final double SPEED_BONUS = 0.1;
 	private static final int JUMP_BOOST_POTENCY = 2; // Jump Boost 3, effect potency is 0 indexed
 	private static final String NO_JUMP_BOOST_TAG = "SwiftnessJumpBoostDisable";
 	private static final int COOLDOWN = 60;
 	private static final int MAX_JUMP = 3;
-	private static final double DOUBLE_JUMP_STRENGTH_L1 = 0.4;
-	private static final double DOUBLE_JUMP_STRENGTH_L2 = 0.54;
+	private static final double DOUBLE_JUMP_STRENGTH = 0.4;
+	private static final double DOUBLE_JUMP_STRENGTH_MULTIPLIER = 0.35;
 	private static final double DASH_VULNERABILITY_MULTIPLIER = 0.15;
 	private static final int DASH_VULNERABILITY_DURATION = 5 * Constants.TICKS_PER_SECOND;
 	private static final int DASH_IMMUNITY_DURATION = 8; // 0.4s
@@ -93,13 +91,14 @@ public class Swiftness extends Ability {
 	private final SwiftnessCS mCosmetic;
 	private int mTotalJumps = 0;
 	private @Nullable BukkitTask mDashRunnable;
+	private boolean mIsActive = false;
 
 	public Swiftness(final Plugin plugin, final Player player) {
 		super(plugin, player, INFO);
 		mJumpBoost = !mPlayer.getScoreboardTags().contains(NO_JUMP_BOOST_TAG);
 		mJumpBoostLevel = JUMP_BOOST_POTENCY + (int) CharmManager.getLevel(mPlayer, CHARM_JUMP_BOOST);
 		mSpeed = isLevelTwo() ? SPEED_BONUS : 0;
-		mDashStrength = CharmManager.calculateFlatAndPercentValue(player, CHARM_DOUBLE_JUMP_STRENGTH, isLevelOne() ? DOUBLE_JUMP_STRENGTH_L1 : DOUBLE_JUMP_STRENGTH_L2);
+		mDashStrength = (isLevelOne() ? 0 : DOUBLE_JUMP_STRENGTH_MULTIPLIER) + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_DOUBLE_JUMP_STRENGTH);
 		mVulnerabilityMultiplier = DASH_VULNERABILITY_MULTIPLIER + CharmManager.getLevelPercentDecimal(player, CHARM_DASH_VULNERABILITY_AMPLIFIER);
 		mVulnerabilityDuration = CharmManager.getDuration(mPlayer, CHARM_DASH_VULNERABILITY_DURATION, DASH_VULNERABILITY_DURATION);
 		mResistanceDuration = CharmManager.getDuration(mPlayer, CHARM_DASH_RESISTANCE_DURATION, DASH_IMMUNITY_DURATION);
@@ -141,36 +140,43 @@ public class Swiftness extends Ability {
 		putOnCooldown();
 		mTotalJumps++;
 
+		double jumpStrength = DOUBLE_JUMP_STRENGTH * (1 + mDashStrength);
+
 		Vector dir = mPlayer.getLocation().getDirection().normalize();
 		dir.multiply(CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DOUBLE_JUMP_STRENGTH, 1));
 
 		if (!isEnhanced()) {
 			mCosmetic.swiftnessDoubleJump(mPlayer, mPlayer.getLocation());
 
-			mPlayer.setVelocity(dir.setY(dir.getY() * 0.2 + mDashStrength));
+			mPlayer.setVelocity(dir.setY(dir.getY() * 0.2 + jumpStrength));
 		} else {
 			// Swiftness Enhancement
 			mCosmetic.swiftnessDash(mPlayer, mPlayer.getLocation());
 
-			dir.normalize().multiply(1 + mDashStrength);
+			dir.normalize().multiply(1 + jumpStrength);
 			dir.setY(dir.getY() * 0.5);
 
 			if (mDashRunnable != null) {
 				mDashRunnable.cancel();
 			}
 
-			grantImmunity(mPlayer, mResistanceDuration);
-
+			mIsActive = true;
 			mDashRunnable = new BukkitRunnable() {
+				final int mDuration = (int) (jumpStrength * 4);
 				int mT = 0;
 				boolean mDash = true;
 
 				@Override
 				public void run() {
-					if (mT > 8 || mPlayer.isDead() || !mPlayer.isOnline() || !mPlayer.isValid()) {
+					if (mT > mDuration * 2 || mPlayer.isDead() || !mPlayer.isOnline() || !mPlayer.isValid()) {
 						mDashRunnable = null;
+						mIsActive = false;
 						this.cancel();
 						return;
+					}
+
+					if (mIsActive && mT > mResistanceDuration) {
+						mIsActive = false;
 					}
 
 					mCosmetic.swiftnessDashTick(mPlayer, dir);
@@ -179,7 +185,7 @@ public class Swiftness extends Ability {
 					hitbox.getHitMobs().forEach(e -> EntityUtils.applyVulnerability(mPlugin, mVulnerabilityDuration, mVulnerabilityMultiplier, e));
 
 					if (mDash) {
-						if (mT > 4) {
+						if (mT > mDuration) {
 							mPlayer.setVelocity(mPlayer.getVelocity().multiply(0.5));
 							mDash = false;
 						} else {
@@ -217,9 +223,17 @@ public class Swiftness extends Ability {
 		}
 	}
 
-	// setFlyingFallDamage does not play audio when taking damage via fall
 	@Override
 	public void onHurt(DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
+		if (mIsActive && event.getType().isDefendable()) {
+			event.setFlatDamage(0);
+			event.setCancelled(true);
+
+			mPlayer.playSound(mPlayer, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.PLAYERS, 1f, 1.3f);
+			return;
+		}
+
+		// setFlyingFallDamage does not play audio when taking damage via fall
 		if (event.getType() == DamageEvent.DamageType.FALL) {
 			if (mPlayer.getFallDistance() > 7) {
 				mPlayer.getWorld().playSound(mPlayer.getLocation(), Sound.ENTITY_PLAYER_BIG_FALL, 1f, 1f);
@@ -266,19 +280,6 @@ public class Swiftness extends Ability {
 		return player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR;
 	}
 
-	private static void grantImmunity(Player player, int duration) {
-		Plugin.getInstance().mEffectManager.addEffect(player, SWIFTNESS_INVULN,
-			new ZeroArgumentEffect(duration, SWIFTNESS_INVULN) {
-				@Override
-				public void onDamage(LivingEntity entity, DamageEvent event, LivingEntity enemy) {
-					if (event.getType().isDefendable()) {
-						event.setFlatDamage(0);
-						event.setCancelled(true);
-					}
-				}
-			});
-	}
-
 	public double getFleetfootedBonus() {
 		return mSpeed;
 	}
@@ -311,7 +312,7 @@ public class Swiftness extends Ability {
 			.addDashedLine()
 			.addLine("Increase *Swiftness*'s double jump strength").styles(UNDERLINED)
 			.addLine("by %p and increase *Fleetfooted*'s speed.").styles(UNDERLINED)
-			.statValues(stat((DOUBLE_JUMP_STRENGTH_L2 / DOUBLE_JUMP_STRENGTH_L1) - 1))
+			.statValues(stat(a -> a.mDashStrength, DOUBLE_JUMP_STRENGTH_MULTIPLIER))
 			.addLine()
 			.addStatComparison("Effect: +%p1 -> +%p2 Speed")
 			.statValues(stat(0.1), stat(a -> a.mSpeed + 0.1, SPEED_BONUS + 0.1))

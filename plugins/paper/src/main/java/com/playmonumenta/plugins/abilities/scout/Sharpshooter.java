@@ -150,8 +150,7 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 		MetadataUtils.setMetadata(projectile, SPAWN_TICK, time);
 
 		// Want to track without accounting for penalty
-		if (ItemStatUtils.hasEnchantment(item, EnchantmentType.RECOIL)
-			|| projectile.hasMetadata(QuiverStorm.ARROW_METADATA)) {
+		if (ItemStatUtils.hasEnchantment(item, EnchantmentType.RECOIL)) {
 			MetadataUtils.setMetadata(projectile, DO_NOT_PENALIZE, true);
 		}
 
@@ -316,7 +315,7 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 	// Sharpshooter stack is based on the draw time, not charge rate
 	public static int checkSharpshooterType(Projectile proj, ItemStack item) {
 		if (proj instanceof Trident) { // This extends AbstractArrow, check first
-			return 2;
+			return 3;
 		}
 
 		if ((proj instanceof AbstractArrow arrow

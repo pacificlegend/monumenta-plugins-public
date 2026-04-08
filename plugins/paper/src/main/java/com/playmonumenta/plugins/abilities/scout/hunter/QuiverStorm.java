@@ -52,8 +52,8 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 	private static final String PREDATOR_HIT = "PredatorStrikeHitThisTick";
 
 	// List of Enchantments to reduce
-	private static final List<EnchantmentType> ENCHANT_LIST = new ArrayList<>(List.of(
-		EnchantmentType.EXPLODING,
+	// Piercing is included, but is handled separately
+	private static final List<EnchantmentType> EFFECT_ENCHANT_LIST = new ArrayList<>(List.of(
 		EnchantmentType.EARTH_ASPECT,
 		EnchantmentType.FIRE_ASPECT,
 		EnchantmentType.ICE_ASPECT,
@@ -63,13 +63,15 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		EnchantmentType.HARPOON,
 		EnchantmentType.PUNCH,
 		EnchantmentType.CURSE_OF_SHRAPNEL
-		// EnchantmentType.PIERCING
+	));
+	private static final List<EnchantmentType> DAMAGE_ENCHANT_LIST = new ArrayList<>(List.of(
+		EnchantmentType.EXPLODING,
+		EnchantmentType.IMPACT
 	));
 
 	private static final double DAMAGE_PERCENT_L1 = 0.25;
 	private static final double DAMAGE_PERCENT_L2 = 0.35;
-	private static final int PASSIVE_ARROW_L1 = 1;
-	private static final int PASSIVE_ARROW_L2 = 2;
+	private static final int PASSIVE_ARROW = 1;
 	private static final int MAX_ARROW_L1 = 3;
 	private static final int MAX_ARROW_L2 = 5;
 	private static final int DELAY_1 = 4;
@@ -113,7 +115,7 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		mMaxCharges = (isLevelOne() ? MAX_ARROW_L1 : MAX_ARROW_L2) + (int) CharmManager.getLevel(mPlayer, CHARM_MAX_STACKS);
 		mDelay = (int) CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DELAY, isLevelOne() ? DELAY_1 : DELAY_2);
 		mPierce = Math.clamp((int) CharmManager.getLevel(mPlayer, CHARM_PIERCE), 0, 100);
-		mPassive = (isLevelOne() ? PASSIVE_ARROW_L1 : PASSIVE_ARROW_L2) + (int) CharmManager.getLevel(mPlayer, CHARM_PASSIVE_ARROW);
+		mPassive = PASSIVE_ARROW + (int) CharmManager.getLevel(mPlayer, CHARM_PASSIVE_ARROW);
 		mPstrikeArrowRefund = Math.clamp(PSTRIKE_ARROW + (int) CharmManager.getLevel(mPlayer, CHARM_PSTRIKE_REFUND), 0, mMaxCharges);
 		mLockdownRefund = Math.clamp(LD_ARROW + (int) CharmManager.getLevel(mPlayer, CHARM_LOCKDOWN_REFUND), 0, mMaxCharges);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new QuiverStormCS());
@@ -157,10 +159,16 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 			piercingLvl += mSharpshooter != null ? mSharpshooter.getAdditionalPierce() : 0;
 			map.set(piercing, piercingLvl * ENCHANT_RATIO);
 
-			for (EnchantmentType enchant : ENCHANT_LIST) {
+			for (EnchantmentType enchant : EFFECT_ENCHANT_LIST) {
 				double lvl = map.get(Objects.requireNonNull(enchant.getItemStat()));
 
 				map.set(Objects.requireNonNull(enchant.getItemStat()), lvl * ENCHANT_RATIO);
+			}
+
+			for (EnchantmentType enchant : DAMAGE_ENCHANT_LIST) {
+				double lvl = map.get(Objects.requireNonNull(enchant.getItemStat()));
+
+				map.set(Objects.requireNonNull(enchant.getItemStat()), lvl * mDamagePercent);
 			}
 		}
 
@@ -191,6 +199,7 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		AbstractArrow proj = (AbstractArrow) EntityUtils.spawnProjectile(mPlayer, 0, 0, new Vector(0, 0, 0), projSpeed, EntityType.ARROW);
 
 		proj.setMetadata(ARROW_METADATA, new FixedMetadataValue(mPlugin, 0));
+		proj.setMetadata(Sharpshooter.NO_TRACKING_METADATA, new FixedMetadataValue(mPlugin, 0));
 		proj.setShooter(mPlayer);
 		proj.setPierceLevel(mPierce);
 
@@ -285,8 +294,8 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 			.statValues(stat(a -> a.mDamagePercent, DAMAGE_PERCENT_L1))
 			.addStat("Fire Rate: %t1")
 			.statValues(stat(a -> a.mDelay, DELAY_1))
-			.addStat("Arrows: %d1")
-			.statValues(stat(a -> a.mPassive, PASSIVE_ARROW_L1))
+			.addStat("Arrows: %d")
+			.statValues(stat(a -> a.mPassive, PASSIVE_ARROW))
 			.addLine()
 			.addLine("Landing *Lockdown* adds %d arrows to your next").styles(UNDERLINED)
 			.statValues(stat(a -> a.mLockdownRefund, LD_ARROW))
@@ -310,11 +319,6 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 			.statValues(stat(DELAY_1), stat(a -> a.mDelay, DELAY_2))
 			.addStatComparison("Max Arrows: %d1 -> %d2")
 			.statValues(stat(MAX_ARROW_L1), stat(a -> a.mMaxCharges, MAX_ARROW_L2))
-			.addLine()
-			.addLine("Gain an additional passive arrow.")
-			.addLine()
-			.addStatComparison("Arrows: %d1 -> %d2")
-			.statValues(stat(PASSIVE_ARROW_L1), stat(a -> a.mPassive, PASSIVE_ARROW_L2))
 			.addDashedLine();
 	}
 

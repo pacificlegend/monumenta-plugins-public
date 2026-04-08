@@ -169,16 +169,14 @@ public class LockdownCS implements CosmeticSkill {
 
 	public void lockdownOrb(Location particleLoc, Player player) {
 		new PartialParticle(Particle.DUST_COLOR_TRANSITION, particleLoc)
-			.minimumCount(1)
 			.distanceFalloff(16)
 			.data(new Particle.DustTransition(START, END, 1.25f))
-			.spawnAsPlayerActive(player);
+			.spawnAsPlayerPassive(player);
 
 		new PartialParticle(Particle.END_ROD, particleLoc)
-			.minimumCount(1)
 			.distanceFalloff(16)
 			.extra(99999999)
-			.spawnAsPlayerActive(player);
+			.spawnAsPlayerPassive(player);
 	}
 
 	public void lockdownCharging(Player player, double progress) {

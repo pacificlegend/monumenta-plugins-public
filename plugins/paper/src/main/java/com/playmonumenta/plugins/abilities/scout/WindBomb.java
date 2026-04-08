@@ -63,7 +63,7 @@ public class WindBomb extends Ability {
 	private static final int COOLDOWN_1 = Constants.TICKS_PER_SECOND * 16;
 	private static final int COOLDOWN_2 = Constants.TICKS_PER_SECOND * 14;
 	private static final int SLOW_FALL_DURATION = Constants.TICKS_PER_SECOND;
-	private static final int SIZE = 1;
+	private static final int SIZE = 2;
 	private static final int RADIUS = 5;
 
 	private static final double DAMAGE_FLAT_L1 = 10;
@@ -208,6 +208,13 @@ public class WindBomb extends Ability {
 					return;
 				}
 
+				if (mTicks >= mBombDuration) {
+					removeWindBomb();
+					mPlugin.mTimers.removeCooldown(mPlayer, ClassAbility.WIND_BOMB);
+					this.cancel();
+					return;
+				}
+
 				Vector dir = mRunnableBomb.getVelocity();
 
 				mRunnableBomb.setVelocity(dir.setY(dir.getY() * 0.95));
@@ -216,7 +223,7 @@ public class WindBomb extends Ability {
 					mCosmetic.aerial(mPlayer, mRunnableBomb, mTicks, mBombDuration);
 				}
 
-				if (mRunnableBomb.isDead() || mTicks >= mBombDuration) {
+				if (mRunnableBomb.isDead()) {
 					doExplosion(mRunnableBomb.getLocation());
 					this.cancel();
 					return;

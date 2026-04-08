@@ -61,10 +61,8 @@ import static com.playmonumenta.plugins.utils.DescriptionUtils.UNDERLINED;
 public class Lockdown extends Ability implements AbilityWithChargesOrStacks, AbilityWithDuration {
 	private static final String LOADING_NAME = "LockdownLoadingEffect";
 
-	private static final double DAMAGE_L1_R2 = 22;
-	private static final double DAMAGE_L2_R2 = 26;
-	private static final double DAMAGE_L1_R3 = 26;
-	private static final double DAMAGE_L2_R3 = 30;
+	private static final double[] DAMAGE_L1 = {22, 26};
+	private static final double[] DAMAGE_L2 = {26, 30};
 	private static final int SHOT_COUNT = 3;
 	private static final float KNOCKBACK = 0.4f;
 	private static final int KILL_BONUS = 1;
@@ -121,11 +119,9 @@ public class Lockdown extends Ability implements AbilityWithChargesOrStacks, Abi
 
 	public Lockdown(final Plugin plugin, final Player player) {
 		super(plugin, player, INFO);
-		boolean isR3 = ServerProperties.getAbilityEnhancementsEnabled(player);
-		final double damageL1 = isR3 ? DAMAGE_L1_R3 : DAMAGE_L1_R2;
-		final double damageL2 = isR3 ? DAMAGE_L2_R3 : DAMAGE_L2_R2;
-
-		mDamageFlat = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, isLevelOne() ? damageL1 : damageL2);
+		mDamageFlat = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE,
+			isLevelOne() ? AbilityUtils.getRegionScaled(player, DAMAGE_L1)
+				: AbilityUtils.getRegionScaled(player, DAMAGE_L2));
 		mMaxCharges = SHOT_COUNT + (int) CharmManager.getLevel(mPlayer, CHARM_SHOT_COUNT);
 		mKnockback = (float) CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_KNOCKBACK, KNOCKBACK);
 		mPierce = (int) CharmManager.getLevel(mPlayer, CHARM_PIERCE);
@@ -388,8 +384,8 @@ public class Lockdown extends Ability implements AbilityWithChargesOrStacks, Abi
 			.addLine("a shot will immediately end *Lockdown*.").styles(UNDERLINED)
 			.addLine("(Swap weapons to cancel Lockdown)")
 			.addLine()
-			.addStat("Damage: %d1 (p)")
-			.statValues(perRegion(a -> a.mDamageFlat, DAMAGE_L1_R2, DAMAGE_L1_R3))
+			.addStat("Damage: %d1R (p)")
+			.statValues(perRegion(a -> a.mDamageFlat, DAMAGE_L1[0], DAMAGE_L1[1]))
 			.addIf((a, p) -> a != null && a.mPierce > 0, desc -> desc
 				.addStat("Pierce: %d")
 				.statValues(stat(a -> a.mPierce, 0)))
@@ -405,8 +401,8 @@ public class Lockdown extends Ability implements AbilityWithChargesOrStacks, Abi
 			.addDashedLine()
 			.addLine("Increase *Lockdown*'s damage.").styles(UNDERLINED)
 			.addLine()
-			.addStatComparison("Damage: %d1 -> %d2 (p)")
-			.statValues(perRegion(DAMAGE_L1_R2, DAMAGE_L1_R3), perRegion(a -> a.mDamageFlat, DAMAGE_L2_R2, DAMAGE_L2_R3))
+			.addStatComparison("Damage: %d1 -> %d2R (p)")
+			.statValues(perRegion(DAMAGE_L1[0], DAMAGE_L1[1]), perRegion(a -> a.mDamageFlat, DAMAGE_L2[0], DAMAGE_L2[1]))
 			.addLine()
 			.addLine("Extend *Lockdown* by %d shot upon kill.").styles(UNDERLINED)
 			.statValues(stat(a -> a.mKillExtension, KILL_BONUS))

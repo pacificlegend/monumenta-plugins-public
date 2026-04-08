@@ -63,17 +63,11 @@ public class HuntingCompanion extends Ability {
 	public static final Style FOX_COLOR = Style.style(TextColor.color(0xE68129));
 
 	private static final double MELEE_RANGE = 12;
-	private static final double DAMAGE_R1 = 3;
-	private static final double DAMAGE_R2 = 5;
-	private static final double DAMAGE_R3 = 7;
-	private static final double POUNCE_DAMAGE_L1_R1 = 7;
-	private static final double POUNCE_DAMAGE_L1_R2 = 10;
-	private static final double POUNCE_DAMAGE_L1_R3 = 16;
-	private static final double POUNCE_DAMAGE_L2_R1 = 10;
-	private static final double POUNCE_DAMAGE_L2_R2 = 14;
-	private static final double POUNCE_DAMAGE_L2_R3 = 20;
+	private static final double[] DAMAGE = {3, 5, 7};
+	private static final double[] POUNCE_DAMAGE_L1 = {7, 10, 16};
+	private static final double[] POUNCE_DAMAGE_L2 = {10, 14, 20};
 	private static final int POUNCE_COOLDOWN = Constants.TICKS_PER_SECOND * 5;
-	private static final int RECALL_COOLDOWN = Constants.TICKS_PER_SECOND * 3;
+	private static final int INTERNAL_COOLDOWN = Constants.TICKS_PER_SECOND * 3;
 	private static final double POUNCE_RADIUS = 3;
 	private static final double HEALING_PERCENT = 0.1;
 	private static final double MAX_TARGET_Y = 4; // Not charmable
@@ -97,6 +91,9 @@ public class HuntingCompanion extends Ability {
 			.addTrigger(new AbilityTriggerInfo<>("recall", "recall companion", null,
 				HuntingCompanion::recallCompanion, new AbilityTrigger(AbilityTrigger.Key.DROP).sneaking(true)
 				.lookDirections(AbilityTrigger.LookDirection.DOWN), null))
+			.addTrigger(new AbilityTriggerInfo<>("toggle", "toggle companion", null,
+				HuntingCompanion::toggleCompanion, new AbilityTrigger(AbilityTrigger.Key.DROP).sneaking(true)
+				.lookDirections(AbilityTrigger.LookDirection.UP), null))
 			.displayItem(Material.SWEET_BERRIES);
 
 	private final double mBiteDamage;
@@ -111,17 +108,21 @@ public class HuntingCompanion extends Ability {
 	private final HuntingCompanionCS mCosmetic;
 
 	private final HashSet<HuntingCompanionBoss> mSummons;
+	private boolean mToggled = true;
+	private boolean mSummonedOnce = false;
 	private int mWasInLava = Bukkit.getCurrentTick();
 	private int mRecalled = Bukkit.getCurrentTick();
+	private int mToggledTick = Bukkit.getCurrentTick();
 
 	public HuntingCompanion(Plugin plugin, Player player) {
 		super(plugin, player, INFO);
 
 		double pounceDamage =
-			isLevelOne() ? AbilityUtils.regionalScale(player, POUNCE_DAMAGE_L1_R1, POUNCE_DAMAGE_L1_R2, POUNCE_DAMAGE_L1_R3)
-				: AbilityUtils.regionalScale(player, POUNCE_DAMAGE_L2_R1, POUNCE_DAMAGE_L2_R2, POUNCE_DAMAGE_L2_R3);
+			isLevelOne() ? AbilityUtils.getRegionScaled(player, POUNCE_DAMAGE_L1)
+				: AbilityUtils.getRegionScaled(player, POUNCE_DAMAGE_L2);
 
-		mBiteDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, AbilityUtils.regionalScale(player, DAMAGE_R1, DAMAGE_R2, DAMAGE_R3));
+		mBiteDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE,
+			AbilityUtils.getRegionScaled(player, DAMAGE));
 		mRange = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_RANGE, MELEE_RANGE);
 		mPounceDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_POUNCE_DAMAGE, pounceDamage);
 		mPounceCooldown = CharmManager.getDuration(mPlayer, CHARM_POUNCE_COOLDOWN, POUNCE_COOLDOWN);
@@ -143,6 +144,10 @@ public class HuntingCompanion extends Ability {
 					return;
 				}
 
+				if (!mToggled) {
+					return;
+				}
+
 				if (AbilityManager.getManager().getPlayerAbility(player, HuntingCompanion.class) == null
 					|| !player.isOnline()) {
 					if (!AbilityManager.getManager().getPlayerAbilities(player).isSilenced()) {
@@ -161,13 +166,13 @@ public class HuntingCompanion extends Ability {
 
 	@Override
 	public void periodicTrigger(boolean twoHertz, boolean oneSecond, int ticks) {
-		if (mPlayer == null || mFoxCount == 0) {
+		if (mPlayer == null || mFoxCount == 0 || !mToggled) {
 			return;
 		}
 
 		if (mSummons.size() != mFoxCount) {
 			clearSummons();
-			spawnSummons();
+			spawnSummons(mSummonedOnce);
 			return;
 		}
 
@@ -198,20 +203,35 @@ public class HuntingCompanion extends Ability {
 		mSummons.addAll(transformed);
 	}
 
-	private void spawnSummons() {
+	private void spawnSummons(boolean playSound) {
 		for (int i = 0; i < mFoxCount; i++) {
-			HuntingCompanionBoss summon = summon(mCosmetic.getFoxName(), null, false);
+			HuntingCompanionBoss summon = summon(mCosmetic.getFoxName(), null, playSound);
 			if (summon == null) {
 				break;
 			} else {
 				mSummons.add(summon);
 			}
 		}
+		mSummonedOnce = true;
+	}
+
+	public boolean toggleCompanion() {
+		int currTick = Bukkit.getCurrentTick();
+		if (currTick - mToggledTick < INTERNAL_COOLDOWN / 2) { // 1.5s internal cd
+			return false;
+		}
+		mToggledTick = currTick;
+
+		mToggled = !mToggled;
+		if (!mToggled) {
+			clearSummons();
+		}
+		return true;
 	}
 
 	public boolean recallCompanion() {
 		int currTick = Bukkit.getCurrentTick();
-		if (currTick - mRecalled < RECALL_COOLDOWN) {
+		if (currTick - mRecalled < INTERNAL_COOLDOWN) {
 			return false;
 		}
 		mRecalled = currTick;
@@ -435,16 +455,16 @@ public class HuntingCompanion extends Ability {
 			.addLine("nearby mobs within a %d block radius of you.")
 			.statValues(stat(a -> a.mRange, MELEE_RANGE))
 			.addLine()
-			.addStat("Damage: %d (p) every 1s")
-			.statValues(perRegion(a -> a.mBiteDamage, DAMAGE_R1, DAMAGE_R2, DAMAGE_R3))
+			.addStat("Damage: %dR (p) every 1s")
+			.statValues(perRegion(a -> a.mBiteDamage, DAMAGE[0], DAMAGE[1], DAMAGE[2]))
 			.addLine()
 			.addLine("The *Fox* will pounce when a mob is").styles(FOX_COLOR)
 			.addLine("staggered, dealing area damage on impact.")
 			.addIf((a, p) -> a != null && a.mFoxCount > 1, desc -> desc
 				.addLine("(Multiple companions have their own separate cooldown)"))
 			.addLine()
-			.addStat("Damage: %d1 (p)")
-			.statValues(perRegion(a -> a.mPounceDamage, POUNCE_DAMAGE_L1_R1, POUNCE_DAMAGE_L1_R2, POUNCE_DAMAGE_L1_R3))
+			.addStat("Damage: %d1R (p)")
+			.statValues(perRegion(a -> a.mPounceDamage, POUNCE_DAMAGE_L1[0], POUNCE_DAMAGE_L1[1], POUNCE_DAMAGE_L1[2]))
 			.addStat("Radius: %r")
 			.statValues(stat(a -> a.mPounceRadius, POUNCE_RADIUS))
 			.addStat("Cooldown: %t")
@@ -457,9 +477,9 @@ public class HuntingCompanion extends Ability {
 			.addDashedLine()
 			.addLine("Increase *Hunting Companion*'s pounce damage.").styles(UNDERLINED)
 			.addLine()
-			.addStatComparison("Damage: %d1 -> %d2 (p)")
-			.statValues(perRegion(POUNCE_DAMAGE_L1_R1, POUNCE_DAMAGE_L1_R2, POUNCE_DAMAGE_L1_R3),
-				perRegion(a -> a.mPounceDamage, POUNCE_DAMAGE_L2_R1, POUNCE_DAMAGE_L2_R2, POUNCE_DAMAGE_L2_R3))
+			.addStatComparison("Damage: %d1 -> %d2R (p)")
+			.statValues(perRegion(POUNCE_DAMAGE_L1[0], POUNCE_DAMAGE_L1[1], POUNCE_DAMAGE_L1[2]),
+				perRegion(a -> a.mPounceDamage, POUNCE_DAMAGE_L2[0], POUNCE_DAMAGE_L2[1], POUNCE_DAMAGE_L2[2]))
 			.addLine()
 			.addLine("Heal yourself over time when a *Fox* pounces.").styles(FOX_COLOR)
 			.addLine("(Duration stacks per pounce, up to 3s)")

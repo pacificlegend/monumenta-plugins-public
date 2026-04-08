@@ -79,7 +79,8 @@ public class Impact implements Enchantment {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (event.getType() == DamageEvent.DamageType.PROJECTILE && !MetadataUtils.checkOnceThisTick(plugin, enemy, PROJECTILE_METAKEY)) {
+		if (event.getType() == DamageEvent.DamageType.PROJECTILE
+			&& !MetadataUtils.checkOnceThisTick(plugin, enemy, PROJECTILE_METAKEY)) {
 			return;
 			// Prevent Volley from applying multiple Impacts
 		}

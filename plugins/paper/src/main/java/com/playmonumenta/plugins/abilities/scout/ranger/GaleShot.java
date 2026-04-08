@@ -55,8 +55,10 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 
 	private static final String GALE_SHOT_IMBUEMENT = "GaleShotImbuement";
 	private static final String GALE_SHOT_PROJECTILE_METAKEY = "GaleShotProjectile";
-	private static final double DAMAGE = 14;
-	private static final double DAMAGE_PERCENT = 1.2;
+	private static final double DAMAGE_L1 = 14;
+	private static final double DAMAGE_L2 = 16;
+	private static final double DAMAGE_PERCENT_L1 = 1.2;
+	private static final double DAMAGE_PERCENT_L2 = 1.4;
 	private static final int ABILITY_REQ = 2;
 	private static final int SHOT_REQ = 2;
 	private static final int DURATION = Constants.TICKS_PER_SECOND * 8;
@@ -87,11 +89,12 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 
 	private @Nullable Sharpshooter mSharpshooter;
 	private int mCount;
+	private int mCastTime = Bukkit.getCurrentTick();
 
 	public GaleShot(final Plugin plugin, final Player player) {
 		super(plugin, player, INFO);
-		mDamageFlat = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE_FLAT, DAMAGE);
-		mDamagePercent = CharmManager.getExtraPercent(mPlayer, CHARM_DAMAGE_PERCENT, DAMAGE_PERCENT);
+		mDamageFlat = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE_FLAT, isLevelOne() ? DAMAGE_L1 : DAMAGE_L2);
+		mDamagePercent = CharmManager.getExtraPercent(mPlayer, CHARM_DAMAGE_PERCENT, isLevelOne() ? DAMAGE_PERCENT_L1 : DAMAGE_PERCENT_L2);
 		mAbilityRequirement = Math.max(0, ABILITY_REQ + (int) CharmManager.getLevel(mPlayer, CHARM_ABILITY_REQUIREMENT));
 		mShotRequirement = Math.max(0, SHOT_REQ + (int) CharmManager.getLevel(mPlayer, CHARM_SHOT_REQUIREMENT));
 		mDuration = CharmManager.getDuration(mPlayer, CHARM_DURATION, DURATION);
@@ -107,12 +110,17 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 
 	@Override
 	public boolean playerShotProjectileEvent(Projectile projectile) {
+		int currTick = Bukkit.getServer().getCurrentTick();
+
 		if (!EntityUtils.isAbilityTriggeringProjectile(projectile, true)
 			|| Volley.isVolleyShot(mPlayer)
 			|| Grappling.playerHoldingHook(mPlayer)
+			|| currTick - mCastTime < 1
 			|| !hasImbuement()) {
 			return true;
 		}
+
+		mCastTime = currTick;
 
 		if (--mCount <= 0) {
 			mAbilityCount = 0;
@@ -263,8 +271,8 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 			.addLine("infinite pierce and increased damage.")
 			.addLine("(Only imbues the central projectile.)")
 			.addLine()
-			.addStat("Damage: %d + %p (p) (of weapon damage)")
-			.statValues(stat(a -> a.mDamageFlat, DAMAGE), stat(a -> a.mDamagePercent, DAMAGE_PERCENT))
+			.addStat("Damage: %d1 + %p1 (p) (of weapon damage)")
+			.statValues(stat(a -> a.mDamageFlat, DAMAGE_L1), stat(a -> a.mDamagePercent, DAMAGE_PERCENT_L1))
 			.addIf((a, p) -> a != null && a.mShotCount != 1, desc -> desc
 				.addStat("Shots: %d")
 				.statValues(stat(a -> a.mShotCount, 1)))
@@ -274,14 +282,16 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 	private static Description<GaleShot> getDescription2() {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 2)
 			.addDashedLine()
-			.addLine("*Gale Shot* now applies slowness.").styles(UNDERLINED)
+			.addLine("Increase *Gale Shot*'s damage. *Gale Shot* now inflicts slowness.").styles(UNDERLINED, UNDERLINED)
 			.addLine()
+			.addStatComparison("Damage: %d1 + %p1 -> %d2 + %p2 (p) (of weapon damage)")
+			.statValues(stat(DAMAGE_L1), stat(DAMAGE_PERCENT_L1),
+				stat(a -> a.mDamageFlat, DAMAGE_L2), stat(a -> a.mDamagePercent, DAMAGE_PERCENT_L2))
 			.addStat("Effect: %p Slowness for %t")
 			.statValues(stat(a -> a.mSlownessAmplifier, SLOWNESS_AMPLIFIER), stat(a -> a.mSlownessDuration, SLOWNESS_DURATION))
 			.addLine()
-			.addLine("Landing %d *Gale Shots* on the same").styles(UNDERLINED)
+			.addLine("Landing %d *Gale Shots* on the same mob refreshes *Gale Shot*.").styles(UNDERLINED, UNDERLINED)
 			.statValues(stat(a -> a.mShotRequirement, SHOT_REQ))
-			.addLine("mob refreshes *Gale Shot*.").styles(UNDERLINED)
 			.addLine("(Can only be triggered once per mob.)")
 			.addDashedLine();
 	}

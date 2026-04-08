@@ -51,18 +51,10 @@ public class ShrapnelBomb extends Ability {
 	private static final WeakHashMap<Projectile, ItemStatManager.PlayerItemStats> PROJECTILE_MAP = new WeakHashMap<>();
 
 	private static final double VELOCITY = 1;
-	private static final double BOMB_DAMAGE_L1_R1 = 8;
-	private static final double BOMB_DAMAGE_L1_R2 = 13;
-	private static final double BOMB_DAMAGE_L1_R3 = 18;
-	private static final double BOMB_DAMAGE_L2_R1 = 12;
-	private static final double BOMB_DAMAGE_L2_R2 = 18;
-	private static final double BOMB_DAMAGE_L2_R3 = 24;
-	private static final double SHRAP_DAMAGE_L1_R1 = 5;
-	private static final double SHRAP_DAMAGE_L1_R2 = 8;
-	private static final double SHRAP_DAMAGE_L1_R3 = 13;
-	private static final double SHRAP_DAMAGE_L2_R1 = 8;
-	private static final double SHRAP_DAMAGE_L2_R2 = 12;
-	private static final double SHRAP_DAMAGE_L2_R3 = 18;
+	private static final double[] BOMB_DAMAGE_L1 = {8, 13, 18};
+	private static final double[] BOMB_DAMAGE_L2 = {12, 18, 24};
+	private static final double[] SHRAP_DAMAGE_L1 = {5, 8, 13};
+	private static final double[] SHRAP_DAMAGE_L2 = {8, 2, 18};
 	private static final double BOMB_DAMAGE_ENHANCEMENT = 0.8;
 	private static final double SHRAPNEL_SPREAD = 15;
 	private static final double BOMB_RADIUS = 4;
@@ -128,11 +120,11 @@ public class ShrapnelBomb extends Ability {
 	public ShrapnelBomb(Plugin plugin, Player player) {
 		super(plugin, player, INFO);
 
-		double bombDmg = isLevelOne() ? AbilityUtils.regionalScale(player, BOMB_DAMAGE_L1_R1, BOMB_DAMAGE_L1_R2, BOMB_DAMAGE_L1_R3)
-			: AbilityUtils.regionalScale(player, BOMB_DAMAGE_L2_R1, BOMB_DAMAGE_L2_R2, BOMB_DAMAGE_L2_R3);
+		double bombDmg = isLevelOne() ? AbilityUtils.getRegionScaled(player, BOMB_DAMAGE_L1)
+			: AbilityUtils.getRegionScaled(player, BOMB_DAMAGE_L2);
 
-		double shrapnelDmg = isLevelOne() ? AbilityUtils.regionalScale(player, SHRAP_DAMAGE_L1_R1, SHRAP_DAMAGE_L1_R2, SHRAP_DAMAGE_L1_R3)
-			: AbilityUtils.regionalScale(player, SHRAP_DAMAGE_L2_R1, SHRAP_DAMAGE_L2_R2, SHRAP_DAMAGE_L2_R3);
+		double shrapnelDmg = isLevelOne() ? AbilityUtils.getRegionScaled(player, SHRAP_DAMAGE_L1)
+			: AbilityUtils.getRegionScaled(player, SHRAP_DAMAGE_L2);
 
 		mBombDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_BOMB_DAMAGE, bombDmg);
 		mBombEnhancementDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_BOMB_ENHANCEMENT_DAMAGE, BOMB_DAMAGE_ENHANCEMENT);
@@ -209,11 +201,14 @@ public class ShrapnelBomb extends Ability {
 		Location loc = LocationUtils.getHalfHeightLocation(bomb);
 
 		mCosmetic.bombExplode(mPlayer.getWorld(), mPlayer, loc, mBombRadius);
+		Vector dir = bomb.getVelocity().normalize();
+		dir.setY(0.15);
 
 		for (LivingEntity e : EntityUtils.getNearbyMobs(loc, mBombRadius)) {
 
 			DamageUtils.damage(mPlayer, e, DamageEvent.DamageType.PROJECTILE_SKILL, mBombDamage, mInfo.getLinkedSpell(), true);
-			MovementUtils.knockAway(loc, e, mKnockback, mKnockback / 2, true);
+
+			MovementUtils.knockAwayDirection(dir, e, mKnockback/2);
 
 			boolean enhancementMark = isEnhanced() && e.equals(struckMob);
 
@@ -225,7 +220,6 @@ public class ShrapnelBomb extends Ability {
 		}
 
 		if (struckMob instanceof LivingEntity e) {
-			Vector dir = bomb.getVelocity().normalize();
 			dir.setY(0);
 			shrapnel(loc, dir, e);
 
@@ -296,7 +290,9 @@ public class ShrapnelBomb extends Ability {
 						LivingEntity e = enemyCollisionList.getFirst();
 
 						mCosmetic.shrapnelHit(mPhysicsItem.getWorld(), mPlayer, mPhysicsItem.getLocation());
-						MovementUtils.knockAway(loc, e, mKnockback / 3, mKnockback / 6, true);
+
+						Vector dir = shrap.getVelocity();
+						MovementUtils.knockAwayDirection(dir.setY(0.1), e, mKnockback/3);
 						DamageUtils.damage(mPlayer, e, DamageEvent.DamageType.PROJECTILE_SKILL, mShrapnelDamage, mInfo.getLinkedSpell(), true);
 					}
 
@@ -319,8 +315,8 @@ public class ShrapnelBomb extends Ability {
 			.addLine("Throw a *Shrapnel Bomb* that explodes").styles(UNDERLINED)
 			.addLine("on contact, dealing damage.")
 			.addLine()
-			.addStat("Bomb Damage: %d1 (p)")
-			.statValues(perRegion(a -> a.mBombDamage, BOMB_DAMAGE_L1_R1, BOMB_DAMAGE_L1_R2, BOMB_DAMAGE_L1_R3))
+			.addStat("Bomb Damage: %d1R (p)")
+			.statValues(perRegion(a -> a.mBombDamage, BOMB_DAMAGE_L1[0], BOMB_DAMAGE_L1[1], BOMB_DAMAGE_L1[2]))
 			.addStat("Bomb Radius: %r")
 			.statValues(stat(a -> a.mBombRadius, BOMB_RADIUS))
 			.addStat("Cooldown: %t")
@@ -330,8 +326,8 @@ public class ShrapnelBomb extends Ability {
 			.addLine("release shrapnel behind it.")
 			.addLine("(Shrapnel cannot damage the same mob)")
 			.addLine()
-			.addStat("Shrapnel Damage: %d1 (p)")
-			.statValues(perRegion(a -> a.mShrapnelDamage, SHRAP_DAMAGE_L1_R1, SHRAP_DAMAGE_L1_R2, SHRAP_DAMAGE_L1_R3))
+			.addStat("Shrapnel Damage: %d1R (p)")
+			.statValues(perRegion(a -> a.mShrapnelDamage, SHRAP_DAMAGE_L1[0], SHRAP_DAMAGE_L1[1], SHRAP_DAMAGE_L1[2]))
 			.addStat("Count: %d")
 			.statValues(stat(a -> a.mShrapnelCount, SHRAP_COUNT))
 			.addStat("Effect: Stagger for %t")
@@ -346,12 +342,12 @@ public class ShrapnelBomb extends Ability {
 			.addDashedLine()
 			.addLine("Increase *Shrapnel Bomb*'s damage.").styles(UNDERLINED)
 			.addLine()
-			.addStatComparison("Bomb Damage: %d1 -> %d2 (p)")
-			.statValues(perRegion(BOMB_DAMAGE_L1_R1, BOMB_DAMAGE_L1_R2, BOMB_DAMAGE_L1_R3),
-				perRegion(a -> a.mBombDamage, BOMB_DAMAGE_L2_R1, BOMB_DAMAGE_L2_R2, BOMB_DAMAGE_L2_R3))
-			.addStatComparison("Shrapnel Damage: %d1 -> %d2 (p)")
-			.statValues(perRegion(SHRAP_DAMAGE_L1_R1, SHRAP_DAMAGE_L1_R2, SHRAP_DAMAGE_L1_R3),
-				perRegion(a -> a.mShrapnelDamage, SHRAP_DAMAGE_L2_R1, SHRAP_DAMAGE_L2_R2, SHRAP_DAMAGE_L2_R3))
+			.addStatComparison("Bomb Damage: %d1 -> %d2R (p)")
+			.statValues(perRegion(BOMB_DAMAGE_L1[0], BOMB_DAMAGE_L1[1], BOMB_DAMAGE_L1[2]),
+				perRegion(a -> a.mBombDamage, BOMB_DAMAGE_L2[0], BOMB_DAMAGE_L2[1], BOMB_DAMAGE_L2[2]))
+			.addStatComparison("Shrapnel Damage: %d1 -> %d2R (p)")
+			.statValues(perRegion(SHRAP_DAMAGE_L1[0], SHRAP_DAMAGE_L1[1], SHRAP_DAMAGE_L1[2]),
+				perRegion(a -> a.mShrapnelDamage, SHRAP_DAMAGE_L2[0], SHRAP_DAMAGE_L2[1], SHRAP_DAMAGE_L2[2]))
 			.addLine()
 			.addLine("*Shrapnel Bomb* now boosts your next").styles(UNDERLINED)
 			.addLine("instance of damage against struck targets.")

@@ -15,8 +15,8 @@ public class CoalLauncher extends Ability {
 	private static final String SCOREBOARD = "CoalLauncher";
 	private static final int POINT_COST = 2;
 
-	public static final AbilityInfo<CreeperMistletoe> INFO =
-		new SnowPerkGui.SnowPerkInfo<>(CreeperMistletoe.class, "Coal Launcher", CreeperMistletoe::new)
+	public static final AbilityInfo<CoalLauncher> INFO =
+		new SnowPerkGui.SnowPerkInfo<>(CoalLauncher.class, "Coal Launcher", CoalLauncher::new)
 			.snowPointCost(POINT_COST)
 			.scoreboardId(SCOREBOARD)
 			.displayItem(Material.COAL_BLOCK)
@@ -27,7 +27,7 @@ public class CoalLauncher extends Ability {
 		// Item is given to the player in mechs, when the Coalrupted game is started
 	}
 
-	public static Description<CreeperMistletoe> getDescription() {
+	public static Description<CoalLauncher> getDescription() {
 		return new FormattedDescriptionBuilder<>(() -> INFO).arrowColor(SnowPerkGui.SNOW_ARROW_COLOR)
 			.addDashedLine()
 			.addLine("Start the game with a *Coal Launcher* that").styles(SnowPerkGui.COAL_COLOR)

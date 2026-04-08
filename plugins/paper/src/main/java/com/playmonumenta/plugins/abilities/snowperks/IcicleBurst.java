@@ -116,7 +116,7 @@ public class IcicleBurst extends Ability {
 			.addDashedLine()
 			.addLine("Killing a mob has a chance to create an")
 			.addLine("icy explosion that deals %d damage and").statValues(stat(DAMAGE))
-			.addLine("and *Freezes* mobs within %d blocks for %t.").styles(Frozen.FROZEN_COLOR).statValues(stat(RADIUS), stat(FREEZE_DURATION))
+			.addLine("*Freezes* mobs within %d blocks for %t.").styles(Frozen.FROZEN_COLOR).statValues(stat(RADIUS), stat(FREEZE_DURATION))
 			.addLine()
 			.addLine("Mobs hit by this ability are afflicted with")
 			.addLine("%p *Vulnerability* for %t.").styles(DescriptionUtils.WHITE).statValues(stat(VULN_AMOUNT), stat(VULN_DURATION))

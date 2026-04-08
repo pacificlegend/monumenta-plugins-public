@@ -111,7 +111,7 @@ public class TacticalManeuver extends MultipleChargeAbility {
 
 		World world = mPlayer.getWorld();
 		Vector dir = mPlayer.getLocation().getDirection();
-		dir.multiply(CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_VELOCITY, 1));
+		dir.multiply(CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_VELOCITY, 1.45));
 		mCosmetic.maneuverStartEffect(world, mPlayer, dir);
 		mPlayer.setVelocity(dir.setY(dir.getY() * 0.5 + 0.4));
 

@@ -57,11 +57,11 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 	private static final String GALE_SHOT_PROJECTILE_METAKEY = "GaleShotProjectile";
 	private static final double DAMAGE_L1 = 14;
 	private static final double DAMAGE_L2 = 16;
-	private static final double DAMAGE_PERCENT_L1 = 1.2;
-	private static final double DAMAGE_PERCENT_L2 = 1.4;
+	private static final double DAMAGE_PERCENT_L1 = 1.4;
+	private static final double DAMAGE_PERCENT_L2 = 1.6;
 	private static final int ABILITY_REQ = 2;
 	private static final int SHOT_REQ = 2;
-	private static final int DURATION = Constants.TICKS_PER_SECOND * 8;
+	private static final int DURATION = Constants.TICKS_PER_SECOND * 12;
 	private static final int SLOWNESS_DURATION = Constants.TICKS_PER_SECOND * 3;
 	private static final double SLOWNESS_AMPLIFIER = 0.25;
 
@@ -226,7 +226,7 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 						mAbilityCount = mAbilityRequirement;
 						imbue();
 						updateAbility();
-						return -1337; // Prevents gaining gale shot from the same mob
+						return 0;
 					} else {
 						return next;
 					}
@@ -292,7 +292,6 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 			.addLine()
 			.addLine("Landing %d *Gale Shots* on the same mob refreshes *Gale Shot*.").styles(UNDERLINED, UNDERLINED)
 			.statValues(stat(a -> a.mShotRequirement, SHOT_REQ))
-			.addLine("(Can only be triggered once per mob.)")
 			.addDashedLine();
 	}
 

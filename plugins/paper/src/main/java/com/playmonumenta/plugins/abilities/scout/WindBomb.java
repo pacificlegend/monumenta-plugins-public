@@ -60,17 +60,17 @@ public class WindBomb extends Ability {
 
 	private static final int DURATION = Constants.TICKS_PER_SECOND * 4;
 	private static final int SLOW_FALL_POTENCY = 0;
-	private static final int COOLDOWN_1 = Constants.TICKS_PER_SECOND * 16;
-	private static final int COOLDOWN_2 = Constants.TICKS_PER_SECOND * 14;
+	private static final int COOLDOWN_1 = Constants.TICKS_PER_SECOND * 12;
+	private static final int COOLDOWN_2 = Constants.TICKS_PER_SECOND * 10;
 	private static final int SLOW_FALL_DURATION = Constants.TICKS_PER_SECOND;
 	private static final int SIZE = 2;
 	private static final int RADIUS = 5;
 
-	private static final double DAMAGE_FLAT_L1 = 10;
-	private static final double DAMAGE_FLAT_L2 = 14;
-	private static final double DAMAGE_PERCENT_L1 = 0.6;
-	private static final double DAMAGE_PERCENT_L2 = 0.8;
-	private static final double PULL_VELOCITY = 0.2;
+	private static final double DAMAGE_FLAT_L1 = 7;
+	private static final double DAMAGE_FLAT_L2 = 11;
+	private static final double DAMAGE_PERCENT_L1 = 0.4;
+	private static final double DAMAGE_PERCENT_L2 = 0.6;
+	private static final double PULL_VELOCITY = 0.21;
 
 	private static final double VORTEX_HEIGHT = 3;
 	private static final int PULL_INTERVAL = 4;

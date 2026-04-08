@@ -25,7 +25,6 @@ import com.playmonumenta.plugins.itemstats.enchantments.TwoHanded;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.potion.PotionManager;
-import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
@@ -71,7 +70,7 @@ public class Lockdown extends Ability implements AbilityWithChargesOrStacks, Abi
 	private static final int INITIAL_LOAD_TIME = Constants.TICKS_PER_SECOND; // 1s
 	private static final int LOAD_TIME = 5; // 0.25s
 	private static final int COOLDOWN = Constants.TICKS_PER_SECOND * 8;
-	private static final int MIDAIR_DURATION = Constants.TICKS_PER_SECOND * 2;
+	private static final int MIDAIR_DURATION = Constants.TICKS_PER_SECOND * 3;
 
 	public static final String CHARM_SHOT_COUNT = "Lockdown Shots";
 	public static final String CHARM_KNOCKBACK = "Lockdown Knockback";

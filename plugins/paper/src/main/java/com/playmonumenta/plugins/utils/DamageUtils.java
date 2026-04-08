@@ -27,11 +27,11 @@ public class DamageUtils {
 	 */
 	public static @Nullable DamageEvent.Metadata nextEventMetadata = null;
 
-	public static double getDamageMultiplier(double armor, double agility, double epf, boolean environmental) {
+	public static double getDamageMultiplier(double armor, double agility, double epf, double defenseModifier) {
 		double ar = Math.max(0, armor);
 		double ag = Math.max(0, agility);
 		double defense = ar + ag == 0 ? 0 : ar + ag - 0.5 * ar * ag / (ar + ag);
-		return environmental ? Math.pow(0.96, (defense / 2) + epf) : Math.pow(0.96, defense + epf);
+		return Math.pow(0.96, defense * defenseModifier + epf);
 	}
 
 	/**

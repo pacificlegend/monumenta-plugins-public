@@ -52,7 +52,7 @@ public class SpiritArcheryTargetBoss extends BossAbilityGroup implements Listene
 					player.sendMessage(Component.text("[Spiritsinger]", NamedTextColor.GOLD)
 						.append(Component.text(" Your arcane arts hold no power over the spirits.", NamedTextColor.WHITE)));
 					break;
-				case AILMENT, FIRE, POISON:
+				case AILMENT, FIRE:
 					if (!mHasBeenHitByDoTRecently) {
 						player.sendMessage(Component.text("[Spiritsinger]", NamedTextColor.GOLD)
 							.append(Component.text(" It would displease them greatly if they knew their bodies were desecrated.", NamedTextColor.WHITE)));

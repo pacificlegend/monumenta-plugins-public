@@ -34,7 +34,6 @@ public class Outrage implements Enchantment {
 
 		DamageEvent.DamageType type = event.getType();
 		if (type == DamageEvent.DamageType.AILMENT
-			|| type == DamageEvent.DamageType.POISON
 			|| type == DamageEvent.DamageType.FALL
 			|| type == DamageEvent.DamageType.OTHER
 			|| type == DamageEvent.DamageType.TRUE

@@ -70,8 +70,7 @@ public class RegenerationPercentBoss extends BossAbilityGroup {
 	private static final List<DamageEvent.DamageType> DOT_DAMAGE_LIST = List.of(
 		DamageEvent.DamageType.THORNS,
 		DamageEvent.DamageType.FIRE,
-		DamageEvent.DamageType.AILMENT,
-		DamageEvent.DamageType.POISON
+		DamageEvent.DamageType.AILMENT
 	);
 
 	@Override

@@ -31,21 +31,20 @@ import org.jetbrains.annotations.Nullable;
 public class DamageEvent extends Event implements Cancellable {
 
 	public enum DamageType {
-		MELEE(false, true, "Melee"),
-		MELEE_SKILL(false, true, "Melee Skill"),
-		MELEE_ENCH(false, true, "Melee Enchantment"),
-		PROJECTILE(false, true, "Projectile"),
-		PROJECTILE_SKILL(false, true, "Projectile Skill"),
-		PROJECTILE_ENCH(false, true, "Projectile Enchantment"),
-		MAGIC(false, true, "Magic"),
-		THORNS(false, true, "Thorns"),
-		BLAST(false, true, "Blast"),
-		FIRE(true, true, "Fire"),
-		FALL(true, true, "Fall"),
-		AILMENT(false, false, "Ailment"),
-		POISON(false, false, "Poison"),
-		TRUE(false, false, "True"),
-		OTHER(false, false, "Other");
+		MELEE(1, true, "Melee"),
+		MELEE_SKILL(1, true, "Melee Skill"),
+		MELEE_ENCH(1, true, "Melee Enchantment"),
+		PROJECTILE(1, true, "Projectile"),
+		PROJECTILE_SKILL(1, true, "Projectile Skill"),
+		PROJECTILE_ENCH(1, true, "Projectile Enchantment"),
+		MAGIC(1, true, "Magic"),
+		THORNS(1, true, "Thorns"),
+		BLAST(1, true, "Blast"),
+		FIRE(0.5, true, "Fire"),
+		FALL(0.5, true, "Fall"),
+		AILMENT(0, false, "Ailment"),
+		TRUE(0, false, "True"),
+		OTHER(0, false, "Other");
 
 		public static DamageType getType(DamageCause cause) {
 			// List every cause for completeness
@@ -60,8 +59,7 @@ public class DamageEvent extends Event implements Cancellable {
 				case BLOCK_EXPLOSION, ENTITY_EXPLOSION -> BLAST;
 				case FIRE, FIRE_TICK, HOT_FLOOR, LAVA -> FIRE;
 				case FALL, FLY_INTO_WALL -> FALL;
-				case POISON -> POISON;
-				case WITHER -> AILMENT;
+				case POISON, WITHER -> AILMENT;
 				case VOID, KILL, SUICIDE -> TRUE;
 				// we should log an error on default, this makes porting easier since any new damage types added will
 				// automatically lead to a stacktrace
@@ -76,18 +74,18 @@ public class DamageEvent extends Event implements Cancellable {
 			return getType(cause) == type;
 		}
 
-		private final boolean mIsEnvironmental;
+		private final double mDefenseModifier;
 		private final boolean mIsDefendable;
 		private final String mDisplay;
 
-		DamageType(boolean isEnvironmental, boolean isDefendable, String display) {
-			mIsEnvironmental = isEnvironmental;
+		DamageType(double defenseModifier, boolean isDefendable, String display) {
+			mDefenseModifier = defenseModifier;
 			mIsDefendable = isDefendable;
 			mDisplay = display;
 		}
 
-		public boolean isEnvironmental() {
-			return mIsEnvironmental;
+		public double getDefenseModifier() {
+			return mDefenseModifier;
 		}
 
 		public boolean isDefendable() {
@@ -109,7 +107,7 @@ public class DamageEvent extends Event implements Cancellable {
 		}
 
 		public static EnumSet<DamageType> getUnscalableDamageType() {
-			return EnumSet.of(AILMENT, POISON, FALL, OTHER, TRUE);
+			return EnumSet.of(AILMENT, FALL, OTHER, TRUE);
 		}
 
 		public static EnumSet<DamageType> getAllMeleeTypes() {
@@ -322,7 +320,7 @@ public class DamageEvent extends Event implements Cancellable {
 		if (damage >= DAMAGE_WARN) {
 			damageCapWarn(damage);
 		}
-		if (mMetadata.mType == DamageType.POISON && mDamagee instanceof Player && mDamagee.getHealth() - damage <= 0) {
+		if (getCause() == DamageCause.POISON && mDamagee instanceof Player && mDamagee.getHealth() - damage <= 0) {
 			mEvent.setDamage(Math.max(mDamagee.getHealth() - 1, 0));
 			return;
 		}

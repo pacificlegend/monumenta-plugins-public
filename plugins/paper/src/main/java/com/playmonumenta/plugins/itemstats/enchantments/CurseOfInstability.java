@@ -5,7 +5,8 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.Enchantment;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
-import java.util.Random;
+import com.playmonumenta.plugins.utils.FastUtils;
+import java.util.List;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -15,7 +16,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class CurseOfInstability implements Enchantment {
 
-	private static final DamageType[] POSSIBLE_DAMAGE_TYPES = new DamageType[]{DamageType.BLAST, DamageType.MELEE, DamageType.PROJECTILE, DamageType.MAGIC};
+	private static final List<DamageType> POSSIBLE_DAMAGE_TYPES = List.of(
+		DamageType.MELEE,
+		DamageType.PROJECTILE,
+		DamageType.MAGIC,
+		DamageType.BLAST
+	);
 
 	@Override
 	public @NotNull String getName() {
@@ -35,9 +41,8 @@ public class CurseOfInstability implements Enchantment {
 	@Override
 	public void onHurt(Plugin plugin, Player player, double value, DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
 		DamageType prevType = event.getType();
-		if (prevType.isDefendable() && !prevType.isEnvironmental() && prevType != DamageType.THORNS) {
-			Random random = new Random();
-			DamageType newType = POSSIBLE_DAMAGE_TYPES[random.nextInt(POSSIBLE_DAMAGE_TYPES.length)];
+		if (POSSIBLE_DAMAGE_TYPES.contains(prevType)) {
+			DamageType newType = FastUtils.getRandomElement(POSSIBLE_DAMAGE_TYPES);
 			event.setType(newType);
 		}
 	}

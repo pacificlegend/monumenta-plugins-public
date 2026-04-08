@@ -150,7 +150,7 @@ public class CounterHit extends Spell {
 		// Return if the damage instance isn't a player, if it hasn't been long enough since the last counter, if a spell is currently active, if the boss would be dead after the hit, or if it's a low-damage DOT
 		double healthRemaining = mBoss.getHealth() - event.getFinalDamage(true);
 		if (!(event.getDamager() instanceof Player player) || mTicks <= ATTACK_DELAY + ATTACK_EXTRA_WINDOW || mBossClass.mSpellActive || healthRemaining <= 0 || mBoss.isDead() || !mBoss.isValid()
-			|| event.getType() == DamageEvent.DamageType.AILMENT || event.getType() == DamageEvent.DamageType.POISON || (POSSIBLE_DOT.contains(event.getType()) && event.getFinalDamage(true) <= 15)) {
+			|| event.getType() == DamageEvent.DamageType.AILMENT || (POSSIBLE_DOT.contains(event.getType()) && event.getFinalDamage(true) <= 15)) {
 			return;
 		}
 

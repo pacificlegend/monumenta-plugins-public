@@ -845,7 +845,6 @@ public class AbilityUtils {
 		DamageEvent.DamageType type = event.getType();
 		if (type == DamageEvent.DamageType.AILMENT
 			|| type == DamageEvent.DamageType.THORNS
-			|| type == DamageEvent.DamageType.POISON
 			|| type == DamageEvent.DamageType.FIRE) {
 			return true;
 		}

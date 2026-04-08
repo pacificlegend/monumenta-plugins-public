@@ -38,7 +38,7 @@ public class Armor implements Attribute {
 			boolean adaptability = plugin.mItemStatManager.getEnchantmentLevel(player, EnchantmentType.ADAPTABILITY) > 0;
 			double damageMultiplier = getDamageMultiplier(value, getSecondaryEnchantsMod(event, plugin, player),
 				plugin.mItemStatManager.getAttributeAmount(player, AttributeType.AGILITY), Agility.getSecondaryEnchantsLevel(event, plugin, player),
-				getSecondaryEnchantCap(player), getSecondaryEHPMultiplier(player), adaptability, 0, event.getType().isEnvironmental());
+				getSecondaryEnchantCap(player), getSecondaryEHPMultiplier(player), adaptability, 0, event.getType().getDefenseModifier());
 			event.setFlatDamage(event.getDamage() * damageMultiplier);
 		}
 	}
@@ -52,10 +52,10 @@ public class Armor implements Attribute {
 	 * @param agilityEnchantLevel Total secondary agility enchantment level, see {@link Agility#getSecondaryEnchantsLevel(DamageEvent, Plugin, Player)}
 	 * @param adaptability        Whether the {@link Adaptability} enchantment is present
 	 * @param epf                 EPF from protection enchantments
-	 * @param environmental       Whether the damage is environmental
+	 * @param defenseModifier     How much to multiply armor/agility by (1 for most types, 0.5 for fire/fall, 0 for ailment/true)
 	 * @return Damage multiplier
 	 */
-	public static double getDamageMultiplier(double armor, double armorEnchantLevel, double agility, double agilityEnchantLevel, double secondaryEnchantsCap, double secondaryEHPMultiplierPerLevel, boolean adaptability, double epf, boolean environmental) {
+	public static double getDamageMultiplier(double armor, double armorEnchantLevel, double agility, double agilityEnchantLevel, double secondaryEnchantsCap, double secondaryEHPMultiplierPerLevel, boolean adaptability, double epf, double defenseModifier) {
 		double armorValueMod = 0;
 		double agilityValueMod = 0;
 		if (adaptability) {
@@ -76,7 +76,7 @@ public class Armor implements Attribute {
 		double armorBonus = Math.log(1 + secondaryEHPMultiplierPerLevel * armorValueMod) / Math.log(25.0 / 24.0);
 		double agilityBonus = Math.log(1 + secondaryEHPMultiplierPerLevel * agilityValueMod) / Math.log(25.0 / 24.0);
 
-		return DamageUtils.getDamageMultiplier(armor + armorBonus, agility + agilityBonus, epf, environmental);
+		return DamageUtils.getDamageMultiplier(armor + armorBonus, agility + agilityBonus, epf, defenseModifier);
 	}
 
 	/**

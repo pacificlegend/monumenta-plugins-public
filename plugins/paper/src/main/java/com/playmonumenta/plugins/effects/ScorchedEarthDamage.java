@@ -22,8 +22,7 @@ public class ScorchedEarthDamage extends Effect {
 		DamageType.FIRE,
 		DamageType.OTHER,
 		DamageType.TRUE,
-		DamageType.FALL,
-		DamageType.POISON
+		DamageType.FALL
 	);
 
 	private final double mDamage;

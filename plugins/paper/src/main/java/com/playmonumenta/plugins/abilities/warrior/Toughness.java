@@ -74,7 +74,7 @@ public class Toughness extends Ability {
 
 	@Override
 	public void onHurt(DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
-		if (event.getType() == DamageType.AILMENT || event.getType() == DamageType.POISON || event.getCause() == EntityDamageEvent.DamageCause.DROWNING) {
+		if (event.getType() == DamageType.AILMENT || event.getCause() == EntityDamageEvent.DamageCause.DROWNING) {
 			event.setFlatDamage(event.getDamage() * (1 - mDoTDamageReduction));
 		}
 	}

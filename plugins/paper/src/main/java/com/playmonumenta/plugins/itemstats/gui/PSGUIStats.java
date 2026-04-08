@@ -195,7 +195,7 @@ class PSGUIStats {
 				+ (inverseProtection.getEPF() * get(inverseProtection.getEnchantmentType()));
 
 			damageMultiplier = Armor.getDamageMultiplier(armor, armorBonus, agility, agilityBonus,
-				Armor.getSecondaryEnchantCap(ServerProperties.getRegion(mPlayer)), Armor.getSecondaryEHPMultiplier(mPlayer), adaptability, epf, protection.getType().isEnvironmental());
+				Armor.getSecondaryEnchantCap(ServerProperties.getRegion(mPlayer)), Armor.getSecondaryEHPMultiplier(mPlayer), adaptability, epf, protection.getType().getDefenseModifier());
 		}
 
 		// when Steadfast is enabled, also include Second Wind in calculation

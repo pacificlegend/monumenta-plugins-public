@@ -97,7 +97,7 @@ public class Taunt extends Spell {
 		);
 
 		//Return if not a player or if damage type is invalid
-		if (!(event.getDamager() instanceof Player player) || !mTaunting || event.getType() == DamageEvent.DamageType.AILMENT || event.getType() == DamageEvent.DamageType.FIRE || event.getType() == DamageEvent.DamageType.POISON
+		if (!(event.getDamager() instanceof Player player) || !mTaunting || event.getType() == DamageEvent.DamageType.AILMENT || event.getType() == DamageEvent.DamageType.FIRE
 			|| (POSSIBLE_DOT.contains(event.getType()) && event.getFinalDamage(true) <= 15)) {
 			return;
 		}

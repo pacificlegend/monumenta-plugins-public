@@ -134,7 +134,7 @@ public class FileUtils {
 		Chunk chunk = location.getChunk();
 
 		int cx = chunk.getX();
-		int cz = chunk.getX();
+		int cz = chunk.getZ();
 
 		int rx = cx >> 5;
 		int rz = cz >> 5;

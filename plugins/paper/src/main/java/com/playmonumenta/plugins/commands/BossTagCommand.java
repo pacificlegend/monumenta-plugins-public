@@ -9,6 +9,7 @@ import com.playmonumenta.libraryofsouls.Soul;
 import com.playmonumenta.libraryofsouls.SoulsDatabase;
 import com.playmonumenta.plugins.bosses.BossManager;
 import com.playmonumenta.plugins.bosses.bosses.BossParameters;
+import com.playmonumenta.plugins.bosses.bosses.GenericTargetBoss;
 import com.playmonumenta.plugins.bosses.bosses.PhasesManagerBoss;
 import com.playmonumenta.plugins.bosses.parameters.BossParam;
 import com.playmonumenta.plugins.bosses.parameters.BossPhasesList;
@@ -28,6 +29,7 @@ import dev.jorel.commandapi.arguments.BooleanArgument;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
+import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.SafeSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -73,6 +76,9 @@ public class BossTagCommand {
 	private static final String COMMAND = "bosstag";
 
 	private static final Map<String, List<Soul>> SEARCH_OUTCOME_MAP = new LinkedHashMap<>();
+	private static final List<FixEntry> FIXES = List.of(
+		new FixEntry("generic_target_mob_only", "Remove " + GenericTargetBoss.identityTag + " from non-Mob entities in LoS", BossTagFixes::fixGenericTargetNonMobEntities)
+	);
 
 	public static void register() {
 
@@ -297,6 +303,30 @@ public class BossTagCommand {
 							})
 					)
 			)
+
+			.withSubcommand(
+				new CommandAPICommand("fix")
+					.executesPlayer((player, args) -> {
+						listFixes(player);
+					})
+			)
+
+			.withSubcommand(
+				new CommandAPICommand("fix")
+					.withArguments(new LiteralArgument("*"))
+					.executesPlayer((player, args) -> {
+						runAllFixes(player);
+					})
+			)
+
+			.withSubcommand(
+				new CommandAPICommand("fix")
+					.withArguments(new StringArgument("fix_name").replaceSuggestions(ArgumentSuggestions.strings(FIXES.stream().map(FixEntry::name).toList())))
+					.executesPlayer((player, args) -> {
+						runFix(player, args.getUnchecked("fix_name"));
+					})
+			)
+
 			.register();
 
 	}
@@ -351,6 +381,8 @@ public class BossTagCommand {
 			return mIsDeprecated;
 		}
 	}
+
+	private record FixEntry(String name, String description, Consumer<Player> action) {}
 
 	private static void addNewBossTag(Player player, String newTag) throws WrapperCommandSyntaxException {
 		BookOfSouls bos = getBos(player);
@@ -1394,5 +1426,35 @@ public class BossTagCommand {
 		player.sendMessage(Component.empty()
 			.append(Component.text("===========================================", NamedTextColor.DARK_PURPLE).decoration(TextDecoration.BOLD, true))
 		);
+	}
+
+	private static void listFixes(Player player) {
+		player.sendMessage(Component.empty()
+			.append(Component.text("[BossTag] ", NamedTextColor.GOLD).decoration(TextDecoration.BOLD, true))
+			.append(Component.text("Available fixes:", NamedTextColor.GRAY).decoration(TextDecoration.BOLD, false)));
+		for (FixEntry fix : FIXES) {
+			player.sendMessage(Component.empty()
+				.append(Component.text("  " + fix.name(), NamedTextColor.WHITE))
+				.append(Component.text(" - " + fix.description(), NamedTextColor.GRAY)));
+		}
+	}
+
+	private static void runFix(Player player, String fixName) throws WrapperCommandSyntaxException {
+		for (FixEntry fix : FIXES) {
+			if (fix.name().equals(fixName)) {
+				fix.action().accept(player);
+				return;
+			}
+		}
+		throw CommandAPI.failWithString("Unknown fix: " + fixName);
+	}
+
+	private static void runAllFixes(Player player) {
+		player.sendMessage(Component.empty()
+			.append(Component.text("[BossTag] ", NamedTextColor.GOLD).decoration(TextDecoration.BOLD, true))
+			.append(Component.text("Running all fixes...", NamedTextColor.GRAY).decoration(TextDecoration.BOLD, false)));
+		for (FixEntry fix : FIXES) {
+			fix.action().accept(player);
+		}
 	}
 }

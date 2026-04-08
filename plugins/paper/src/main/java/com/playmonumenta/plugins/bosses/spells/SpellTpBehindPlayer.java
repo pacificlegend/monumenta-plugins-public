@@ -54,6 +54,8 @@ public class SpellTpBehindPlayer extends Spell {
 			if (mParameters.PREFER_TARGET) {
 				LivingEntity target = ((Mob) mLauncher).getTarget();
 				if (target != null
+					&& target.getLocation().getWorld() != null
+					&& target.getLocation().getWorld().equals(mLauncher.getWorld())
 					&& target.getLocation().distance(mLauncher.getLocation()) < mParameters.TARGETS.getRange()
 					&& !ZoneUtils.hasZoneProperty(target, ZoneProperty.RESIST_5)) {
 					targetEntity = target;

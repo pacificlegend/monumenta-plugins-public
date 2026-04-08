@@ -6,7 +6,6 @@ import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Constants.Colors;
 import com.playmonumenta.plugins.Plugin;
-import com.playmonumenta.plugins.abilities.warlock.DarkesterestPact;
 import com.playmonumenta.plugins.commands.ShardSorterCommand;
 import com.playmonumenta.plugins.commands.ToggleSwap;
 import com.playmonumenta.plugins.effects.EffectManager;
@@ -243,10 +242,6 @@ public class PlayerListener implements Listener {
 		/* This needs to stick around basically forever to remove this no-longer-needed tag */
 		player.removeScoreboardTag("MidTransfer");
 
-		if (!StasisListener.isInStasis(player) && player.getGameMode() == GameMode.SPECTATOR && ScoreboardUtils.getScoreboardValue(player, DarkesterestPact.HAS_BECOME_PUFFERFISH_SCOREBOARD).isPresent()) {
-			ZoneUtils.setExpectedGameMode(player);
-		}
-
 		mPlugin.mTrackingManager.addEntity(player);
 		mPlugin.mCosmeticsManager.playerJoinEvent(event);
 		POIManager.getInstance().playerJoinEvent(event);
@@ -324,10 +319,6 @@ public class PlayerListener implements Listener {
 		mPlugin.mTrackingManager.removeEntity(player);
 
 		Gui.playerQuit(player);
-
-		if (!StasisListener.isInStasis(player) && player.getGameMode() == GameMode.SPECTATOR && ScoreboardUtils.getScoreboardValue(player, DarkesterestPact.HAS_BECOME_PUFFERFISH_SCOREBOARD).isPresent()) {
-			ZoneUtils.setExpectedGameMode(player);
-		}
 
 		Team playersTeam = Bukkit.getScoreboardManager().getMainScoreboard().getTeam(PLAYERS_TEAM_NAME);
 		if (playersTeam != null) {
@@ -1435,11 +1426,6 @@ public class PlayerListener implements Listener {
 		// Cancel teleports caused by forbidden sources
 		TeleportCause cause = event.getCause();
 
-		Player player = event.getPlayer();
-		if (cause != TeleportCause.SPECTATE && !StasisListener.isInStasis(player) && player.getGameMode() == GameMode.SPECTATOR && ScoreboardUtils.getScoreboardValue(player, DarkesterestPact.HAS_BECOME_PUFFERFISH_SCOREBOARD).isPresent()) {
-			ZoneUtils.setExpectedGameMode(player);
-		}
-
 		if (cause == TeleportCause.ENDER_PEARL) {
 			EnderPearlTracker.allowTeleport(event.getPlayer());
 			event.setCancelled(true);
@@ -1454,6 +1440,7 @@ public class PlayerListener implements Listener {
 			return;
 		}
 
+		Player player = event.getPlayer();
 		if (cause == TeleportCause.SPECTATE && !player.isOp()) {
 			event.setCancelled(true);
 			return;

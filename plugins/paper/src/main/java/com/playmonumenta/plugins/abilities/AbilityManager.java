@@ -9,7 +9,6 @@ import com.playmonumenta.plugins.abilities.alchemist.Bezoar;
 import com.playmonumenta.plugins.abilities.alchemist.BrutalAlchemy;
 import com.playmonumenta.plugins.abilities.alchemist.EnergizingElixir;
 import com.playmonumenta.plugins.abilities.alchemist.GruesomeAlchemy;
-import com.playmonumenta.plugins.abilities.alchemist.IJustMadeSomeBS;
 import com.playmonumenta.plugins.abilities.alchemist.IronTincture;
 import com.playmonumenta.plugins.abilities.alchemist.UnstableAmalgam;
 import com.playmonumenta.plugins.abilities.alchemist.VolatileReaction;
@@ -26,7 +25,6 @@ import com.playmonumenta.plugins.abilities.cleric.DivineJustice;
 import com.playmonumenta.plugins.abilities.cleric.HandOfLight;
 import com.playmonumenta.plugins.abilities.cleric.HeavenlyBoon;
 import com.playmonumenta.plugins.abilities.cleric.Illuminate;
-import com.playmonumenta.plugins.abilities.cleric.SacredConstructs;
 import com.playmonumenta.plugins.abilities.cleric.SanctifiedArmor;
 import com.playmonumenta.plugins.abilities.cleric.TouchofRadiance;
 import com.playmonumenta.plugins.abilities.cleric.paladin.ChoirBells;
@@ -40,7 +38,6 @@ import com.playmonumenta.plugins.abilities.cleric.seraph.KeeperVirtueHarmingFlar
 import com.playmonumenta.plugins.abilities.cleric.seraph.KeeperVirtueShieldingFlare;
 import com.playmonumenta.plugins.abilities.cleric.seraph.Rejuvenation;
 import com.playmonumenta.plugins.abilities.mage.ArcaneStrike;
-import com.playmonumenta.plugins.abilities.mage.Cataclysm;
 import com.playmonumenta.plugins.abilities.mage.Channeling;
 import com.playmonumenta.plugins.abilities.mage.ElementalArrows;
 import com.playmonumenta.plugins.abilities.mage.FrostNova;
@@ -74,7 +71,6 @@ import com.playmonumenta.plugins.abilities.rogue.EscapeDeath;
 import com.playmonumenta.plugins.abilities.rogue.MagicDodging;
 import com.playmonumenta.plugins.abilities.rogue.Skirmisher;
 import com.playmonumenta.plugins.abilities.rogue.Smokescreen;
-import com.playmonumenta.plugins.abilities.rogue.SuperBladeDanceUltra;
 import com.playmonumenta.plugins.abilities.rogue.ViciousCombos;
 import com.playmonumenta.plugins.abilities.rogue.assassin.BodkinBlitz;
 import com.playmonumenta.plugins.abilities.rogue.assassin.CloakAndDagger;
@@ -82,7 +78,6 @@ import com.playmonumenta.plugins.abilities.rogue.assassin.CoupDeGrace;
 import com.playmonumenta.plugins.abilities.rogue.swordsage.BladeDance;
 import com.playmonumenta.plugins.abilities.rogue.swordsage.DeadlyRonde;
 import com.playmonumenta.plugins.abilities.rogue.swordsage.WindWalk;
-import com.playmonumenta.plugins.abilities.scout.AllOutScout;
 import com.playmonumenta.plugins.abilities.scout.Fleetfooted;
 import com.playmonumenta.plugins.abilities.scout.HuntingCompanion;
 import com.playmonumenta.plugins.abilities.scout.PartingShot;
@@ -104,7 +99,6 @@ import com.playmonumenta.plugins.abilities.shaman.ChainLightning;
 import com.playmonumenta.plugins.abilities.shaman.CleansingTotem;
 import com.playmonumenta.plugins.abilities.shaman.EarthenTremor;
 import com.playmonumenta.plugins.abilities.shaman.FlameTotem;
-import com.playmonumenta.plugins.abilities.shaman.GiftOfSentience;
 import com.playmonumenta.plugins.abilities.shaman.IgnitionDrive;
 import com.playmonumenta.plugins.abilities.shaman.InterconnectedHavoc;
 import com.playmonumenta.plugins.abilities.shaman.LightningTotem;
@@ -121,7 +115,6 @@ import com.playmonumenta.plugins.abilities.warlock.AmplifyingHex;
 import com.playmonumenta.plugins.abilities.warlock.CholericFlames;
 import com.playmonumenta.plugins.abilities.warlock.Culling;
 import com.playmonumenta.plugins.abilities.warlock.CursedWound;
-import com.playmonumenta.plugins.abilities.warlock.DarkesterestPact;
 import com.playmonumenta.plugins.abilities.warlock.GraspingClaws;
 import com.playmonumenta.plugins.abilities.warlock.MelancholicLament;
 import com.playmonumenta.plugins.abilities.warlock.PhlegmaticResolve;
@@ -138,7 +131,6 @@ import com.playmonumenta.plugins.abilities.warrior.CounterStrike;
 import com.playmonumenta.plugins.abilities.warrior.DefensiveLine;
 import com.playmonumenta.plugins.abilities.warrior.Formidable;
 import com.playmonumenta.plugins.abilities.warrior.Frenzy;
-import com.playmonumenta.plugins.abilities.warrior.RecklessSwing;
 import com.playmonumenta.plugins.abilities.warrior.Riposte;
 import com.playmonumenta.plugins.abilities.warrior.ShieldBash;
 import com.playmonumenta.plugins.abilities.warrior.Toughness;
@@ -282,7 +274,6 @@ public class AbilityManager {
 			} else {
 				mDisabledSpecAbilities.addAll(getSpecOverworldAbilities());
 			}
-			mReferenceAbilities.addAll(getUltimateOverworldAbilities());
 		}
 
 		if (ServerProperties.getShardName().contains("valley") || ServerProperties.getShardName().contains("dev")) {
@@ -596,19 +587,6 @@ public class AbilityManager {
 			DecayedTotem.INFO,
 			SpiritcatcherOrbs.INFO,
 			Devastation.INFO
-		);
-	}
-
-	public static List<AbilityInfo<?>> getUltimateOverworldAbilities() {
-		return List.of(
-			IJustMadeSomeBS.INFO,
-			SacredConstructs.INFO,
-			Cataclysm.INFO,
-			SuperBladeDanceUltra.INFO,
-			AllOutScout.INFO,
-			GiftOfSentience.INFO,
-			DarkesterestPact.INFO,
-			RecklessSwing.INFO
 		);
 	}
 

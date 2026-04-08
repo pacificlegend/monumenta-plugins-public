@@ -95,7 +95,7 @@ public class TacticalManeuver extends MultipleChargeAbility {
 	}
 
 	public boolean cast() {
-		if (ZoneUtils.hasZoneProperty(mPlayer, ZoneProperty.NO_MOBILITY_ABILITIES) || mPlugin.mEffectManager.hasEffect(mPlayer, "AllOutScoutMaxHealth")) {
+		if (ZoneUtils.hasZoneProperty(mPlayer, ZoneProperty.NO_MOBILITY_ABILITIES)) {
 			return false;
 		}
 

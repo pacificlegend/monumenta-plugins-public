@@ -11,7 +11,6 @@ import com.playmonumenta.plugins.abilities.rogue.Dodging;
 import com.playmonumenta.plugins.abilities.rogue.EscapeDeath;
 import com.playmonumenta.plugins.abilities.rogue.Skirmisher;
 import com.playmonumenta.plugins.abilities.rogue.Smokescreen;
-import com.playmonumenta.plugins.abilities.rogue.SuperBladeDanceUltra;
 import com.playmonumenta.plugins.abilities.rogue.ViciousCombos;
 import com.playmonumenta.plugins.abilities.rogue.assassin.BodkinBlitz;
 import com.playmonumenta.plugins.abilities.rogue.assassin.CloakAndDagger;
@@ -51,7 +50,6 @@ public class Rogue extends PlayerClass {
 		mDisplayItem = Material.STONE_SWORD;
 		mClassDescription = "Rogues excel in one-on-one battles, using precise strikes to bring down dangerous elite enemies.";
 		mPassive = Dethroner.INFO;
-		mUltimate = SuperBladeDanceUltra.INFO;
 
 		mSpecOne.mAbilities.add(BladeDance.INFO);
 		mSpecOne.mAbilities.add(DeadlyRonde.INFO);
@@ -72,8 +70,6 @@ public class Rogue extends PlayerClass {
 		mSpecTwo.mDescription = "Assassins excel in precise strikes and deception to devastate their enemies.";
 
 		mTriggerOrder = ImmutableList.of(
-			SuperBladeDanceUltra.INFO,
-
 			BladeDance.INFO,
 			WindWalk.INFO,
 

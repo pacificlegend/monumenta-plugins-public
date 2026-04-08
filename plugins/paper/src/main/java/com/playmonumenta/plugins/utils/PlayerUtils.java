@@ -67,7 +67,6 @@ import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.PufferFish;
 import org.bukkit.entity.Trident;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -203,7 +202,7 @@ public class PlayerUtils {
 		double rangeSquared = range * range;
 		for (Player player : ps) {
 			if (player.getLocation().distanceSquared(loc) < rangeSquared
-				&& (player.getGameMode() != GameMode.SPECTATOR || player.getSpectatorTarget() instanceof PufferFish)
+				&& player.getGameMode() != GameMode.SPECTATOR
 				&& (includeNonTargetable || !AbilityUtils.isStealthed(player))
 				&& (includeDead || !Plugin.getInstance().mEffectManager.hasEffect(player, RespawnStasis.class))) {
 				players.add(player);

@@ -61,11 +61,6 @@ public class SkillPage extends Page {
 			addSpecItem(6, mClass.mSpecTwo);
 		}
 
-		if (hasRingAccess) {
-			mGui.setAbilityIcon(0, 1, mClass, null, mClass.mUltimate);
-			mGui.setUltimateIcon(0, 2, mClass, mClass.mUltimate);
-		}
-
 		// Summary
 		Component description = mClass.getDescription(mGui.mPlayer).appendNewline().appendSpace();
 

@@ -564,8 +564,7 @@ public class FormattedDescriptionBuilder<T extends Ability> extends DescriptionB
 			PlayerClass playerClass = CLASSES.get().get(i);
 			if (playerClass.mAbilities.contains(ability) || playerClass.mPassive == ability
 				|| playerClass.mSpecOne.mAbilities.contains(ability) || playerClass.mSpecOne.mPassive == ability
-				|| playerClass.mSpecTwo.mAbilities.contains(ability) || playerClass.mSpecTwo.mPassive == ability
-				|| playerClass.mUltimate == ability) {
+				|| playerClass.mSpecTwo.mAbilities.contains(ability) || playerClass.mSpecTwo.mPassive == ability) {
 				return ARROW_COLORS.get(i);
 			}
 		}

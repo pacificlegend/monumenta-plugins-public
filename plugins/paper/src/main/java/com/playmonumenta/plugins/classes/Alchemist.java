@@ -9,7 +9,6 @@ import com.playmonumenta.plugins.abilities.alchemist.Bezoar;
 import com.playmonumenta.plugins.abilities.alchemist.BrutalAlchemy;
 import com.playmonumenta.plugins.abilities.alchemist.EnergizingElixir;
 import com.playmonumenta.plugins.abilities.alchemist.GruesomeAlchemy;
-import com.playmonumenta.plugins.abilities.alchemist.IJustMadeSomeBS;
 import com.playmonumenta.plugins.abilities.alchemist.IronTincture;
 import com.playmonumenta.plugins.abilities.alchemist.UnstableAmalgam;
 import com.playmonumenta.plugins.abilities.alchemist.VolatileReaction;
@@ -53,7 +52,6 @@ public class Alchemist extends PlayerClass {
 		mDisplayItem = Material.POTION;
 		mClassDescription = "Alchemists employ magic potions to weaken and destroy their enemies.";
 		mPassive = AlchemistPotions.INFO;
-		mUltimate = IJustMadeSomeBS.INFO;
 
 		mSpecOne.mAbilities.add(Taboo.INFO);
 		mSpecOne.mAbilities.add(ScorchedEarth.INFO);
@@ -72,8 +70,6 @@ public class Alchemist extends PlayerClass {
 		mSpecTwo.mDisplayItem = Material.BLUE_ORCHID;
 
 		mTriggerOrder = ImmutableList.of(
-			IJustMadeSomeBS.INFO,
-
 			Taboo.INFO,
 			ScorchedEarth.INFO,
 			VolatileReaction.INFO,

@@ -26,7 +26,6 @@ public abstract class PlayerClass {
 	public int mQuestReqMin;
 	public String mClassDescription;
 	public AbilityInfo<?> mPassive;
-	public AbilityInfo<?> mUltimate;
 
 	public PlayerSpec mSpecOne = new PlayerSpec();
 	public PlayerSpec mSpecTwo = new PlayerSpec();
@@ -49,7 +48,6 @@ public abstract class PlayerClass {
 		info.addProperty("classId", mClass);
 		info.addProperty("className", mClassName);
 		info.add("classPassive", mPassive.toJson());
-		info.add("classUltimate", mUltimate.toJson());
 		info.add("skills", abilities);
 		info.add("specs", specs);
 		return info;

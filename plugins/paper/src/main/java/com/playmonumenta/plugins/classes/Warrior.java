@@ -8,7 +8,6 @@ import com.playmonumenta.plugins.abilities.warrior.CounterStrike;
 import com.playmonumenta.plugins.abilities.warrior.DefensiveLine;
 import com.playmonumenta.plugins.abilities.warrior.Formidable;
 import com.playmonumenta.plugins.abilities.warrior.Frenzy;
-import com.playmonumenta.plugins.abilities.warrior.RecklessSwing;
 import com.playmonumenta.plugins.abilities.warrior.Riposte;
 import com.playmonumenta.plugins.abilities.warrior.ShieldBash;
 import com.playmonumenta.plugins.abilities.warrior.Toughness;
@@ -51,7 +50,6 @@ public class Warrior extends PlayerClass {
 		mDisplayItem = Material.STONE_AXE;
 		mClassDescription = "Warriors specialize in melee combat, being able to both deal and survive heavy damage.";
 		mPassive = Formidable.INFO;
-		mUltimate = RecklessSwing.INFO;
 
 		mSpecOne.mAbilities.add(GloriousBattle.INFO);
 		mSpecOne.mAbilities.add(MeteorSlam.INFO);
@@ -73,8 +71,6 @@ public class Warrior extends PlayerClass {
 		mSpecTwo.mDescription = "Guardians specialize in melee combat. Their skills are focused on taking heavy damage and drawing enemy attacks to themselves.";
 
 		mTriggerOrder = ImmutableList.of(
-			RecklessSwing.INFO,
-
 			GloriousBattle.INFO,
 			MeteorSlam.INFO,
 			Rampage.INFO,

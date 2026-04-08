@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.playmonumenta.plugins.abilities.AbilityManager;
 import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.abilities.mage.ArcaneStrike;
-import com.playmonumenta.plugins.abilities.mage.Cataclysm;
 import com.playmonumenta.plugins.abilities.mage.Channeling;
 import com.playmonumenta.plugins.abilities.mage.ElementalArrows;
 import com.playmonumenta.plugins.abilities.mage.FrostNova;
@@ -55,7 +54,6 @@ public class Mage extends PlayerClass {
 		mDisplayItem = Material.BLAZE_ROD;
 		mClassDescription = "Mages are masters of area control, freezing, wounding, and igniting enemies with their strikes.";
 		mPassive = Channeling.INFO;
-		mUltimate = Cataclysm.INFO;
 
 		mSpecOne.mAbilities.add(AstralOmen.INFO);
 		mSpecOne.mAbilities.add(CosmicMoonblade.INFO);
@@ -77,8 +75,6 @@ public class Mage extends PlayerClass {
 
 		mTriggerOrder = ImmutableList.of(
 			CosmicMoonblade.INFO,
-
-			Cataclysm.INFO,
 
 			Blizzard.INFO,
 			Starfall.INFO,

@@ -3,7 +3,6 @@ package com.playmonumenta.plugins.classes;
 import com.google.common.collect.ImmutableList;
 import com.playmonumenta.plugins.abilities.AbilityManager;
 import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
-import com.playmonumenta.plugins.abilities.scout.AllOutScout;
 import com.playmonumenta.plugins.abilities.scout.Fleetfooted;
 import com.playmonumenta.plugins.abilities.scout.HuntingCompanion;
 import com.playmonumenta.plugins.abilities.scout.PartingShot;
@@ -46,7 +45,6 @@ public class Scout extends PlayerClass {
 		mDisplayItem = Material.BOW;
 		mClassDescription = "Scouts are agile masters of archery and exploration.";
 		mPassive = Fleetfooted.INFO;
-		mUltimate = AllOutScout.INFO;
 
 		mSpecOne.mAbilities.addAll(List.of(GaleShot.INFO, RendingRazor.INFO, TacticalManeuver.INFO));
 		mSpecOne.mSpecQuestScoreboard = "Quest103e";
@@ -65,7 +63,6 @@ public class Scout extends PlayerClass {
 		mSpecTwo.mPassive = Deadeye.INFO;
 
 		mTriggerOrder = ImmutableList.of(
-			AllOutScout.INFO,
 			Swiftness.INFO,
 			WindBomb.INFO,
 			ShrapnelBomb.INFO,

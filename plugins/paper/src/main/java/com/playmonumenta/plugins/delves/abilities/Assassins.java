@@ -44,9 +44,11 @@ public class Assassins {
 			if (FastUtils.RANDOM.nextDouble() < .3) {
 				List<List<String>> abilityPool = new ArrayList<>(ABILITY_POOL);
 				abilityPool.removeIf(ability -> mob.getScoreboardTags().contains(ability.get(0)));
-				List<String> ability = abilityPool.get(FastUtils.RANDOM.nextInt(abilityPool.size()));
-				for (String abilityTag : ability) {
-					mob.addScoreboardTag(abilityTag);
+				if (!abilityPool.isEmpty()) {
+					List<String> ability = abilityPool.get(FastUtils.RANDOM.nextInt(abilityPool.size()));
+					for (String abilityTag : ability) {
+						mob.addScoreboardTag(abilityTag);
+					}
 				}
 			}
 		}

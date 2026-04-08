@@ -26,6 +26,7 @@ public enum POI {
 	SUBMERGED_CITADEL("submerged_citadel", "Submerged Citadel", "epic:r3/world/poi/waterfall_village/endweekly_v2", "#C4BBA5", "keep"),
 	THE_NADIR("the_nadir", "The Nadir", "epic:r3/world/poi/the_nadir/endweekly_v2", "#342768", "starpoint"),
 	THE_TOLUMAEUS("the_tolumaeus", "The Tolumaeus", "epic:r3/world/poi/the_tolumaeus/endweekly_v2", "#342768", "starpoint"),
+	THE_WEREHOUSE("the_werehouse", "The Werehouse", "epic:r3/world/poi/crepuscular_stronghold/endweekly_v2", "#C4BBA5", "keep"),
 	VIBRANT_HOLLOW("vibrant_hollow", "Vibrant Hollow", "epic:r3/world/poi/vibrant_hollow/endweekly_v2", "#4C8F4D", "wolfswood"),
 	NONE("none", "None", "temp_path", "", "none");
 

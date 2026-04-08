@@ -90,6 +90,7 @@ public class StatMultiplier {
 		STAT_COMPENSATION_MAPPINGS_RING_POI.put("Forsaken Manor", KEEP);
 		STAT_COMPENSATION_MAPPINGS_RING_POI.put("Arx Spirensis", KEEP);
 		STAT_COMPENSATION_MAPPINGS_RING_POI.put("Submerged Citadel", KEEP);
+		STAT_COMPENSATION_MAPPINGS_RING_POI.put("The Werehouse", KEEP);
 
 		// Star Point
 		final double STAR_POINT = 1.2;

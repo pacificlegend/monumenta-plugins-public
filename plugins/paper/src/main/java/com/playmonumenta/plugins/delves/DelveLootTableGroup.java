@@ -102,7 +102,7 @@ public class DelveLootTableGroup {
 		// arx
 		new DelveLootTableGroup("r3/world/poi/arx_spirensis/delves/base_chest", "r3/world/poi/arx_spirensis/delves/dmat_chest", "r3/world/poi/arx_spirensis/delves/cmat_chest", "r3/world/poi/arx_spirensis/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		new DelveLootTableGroup("r3/world/poi/arx_spirensis/delves/base_final", "r3/world/poi/arx_spirensis/delves/dmat_final", "r3/world/poi/arx_spirensis/delves/cmat_final", "r3/world/poi/arx_spirensis/endchest", "r3/world/poi/arx_spirensis/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
-		// cathedral
+		// cathedral (quelled convent)
 		new DelveLootTableGroup("r3/world/poi/cathedral/delves/base_chest", "r3/world/poi/cathedral/delves/dmat_chest", "r3/world/poi/cathedral/delves/cmat_chest", "r3/world/poi/cathedral/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		new DelveLootTableGroup("r3/world/poi/cathedral/delves/base_final", "r3/world/poi/cathedral/delves/dmat_final", "r3/world/poi/cathedral/delves/cmat_final", "r3/world/poi/cathedral/endchest", "r3/world/poi/cathedral/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		// chanterelle
@@ -114,7 +114,7 @@ public class DelveLootTableGroup {
 		// doomed
 		new DelveLootTableGroup("r3/world/poi/doomed_encampment/delves/base_chest", "r3/world/poi/doomed_encampment/delves/dmat_chest", "r3/world/poi/doomed_encampment/delves/cmat_chest", "r3/world/poi/doomed_encampment/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		new DelveLootTableGroup("r3/world/poi/doomed_encampment/delves/base_final", "r3/world/poi/doomed_encampment/delves/dmat_final", "r3/world/poi/doomed_encampment/delves/cmat_final", "r3/world/poi/doomed_encampment/endchest", "r3/world/poi/doomed_encampment/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
-		// farm
+		// farm (bewitched dominion)
 		new DelveLootTableGroup("r3/world/poi/farm/delves/base_chest", "r3/world/poi/farm/delves/dmat_chest", "r3/world/poi/farm/delves/cmat_chest", "r3/world/poi/farm/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		new DelveLootTableGroup("r3/world/poi/farm/delves/base_final", "r3/world/poi/farm/delves/dmat_final", "r3/world/poi/farm/delves/cmat_final", "r3/world/poi/farm/endchest", "r3/world/poi/farm/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		// forsaken
@@ -123,18 +123,21 @@ public class DelveLootTableGroup {
 		// locum
 		new DelveLootTableGroup("r3/world/poi/locum_vernatia/delves/base_chest", "r3/world/poi/locum_vernatia/delves/dmat_chest", "r3/world/poi/locum_vernatia/delves/cmat_chest", "r3/world/poi/locum_vernatia/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		new DelveLootTableGroup("r3/world/poi/locum_vernatia/delves/base_final", "r3/world/poi/locum_vernatia/delves/dmat_final", "r3/world/poi/locum_vernatia/delves/cmat_final", "r3/world/poi/locum_vernatia/endchest", "r3/world/poi/locum_vernatia/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
-		// silverstrike
+		// silverstrike (shadowcast bastille)
 		new DelveLootTableGroup("r3/world/poi/silverstrike_bastille/delves/base_chest", "r3/world/poi/silverstrike_bastille/delves/dmat_chest", "r3/world/poi/silverstrike_bastille/delves/cmat_chest", "r3/world/poi/silverstrike_bastille/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		new DelveLootTableGroup("r3/world/poi/silverstrike_bastille/delves/base_final", "r3/world/poi/silverstrike_bastille/delves/dmat_final", "r3/world/poi/silverstrike_bastille/delves/cmat_final", "r3/world/poi/silverstrike_bastille/endchest", "r3/world/poi/silverstrike_bastille/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
-		// terracotta
+		// terracotta (silvic quarry)
 		new DelveLootTableGroup("r3/world/poi/terracotta_mine/delves/base_chest", "r3/world/poi/terracotta_mine/delves/dmat_chest", "r3/world/poi/terracotta_mine/delves/cmat_chest", "r3/world/poi/terracotta_mine/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		new DelveLootTableGroup("r3/world/poi/terracotta_mine/delves/base_final", "r3/world/poi/terracotta_mine/delves/dmat_final", "r3/world/poi/terracotta_mine/delves/cmat_final", "r3/world/poi/terracotta_mine/endchest", "r3/world/poi/terracotta_mine/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		// vibrant
 		new DelveLootTableGroup("r3/world/poi/vibrant_hollow/delves/base_chest", "r3/world/poi/vibrant_hollow/delves/dmat_chest", "r3/world/poi/vibrant_hollow/delves/cmat_chest", "r3/world/poi/vibrant_hollow/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		new DelveLootTableGroup("r3/world/poi/vibrant_hollow/delves/base_final", "r3/world/poi/vibrant_hollow/delves/dmat_final", "r3/world/poi/vibrant_hollow/delves/cmat_final", "r3/world/poi/vibrant_hollow/endchest", "r3/world/poi/vibrant_hollow/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
-		// waterfall
+		// waterfall (submerged citadel)
 		new DelveLootTableGroup("r3/world/poi/waterfall_village/delves/base_chest", "r3/world/poi/waterfall_village/delves/dmat_chest", "r3/world/poi/waterfall_village/delves/cmat_chest", "r3/world/poi/waterfall_village/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		new DelveLootTableGroup("r3/world/poi/waterfall_village/delves/base_final", "r3/world/poi/waterfall_village/delves/dmat_final", "r3/world/poi/waterfall_village/delves/cmat_final", "r3/world/poi/waterfall_village/endchest", "r3/world/poi/waterfall_village/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
+		// werehouse
+		new DelveLootTableGroup("r3/world/poi/crepuscular_stronghold/delves/base_chest", "r3/world/poi/crepuscular_stronghold/delves/dmat_chest", "r3/world/poi/crepuscular_stronghold/delves/cmat_chest", "r3/world/poi/crepuscular_stronghold/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
+		new DelveLootTableGroup("r3/world/poi/crepuscular_stronghold/delves/base_final", "r3/world/poi/crepuscular_stronghold/delves/dmat_final", "r3/world/poi/crepuscular_stronghold/delves/cmat_final", "r3/world/poi/crepuscular_stronghold/endchest", "r3/world/poi/crepuscular_stronghold/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 
 		// Star Point POIs
 		// constellation tower

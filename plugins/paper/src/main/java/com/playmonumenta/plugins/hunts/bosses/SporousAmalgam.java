@@ -28,6 +28,7 @@ import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import net.kyori.adventure.bossbar.BossBar;
@@ -35,6 +36,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -298,14 +300,21 @@ public class SporousAmalgam extends Quarry {
 			mUprootedBeast.setHealth(0);
 		}
 		mPassiveSpores.clearSpores();
-		removeSummons();
+		// Defer summon removal to the next tick to avoid conflicting with chunk-unload
+		// entity processing, which may already be removing these entities.
+		if (mPlugin.isEnabled()) {
+			Bukkit.getScheduler().runTask(mPlugin, this::removeSummons);
+		}
 	}
 
 	private void removeSummons() {
-		for (Entity e : mSummons) {
+		Iterator<LivingEntity> it = mSummons.iterator();
+		while (it.hasNext()) {
+			LivingEntity e = it.next();
+			it.remove();
 			if (e.isValid()) {
 				for (Entity passenger : e.getPassengers()) {
-					if (e.isValid()) {
+					if (passenger.isValid()) {
 						passenger.remove();
 					}
 				}

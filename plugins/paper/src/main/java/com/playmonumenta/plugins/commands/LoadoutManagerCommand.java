@@ -28,7 +28,7 @@ public class LoadoutManagerCommand {
 				new CommandAPICommand("gui_other")
 					.withArguments(new EntitySelectorArgument.OnePlayer("other player"))
 					.executesPlayer((caller, args) -> {
-						Player target = args.getUnchecked("player");
+						Player target = args.getUnchecked("other player");
 						new LoadoutManagerGui(caller, target).open();
 					})
 			)

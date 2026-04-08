@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Material;
@@ -119,18 +120,31 @@ public enum MarketListingIndex {
 		// Special case for ACTIVE_LISTINGS, which is just a simple list, and not a hashmap
 		// a simpler, but unique algorithm needs to be used
 		if (this == ACTIVE_LISTINGS) {
-			RedisAPI.getInstance().async().lrem(mRedisPath, 0, String.valueOf(listing.getId())).toCompletableFuture().join();
+			CompletableFuture<Long> future;
+			try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+				future = conn.lrem(mRedisPath, 0, String.valueOf(listing.getId())).toCompletableFuture();
+			}
+			future.join();
 			return;
 		}
 
 		String key = this.mGetKeyMethod.apply(listing);
 
 		// get the current values of the index, at listing key
-		String listingIdList = RedisAPI.getInstance().async().hget(mRedisPath, key).toCompletableFuture().join();
+		CompletableFuture<String> getFuture;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			getFuture = conn.hget(mRedisPath, key).toCompletableFuture();
+		}
+		String listingIdList = getFuture.join();
 		// remove the listing ID to the list
 		listingIdList = listingIdList.replace(String.valueOf(listing.getId()), "").replace(",,", ",");
 		// push the new value
-		RedisAPI.getInstance().async().hset(mRedisPath, key, listingIdList).toCompletableFuture().join();
+		final String finalListingIdList = listingIdList;
+		CompletableFuture<Boolean> setFuture;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			setFuture = conn.hset(mRedisPath, key, finalListingIdList).toCompletableFuture();
+		}
+		setFuture.join();
 	}
 
 	public List<Long> getListingsFromIndex(boolean descOrder) {
@@ -154,7 +168,11 @@ public enum MarketListingIndex {
 			return out;
 		}
 
-		Map<String, String> indexContents = RedisAPI.getInstance().async().hgetall(mRedisPath).toCompletableFuture().join();
+		CompletableFuture<Map<String, String>> hgetallFuture;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			hgetallFuture = conn.hgetall(mRedisPath).toCompletableFuture();
+		}
+		Map<String, String> indexContents = hgetallFuture.join();
 		for (Map.Entry<String, String> entry : indexContents.entrySet()) {
 			List<Long> list = new ArrayList<>();
 			String[] values = entry.getValue().split(",");
@@ -180,13 +198,21 @@ public enum MarketListingIndex {
 			return out;
 		}
 
-		out = RedisAPI.getInstance().async().hkeys(mRedisPath).toCompletableFuture().join();
+		CompletableFuture<List<String>> hkeysFuture;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			hkeysFuture = conn.hkeys(mRedisPath).toCompletableFuture();
+		}
+		out = hkeysFuture.join();
 		out.sort(descOrder ? Comparator.reverseOrder() : Comparator.naturalOrder());
 		return out;
 	}
 
 	private List<Long> getActiveListings(boolean descOrder) {
-		List<String> activeUnfilteredListings = RedisAPI.getInstance().async().lrange(mRedisPath, 0, -1).toCompletableFuture().join();
+		CompletableFuture<List<String>> lrangeFuture;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			lrangeFuture = conn.lrange(mRedisPath, 0, -1).toCompletableFuture();
+		}
+		List<String> activeUnfilteredListings = lrangeFuture.join();
 		List<Long> activeFilteredListings = new ArrayList<>();
 		for (String listingID : activeUnfilteredListings) {
 			activeFilteredListings.add(Long.parseLong(listingID));
@@ -216,12 +242,20 @@ public enum MarketListingIndex {
 		// Special case for ACTIVE_LISTINGS, which is just a simple list, and not a hashmap
 		// a simpler, but unique algorithm needs to be used
 		if (this == ACTIVE_LISTINGS) {
-			RedisAPI.getInstance().async().lpush(mRedisPath, key).toCompletableFuture().join();
+			CompletableFuture<Long> future;
+			try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+				future = conn.lpush(mRedisPath, key).toCompletableFuture();
+			}
+			future.join();
 			return;
 		}
 
 		// get the current values of the index, at listing key
-		String listingIdList = RedisAPI.getInstance().async().hget(mRedisPath, key).toCompletableFuture().join();
+		CompletableFuture<String> getFuture;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			getFuture = conn.hget(mRedisPath, key).toCompletableFuture();
+		}
+		String listingIdList = getFuture.join();
 		// add the new listing ID to the list
 		if (listingIdList != null && !listingIdList.isEmpty()) {
 			listingIdList += "," + listing.getId();
@@ -229,7 +263,12 @@ public enum MarketListingIndex {
 			listingIdList = "" + listing.getId();
 		}
 		// push the new value
-		RedisAPI.getInstance().async().hset(mRedisPath, key, listingIdList).toCompletableFuture().join();
+		final String finalListingIdList = listingIdList;
+		CompletableFuture<Boolean> setFuture;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			setFuture = conn.hset(mRedisPath, key, finalListingIdList).toCompletableFuture();
+		}
+		setFuture.join();
 	}
 
 
@@ -248,17 +287,23 @@ public enum MarketListingIndex {
 	private String dumpIndexContents() {
 		StringBuilder sb = new StringBuilder();
 		if (this == ACTIVE_LISTINGS) {
-			List<String> lst = RedisAPI.getInstance().async().lrange(mRedisPath, 0, -1).toCompletableFuture().join();
-			sb.append(Arrays.toString(lst.toArray())).append("\n");
+			CompletableFuture<List<String>> lrangeFuture;
+			try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+				lrangeFuture = conn.lrange(mRedisPath, 0, -1).toCompletableFuture();
+			}
+			sb.append(Arrays.toString(lrangeFuture.join().toArray())).append("\n");
 			return sb.toString();
 		}
 
-		Map<String, String> indexContents = RedisAPI.getInstance().async().hgetall(mRedisPath).toCompletableFuture().join();
+		CompletableFuture<Map<String, String>> hgetallFuture;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			hgetallFuture = conn.hgetall(mRedisPath).toCompletableFuture();
+		}
+		Map<String, String> indexContents = hgetallFuture.join();
 		for (Map.Entry<String, String> entry : indexContents.entrySet()) {
 			sb.append("  ").append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
 		}
 		return sb.toString();
-
 	}
 
 	public static void resyncAllIndexes() {
@@ -274,7 +319,11 @@ public enum MarketListingIndex {
 		ScanCursor cursor = ScanCursor.INITIAL;
 		while (!cursor.isFinished()) {
 			// get redis data
-			MapScanCursor<String, String> hscanResult = RedisAPI.getInstance().async().hscan(MarketRedisManager.getListingsRedisPath(), cursor, new ScanArgs().limit(50)).toCompletableFuture().join();
+			CompletableFuture<MapScanCursor<String, String>> hscanFuture;
+			try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+				hscanFuture = conn.hscan(MarketRedisManager.getListingsRedisPath(), cursor, new ScanArgs().limit(50)).toCompletableFuture();
+			}
+			MapScanCursor<String, String> hscanResult = hscanFuture.join();
 			cursor = ScanCursor.of(hscanResult.getCursor());
 			cursor.setFinished(hscanResult.isFinished());
 
@@ -314,39 +363,61 @@ public enum MarketListingIndex {
 			}
 
 			// now, every new index values should be in local memory
-			// push it to redis
+			// push it to redis (del + write batched atomically per index)
 
 			for (MarketListingIndex index : values()) {
-				// delete the old values
-				RedisAPI.getInstance().async().del(index.mRedisPath).toCompletableFuture().join();
-
-				// push the new values
 				HashMap<String, ArrayList<Long>> indexValues = indexValuesMap.getOrDefault(index, new HashMap<>());
 
 				// special case for active_listings
 				if (index == ACTIVE_LISTINGS) {
+					final String indexPath = index.mRedisPath;
 					ArrayList<Long> values = indexValues.get("ALL");
-					if (values != null) {
+					if (values != null && !values.isEmpty()) {
 						values.sort(Collections.reverseOrder());
 						String[] array = new String[values.size()];
 						for (int i = 0; i < values.size(); i++) {
 							array[i] = String.valueOf(values.get(i));
 						}
-						RedisAPI.getInstance().async().lpush(index.mRedisPath, array).toCompletableFuture().join();
+						final String[] finalArray = array;
+						RedisAPI.multi(conn -> {
+							conn.del(indexPath);
+							conn.lpush(indexPath, finalArray);
+						}).join();
+					} else {
+						CompletableFuture<Long> delFuture;
+						try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+							delFuture = conn.del(indexPath).toCompletableFuture();
+						}
+						delFuture.join();
 					}
 					continue;
 				}
 
-				for (String key : indexValues.keySet()) {
-					ArrayList<Long> values = indexValues.get(key);
-					if (values != null) {
+				// build a map of all key->value pairs for this index, then del+hset atomically
+				Map<String, String> hsetMap = new HashMap<>();
+				for (Map.Entry<String, ArrayList<Long>> entry : indexValues.entrySet()) {
+					ArrayList<Long> values = entry.getValue();
+					if (!values.isEmpty()) {
 						values.sort(Collections.reverseOrder());
 						String valuesStr = ArrayUtils.toString(values).replace(" ", "");
 						valuesStr = valuesStr.substring(1, valuesStr.length() - 1);
-						RedisAPI.getInstance().async().hset(index.mRedisPath, key, valuesStr).toCompletableFuture().join();
+						hsetMap.put(entry.getKey(), valuesStr);
 					}
 				}
-
+				final String indexPath = index.mRedisPath;
+				if (!hsetMap.isEmpty()) {
+					final Map<String, String> finalHsetMap = hsetMap;
+					RedisAPI.multi(conn -> {
+						conn.del(indexPath);
+						conn.hset(indexPath, finalHsetMap);
+					}).join();
+				} else {
+					CompletableFuture<Long> delFuture;
+					try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+						delFuture = conn.del(indexPath).toCompletableFuture();
+					}
+					delFuture.join();
+				}
 			}
 
 		}

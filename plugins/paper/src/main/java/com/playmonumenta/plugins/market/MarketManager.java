@@ -345,7 +345,8 @@ public class MarketManager {
 	public static List<MarketFilter> getPlayerMarketFilters(Player player) {
 		MarketPlayerData marketPlayerData = mMarketPlayerDataInstances.get(player);
 		if (marketPlayerData == null) {
-			Plugin.getInstance().getLogger().warning("ERROR: FAILED TO GET MARKET DATA OF " + player.getName() + ": NO MARKET INSTANCE. CONTACT A MODERATOR IMMEDIATELY, SOMETHING IS WRONG WITH YOUR PLUGIN DATA");
+			MMLog.severe("Market: null player data for " + player.getName() + " in getPlayerMarketFilters");
+			player.sendMessage(Component.text("An error occurred with your market data. Please contact a moderator.", NamedTextColor.RED));
 			return new ArrayList<>();
 		}
 		return marketPlayerData.getPlayerFiltersList();
@@ -354,7 +355,8 @@ public class MarketManager {
 	public static MarketPlayerOptions getMarketPlayerOptions(Player player) {
 		MarketPlayerData marketPlayerData = mMarketPlayerDataInstances.get(player);
 		if (marketPlayerData == null) {
-			Plugin.getInstance().getLogger().warning("ERROR: FAILED TO GET MARKET DATA OF " + player.getName() + ": NO MARKET INSTANCE. CONTACT A MODERATOR IMMEDIATELY, SOMETHING IS WRONG WITH YOUR PLUGIN DATA");
+			MMLog.severe("Market: null player data for " + player.getName() + " in getMarketPlayerOptions");
+			player.sendMessage(Component.text("An error occurred with your market data. Please contact a moderator.", NamedTextColor.RED));
 			return new MarketPlayerOptions();
 		}
 		MarketPlayerOptions marketPlayerOptions = marketPlayerData.getPlayerOptions();
@@ -368,7 +370,8 @@ public class MarketManager {
 	public static void setPlayerMarketFilters(Player player, List<MarketFilter> playerFilters) {
 		MarketPlayerData marketPlayerData = mMarketPlayerDataInstances.get(player);
 		if (marketPlayerData == null) {
-			Plugin.getInstance().getLogger().warning("ERROR: FAILED TO GET MARKET DATA OF " + player.getName() + ": NO MARKET INSTANCE. CONTACT A MODERATOR IMMEDIATELY, SOMETHING IS WRONG WITH YOUR PLUGIN DATA");
+			MMLog.severe("Market: null player data for " + player.getName() + " in setPlayerMarketFilters");
+			player.sendMessage(Component.text("An error occurred with your market data. Please contact a moderator.", NamedTextColor.RED));
 			return;
 		}
 		marketPlayerData.setPlayerFiltersList(playerFilters);
@@ -377,7 +380,8 @@ public class MarketManager {
 	public static TabBazaarBrowserState getTabBazaarBrowserState(Player player) {
 		MarketPlayerData marketPlayerData = mMarketPlayerDataInstances.get(player);
 		if (marketPlayerData == null) {
-			Plugin.getInstance().getLogger().warning("ERROR: FAILED TO GET MARKET DATA OF " + player.getName() + ": NO MARKET INSTANCE. CONTACT A MODERATOR IMMEDIATELY, SOMETHING IS WRONG WITH YOUR PLUGIN DATA");
+			MMLog.severe("Market: null player data for " + player.getName() + " in getTabBazaarBrowserState");
+			player.sendMessage(Component.text("An error occurred with your market data. Please contact a moderator.", NamedTextColor.RED));
 			return new TabBazaarBrowserState(null);
 		}
 		return marketPlayerData.getTabBazaarBrowserState();
@@ -432,63 +436,65 @@ public class MarketManager {
 	}
 
 	private void notificationCalcAndDisplay(Player player) {
-
-		ArrayList<Component> messages = new ArrayList<>();
-		Component marketHeader = Component.text("[MARKET] ", NamedTextColor.YELLOW).decoration(TextDecoration.BOLD, true);
-		List<Long> ownedListingsID = null;
-
+		// Gather local (main-thread) data first
 		String shardName = ServerProperties.getShardName().toLowerCase(Locale.ROOT);
 		MarketPlayerOptions options = getMarketPlayerOptions(player);
-
 		MarketPlayerOptions.NotificationShard shardsForNotif = options.getShardsForNotification();
+
+		List<Long> ownedListingsID = null;
 		if (shardsForNotif == MarketPlayerOptions.NotificationShard.ALWAYS
 			|| (shardsForNotif == MarketPlayerOptions.NotificationShard.OVERWORLD && (shardName.contains("valley") || shardName.contains("isles") || shardName.contains("ring") || shardName.contains("plots") || shardName.contains("dev1")))
 			|| (shardsForNotif == MarketPlayerOptions.NotificationShard.PLOTS && shardName.contains("plots"))) {
 			ownedListingsID = getListingsOfPlayer(player);
 		}
 
-		if (ownedListingsID != null && !ownedListingsID.isEmpty()) {
-			List<MarketListing> ownedListings = MarketRedisManager.getListings(ownedListingsID.toArray(new Long[0]));
+		if (ownedListingsID == null || ownedListingsID.isEmpty()) {
+			return;
+		}
+
+		final Long[] ids = ownedListingsID.toArray(new Long[0]);
+		// Fetch listings async to avoid blocking the main thread
+		Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+			List<MarketListing> ownedListings = MarketRedisManager.getListings(ids);
 			int amountClaimable = 0;
 			int amountExpired = 0;
-			for (MarketListing l : ownedListings) {
-				if (l.isExpired()) {
-					amountExpired++;
-				} else if (l.getAmountToClaim() > 0) {
-					amountClaimable++;
+			if (ownedListings != null) {
+				for (MarketListing l : ownedListings) {
+					if (l.isExpired()) {
+						amountExpired++;
+					} else if (l.getAmountToClaim() > 0) {
+						amountClaimable++;
+					}
 				}
 			}
-
-			if (amountExpired > 0) {
-				messages.add(marketHeader
-					.append(Component.text("You have ", NamedTextColor.GOLD).decoration(TextDecoration.BOLD, false))
-					.append(Component.text(amountExpired, NamedTextColor.WHITE).decoration(TextDecoration.BOLD, true))
-					.append(Component.text(" Expired Listings.", NamedTextColor.GOLD).decoration(TextDecoration.BOLD, false)));
+			final int finalAmountExpired = amountExpired;
+			final int finalAmountClaimable = amountClaimable;
+			if (finalAmountExpired > 0 || finalAmountClaimable > 0) {
+				Bukkit.getScheduler().runTask(Plugin.getInstance(), () -> {
+					if (!player.isOnline()) {
+						return;
+					}
+					Component marketHeader = Component.text("[MARKET] ", NamedTextColor.YELLOW).decoration(TextDecoration.BOLD, true);
+					player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1.0f, 1.0f);
+					if (finalAmountExpired > 0) {
+						player.sendMessage(marketHeader
+							.append(Component.text("You have ", NamedTextColor.GOLD).decoration(TextDecoration.BOLD, false))
+							.append(Component.text(finalAmountExpired, NamedTextColor.WHITE).decoration(TextDecoration.BOLD, true))
+							.append(Component.text(" Expired Listings.", NamedTextColor.GOLD).decoration(TextDecoration.BOLD, false)));
+					}
+					if (finalAmountClaimable > 0) {
+						player.sendMessage(marketHeader
+							.append(Component.text("You can claim money from ", NamedTextColor.GOLD).decoration(TextDecoration.BOLD, false))
+							.append(Component.text(finalAmountClaimable, NamedTextColor.WHITE).decoration(TextDecoration.BOLD, true))
+							.append(Component.text(" Listings.", NamedTextColor.GOLD).decoration(TextDecoration.BOLD, false)));
+					}
+				});
 			}
-			if (amountClaimable > 0) {
-				messages.add(marketHeader
-					.append(Component.text("You can claim money from ", NamedTextColor.GOLD).decoration(TextDecoration.BOLD, false))
-					.append(Component.text(amountClaimable, NamedTextColor.WHITE).decoration(TextDecoration.BOLD, true))
-					.append(Component.text(" Listings.", NamedTextColor.GOLD).decoration(TextDecoration.BOLD, false)));
-			}
-		}
-
-		if (!messages.isEmpty()) {
-			player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1.0f, 1.0f);
-			for (Component c : messages) {
-				player.sendMessage(c);
-			}
-		}
-
+		});
 	}
 
 	public void playerSaveEvent(PlayerSaveEvent event) {
 		MarketPlayerData marketPlayerData = mMarketPlayerDataInstances.getOrDefault(event.getPlayer(), new MarketPlayerData());
-		if (marketPlayerData == null) {
-			Plugin.getInstance().getLogger().warning("ERROR FAILED TO SAVE MARKET DATA OF " + event.getPlayer().getName() + ": NO MARKET INSTANCE");
-			AuditListener.logMarket("ERROR FAILED TO SAVE MARKET DATA OF " + event.getPlayer().getName() + ": NO MARKET INSTANCE");
-			return;
-		}
 		event.setPluginData(KEY_PLUGIN_DATA, marketPlayerData.toJson());
 	}
 
@@ -522,19 +528,19 @@ public class MarketManager {
 
 		// check that the player has the items they want to sell
 		if (!player.getInventory().containsAtLeast(itemToSell, itemsPerTrade * amountOfTrades)) {
-			player.sendMessage("Something went wrong: you do not have the listing items in your inventory. listing creation cancelled");
+			player.sendMessage(Component.text("Something went wrong: you do not have the listing items in your inventory. Listing creation cancelled.", NamedTextColor.RED));
 			return;
 		}
 
 		if (!WalletUtils.tryToPayFromInventoryAndWallet(player, taxDebt.mItem().asQuantity(taxDebt.mTotalRequiredAmount()), true, true)) {
-			player.sendMessage("Something went wrong: you do not have enough money to pay the tax. listing creation cancelled");
+			player.sendMessage(Component.text("Something went wrong: you do not have enough money to pay the tax. Listing creation cancelled.", NamedTextColor.RED));
 			return;
 		}
 
 		// remove the items from player inventory
 		HashMap<?, ?> failedToRemove = player.getInventory().removeItem(itemToSell.asQuantity(itemsPerTrade * amountOfTrades));
 		if (!failedToRemove.isEmpty()) {
-			player.sendMessage("Something went wrong: Failed to remove the listing items from your inventory. listing creation cancelled");
+			player.sendMessage(Component.text("Something went wrong: failed to remove the listing items from your inventory. Listing creation cancelled.", NamedTextColor.RED));
 			// destroy the already existing listing
 			return;
 		}
@@ -542,8 +548,9 @@ public class MarketManager {
 		MarketListing createdListing = MarketRedisManager.createAndAddNewListing(player, itemToSell, itemsPerTrade, amountOfTrades, pricePerTrade, currencyItemStack);
 		if (createdListing == null) {
 			// creation failed on the redis side
-			player.sendMessage("Something went wrong: Server failed to create the listing. You need to contact a moderator for tax refund. amount is given in logs");
-			AuditListener.logMarket("!ERROR! Player " + player.getName() + "needs a " + taxDebt.mTotalRequiredAmount() + "*" + ItemUtils.getPlainName(taxDebt.mItem()) + "tax refund, because the listing failed to be created in redis");
+			player.sendMessage(Component.text("Something went wrong: Server failed to create the listing. You need to contact a moderator for tax refund. amount is given in logs", NamedTextColor.RED));
+			MMLog.severe("Market: listing creation failed in Redis for " + player.getName() + " - tax refund needed: " + taxDebt.mTotalRequiredAmount() + "x " + ItemUtils.getPlainName(taxDebt.mItem()));
+			AuditListener.logMarket("!ERROR! Player " + player.getName() + " needs a " + taxDebt.mTotalRequiredAmount() + "*" + ItemUtils.getPlainName(taxDebt.mItem()) + " tax refund, because the listing failed to be created in redis");
 			return;
 		}
 		getInstance().linkListingToPlayerData(player, createdListing.getId());
@@ -631,7 +638,8 @@ public class MarketManager {
 	public void linkListingToPlayerData(Player player, long listingID) {
 		MarketPlayerData marketPlayerData = mMarketPlayerDataInstances.get(player);
 		if (marketPlayerData == null) {
-			Plugin.getInstance().getLogger().warning("ERROR: FAILED TO GET MARKET DATA OF " + player.getName() + ": NO MARKET INSTANCE. CONTACT A MODERATOR IMMEDIATELY, SOMETHING IS WRONG WITH YOUR PLUGIN DATA");
+			MMLog.severe("Market: null player data for " + player.getName() + " in linkListingToPlayerData");
+			player.sendMessage(Component.text("An error occurred with your market data. Please contact a moderator.", NamedTextColor.RED));
 			return;
 		}
 		marketPlayerData.addListingIDToPlayer(listingID);
@@ -640,7 +648,8 @@ public class MarketManager {
 	public void unlinkListingFromPlayerData(Player player, long listingID) {
 		MarketPlayerData marketPlayerData = mMarketPlayerDataInstances.get(player);
 		if (marketPlayerData == null) {
-			Plugin.getInstance().getLogger().warning("ERROR: FAILED TO GET MARKET DATA OF " + player.getName() + ": NO MARKET INSTANCE. CONTACT A MODERATOR IMMEDIATELY, SOMETHING IS WRONG WITH YOUR PLUGIN DATA");
+			MMLog.severe("Market: null player data for " + player.getName() + " in unlinkListingFromPlayerData");
+			player.sendMessage(Component.text("An error occurred with your market data. Please contact a moderator.", NamedTextColor.RED));
 			return;
 		}
 		marketPlayerData.removeListingIDFromPlayer(listingID);
@@ -649,7 +658,8 @@ public class MarketManager {
 	public List<Long> getListingsOfPlayer(Player player) {
 		MarketPlayerData marketPlayerData = mMarketPlayerDataInstances.get(player);
 		if (marketPlayerData == null) {
-			Plugin.getInstance().getLogger().warning("ERROR: FAILED TO GET MARKET DATA OF " + player.getName() + ": NO MARKET INSTANCE. CONTACT A MODERATOR IMMEDIATELY, SOMETHING IS WRONG WITH YOUR PLUGIN DATA");
+			MMLog.severe("Market: null player data for " + player.getName() + " in getListingsOfPlayer");
+			player.sendMessage(Component.text("An error occurred with your market data. Please contact a moderator.", NamedTextColor.RED));
 			return new ArrayList<>();
 		}
 		return marketPlayerData.getOwnedListingsIDList();
@@ -790,7 +800,8 @@ public class MarketManager {
 	public void resetPlayerFilters(Player player) {
 		MarketPlayerData marketPlayerData = mMarketPlayerDataInstances.get(player);
 		if (marketPlayerData == null) {
-			Plugin.getInstance().getLogger().warning("ERROR: FAILED TO GET MARKET DATA OF " + player.getName() + ": NO MARKET INSTANCE. CONTACT A MODERATOR IMMEDIATELY, SOMETHING IS WRONG WITH YOUR PLUGIN DATA");
+			MMLog.severe("Market: null player data for " + player.getName() + " in resetPlayerFilters");
+			player.sendMessage(Component.text("An error occurred with your market data. Please contact a moderator.", NamedTextColor.RED));
 			return;
 		}
 		marketPlayerData.resetPlayerFiltersList();

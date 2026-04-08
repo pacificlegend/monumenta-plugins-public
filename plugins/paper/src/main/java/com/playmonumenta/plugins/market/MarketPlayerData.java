@@ -34,8 +34,10 @@ public class MarketPlayerData {
 
 		// OWNERSHIP
 		JsonArray ownershipArray = data.getAsJsonArray("playerListings");
-		for (JsonElement elem : ownershipArray) {
-			marketPlayerData.addListingIDToPlayer(elem.getAsString());
+		if (ownershipArray != null) {
+			for (JsonElement elem : ownershipArray) {
+				marketPlayerData.addListingIDToPlayer(elem.getAsString());
+			}
 		}
 
 		// FILTERS

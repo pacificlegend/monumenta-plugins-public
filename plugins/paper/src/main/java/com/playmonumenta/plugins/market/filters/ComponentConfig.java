@@ -282,7 +282,7 @@ public class ComponentConfig {
 						blacklistedValues.add(configEntry.getKey());
 					}
 				} catch (Exception e) {
-					MMLog.warning("Failed to handle market forced filter condition: " + condition, e);
+					MMLog.severe("Market: failed to evaluate forced filter condition '" + condition + "' - affected items will be visible to all players", e);
 					if (player.isOp()) {
 						player.sendMessage("Something went wrong while calculating market forced filter condition:");
 						player.sendMessage("For " + configEntry.getKey() + " : " + condition);

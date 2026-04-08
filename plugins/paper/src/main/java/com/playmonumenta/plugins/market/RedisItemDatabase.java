@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -44,8 +45,10 @@ public class RedisItemDatabase {
 		saveToCache(id, item);
 		String mojangson = ItemUtils.serializeItemStack(item);
 		String idStr = String.valueOf(id);
-		RedisAPI.getInstance().async().hset(mPathIDBItemToID, mojangson, idStr).toCompletableFuture().join();
-		RedisAPI.getInstance().async().hset(mPathIDBIDToItem, idStr, mojangson).toCompletableFuture().join();
+		RedisAPI.multi(conn -> {
+			conn.hset(mPathIDBItemToID, mojangson, idStr);
+			conn.hset(mPathIDBIDToItem, idStr, mojangson);
+		}).join();
 		return id;
 	}
 
@@ -54,12 +57,18 @@ public class RedisItemDatabase {
 		saveToCache(id, item);
 		String mojangson = ItemUtils.serializeItemStack(item);
 		String idStr = String.valueOf(id);
-		RedisAPI.getInstance().async().hset(mPathIDBItemToID, mojangson, idStr).toCompletableFuture().join();
-		RedisAPI.getInstance().async().hset(mPathIDBIDToItem, idStr, mojangson).toCompletableFuture().join();
+		RedisAPI.multi(conn -> {
+			conn.hset(mPathIDBItemToID, mojangson, idStr);
+			conn.hset(mPathIDBIDToItem, idStr, mojangson);
+		}).join();
 	}
 
 	private static long getNextItemID() {
-		return RedisAPI.getInstance().async().incr(mPathIDBCurrentID).toCompletableFuture().join();
+		CompletableFuture<Long> future;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			future = conn.incr(mPathIDBCurrentID).toCompletableFuture();
+		}
+		return future.join();
 	}
 
 	public static long getIDFromItemStack(ItemStack item) {
@@ -110,7 +119,11 @@ public class RedisItemDatabase {
 	}
 
 	private static @Nullable Long fetchIDFromRedis(ItemStack item) {
-		String idStr = RedisAPI.getInstance().async().hget(mPathIDBItemToID, ItemUtils.serializeItemStack(item)).toCompletableFuture().join();
+		CompletableFuture<String> future;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			future = conn.hget(mPathIDBItemToID, ItemUtils.serializeItemStack(item)).toCompletableFuture();
+		}
+		String idStr = future.join();
 		if (idStr == null || idStr.isEmpty()) {
 			return null;
 		}
@@ -120,7 +133,11 @@ public class RedisItemDatabase {
 	}
 
 	private static @Nullable ItemStack fetchItemFromRedis(long id) {
-		String mojangson = RedisAPI.getInstance().async().hget(mPathIDBIDToItem, String.valueOf(id)).toCompletableFuture().join();
+		CompletableFuture<String> future;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			future = conn.hget(mPathIDBIDToItem, String.valueOf(id)).toCompletableFuture();
+		}
+		String mojangson = future.join();
 		if (mojangson == null || mojangson.isEmpty()) {
 			return null;
 		}

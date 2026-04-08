@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -78,18 +79,24 @@ public class MarketRedisManager {
 	}
 
 	public static Long getNextListingID() {
-		return RedisAPI.getInstance().async().incr(getListingCurrentIDRedisPath()).toCompletableFuture().join();
+		CompletableFuture<Long> future;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			future = conn.incr(getListingCurrentIDRedisPath()).toCompletableFuture();
+		}
+		return future.join();
 	}
 
 	/**
 	 * Updates (or creates) a listing in redis. Does not check if the listing is currently locked!
 	 */
 	private static boolean updateListing(MarketListing listing) {
-
 		String json = listing.toJsonString();
 		String id = String.valueOf(listing.getId());
-		RedisAPI.getInstance().async().hset(pathListingHashMap, id, json).toCompletableFuture().join();
-
+		CompletableFuture<Boolean> future;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			future = conn.hset(pathListingHashMap, id, json).toCompletableFuture();
+		}
+		future.join();
 		return true;
 	}
 
@@ -104,24 +111,31 @@ public class MarketRedisManager {
 	 */
 	public static boolean atomicCompareAndSwapListing(String expectedListing, MarketListing newListing) {
 		if (mAtomicUpdateScriptHash == null) {
-			mAtomicUpdateScriptHash = RedisAPI.getInstance().async().scriptLoad("""
-				local map = KEYS[1];
-				local id = ARGV[1];
-				local expectedJson = ARGV[2];
-				local newJson = ARGV[3];
-				if redis.call('HGET', map, id) == expectedJson then
-				    redis.call('HSET', map, id, newJson);
-				    return true;
-				end;
-				return false;
-				""").toCompletableFuture().join();
+			CompletableFuture<String> scriptFuture;
+			try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+				scriptFuture = conn.scriptLoad("""
+					local map = KEYS[1];
+					local id = ARGV[1];
+					local expectedJson = ARGV[2];
+					local newJson = ARGV[3];
+					if redis.call('HGET', map, id) == expectedJson then
+					    redis.call('HSET', map, id, newJson);
+					    return true;
+					end;
+					return false;
+					""").toCompletableFuture();
+			}
+			mAtomicUpdateScriptHash = scriptFuture.join();
 		}
 
 		String newJson = newListing.toJsonString();
 		String id = String.valueOf(newListing.getId());
 
-		return (Boolean) RedisAPI.getInstance().async().evalsha(mAtomicUpdateScriptHash, ScriptOutputType.BOOLEAN, new String[]{pathListingHashMap}, id, expectedListing, newJson).toCompletableFuture().join();
-
+		CompletableFuture<?> evalFuture;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			evalFuture = conn.evalsha(mAtomicUpdateScriptHash, ScriptOutputType.BOOLEAN, new String[]{pathListingHashMap}, id, expectedListing, newJson).toCompletableFuture();
+		}
+		return (Boolean) evalFuture.join();
 	}
 
 	/**
@@ -184,7 +198,11 @@ public class MarketRedisManager {
 	}
 
 	public static String getListingRaw(long id) {
-		return RedisAPI.getInstance().async().hget(pathListingHashMap, String.valueOf(id)).toCompletableFuture().join();
+		CompletableFuture<String> future;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			future = conn.hget(pathListingHashMap, String.valueOf(id)).toCompletableFuture();
+		}
+		return future.join();
 	}
 
 	// proxy for getListings(String... ids)
@@ -205,7 +223,11 @@ public class MarketRedisManager {
 		}
 
 		Gson gson = new Gson();
-		List<KeyValue<String, String>> jsons = RedisAPI.getInstance().async().hmget(pathListingHashMap, ids).toCompletableFuture().join();
+		CompletableFuture<List<KeyValue<String, String>>> future;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			future = conn.hmget(pathListingHashMap, ids).toCompletableFuture();
+		}
+		List<KeyValue<String, String>> jsons = future.join();
 		ArrayList<MarketListing> out = new ArrayList<>();
 		if (jsons == null) {
 			return null;
@@ -225,7 +247,11 @@ public class MarketRedisManager {
 
 	public static List<Long> getAllListingsIds(boolean sorted) {
 		List<Long> out = new ArrayList<>();
-		List<String> lst = RedisAPI.getInstance().async().hkeys(pathListingHashMap).toCompletableFuture().join();
+		CompletableFuture<List<String>> future;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			future = conn.hkeys(pathListingHashMap).toCompletableFuture();
+		}
+		List<String> lst = future.join();
 		for (String l : lst) {
 			out.add(Long.parseLong(l));
 		}
@@ -236,7 +262,11 @@ public class MarketRedisManager {
 	}
 
 	public static void deleteListing(MarketListing listing) {
-		RedisAPI.getInstance().async().hdel(pathListingHashMap, String.valueOf(listing.getId())).toCompletableFuture().join();
+		CompletableFuture<Long> deleteFuture;
+		try (RedisAPI.BorrowedCommands<String, String> conn = RedisAPI.borrow()) {
+			deleteFuture = conn.hdel(pathListingHashMap, String.valueOf(listing.getId())).toCompletableFuture();
+		}
+		deleteFuture.join();
 
 		// the index updates do not need to be in sync with the trading,
 		// as such, to make the creation/update of listing faster, we do index update later

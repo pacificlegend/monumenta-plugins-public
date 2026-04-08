@@ -200,7 +200,7 @@ public class UnstableAmalgam extends Ability implements AbilityWithDuration {
 		mPlayerItemStats = mPlugin.mItemStatManager.getPlayerItemStatsCopy(mPlayer);
 		mCurrDuration = 0;
 
-		Entity e = LibraryOfSoulsIntegration.summon(loc, "UnstableAmalgam");
+		Entity e = LibraryOfSoulsIntegration.summon(loc, mCosmetic.summonedMobName());
 
 		if (e instanceof Slime amalgam) {
 			mAmalgam = amalgam;

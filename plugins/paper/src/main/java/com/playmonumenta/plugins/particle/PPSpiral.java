@@ -195,7 +195,7 @@ public class PPSpiral extends AbstractPartialParticle<PPSpiral> {
 					}
 					mCurrentDegree += (mParticlesPerCurvePerTick * mDegreeOffset);
 					mCurrentRadius += mRadiusIncrementPerTick;
-					if ((!mReversed && mCurrentRadius > mRadius) || (mReversed && mCurrentRadius < 0)) {
+					if ((!mReversed && mCurrentRadius > mRadius) || (mReversed && mCurrentRadius <= 0)) {
 						this.cancel();
 					}
 				} catch (Exception e) {

@@ -212,7 +212,7 @@ public final class Rampage extends Ability implements AbilityWithChargesOrStacks
 			}
 			ClientModHandler.updateAbility(mPlayer, this);
 			mBloodlustExtension++;
-			mCosmetic.onStackGain(mPlayer.getWorld(), mPlayer.getLocation());
+			mCosmetic.onStackGain(mPlayer.getWorld(), mPlayer, mPlayer.getLocation());
 		}
 	}
 

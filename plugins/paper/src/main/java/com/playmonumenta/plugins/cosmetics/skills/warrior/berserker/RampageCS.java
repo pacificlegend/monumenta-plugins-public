@@ -32,7 +32,7 @@ public class RampageCS implements CosmeticSkill {
 		new PartialParticle(Particle.VILLAGER_ANGRY, mob.getLocation(), 5, 0, 0, 0, 0.1).spawnAsPlayerActive(player);
 	}
 
-	public void onStackGain(World world, Location loc) {
+	public void onStackGain(World world, Player player, Location loc) {
 		world.playSound(loc, Sound.ENTITY_ENDER_DRAGON_AMBIENT, SoundCategory.PLAYERS, 0.2f, 1.3f);
 		world.playSound(loc, Sound.ENTITY_POLAR_BEAR_WARNING, SoundCategory.PLAYERS, 0.2f, 1f);
 		world.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_STRONG, SoundCategory.PLAYERS, 0.3f, 0.7f);

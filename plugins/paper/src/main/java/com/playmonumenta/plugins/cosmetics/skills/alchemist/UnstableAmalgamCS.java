@@ -26,6 +26,10 @@ public class UnstableAmalgamCS implements CosmeticSkill {
 		return Material.SLIME_BLOCK;
 	}
 
+	public String summonedMobName() {
+		return "UnstableAmalgam";
+	}
+
 	public void periodicEffects(Player caster, Location loc, double radius, int ticks, int duration) {
 		if (ticks % (duration / 3) == 0) {
 			new PartialParticle(Particle.FLAME, loc, 20, 0.02, 0.02, 0.02, 0.1).spawnAsPlayerActive(caster);

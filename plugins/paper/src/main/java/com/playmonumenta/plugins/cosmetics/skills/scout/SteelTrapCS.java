@@ -1,14 +1,13 @@
 package com.playmonumenta.plugins.cosmetics.skills.scout;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.abilities.scout.SteelTrap;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkill;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.ParticleUtils;
-import java.util.HashMap;
-import java.util.Map;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -37,9 +36,7 @@ public class SteelTrapCS implements CosmeticSkill {
 		return Material.TNT;
 	}
 
-	public Map<String, BlockDisplay> getBlockDisplayTrap(World world, Location loc) {
-		HashMap<String, BlockDisplay> trap = new HashMap<>();
-
+	public SteelTrap.Trap.Displays getBlockDisplayTrap(World world, Location loc) {
 		BlockDisplay center = world.spawn(loc, BlockDisplay.class);
 		center.setBlock(Material.IRON_TRAPDOOR.createBlockData());
 		center.setBrightness(new Display.Brightness(15, 15));
@@ -50,7 +47,7 @@ public class SteelTrapCS implements CosmeticSkill {
 				new Vector3f(0.625f, 0.625f, 0.625f),
 				new Quaternionf()
 			));
-		trap.put("center", center);
+		center.setInterpolationDuration(2);
 
 
 		BlockDisplay tnt = world.spawn(loc, BlockDisplay.class);
@@ -63,14 +60,12 @@ public class SteelTrapCS implements CosmeticSkill {
 				new Vector3f(0.5f, 0.1531f, 0.5f),
 				new Quaternionf()
 			));
-		trap.put("tnt", tnt);
+		center.setInterpolationDuration(2);
 
-		return trap;
+		return SteelTrap.Trap.Displays.of(center, tnt);
 	}
 
-	public Map<String, BlockDisplay> getUnderwaterBlockDisplayTrap(World world, Location loc) {
-		HashMap<String, BlockDisplay> trap = new HashMap<>();
-
+	public SteelTrap.Trap.Displays getUnderwaterBlockDisplayTrap(World world, Location loc) {
 		BlockDisplay center = world.spawn(loc, BlockDisplay.class);
 		center.setBlock(Material.COBWEB.createBlockData());
 		center.setBrightness(new Display.Brightness(15, 15));
@@ -82,9 +77,8 @@ public class SteelTrapCS implements CosmeticSkill {
 				new Quaternionf()
 			));
 
-		trap.put("center", center);
 
-		return trap;
+		return SteelTrap.Trap.Displays.of(center);
 	}
 
 	public void trapThrow(World world, Player player, Location loc) {
@@ -99,26 +93,23 @@ public class SteelTrapCS implements CosmeticSkill {
 			.spawnAsPlayerActive(player);
 	}
 
-	public void trapLand(World world, Player player, Location loc, Map<String, BlockDisplay> trap, double radius) {
-		if (trap.containsKey("center")) {
-			trap.get("center").setTransformation(
-				new Transformation(
-					new Vector3f(-0.40625f, -0.225f, -0.40625f),
-					new Quaternionf(),
-					new Vector3f(0.8125f, 0.8125f, 0.8125f),
-					new Quaternionf()
-				));
-		}
+	public void trapLand(World world, Player player, Location loc, SteelTrap.Trap.Displays trap, double radius) {
+		trap.getCenter().setTransformation(
+			new Transformation(
+				new Vector3f(-0.40625f, -0.225f, -0.40625f),
+				new Quaternionf(),
+				new Vector3f(0.8125f, 0.8125f, 0.8125f),
+				new Quaternionf()
+			));
 
-		if (trap.containsKey("tnt")) {
-			trap.get("tnt").setTransformation(
+		trap.getTnt().ifPresent(tnt ->
+			tnt.setTransformation(
 				new Transformation(
 					new Vector3f(-0.375f, -0.225f, -0.375f),
 					new Quaternionf(),
 					new Vector3f(0.75f, 0.2031f, 0.75f),
 					new Quaternionf()
-				));
-		}
+				)));
 
 		world.playSound(loc, Sound.ITEM_ARMOR_EQUIP_NETHERITE, 1f, 0.5f);
 		world.playSound(loc, Sound.ENTITY_BAT_TAKEOFF, 0.3f, 1f);
@@ -133,7 +124,7 @@ public class SteelTrapCS implements CosmeticSkill {
 			.spawnAsPlayerActive(player);
 	}
 
-	public void trapPrimingTick(World world, Player player, Location loc, int ticks, int maxTicks, double radius) {
+	public void trapPrimingTick(World world, Player player, SteelTrap.Trap.Displays trap, Location loc, int ticks, int maxTicks, double triggerRadius, double explosionRadius) {
 		double progress = (double) ticks / maxTicks;
 
 		new PartialParticle(Particle.SMOKE_NORMAL, loc, 2).extra(0.1).directionalMode(true).delta(0, 1, 0).spawnAsPlayerActive(player);
@@ -142,7 +133,7 @@ public class SteelTrapCS implements CosmeticSkill {
 		}
 		world.playSound(loc, Sound.ITEM_SPYGLASS_USE, 1f, (float) (1.5 * progress));
 
-		new PPCircle(Particle.REDSTONE, loc, radius * (1 - progress))
+		new PPCircle(Particle.REDSTONE, loc, explosionRadius * (1 - progress))
 			.ringMode(true)
 			.count(3)
 			.countPerMeter(3)
@@ -151,12 +142,12 @@ public class SteelTrapCS implements CosmeticSkill {
 
 	}
 
-	public void trapPrimed(World world, Player player, Location loc, double radius) {
+	public void trapPrimed(World world, Player player, Location loc, double triggerRadius, double explosionRadius) {
 		new PPCircle(Particle.SMOKE_NORMAL, loc, 0.5)
 			.rotateDelta(true)
 			.directionalMode(true)
 			.delta(0.075, 0, 0)
-			.extra(radius)
+			.extra(explosionRadius)
 			.count(30)
 			.spawnAsPlayerActive(player);
 
@@ -164,7 +155,7 @@ public class SteelTrapCS implements CosmeticSkill {
 			.rotateDelta(true)
 			.directionalMode(true)
 			.delta(0.075, 0, 0)
-			.extra(radius)
+			.extra(explosionRadius)
 			.count(30)
 			.spawnAsPlayerActive(player);
 
@@ -172,7 +163,7 @@ public class SteelTrapCS implements CosmeticSkill {
 		world.playSound(loc, Sound.ITEM_SHIELD_BREAK, 1f, 0.7f);
 	}
 
-	public void trapPrimeTick(World world, Player player, Location loc, double triggerRadius, int ticks, boolean isEnhanced) {
+	public void trapPrimedTick(World world, Player player, Location loc, double triggerRadius, int ticks, boolean isEnhanced) {
 		if (ticks % 5 == 0 && !LocationUtils.isLocationInWater(loc)) {
 			new PartialParticle(Particle.SMOKE_LARGE, loc, 1).extra(0.1).directionalMode(true).delta(0, 1, 0).spawnAsPlayerActive(player);
 		}
@@ -180,14 +171,13 @@ public class SteelTrapCS implements CosmeticSkill {
 		if (!isEnhanced) {
 			new PPCircle(Particle.REDSTONE, loc, triggerRadius)
 				.ringMode(true)
-				.count(1)
 				.countPerMeter(1)
 				.data(new Particle.DustOptions(Color.MAROON, 0.75f))
 				.spawnAsPlayerActive(player);
 		}
 	}
 
-	public void trapExplode(World world, Player player, Location loc, double explosionRadius) {
+	public void trapExplode(World world, Player player, Location loc, double triggerRadius, double explosionRadius) {
 		new PartialParticle(Particle.EXPLOSION_LARGE, loc, 3, 0.15, 0.15, 0.15).spawnAsPlayerActive(player);
 		new PartialParticle(Particle.SMOKE_LARGE, loc, 35, 0.15, 0.15, 0.15, 0.3).spawnAsPlayerActive(player);
 

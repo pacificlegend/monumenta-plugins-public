@@ -95,10 +95,11 @@ public class ElementalSpiritFire extends BaseElementalSpirit {
 		double maxDistanceSquared = startLocation.distanceSquared(endLocation);
 		double maxDistance = Math.sqrt(maxDistanceSquared);
 		Vector vector = endLocation.clone().subtract(startLocation).toVector();
+		vector.normalize();
 		double increment = 0.2;
 
 		List<LivingEntity> potentialTargets = EntityUtils.getNearbyMobs(playerLocation, maxDistance + mSize);
-		Vector vectorIncrement = vector.normalize().multiply(increment);
+		Vector vectorIncrement = vector.clone().multiply(increment);
 
 		mCosmetic.fireSpiritActivate(world, mPlayer, playerLocation, endLocation, vector, HITBOX);
 

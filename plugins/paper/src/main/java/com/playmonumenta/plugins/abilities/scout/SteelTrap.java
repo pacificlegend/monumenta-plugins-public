@@ -23,21 +23,23 @@ import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.MovementUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.cooldown;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.perRegion;
@@ -137,7 +139,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 	public class Trap {
 		private final World mWorld;
 		private final boolean mIsUnderwater;
-		private final Map<String, BlockDisplay> mTrapDisplay;
+		private final Displays mTrapDisplays;
 		private final Item mPhysicsItem;
 
 		private int mTicks = 0;
@@ -146,14 +148,49 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 		private boolean mEnhanceTrigger = false;
 		private Location mCenter;
 
-		public Trap(Map<String, BlockDisplay> trapDisplay, Item item, boolean underwater) {
+		public Trap(Displays trapDisplays, Item item, boolean underwater) {
 			mWorld = mPlayer.getWorld();
 			mPhysicsItem = item;
 			mCenter = item.getLocation();
 			mIsUnderwater = underwater;
-			mTrapDisplay = trapDisplay;
+			mTrapDisplays = trapDisplays;
 
 			createRunnable();
+		}
+
+		public static final class Displays {
+			private final Display mCenter;
+			private final @Nullable Display mTnt;
+
+			public static Displays of(Display center) {
+				return new Displays(center, null);
+			}
+
+			public static Displays of(Display center, Display tnt) {
+				return new Displays(center, tnt);
+			}
+
+			private Displays(Display center, @Nullable Display tnt) {
+				this.mCenter = center;
+				this.mTnt = tnt;
+			}
+
+			public Display getCenter() {
+				return mCenter;
+			}
+
+			public Optional<Display> getTnt() {
+				return Optional.ofNullable(mTnt);
+			}
+
+			public Collection<Display> getDisplays() {
+				ArrayList<Display> allDisplays = new ArrayList<>();
+				allDisplays.add(mCenter);
+				if (mTnt != null) {
+					allDisplays.add(mTnt);
+				}
+				return allDisplays;
+			}
 		}
 
 		private void setEnhanceTrigger() {
@@ -217,23 +254,23 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 							mLandingTime = currTick;
 							mTicks = 0; // Only used for expiration, should be safe to reset
 							mCenter = mPhysicsItem.getLocation().add(0, 0.2, 0);
-							mCosmetic.trapLand(mWorld, mPlayer, mCenter, mTrapDisplay, mRadius);
+							mCosmetic.trapLand(mWorld, mPlayer, mCenter, mTrapDisplays, mRadius);
 							mPhysicsItem.remove();
 						}
 					}
 
 					if (!mPrimed && mLandingTime != NOT_LANDED) {
 						if (currTick - mLandingTime >= mPrimingDuration) {
-							mCosmetic.trapPrimed(mWorld, mPlayer, mCenter, mRadius);
+							mCosmetic.trapPrimed(mWorld, mPlayer, mCenter, mTriggerRadius, mRadius);
 							mPrimed = true;
 							addToMap();
 						} else {
-							mCosmetic.trapPrimingTick(mWorld, mPlayer, mCenter, currTick - mLandingTime, mPrimingDuration, mRadius);
+							mCosmetic.trapPrimingTick(mWorld, mPlayer, mTrapDisplays, mCenter, currTick - mLandingTime, mPrimingDuration, mTriggerRadius, mRadius);
 						}
 					}
 
 					if (mPrimed) {
-						mCosmetic.trapPrimeTick(mWorld, mPlayer, mCenter, mTriggerRadius, mTicks, isEnhanced());
+						mCosmetic.trapPrimedTick(mWorld, mPlayer, mCenter, mTriggerRadius, mTicks, isEnhanced());
 
 						boolean canDetonate = isEnhanced() ? mEnhanceTrigger
 							: !EntityUtils.getNearbyMobs(mCenter, mTriggerRadius).isEmpty();
@@ -256,7 +293,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 								&& !ZoneUtils.hasZoneProperty(mPlayer, ZoneUtils.ZoneProperty.NO_MOBILITY_ABILITIES)) {
 								MovementUtils.knockAway(mCenter, mPlayer, mKnockbackHorizontal * 2, mKnockbackVertical * 3, false);
 							}
-							mCosmetic.trapExplode(mWorld, mPlayer, mCenter, mRadius);
+							mCosmetic.trapExplode(mWorld, mPlayer, mCenter, mTriggerRadius, mRadius);
 							this.cancel();
 							return;
 						}
@@ -265,8 +302,8 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 					// Expire if the trap...
 					// 1: Is past its duration
 					// 2: Hasn't landed after 5s
-					boolean hasNotLanded = mLandingTime != NOT_LANDED && mTicks > mTrapDuration;
-					boolean hasLanded = mLandingTime == NOT_LANDED && mTicks > 100;
+					boolean hasNotLanded = mLandingTime == NOT_LANDED && mTicks > 100;
+					boolean hasLanded = mLandingTime != NOT_LANDED && mTicks > mTrapDuration;
 					if (hasLanded || hasNotLanded) {
 						if (hasLanded) {
 							mCosmetic.trapDespawn(mWorld, mPlayer, mCenter);
@@ -282,8 +319,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 				public synchronized void cancel() {
 					super.cancel();
 					removeFromMap();
-					mTrapDisplay.values().forEach(Entity::remove);
-					mTrapDisplay.clear();
+					mTrapDisplays.getDisplays().forEach(Entity::remove);
 					if (mPhysicsItem.isValid()) {
 						mPhysicsItem.remove();
 					}
@@ -329,20 +365,19 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 
 		Location loc = mPlayer.getEyeLocation();
 
-		HashMap<String, BlockDisplay> trapDisplay;
+		Trap.Displays trapDisplays;
 		Item physicsItem = AbilityUtils.spawnAbilityItem(mPlayer.getWorld(), loc, mCosmetic.getThrownItem(), "TrapPhysicItem", false, mVelocity, false, true);
 
 		boolean isUnderwater = mPlayer.isUnderWater();
 
 		if (isUnderwater) {
-			trapDisplay = new HashMap<>(mCosmetic.getUnderwaterBlockDisplayTrap(mPlayer.getWorld(), unrotatedLoc));
+			trapDisplays = mCosmetic.getUnderwaterBlockDisplayTrap(mPlayer.getWorld(), unrotatedLoc);
 			physicsItem.setGravity(false);
 		} else {
-			trapDisplay = new HashMap<>(mCosmetic.getBlockDisplayTrap(mPlayer.getWorld(), unrotatedLoc));
+			trapDisplays = mCosmetic.getBlockDisplayTrap(mPlayer.getWorld(), unrotatedLoc);
 		}
 
-		for (BlockDisplay display : trapDisplay.values()) {
-			display.setInterpolationDuration(2);
+		for (Display display : trapDisplays.getDisplays()) {
 			physicsItem.addPassenger(display);
 			EntityUtils.setRemoveEntityOnUnload(display);
 		}
@@ -350,7 +385,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 		World world = mPlayer.getWorld();
 		mCosmetic.trapThrow(world, mPlayer, loc);
 
-		new Trap(trapDisplay, physicsItem, isUnderwater);
+		new Trap(trapDisplays, physicsItem, isUnderwater);
 	}
 
 	private boolean consumeCharge() {

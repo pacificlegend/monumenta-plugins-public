@@ -23,6 +23,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -151,6 +152,15 @@ public class ChestUtils {
 		builder.luck(luckAmount);
 		LootContext context = builder.build();
 		Collection<ItemStack> popLoot = lootTable.populateLoot(FastUtils.RANDOM, context);
+		// Add world assignment to "special lore"/key items based on the player's world - NOT ON BUILD
+		if (Plugin.IS_PLAY_SERVER && !player.getGameMode().equals(GameMode.CREATIVE)) {
+			String playerWorldName = player.getWorld().getName();
+			for (ItemStack thisItem : popLoot) {
+				if (InventoryUtils.containsSpecialLore(thisItem) && !ItemStatUtils.hasAssignedWorld(thisItem)) {
+					ItemStatUtils.addAssignedWorld(thisItem, playerWorldName);
+				}
+			}
+		}
 		// Clear the original chest (vanilla behavior, loot table overrides whatever is in the chest, doesn't add to it
 		inventory.clear();
 

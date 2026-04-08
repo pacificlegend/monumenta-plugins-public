@@ -397,6 +397,7 @@ public class ScorchedEarth extends Ability implements PotionAbility, AbilityWith
 
 		List<Instance> hitInstances = mActiveInstances.stream()
 			.filter(instance ->
+				instance.mLocation.getWorld() == loc.getWorld() &&
 				instance.mLocation.distanceSquared(loc) <= Math.pow(mRadius, 2) &&
 				currentTick - instance.mLastPotionSplashTick >= AlchemistPotions.IFRAME_BETWEEN_POT
 			)

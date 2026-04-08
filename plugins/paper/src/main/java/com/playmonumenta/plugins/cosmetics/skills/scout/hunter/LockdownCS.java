@@ -84,6 +84,7 @@ public class LockdownCS implements CosmeticSkill {
 					.add(VectorUtils.randomUnitVector().multiply(0.075)));
 			})
 				.count(120)
+				.data(new Particle.DustOptions(START, 0.4f))
 				.spawnAsPlayerActive(player);
 
 			// Particle Lines
@@ -104,6 +105,7 @@ public class LockdownCS implements CosmeticSkill {
 				.directionalMode(true)
 				.count(25)
 				.delta(0)
+				.data(new Particle.DustOptions(START, 0.8f))
 				.spawnAsPlayerActive(player);
 		}
 	}

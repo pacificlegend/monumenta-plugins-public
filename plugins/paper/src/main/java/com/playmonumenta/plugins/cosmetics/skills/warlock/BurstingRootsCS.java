@@ -117,7 +117,7 @@ public class BurstingRootsCS extends GraspingClawsCS {
 					vec = VectorUtils.rotateYAxis(vec, offset);
 					builder.location(loc.clone().add(vec));
 					builder.data(FastUtils.RANDOM.nextBoolean() ? BROWN_CONCRETE : BROWN_TERRACOTTA);
-				}).count(30).spawnAsPlayerActive(player);
+				}).count(30).data(BROWN_CONCRETE).spawnAsPlayerActive(player);
 
 				new PPParametric(Particle.FALLING_DUST, loc, (param, builder) -> {
 					double x = FastUtils.cosDeg(param * 20) * radius;
@@ -127,7 +127,7 @@ public class BurstingRootsCS extends GraspingClawsCS {
 					vec = VectorUtils.rotateYAxis(vec, offset);
 					builder.location(loc.clone().add(vec));
 					builder.data(FastUtils.RANDOM.nextBoolean() ? BROWN_CONCRETE : BROWN_TERRACOTTA);
-				}).count(30).spawnAsPlayerActive(player);
+				}).count(30).data(BROWN_CONCRETE).spawnAsPlayerActive(player);
 			}
 		}
 	}

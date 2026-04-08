@@ -96,6 +96,8 @@ public class PPFlower extends AbstractPartialParticle<PPFlower> {
 	}
 
 	public PPFlower transitionColors(Color innerColor, Color outerColor, float size) {
+		// Add default mData value to be certain there is valid data
+		mData = new Particle.DustOptions(innerColor, size);
 		mInnerColor = innerColor;
 		mOuterColor = outerColor;
 		mSize = size;

@@ -346,6 +346,10 @@ public class SpellBaseGrenadeLauncher extends Spell {
 
 	private void launchGrenade(Location bossLocation, Entity target, @Nullable AdditionalGrenadeParameters additionalParameters) {
 		try {
+			if (!target.getWorld().equals(bossLocation.getWorld())) {
+				MMLog.warning("Skipping launchGrenate targetting player in world: " + target.getWorld() + " from boss in world: " + bossLocation.getWorld());
+				return;
+			}
 			Location pLoc = target.getLocation().clone();
 			Location offset = new Location(bossLocation.getWorld(), 0, 1, 0);
 

@@ -834,7 +834,7 @@ public class BossManager implements Listener {
 				}
 				bossBar.getNextHealthThreshold().ifPresent(nextHpPercent -> {
 					// Min 1 to make sure we actually go below the threshold but don't kill the boss
-					double setHealth = Math.max(nextHpPercent * EntityUtils.getMaxHealth(damagee) / 100, 1);
+					double setHealth = nextHpPercent * EntityUtils.getMaxHealth(damagee) / 100;
 					double health = damagee.getHealth();
 					if (health - event.getFinalDamage(false) >= setHealth) {
 						return;

@@ -112,9 +112,6 @@ public class BossBarManager {
 	public OptionalDouble progressEvents() {
 		double maxHealth = EntityUtils.getMaxHealth(mBoss);
 		double currentPercent = mBoss.getHealth() / maxHealth * 100;
-		if (mEvents == null) {
-			return OptionalDouble.empty();
-		}
 		while (true) {
 			@Nullable
 			Map.Entry<Integer, BossHealthAction> entry = mEvents.peek();
@@ -152,6 +149,6 @@ public class BossBarManager {
 	}
 
 	public boolean removeHealthEvent(int percent) {
-		return mEvents != null && mEvents.removeIf(entry -> entry.getKey() == percent);
+		return mEvents.removeIf(entry -> entry.getKey() == percent);
 	}
 }

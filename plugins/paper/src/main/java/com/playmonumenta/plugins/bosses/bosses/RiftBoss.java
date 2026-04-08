@@ -56,6 +56,8 @@ public class RiftBoss extends BossAbilityGroup {
 		public double RIFT_STEP = 1.25;
 		@BossParam(help = "y-offset from where the rift should start")
 		public double HEIGHT_OFFSET = 0.5;
+		@BossParam(help = "y-offset for the rift if horizontal lock is false")
+		public double UP_OFFSET = 0;
 		@BossParam(help = "if true, the rift will stay horizontal and not attempt to climb up/down slopes, and will ignore walls")
 		public boolean HORIZONTAL_LOCK = false;
 		@BossParam(help = "damage the rift will deal on direct contact")
@@ -244,6 +246,8 @@ public class RiftBoss extends BossAbilityGroup {
 								}
 							}
 						}
+
+						bLoc.add(0, p.UP_OFFSET, 0);
 
 						if (TemporaryBlockChangeManager.INSTANCE.changeBlock(bLoc.getBlock(), p.MATERIAL, p.LINGERING_DURATION)) {
 							changedBlocks.add(bLoc.getBlock());

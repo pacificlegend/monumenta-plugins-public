@@ -40,7 +40,7 @@ public class Fleetfooted extends Ability {
 	private final double mFallDamageDR;
 	private double mSpeed;
 	private @Nullable Swiftness mSwiftness;
-	private boolean mWasInNoMobilityZone;
+	private boolean mWasInNoMobilityZone = false;
 
 	public Fleetfooted(Plugin plugin, Player player) {
 		super(plugin, player, INFO);
@@ -75,12 +75,11 @@ public class Fleetfooted extends Ability {
 	@Override
 	public void periodicTrigger(final boolean twoHertz, final boolean oneSecond, final int ticks) {
 		final boolean isInNoMobilityZone = ZoneUtils.hasZoneProperty(mPlayer, ZoneUtils.ZoneProperty.NO_MOBILITY_ABILITIES);
-		if (isLevelTwo()) {
-			if (mWasInNoMobilityZone && !isInNoMobilityZone) {
-				addMovementSpeed(mPlayer);
-			} else if (!mWasInNoMobilityZone && isInNoMobilityZone) {
-				removeMovementSpeed(mPlayer);
-			}
+
+		if (mWasInNoMobilityZone && !isInNoMobilityZone) {
+			addMovementSpeed(mPlayer);
+		} else if (!mWasInNoMobilityZone && isInNoMobilityZone) {
+			removeMovementSpeed(mPlayer);
 		}
 
 		mWasInNoMobilityZone = isInNoMobilityZone;

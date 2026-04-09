@@ -308,15 +308,17 @@ public class Mailbox implements Comparable<Mailbox> {
 				return;
 			}
 			String itemSlotJson = slotFuture.join();
-			JsonObject slotJson = itemSlotJson == null ? null : new Gson().fromJson(itemSlotJson, JsonObject.class);
-			MailboxSlot mailboxSlot = slotJson == null ? null : new MailboxSlot(slotJson);
+			Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+				JsonObject slotJson = itemSlotJson == null ? null : new Gson().fromJson(itemSlotJson, JsonObject.class);
+				MailboxSlot mailboxSlot = slotJson == null ? null : new MailboxSlot(slotJson);
 
-			if (mailboxSlot == null) {
-				mMailItems.remove(slot);
-			} else {
-				mMailItems.put(slot, mailboxSlot.getGuiItem());
-			}
-			future.complete(null);
+				if (mailboxSlot == null) {
+					mMailItems.remove(slot);
+				} else {
+					mMailItems.put(slot, mailboxSlot.getGuiItem());
+				}
+				future.complete(null);
+			});
 		});
 
 		return future;

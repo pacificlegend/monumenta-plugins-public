@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.itemstats.enchantments;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.effects.Blindness;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.Enchantment;
@@ -20,7 +21,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public final class Tactician implements Enchantment {
-	private static final double GREATER_DAMAGE_BONUS_PER_LEVEL = 0.15;
+	private static final double GREATER_DAMAGE_BONUS_PER_LEVEL = 0.125;
 	private static final double LESSER_DAMAGE_BONUS_PER_LEVEL = 0.075;
 	private static final EnumSet<DamageEvent.DamageType> AFFECTED_DAMAGE_TYPES = DamageEvent.DamageType.getAllMeleeProjectileAndMagicTypes();
 
@@ -57,7 +58,11 @@ public final class Tactician implements Enchantment {
 		final PotionEffect rooted = target.getPotionEffect(PotionEffectType.SLOW);
 		if (EntityUtils.isStunned(target)) {
 			mult = 1 + GREATER_DAMAGE_BONUS_PER_LEVEL * level;
-		} else if (EntityUtils.isParalyzed(plugin, target) || EntityUtils.isFrozen(target) || (rooted != null && rooted.getAmplifier() == 1)) {
+		} else if (EntityUtils.isParalyzed(plugin, target)
+					|| EntityUtils.isFrozen(target)
+					|| (rooted != null && rooted.getAmplifier() == 1)
+					|| isBlinded(plugin, target)
+					|| EntityUtils.isStaggered(target)) {
 			mult = 1 + LESSER_DAMAGE_BONUS_PER_LEVEL * level;
 		} else {
 			return;
@@ -76,5 +81,10 @@ public final class Tactician implements Enchantment {
 			AbilityUtils.playPassiveAbilitySound(loc, Sound.BLOCK_NETHERITE_BLOCK_HIT, 1.5f, 0.8f);
 			AbilityUtils.playPassiveAbilitySound(loc, Sound.ITEM_TRIDENT_RETURN, 0.7f, 0.8f);
 		}
+	}
+
+	//this should turn into a map in EntityUtils!
+	public static boolean isBlinded(Plugin plugin, LivingEntity mob) {
+		return plugin.mEffectManager.hasEffect(mob, Blindness.class);
 	}
 }

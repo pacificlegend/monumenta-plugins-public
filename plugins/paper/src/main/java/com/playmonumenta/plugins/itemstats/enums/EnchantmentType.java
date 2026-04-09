@@ -70,6 +70,7 @@ public enum EnchantmentType {
 	ASHES_OF_ETERNITY(new AshesOfEternity(), false, false, false, true),
 	ASHES_OF_ETERNITY_USED(new AshesOfEternityUsed(), false, true, false, false),
 	BLEEDING(new Bleeding(), true, false, false, true),
+	BACKSTAB(new Backstab(), true, false, false, false),
 	BROOMSTICK(new Broomstick(), false, false, false, false),
 	CHAOTIC(new Chaotic(), true, false, false, true),
 	DARKSIGHT(new Darksight(), false, false, false, false),

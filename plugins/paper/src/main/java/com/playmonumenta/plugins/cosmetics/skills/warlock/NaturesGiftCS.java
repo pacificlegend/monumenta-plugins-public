@@ -66,7 +66,7 @@ public class NaturesGiftCS extends SoulRendCS {
 
 			Color color = ParticleUtils.getTransition(YELLOW.getColor(), MAGENTA.getColor(), vec.lengthSquared() / 4);
 			builder.data(new Particle.DustOptions(color, 0.8f));
-		}).count(600).spawnAsPlayerActive(player);
+		}).count(600).data(YELLOW).spawnAsPlayerActive(player);
 		new PartialParticle(Particle.SPELL_INSTANT, loc.clone().add(0, 0.2, 0), 12, 0.15, 0.15, 0.15, 1).spawnAsPlayerActive(player);
 	}
 

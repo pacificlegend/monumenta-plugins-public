@@ -525,7 +525,7 @@ public abstract class AbstractPartialParticle<SelfT extends AbstractPartialParti
 	}
 
 	private void logWrongData(Class<?> dataType) {
-		String errorMessage = "%s (Type: %s, Count: %s, Location :%s) has the wrong data type! (Requires: %s, Got: %s)"
+		String errorMessage = "%s (Type: %s, Count: %s, Location: \"%s\") has the wrong data type! (Requires: %s, Got: %s)"
 			.formatted(
 				getClass().getSimpleName(),
 				mParticle,

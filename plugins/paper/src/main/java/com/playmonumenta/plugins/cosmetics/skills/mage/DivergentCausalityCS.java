@@ -101,7 +101,7 @@ public class DivergentCausalityCS extends ElementalArrowsCS {
 				vec.setY(vec.lengthSquared() / 4);
 				builder.location(loc.clone().add(vec));
 				builder.data(new Particle.DustOptions(color, 1.1f));
-			}).count(350).spawnAsPlayerActive(player);
+			}).count(350).data(new Particle.DustOptions(PINK_BASE, 1.1f)).spawnAsPlayerActive(player);
 		}
 	}
 
@@ -132,7 +132,7 @@ public class DivergentCausalityCS extends ElementalArrowsCS {
 				vec.setY(vec.lengthSquared() / 8);
 				builder.location(loc.clone().add(vec));
 				builder.data(new Particle.DustOptions(color, 1.1f));
-			}).count(350).spawnAsPlayerActive(player);
+			}).count(350).data(new Particle.DustOptions(LILAC_BASE, 1.1f)).spawnAsPlayerActive(player);
 		}
 
 		world.playSound(loc, Sound.ITEM_TRIDENT_HIT, SoundCategory.PLAYERS, 0.85f, 0.5f);
@@ -161,7 +161,7 @@ public class DivergentCausalityCS extends ElementalArrowsCS {
 				vec.setY(vec.lengthSquared() / 8);
 				builder.location(loc.clone().add(vec));
 				builder.data(new Particle.DustOptions(color, 1.1f));
-			}).count(350).spawnAsPlayerActive(player);
+			}).count(350).data(new Particle.DustOptions(ROSE_BASE, 1.1f)).spawnAsPlayerActive(player);
 		}
 
 		world.playSound(loc, Sound.BLOCK_SCULK_SHRIEKER_BREAK, SoundCategory.PLAYERS, 1f, 0.5f);

@@ -19,7 +19,6 @@ import io.lettuce.core.SetArgs;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -60,7 +59,7 @@ public class Mailbox implements Comparable<Mailbox> {
 	private final Recipient mSender;
 	private final Recipient mReceiver;
 	// This is a cache for display purposes ONLY! Do not allow players to grab these items.
-	private Map<Integer, ItemStack> mMailItems = new HashMap<>();
+	private Map<Integer, ItemStack> mMailItems = new ConcurrentSkipListMap<>();
 	// This is a local lock indicator, used to skip attempting to check
 	// the real lock in Redis if we already know the result
 	private final ConcurrentSkipListMap<Integer, LocalDateTime> mLockedSlots = new ConcurrentSkipListMap<>();

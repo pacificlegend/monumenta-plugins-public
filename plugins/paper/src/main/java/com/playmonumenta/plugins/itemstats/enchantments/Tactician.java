@@ -2,6 +2,7 @@ package com.playmonumenta.plugins.itemstats.enchantments;
 
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.effects.Blindness;
+import com.playmonumenta.plugins.effects.Effect;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.Enchantment;
@@ -17,8 +18,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+
 
 public final class Tactician implements Enchantment {
 	private static final double GREATER_DAMAGE_BONUS_PER_LEVEL = 0.125;
@@ -55,14 +55,14 @@ public final class Tactician implements Enchantment {
 		}
 
 		final double mult;
-		final PotionEffect rooted = target.getPotionEffect(PotionEffectType.SLOW);
+		final Effect rooted = plugin.mEffectManager.getActiveEffect(target, EntityUtils.SLOW_EFFECT_NAME);
 		if (EntityUtils.isStunned(target)) {
 			mult = 1 + GREATER_DAMAGE_BONUS_PER_LEVEL * level;
 		} else if (EntityUtils.isParalyzed(plugin, target)
-					|| EntityUtils.isFrozen(target)
-					|| (rooted != null && rooted.getAmplifier() == 1)
-					|| isBlinded(plugin, target)
-					|| EntityUtils.isStaggered(target)) {
+			|| EntityUtils.isFrozen(target)
+			|| (rooted != null && rooted.getMagnitude() == 1)
+			|| isBlinded(plugin, target)
+			|| EntityUtils.isStaggered(target)) {
 			mult = 1 + LESSER_DAMAGE_BONUS_PER_LEVEL * level;
 		} else {
 			return;

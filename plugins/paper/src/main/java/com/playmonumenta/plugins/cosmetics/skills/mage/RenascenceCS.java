@@ -88,7 +88,7 @@ public class RenascenceCS extends PrismaticShieldCS {
 
 						Color color = ParticleUtils.getTransition(RED.getColor(), ROSE.getColor(), vec.length() / radius);
 						builder.data(new Particle.DustOptions(color, 1.25f));
-					}).count(200).spawnAsPlayerActive(player);
+					}).count(200).data(RED).spawnAsPlayerActive(player);
 
 					case 1 -> new PPParametric(Particle.REDSTONE, loc, (param, builder) -> {
 						double x = (radius - 0.5) * FastUtils.cos(14 * Math.PI * param) * FastUtils.cos(4 * Math.PI * param);
@@ -99,7 +99,7 @@ public class RenascenceCS extends PrismaticShieldCS {
 
 						Color color = ParticleUtils.getTransition(RED.getColor(), ROSE.getColor(), vec.length() / radius);
 						builder.data(new Particle.DustOptions(color, 1.25f));
-					}).count(200).spawnAsPlayerActive(player);
+					}).count(200).data(RED).spawnAsPlayerActive(player);
 
 					default -> new PPParametric(Particle.REDSTONE, loc, (param, builder) -> {
 						double x = radius * FastUtils.cos(14 * Math.PI * param) * FastUtils.cos(4 * Math.PI * param);
@@ -110,7 +110,7 @@ public class RenascenceCS extends PrismaticShieldCS {
 
 						Color color = ParticleUtils.getTransition(RED.getColor(), ROSE.getColor(), vec.length() / radius);
 						builder.data(new Particle.DustOptions(color, 1.25f));
-					}).count(500).spawnAsPlayerActive(player);
+					}).count(500).data(RED).spawnAsPlayerActive(player);
 				}
 
 				mT++;

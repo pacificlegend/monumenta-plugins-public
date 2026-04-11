@@ -1123,6 +1123,7 @@ public class CharmManager {
 			GaleShot.CHARM_SLOWNESS_DURATION,
 			GaleShot.CHARM_SLOWNESS_AMPLIFIER,
 			GaleShot.CHARM_COUNT,
+			GaleShot.CHARM_SIZE,
 			TacticalManeuver.CHARM_CHARGES,
 			TacticalManeuver.CHARM_COOLDOWN,
 			TacticalManeuver.CHARM_VELOCITY,

@@ -144,9 +144,9 @@ public class VersionAdapter_v1_20_R3 implements VersionAdapter {
 		private final boolean mCauseKnockback;
 		private final boolean mBypassIFrames;
 
-		public CustomDamageSource(Holder<DamageType> type, @Nullable net.minecraft.world.entity.Entity damager,
+		public CustomDamageSource(Holder<DamageType> type, @Nullable net.minecraft.world.entity.Entity damager, @Nullable net.minecraft.world.entity.Entity directSource,
 								  boolean blockable, @Nullable String killedUsingMsg, boolean causeKnockback, boolean bypassIFrames) {
-			super(type, damager, damager);
+			super(type, directSource, damager);
 			mDamager = damager;
 			mBlockable = blockable;
 			mKilledUsingMsg = killedUsingMsg;
@@ -323,8 +323,8 @@ public class VersionAdapter_v1_20_R3 implements VersionAdapter {
 	}
 
 	@Override
-	public void customDamageEntity(@Nullable LivingEntity damager, LivingEntity damagee, double amount,
-			boolean blockable, @Nullable String killedUsingMsg, boolean causeKnockback, boolean bypassIFrames) {
+	public void customDamageEntity(@Nullable LivingEntity damager, @Nullable Entity directSource, LivingEntity damagee, double amount,
+								   boolean blockable, @Nullable String killedUsingMsg, boolean causeKnockback, boolean bypassIFrames) {
 		// this will throw if not present in the datapack
 		final var type = ((CraftLivingEntity) damagee).getHandle()
 			.level()
@@ -335,6 +335,7 @@ public class VersionAdapter_v1_20_R3 implements VersionAdapter {
 		final var reason = new CustomDamageSource(
 			type,
 			damager == null ? null : ((CraftLivingEntity) damager).getHandle(),
+			directSource == null ? null : ((CraftEntity) directSource).getHandle(),
 			blockable,
 			killedUsingMsg,
 			causeKnockback,

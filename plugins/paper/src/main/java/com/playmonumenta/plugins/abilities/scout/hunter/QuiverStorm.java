@@ -46,7 +46,7 @@ import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.St
 import static com.playmonumenta.plugins.utils.DescriptionUtils.UNDERLINED;
 
 public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
-	public static final String ARROW_METADATA = "QuiverStormMetadata";
+	public static final String ARROW_METADATA = "QuiverStormArrow_HasConvertedDamage"; // false if the arrow is a QStorm arrow that has not hit its enemy, true if it has already hit its enemy. Used in Explosive.
 	public static final double ENCHANT_RATIO = 0.25;
 	private static final String LOCKDOWN_HIT = "LockdownHitThisTick";
 	private static final String PREDATOR_HIT = "PredatorStrikeHitThisTick";
@@ -64,18 +64,14 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		EnchantmentType.PUNCH,
 		EnchantmentType.CURSE_OF_SHRAPNEL
 	));
-	private static final List<EnchantmentType> DAMAGE_ENCHANT_LIST = new ArrayList<>(List.of(
-		EnchantmentType.EXPLODING,
-		EnchantmentType.IMPACT
-	));
 
 	private static final double DAMAGE_PERCENT_L1 = 0.25;
-	private static final double DAMAGE_PERCENT_L2 = 0.35;
-	private static final int PASSIVE_ARROW = 1;
+	private static final double DAMAGE_PERCENT_L2 = 0.30;
+	private static final int PASSIVE_ARROW = 2;
 	private static final int MAX_ARROW_L1 = 3;
 	private static final int MAX_ARROW_L2 = 5;
-	private static final int DELAY_1 = 4;
-	private static final int DELAY_2 = 3;
+	private static final int DELAY_L1 = 4;
+	private static final int DELAY_L2 = 3;
 	private static final int PSTRIKE_ARROW = 3;
 	private static final int LD_ARROW = 1;
 
@@ -113,7 +109,7 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		super(plugin, player, INFO);
 		mDamagePercent = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, isLevelOne() ? DAMAGE_PERCENT_L1 : DAMAGE_PERCENT_L2);
 		mMaxCharges = (isLevelOne() ? MAX_ARROW_L1 : MAX_ARROW_L2) + (int) CharmManager.getLevel(mPlayer, CHARM_MAX_STACKS);
-		mDelay = (int) CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DELAY, isLevelOne() ? DELAY_1 : DELAY_2);
+		mDelay = (int) CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DELAY, isLevelOne() ? DELAY_L1 : DELAY_L2);
 		mPierce = Math.clamp((int) CharmManager.getLevel(mPlayer, CHARM_PIERCE), 0, 100);
 		mPassive = PASSIVE_ARROW + (int) CharmManager.getLevel(mPlayer, CHARM_PASSIVE_ARROW);
 		mPstrikeArrowRefund = Math.clamp(PSTRIKE_ARROW + (int) CharmManager.getLevel(mPlayer, CHARM_PSTRIKE_REFUND), 0, mMaxCharges);
@@ -164,12 +160,6 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 
 				map.set(Objects.requireNonNull(enchant.getItemStat()), lvl * ENCHANT_RATIO);
 			}
-
-			for (EnchantmentType enchant : DAMAGE_ENCHANT_LIST) {
-				double lvl = map.get(Objects.requireNonNull(enchant.getItemStat()));
-
-				map.set(Objects.requireNonNull(enchant.getItemStat()), lvl * mDamagePercent);
-			}
 		}
 
 		mCastTime = currTick;
@@ -198,10 +188,13 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		float projSpeed = ItemUtils.getVanillaProjectileSpeed(inMainHand);
 		AbstractArrow proj = (AbstractArrow) EntityUtils.spawnProjectile(mPlayer, 0, 0, new Vector(0, 0, 0), projSpeed, EntityType.ARROW);
 
-		proj.setMetadata(ARROW_METADATA, new FixedMetadataValue(mPlugin, 0));
-		proj.setMetadata(Sharpshooter.NO_TRACKING_METADATA, new FixedMetadataValue(mPlugin, 0));
+		proj.setMetadata(ARROW_METADATA, new FixedMetadataValue(mPlugin, false));
 		proj.setShooter(mPlayer);
 		proj.setPierceLevel(mPierce);
+
+		if (mSharpshooter != null) {
+			mSharpshooter.doNotTrack(proj);
+		}
 
 		proj.setMetadata(DamageListener.DO_NOT_REPLACE_METADATA, new FixedMetadataValue(Plugin.getInstance(), 0));
 		DamageListener.addProjectileItemStats(proj.getUniqueId(), stats);
@@ -219,11 +212,14 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		if (event.getDamager() instanceof AbstractArrow proj && proj.hasMetadata(ARROW_METADATA)) {
+		if (event.getDamager() instanceof AbstractArrow proj
+			&& proj.hasMetadata(ARROW_METADATA)
+			&& event.getType() == DamageEvent.DamageType.PROJECTILE) {
 			event.setCancelled(true);
+			proj.setMetadata(ARROW_METADATA, new FixedMetadataValue(mPlugin, true));
 
 			double dmg = AbilityUtils.projectileFinalDamage(proj, enemy, 0, mDamagePercent);
-			DamageUtils.damage(mPlayer, enemy,
+			DamageUtils.damage(mPlayer, proj, enemy,
 				new DamageEvent.Metadata(DamageEvent.DamageType.PROJECTILE_SKILL,
 					mInfo.getLinkedSpell(),
 					DamageListener.getProjectileItemStats(proj)),
@@ -293,7 +289,7 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 			.addStat("Damage: %p1 (of weapon damage) (p) (per arrow)")
 			.statValues(stat(a -> a.mDamagePercent, DAMAGE_PERCENT_L1))
 			.addStat("Fire Rate: %t1")
-			.statValues(stat(a -> a.mDelay, DELAY_1))
+			.statValues(stat(a -> a.mDelay, DELAY_L1))
 			.addStat("Arrows: %d")
 			.statValues(stat(a -> a.mPassive, PASSIVE_ARROW))
 			.addLine()
@@ -316,7 +312,7 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 			.addStatComparison("Damage: %p1 -> %p2")
 			.statValues(stat(DAMAGE_PERCENT_L1), stat(a -> a.mDamagePercent, DAMAGE_PERCENT_L2))
 			.addStatComparison("Fire Rate: %t1 -> %t2")
-			.statValues(stat(DELAY_1), stat(a -> a.mDelay, DELAY_2))
+			.statValues(stat(DELAY_L1), stat(a -> a.mDelay, DELAY_L2))
 			.addStatComparison("Max Arrows: %d1 -> %d2")
 			.statValues(stat(MAX_ARROW_L1), stat(a -> a.mMaxCharges, MAX_ARROW_L2))
 			.addDashedLine();

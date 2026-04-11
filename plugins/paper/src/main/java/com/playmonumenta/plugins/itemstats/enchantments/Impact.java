@@ -36,17 +36,20 @@ import org.jetbrains.annotations.Nullable;
 
 public class Impact implements Enchantment {
 
-	private static final Particle.DustOptions DUST_OPTIONS = new Particle.DustOptions(Color.WHITE, 1.2f);
-	private static final String EFFECT_ID = "ImpactVulnerability";
-	private static final String KB_EFFECT_ID = "ImpactKBVulnerability";
-	private static final EnumSet<DamageEvent.DamageType> TRIGGERING_DAMAGE_TYPES = EnumSet.of(
+	public static final EnumSet<DamageEvent.DamageType> TRIGGERING_DAMAGE_TYPES = EnumSet.of(
 		DamageEvent.DamageType.MELEE,
 		DamageEvent.DamageType.PROJECTILE
 	);
-	private static final EnumSet<ClassAbility> TRIGGERING_ABILITIES = EnumSet.of(
-		ClassAbility.ERUPTION
+	public static final EnumSet<ClassAbility> TRIGGERING_ABILITIES = EnumSet.of(
+		ClassAbility.ERUPTION,
+		ClassAbility.QUIVER_STORM
 	);
-	private static final String PROJECTILE_METAKEY = "ImpactProjectileHitThisTick"; // Is there a naming convention for this?
+
+	private static final double DAMAGE_PER_LEVEL = 0.1;
+	private static final Particle.DustOptions DUST_OPTIONS = new Particle.DustOptions(Color.WHITE, 1.2f);
+	private static final String EFFECT_ID = "ImpactVulnerability";
+	private static final String KB_EFFECT_ID = "ImpactKBVulnerability";
+	private static final String PROJECTILE_METAKEY = "ImpactProjectileHitThisTick";
 
 	private final Map<Player, ImpactInstance> mDamageInTick = new HashMap<>();
 	private @Nullable BukkitTask mRunDamageTask = null;
@@ -73,18 +76,14 @@ public class Impact implements Enchantment {
 
 	@Override
 	public void onDamage(Plugin plugin, Player player, double value, DamageEvent event, LivingEntity enemy) {
-		if (enemy instanceof Player) {
+		if (enemy instanceof Player
+			|| event.isCancelled()
+			|| event.getAbility() == ClassAbility.IMPACT
+			|| (event.getType() == DamageEvent.DamageType.PROJECTILE
+			&& !MetadataUtils.checkOnceThisTick(plugin, enemy, PROJECTILE_METAKEY)) // Prevent Volley from applying multiple Impacts
+		) {
 			return;
 		}
-		if (event.isCancelled()) {
-			return;
-		}
-		if (event.getType() == DamageEvent.DamageType.PROJECTILE
-			&& !MetadataUtils.checkOnceThisTick(plugin, enemy, PROJECTILE_METAKEY)) {
-			return;
-			// Prevent Volley from applying multiple Impacts
-		}
-
 		if (AbilityUtils.isChargedAspectTriggeringEvent(event, player)
 			|| event.getType() == DamageEvent.DamageType.TRUE // I hate the projectile iframe system, can we please just remove them
 		) {
@@ -107,9 +106,11 @@ public class Impact implements Enchantment {
 	private void task() {
 
 		mDamageInTick.forEach((p, instance) -> {
-			if (instance.mMap.values().stream().anyMatch(events -> events.stream().anyMatch(event -> TRIGGERING_DAMAGE_TYPES.contains(event.getType()) || TRIGGERING_ABILITIES.contains(event.getAbility())))) {
+			if (instance.mMap.values().stream().anyMatch(events -> events.stream().anyMatch(event ->
+				TRIGGERING_DAMAGE_TYPES.contains(event.getType()) || (event.getAbility() != null && TRIGGERING_ABILITIES.contains(event.getAbility()))
+			))) {
 				instance.mMap.forEach((entity, events) -> applyImpact(instance.mPlugin, p, instance.mValue, events, entity));
-				// Impact will only activate if the player dealt MELEE, PROJECTILE or OTHER (Eruption) damage in the same tick
+				// Impact will only activate if the player dealt damage from the correct damage types or class abilities in the same tick
 			}
 		});
 		mDamageInTick.clear();
@@ -121,7 +122,9 @@ public class Impact implements Enchantment {
 
 		double damage = 0;
 		for (DamageEvent event : events) {
-			damage += event.getFinalDamage(true);
+			if (!event.isCancelled()) {
+				damage += event.getFinalDamage(true);
+			}
 		}
 		final double finalDamage = damage;
 
@@ -209,7 +212,7 @@ public class Impact implements Enchantment {
 
 	private void onImpact(Player player, LivingEntity target, double originalDamage, int level) {
 
-		double finalDamage = originalDamage * 0.1 * level;
+		double finalDamage = originalDamage * DAMAGE_PER_LEVEL * level;
 
 		DamageUtils.damage(player, target, DamageEvent.DamageType.TRUE, finalDamage, ClassAbility.IMPACT, true);
 

@@ -2,6 +2,7 @@ package com.playmonumenta.plugins.itemstats.enchantments;
 
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.mage.ElementalArrows;
+import com.playmonumenta.plugins.abilities.scout.hunter.QuiverStorm;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.Enchantment;
@@ -16,6 +17,7 @@ import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,7 +36,14 @@ public class Explosive implements Enchantment {
 	private static final Particle.DustOptions YELLOW_1_COLOR = new Particle.DustOptions(Color.fromRGB(255, 255, 20), 1.0f);
 	private static final Particle.DustOptions YELLOW_2_COLOR = new Particle.DustOptions(Color.fromRGB(255, 255, 120), 1.0f);
 	private static final Particle.DustOptions BLEED_COLOR = new Particle.DustOptions(Color.fromRGB(210, 44, 44), 1.0f);
-	private static final String EXPLODED_METAKEY = "ExplosiveThisTick";
+	private static final String EXPLODED_METAKEY = "ExplosiveExploded";
+
+	private static final Set<ClassAbility> EXPLOSIVE_ABILITIES = Set.of(
+		ClassAbility.QUIVER_STORM
+	);
+	private static final Set<DamageEvent.DamageType> EXPLOSIVE_DAMAGES = Set.of(
+		DamageEvent.DamageType.PROJECTILE
+	);
 
 	@Override
 	public String getName() {
@@ -59,11 +68,12 @@ public class Explosive implements Enchantment {
 
 	@Override
 	public void onDamage(Plugin plugin, Player player, double value, DamageEvent event, LivingEntity enemy) {
-		if (event.getType() == DamageEvent.DamageType.PROJECTILE
+		if ((EXPLOSIVE_DAMAGES.contains(event.getType()) || (event.getAbility() != null && EXPLOSIVE_ABILITIES.contains(event.getAbility())))
 			&& event.getDamager() instanceof Projectile projectile
 			&& EntityUtils.isAbilityTriggeringProjectile(projectile, true)
 			&& EntityUtils.isHostileMob(enemy)
 			&& !projectile.hasMetadata(EXPLODED_METAKEY)
+			&& !(projectile.hasMetadata(QuiverStorm.ARROW_METADATA) && !projectile.getMetadata(QuiverStorm.ARROW_METADATA).get(0).asBoolean())
 			&& !(projectile.hasMetadata(ElementalArrows.FIRE_ARROW_METAKEY)
 			|| projectile.hasMetadata(ElementalArrows.ICE_ARROW_METAKEY)
 			|| projectile.hasMetadata(ElementalArrows.THUNDER_ARROW_METAKEY))) {
@@ -72,7 +82,7 @@ public class Explosive implements Enchantment {
 				return;
 			}
 
-			projectile.setMetadata(EXPLODED_METAKEY, new FixedMetadataValue(Plugin.getInstance(), false));
+			projectile.setMetadata(EXPLODED_METAKEY, new FixedMetadataValue(Plugin.getInstance(), true));
 
 			ItemStatManager.PlayerItemStats.ItemStatsMap itemStatsMap = playerItemStats.getItemStats();
 
@@ -95,12 +105,11 @@ public class Explosive implements Enchantment {
 			nearbyMobs.remove(enemy);
 
 			double damage = event.getFlatDamage() * value * DAMAGE_PERCENTAGE_PER_LEVEL;
-
 			for (LivingEntity mob : nearbyMobs) {
 				BoundingBox mobBox = mob.getBoundingBox();
 				if (box.overlaps(mobBox)) {
 					// Deal damage.
-					DamageUtils.damage(player, mob, DamageEvent.DamageType.PROJECTILE_ENCH, damage, ClassAbility.EXPLOSIVE, false);
+					DamageUtils.damage(player, mob, DamageEvent.DamageType.PROJECTILE_ENCH, damage, ClassAbility.EXPLOSIVE, true);
 					Punch.applyPunch(plugin, punch, mob, projectile.getVelocity());
 					Harpoon.applyHarpoon(plugin, harpoon, mob, projectile.getVelocity());
 				}
@@ -108,7 +117,7 @@ public class Explosive implements Enchantment {
 
 			//Visual feedback
 			float multiplier = 1f;
-			if (AbilityUtils.isVolley(player, projectile)) {
+			if (AbilityUtils.isVolley(player, projectile) || projectile.hasMetadata(QuiverStorm.ARROW_METADATA)) {
 				multiplier = 0.15f;
 			} else if (itemStatsMap.get(EnchantmentType.MULTISHOT) == 1) {
 				multiplier = 0.4f;

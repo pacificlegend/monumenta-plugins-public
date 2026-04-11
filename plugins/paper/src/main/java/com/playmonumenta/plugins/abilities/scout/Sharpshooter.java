@@ -273,6 +273,10 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 		}
 	}
 
+	public boolean isTracking(Projectile proj) {
+		return TIME_TO_ARROW.values().stream().anyMatch(pair -> pair.getFirst().contains(proj));
+	}
+
 	// Exclusively for Quiver Storm as it inherits a % of an enchant
 	public int getAdditionalPierce() {
 		return isEnhanced() ? mStacks / mStacksPerPierce : 0;

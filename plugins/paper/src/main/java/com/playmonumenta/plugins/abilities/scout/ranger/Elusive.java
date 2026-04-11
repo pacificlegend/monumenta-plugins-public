@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.stat;
 
 public class Elusive extends Ability {
-	private static final double DAMAGE_REDUCTION = 0.025;
+	private static final double DAMAGE_REDUCTION = 0.05;
 	private static final int MAX_STACKS = 4;
 
 	public static final AbilityInfo<Elusive> INFO =

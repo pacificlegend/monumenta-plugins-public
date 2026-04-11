@@ -1533,8 +1533,8 @@ public class EntityUtils {
 	public static boolean isAbilityTriggeringProjectile(Projectile proj, boolean requireCritical) {
 		if (proj instanceof AbstractArrow arrow) {
 			return !requireCritical
-				|| (arrow.getShooter() instanceof Player player && PartingShot.hasImbuement(player))
 				|| arrow.isCritical()
+				|| (arrow.getShooter() instanceof Player player && PartingShot.hasImbuement(player))
 				|| arrow instanceof Trident;
 		} else if (proj instanceof Snowball) {
 			ItemStatManager.PlayerItemStats projectileItemStats = DamageListener.getProjectileItemStats(proj);

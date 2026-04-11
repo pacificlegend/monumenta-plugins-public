@@ -76,8 +76,8 @@ public class GaleShotCS implements CosmeticSkill {
 				Vector axis1 = mFlightDir.clone().crossProduct(new Vector(0, 1, 0));
 				Vector axis2 = mFlightDir.clone().crossProduct(axis1); // Already normalised
 
-				for (int i = 0; i < 5 * ((int) Math.ceil(beamRange)); i++) {
-					double distanceAlongLine = (float) i / (5 * ((int) Math.ceil(beamRange))) * beamRange;
+				for (int i = 0; i < 9 * ((int) Math.ceil(beamRange)); i++) {
+					double distanceAlongLine = (float) i / (9 * ((int) Math.ceil(beamRange))) * beamRange;
 					Location point = mPastLoc.clone().add(mFlightDir.clone().multiply(distanceAlongLine));
 					double distanceFromFiring = mFlightDistance + distanceAlongLine;
 					double theta = (distanceFromFiring < 7 ?

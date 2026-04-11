@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 public interface VersionAdapter {
 	void removeAllMetadata(Plugin plugin);
 
-	void customDamageEntity(@Nullable LivingEntity damager, LivingEntity damagee, double amount, boolean blockable, @Nullable String killedUsingMsg, boolean causeKnockback, boolean bypassIFrames);
+	void customDamageEntity(@Nullable LivingEntity damager, @Nullable Entity directSource, LivingEntity damagee, double amount, boolean blockable, @Nullable String killedUsingMsg, boolean causeKnockback, boolean bypassIFrames);
 
 	<T extends Entity> T duplicateEntity(T entity);
 

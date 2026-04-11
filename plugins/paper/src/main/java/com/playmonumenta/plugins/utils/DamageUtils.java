@@ -12,10 +12,10 @@ import com.playmonumenta.plugins.listeners.DamageListener;
 import com.playmonumenta.plugins.listeners.StasisListener;
 import java.util.List;
 import org.bukkit.GameMode;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.entity.PufferFish;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
@@ -167,7 +167,25 @@ public class DamageUtils {
 	 * @param blockable      Whether the damage can be blocked with a shield
 	 */
 	public static void damage(@Nullable LivingEntity damager, LivingEntity damagee, DamageEvent.Metadata metadata,
-	                          double amount, boolean bypassIFrames, boolean causeKnockback, boolean blockable) {
+							  double amount, boolean bypassIFrames, boolean causeKnockback, boolean blockable) {
+		damage(damager, damager, damagee, metadata, amount, bypassIFrames, causeKnockback, blockable);
+	}
+
+	/**
+	 * Deals damage to a LivingEntity.
+	 * <br>
+	 * Use this method when additional metadata needs to be added to the DamageEvent before calling it.
+	 *
+	 * @param damager        LivingEntity dealing damage, pass null if not applicable
+	 * @param damagee        LivingEntity receiving damage
+	 * @param metadata       Metadata for the event
+	 * @param amount         amount of damage to be dealt
+	 * @param bypassIFrames  whether the damage should bypass IFrames
+	 * @param causeKnockback whether the damage should cause knockback
+	 * @param blockable      Whether the damage can be blocked with a shield
+	 */
+	public static void damage(@Nullable LivingEntity damager, @Nullable Entity directSource, LivingEntity damagee, DamageEvent.Metadata metadata,
+							  double amount, boolean bypassIFrames, boolean causeKnockback, boolean blockable) {
 		if (!damagee.isValid() || isImmuneToDamage(damagee, metadata.getType())) {
 			return;
 		}
@@ -197,7 +215,7 @@ public class DamageUtils {
 
 		nextEventMetadata = metadata;
 		try {
-			NmsUtils.getVersionAdapter().customDamageEntity(damager, damagee, amountFinal, blockable, metadata.getBossSpellName(), causeKnockback, bypassIFrames);
+			NmsUtils.getVersionAdapter().customDamageEntity(damager, directSource, damagee, amountFinal, blockable, metadata.getBossSpellName(), causeKnockback, bypassIFrames);
 		} finally {
 			nextEventMetadata = null;
 

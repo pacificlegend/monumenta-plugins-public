@@ -110,7 +110,7 @@ public class IncarnationOfTheFalseSunCS extends StarfallCS {
 				// 30/(pi * radius) particles per meter
 				.countPerMeter(30.0 / Math.PI).extra(0)
 				.data(new Particle.DustOptions(Color.fromRGB(255, 0, 0), 1)).distanceFalloff(15)
-				.spawnAsBoss();
+				.spawnAsPlayerActive(player);
 			new PPCircle(Particle.FLAME, ogMeteorLoc.clone().add(0, 0.25, 0), 1)
 				// RotateDelta originates from positive X
 				.delta(1, 0, 0).rotateDelta(true)

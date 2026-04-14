@@ -76,7 +76,7 @@ public class IngressCS extends ThunderStepCS {
 		new PPExplosion(Particle.SQUID_INK, player.getLocation().clone().add(0, 1.2, 0))
 			.extra(0.5)
 			.count(20)
-			.spawnAsBoss();
+			.spawnAsPlayerActive(player);
 	}
 
 	@Override

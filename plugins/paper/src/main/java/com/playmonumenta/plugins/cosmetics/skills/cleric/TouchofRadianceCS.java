@@ -8,6 +8,7 @@ import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.VectorUtils;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,6 +35,10 @@ public class TouchofRadianceCS implements CosmeticSkill {
 
 	private static final Color ORANGE_1 = Color.fromRGB(255, 195, 60);
 	private static final Color ORANGE_2 = Color.fromRGB(255, 160, 30);
+
+	public NamedTextColor glowColor() {
+		return NamedTextColor.YELLOW;
+	}
 
 	public void tickEffect(LivingEntity e) {
 		PartialParticle crit = new PartialParticle(Particle.CRIT, LocationUtils.getEntityCenter(e), 5).delta(0.7);

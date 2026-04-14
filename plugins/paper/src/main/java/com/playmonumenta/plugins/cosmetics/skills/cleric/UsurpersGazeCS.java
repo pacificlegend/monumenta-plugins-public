@@ -8,6 +8,7 @@ import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.ParticleUtils;
 import java.util.List;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -43,22 +44,27 @@ public class UsurpersGazeCS extends TouchofRadianceCS {
 	}
 
 	@Override
-	public void tickEffect(LivingEntity entity) {
-		Location crownLoc = entity.getLocation().add(0, entity.getHeight() + 0.4, 0);
+	public NamedTextColor glowColor() {
+		return NamedTextColor.RED;
+	}
 
-		new PPCircle(Particle.DUST_COLOR_TRANSITION, crownLoc, 0.6)
-			.count(40)
-			.data(new Particle.DustTransition(Color.RED, Color.fromRGB(0x6b0000), 1.0f))
+	@Override
+	public void tickEffect(LivingEntity entity) {
+		Location crownLoc = entity.getLocation().add(0, entity.getHeight() + 1, 0);
+
+		new PPCircle(Particle.DUST_COLOR_TRANSITION, crownLoc, 0.75)
+			.count(50)
+			.data(new Particle.DustTransition(Color.RED, Color.fromRGB(0x6b0000), 1.3f))
 			.innerRadiusFactor(0.7)
 			.delta(0.01)
 			.spawnAsEntityBuff(entity);
 
 
 		for (int deg = 0; deg < 360; deg += 72) {
-			Vector vec = new Vector(FastUtils.sinDeg(deg) * 0.6, -0.15, FastUtils.cosDeg(deg) * 0.6);
-			new PPPillar(Particle.DUST_COLOR_TRANSITION, crownLoc.clone().add(vec), 0.5)
+			Vector vec = new Vector(FastUtils.sinDeg(deg) * 0.75, -0.3, FastUtils.cosDeg(deg) * 0.75);
+			new PPPillar(Particle.DUST_COLOR_TRANSITION, crownLoc.clone().add(vec), 0.8)
 				.count(10)
-				.data(new Particle.DustTransition(Color.RED, Color.fromRGB(0x6b0000), 0.85f))
+				.data(new Particle.DustTransition(Color.RED, Color.fromRGB(0x6b0000), 1.16f))
 				.spawnAsEntityBuff(entity);
 		}
 	}

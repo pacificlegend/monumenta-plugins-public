@@ -72,7 +72,7 @@ public class TwistedRitualCS extends BladeDanceCS {
 				.curveAngle(180)
 				.ticks(4)
 				.reversed(true)
-				.spawnAsBoss();
+				.spawnAsPlayerActive(player);
 		}
 		for (double j = 0; j < 360; j += 72) {
 			double angle = Math.toRadians(j);

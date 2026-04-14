@@ -113,14 +113,14 @@ public class SoulBurstCS extends RampageCS {
 					.delta(0, 1, 0)
 					.directionalMode(true)
 					.extraRange(0, radius / 10)
-					.spawnAsBoss();
+					.spawnAsPlayerActive(player);
 
 				new PPCircle(Particle.SMOKE_LARGE, loc.clone().add(0, 0.15, 0), mRadius)
 					.countPerMeter(1)
 					.delta(0, 1, 0)
 					.directionalMode(true)
 					.extraRange(0, radius / 18)
-					.spawnAsBoss();
+					.spawnAsPlayerActive(player);
 
 				if (mRadius >= radius) {
 					this.cancel();
@@ -152,7 +152,7 @@ public class SoulBurstCS extends RampageCS {
 				packagedValues.location(heartLoc.clone().add(dir.clone().multiply(distance * progress)).add(upComponent).add(rightComponent));
 				Color startColor = ParticleUtils.getTransition(Color.RED, Color.MAROON, progress);
 				packagedValues.data(new Particle.DustTransition(startColor, Color.fromRGB(0x6b0000), 1.7f - (float) progress));
-			}).count(delay * 14).delay(delay).data(new Particle.DustTransition(Color.RED, Color.RED, 1)).spawnAsEntityActive(player);
+			}).count(delay * 14).delay(delay).data(new Particle.DustTransition(Color.RED, Color.RED, 1)).spawnAsPlayerActive(player);
 		}
 	}
 

@@ -48,7 +48,7 @@ public class RealityRipCS extends ElementalSpiritCS {
 			.rotateDelta(true)
 			.directionalMode(true)
 			.extra(1)
-			.spawnAsBoss();
+			.spawnAsPlayerActive(player);
 
 		Location start = loc.clone().add(0, 1, 0).add(dir.clone().multiply(0.66));
 

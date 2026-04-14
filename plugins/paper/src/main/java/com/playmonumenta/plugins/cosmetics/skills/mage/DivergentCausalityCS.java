@@ -112,7 +112,7 @@ public class DivergentCausalityCS extends ElementalArrowsCS {
 		new PPExplosion(Particle.ELECTRIC_SPARK, LocationUtils.getHalfHeightLocation(enemy).clone())
 			.extra(0.5)
 			.count(20)
-			.spawnAsBoss();
+			.spawnAsPlayerActive(player);
 
 		for (int i = 0; i < 3; i++) {
 			Vector dir = VectorUtils.randomUnitVector().multiply(FastUtils.randomDoubleInRange(1, 2));

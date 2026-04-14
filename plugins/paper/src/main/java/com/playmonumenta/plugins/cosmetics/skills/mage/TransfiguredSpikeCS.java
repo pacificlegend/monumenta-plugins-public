@@ -65,7 +65,7 @@ public class TransfiguredSpikeCS extends ManaLanceCS {
 			Vector launchDir = crossXZ.clone().multiply(FastUtils.cos(angle)).add(crossY.clone().multiply(FastUtils.sin(angle))).multiply(1.2);
 
 			builder.offset(launchDir.getX(), launchDir.getY(), launchDir.getZ());
-		}).count(40).directionalMode(true).extra(1.5).spawnAsBoss();
+		}).count(40).directionalMode(true).extra(1.5).spawnAsPlayerActive(player);
 
 		Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> new PPParametric(Particle.CRIT_MAGIC, player.getLocation().clone().add(dir.clone().multiply(0.8)).add(0, 1.5, 0), (parameter, builder) -> {
 			double angle = parameter * Math.PI * 2;
@@ -73,7 +73,7 @@ public class TransfiguredSpikeCS extends ManaLanceCS {
 			Vector launchDir = crossXZ.clone().multiply(FastUtils.cos(angle)).add(crossY.clone().multiply(FastUtils.sin(angle))).multiply(0.8);
 
 			builder.offset(launchDir.getX(), launchDir.getY(), launchDir.getZ());
-		}).count(35).directionalMode(true).extra(1.5).spawnAsBoss(), 2);
+		}).count(35).directionalMode(true).extra(1.5).spawnAsPlayerActive(player), 2);
 
 		Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> new PPParametric(Particle.CRIT_MAGIC, player.getLocation().clone().add(dir.clone().multiply(0.9)).add(0, 1.5, 0), (parameter, builder) -> {
 			double angle = parameter * Math.PI * 2;
@@ -81,7 +81,7 @@ public class TransfiguredSpikeCS extends ManaLanceCS {
 			Vector launchDir = crossXZ.clone().multiply(FastUtils.cos(angle)).add(crossY.clone().multiply(FastUtils.sin(angle))).multiply(0.4);
 
 			builder.offset(launchDir.getX(), launchDir.getY(), launchDir.getZ());
-		}).count(30).directionalMode(true).extra(1.5).spawnAsBoss(), 3);
+		}).count(30).directionalMode(true).extra(1.5).spawnAsPlayerActive(player), 3);
 
 		startLoc.add(dir.clone().multiply(0.8));
 

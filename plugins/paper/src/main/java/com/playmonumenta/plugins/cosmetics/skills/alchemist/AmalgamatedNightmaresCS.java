@@ -51,7 +51,7 @@ public class AmalgamatedNightmaresCS extends UnstableAmalgamCS {
 			.directionalMode(true)
 			.delta(1, 0, 0)
 			.extra(0.1)
-			.spawnAsBoss();
+			.spawnAsPlayerActive(caster);
 		if (ticks % 10 == 0) {
 			loc.getWorld().playSound(loc, Sound.ENTITY_WARDEN_HEARTBEAT, SoundCategory.PLAYERS, 1.6f, 1.0f);
 			new PPCircle(Particle.SMALL_FLAME, loc.clone().add(0, 0.15, 0), radius)
@@ -59,7 +59,7 @@ public class AmalgamatedNightmaresCS extends UnstableAmalgamCS {
 				.delta(0, 1, 0)
 				.directionalMode(true)
 				.extra(0.1)
-				.spawnAsBoss();
+				.spawnAsPlayerActive(caster);
 		}
 	}
 
@@ -70,7 +70,7 @@ public class AmalgamatedNightmaresCS extends UnstableAmalgamCS {
 			.data(new Particle.DustTransition(Color.BLACK, Color.GRAY, 2.4f))
 			.hopsPerBlock(1)
 			.duration(2)
-			.spawnAsBoss();
+			.spawnAsPlayerActive(caster);
 
 		new PPCircle(Particle.SQUID_INK, loc.clone().add(0, 0.2, 0), 0.5)
 			.count(60)
@@ -78,7 +78,7 @@ public class AmalgamatedNightmaresCS extends UnstableAmalgamCS {
 			.directionalMode(true)
 			.delta(1.4, 0, 0)
 			.extra(radius / 10)
-			.spawnAsBoss();
+			.spawnAsPlayerActive(caster);
 
 		new PPCircle(Particle.FLAME, loc.clone().add(0, 0.1, 0), 0.5)
 			.count(60)
@@ -86,7 +86,7 @@ public class AmalgamatedNightmaresCS extends UnstableAmalgamCS {
 			.directionalMode(true)
 			.delta(1, 0, 0)
 			.extra(radius / 10)
-			.spawnAsBoss();
+			.spawnAsPlayerActive(caster);
 
 		new PartialParticle(Particle.FLASH, loc.clone().add(0, 0.3, 0)).minimumCount(1).spawnAsPlayerActive(caster);
 

@@ -113,7 +113,7 @@ public class FracturedSoulCS extends ElementalSpiritCS {
 		new PPExplosion(Particle.WAX_OFF, loc.clone())
 			.extra(25)
 			.count(35)
-			.spawnAsBoss();
+			.spawnAsPlayerActive(player);
 
 		for (int i = 0; i < 3; i++) {
 			Vector dir = VectorUtils.randomUnitVector().multiply(FastUtils.randomDoubleInRange(1, 2));

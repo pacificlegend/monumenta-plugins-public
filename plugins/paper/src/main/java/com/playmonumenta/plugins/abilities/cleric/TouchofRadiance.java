@@ -137,7 +137,7 @@ public class TouchofRadiance extends Ability {
 			allay = (Allay) EntityUtils.getEntityAtCursor(mPlayer, mRange, a -> a.getType() == EntityType.ALLAY && KeeperVirtue.virtueBelongsTo((Allay) a, mPlayer));
 		}
 		if (targetPlayer != null) {
-			GlowingManager.startGlowing(targetPlayer, NamedTextColor.YELLOW, mBuffDuration, 1);
+			GlowingManager.startGlowing(targetPlayer, mCosmetic.glowColor(), mBuffDuration, 1);
 			mPlugin.mEffectManager.addEffect(targetPlayer, CDR_EFFECT_NAME, new AbilityCooldownRechargeRate(mBuffDuration, mCDRAlly, ABILITY) {
 				@Override
 				public void entityTickEffect(Entity entity, boolean fourHertz, boolean twoHertz, boolean oneHertz) {

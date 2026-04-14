@@ -43,21 +43,23 @@ public class ThrowRate implements Attribute {
 		return AttributeType.THROW_RATE;
 	}
 
-	@Override
-	public void onProjectileLaunch(Plugin plugin, Player player, double value, ProjectileLaunchEvent event, Projectile proj) {
-		boolean isQuiverStorm = proj.hasMetadata(QuiverStorm.ARROW_METADATA);
-
+	public static int getCooldown(Plugin plugin, Player player, double value) {
 		double effectMultipler = 1;
 		List<Effect> throwRateBonus = plugin.mEffectManager.getPriorityEffects(player).values().stream().filter(e -> e instanceof PercentThrowRate).toList();
 		for (Effect ptr : throwRateBonus) {
 			effectMultipler *= (1 + ptr.getMagnitude() * (ptr.isBuff() ? 1 : -1));
 		}
 
-		if (isQuiverStorm) {
+		return value != 0 ? (int) (20 / (value * effectMultipler)) : 20;
+	}
+
+	@Override
+	public void onProjectileLaunch(Plugin plugin, Player player, double value, ProjectileLaunchEvent event, Projectile proj) {
+		if (proj.hasMetadata(QuiverStorm.ARROW_METADATA)) {
 			return;
 		}
 
-		int cooldown = (int) (20 / (value * effectMultipler));
+		int cooldown = getCooldown(plugin, player, value);
 
 		if (proj instanceof Trident trident) {
 			ItemStack item = trident.getItemStack();

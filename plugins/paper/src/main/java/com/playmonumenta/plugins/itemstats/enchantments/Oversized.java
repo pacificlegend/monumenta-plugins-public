@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.scout.hunter.QuiverStorm;
 import com.playmonumenta.plugins.itemstats.Enchantment;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
+import com.playmonumenta.plugins.itemstats.attributes.ThrowRate;
 import com.playmonumenta.plugins.itemstats.enums.AttributeType;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
@@ -37,10 +38,7 @@ public class Oversized implements Enchantment {
 		int cooldown = 0;
 		ItemStack item = player.getInventory().getItemInMainHand();
 		if (item.getType() == Material.TRIDENT || item.getType() == Material.SNOWBALL || playerItemStats.getItemStats().get(EnchantmentType.THROWING_KNIFE) > 0) {
-			double throwRate = playerItemStats.getItemStats().get(AttributeType.THROW_RATE);
-			if (throwRate > 0) {
-				cooldown = (int) (20 / throwRate);
-			}
+			cooldown = ThrowRate.getCooldown(Plugin.getInstance(), player, playerItemStats.getItemStats().get(AttributeType.THROW_RATE));
 		} else {
 			if (item.getType() == Material.CROSSBOW) {
 				cooldown = Math.max(0, 25 - 5 * (int) playerItemStats.getItemStats().get(EnchantmentType.QUICK_CHARGE));

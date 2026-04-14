@@ -238,7 +238,8 @@ public class CharmsGUI extends Gui {
 
 	@Override
 	protected boolean onGuiClick(InventoryClickEvent event) {
-		if (event.getSlot() != 0) {
+		int slot = event.getSlot();
+		if (slot != 0 && slot != 53) {
 			return mMayEdit;
 		}
 		return true;

@@ -7,7 +7,6 @@ import com.playmonumenta.plugins.effects.AbilitySilence;
 import com.playmonumenta.plugins.effects.EffectManager;
 import com.playmonumenta.plugins.effects.GearChanged;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
-import com.playmonumenta.plugins.itemstats.enchantments.CurseOfEphemerality;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.itemstats.enums.InfusionType;
 import com.playmonumenta.plugins.itemstats.infusions.StatTrackManager;
@@ -294,20 +293,24 @@ public class ShulkerEquipmentListener implements Listener {
 	}
 
 	/**
-	 * Checks if an item can be put into a loadout lockbox. Non-Ephemeral, non-shulker items are allowed.
-	 * For Shulkers, only Firmament, Worldshaper's Loom, and Potion Injector (and skins/upgrades of each) are allowed.
+	 * Checks if a single item can be put into a loadout lockbox.
+	 * Non-special shulker boxes are rejected; non-shulker items are always allowed.
+	 * Special shulkers (Firmament, Worldshaper's Loom, Potion Injector and their skins/upgrades) are allowed.
+	 * Ephemeral items don't fail here, they are simply not swapped
 	 */
 	public static boolean canSwapItem(@Nullable ItemStack item) {
 		return item == null
-			|| !(CurseOfEphemerality.isEphemeral(item)
-			&& ItemUtils.isShulkerBox(item.getType()))
+			|| !ItemUtils.isShulkerBox(item.getType())
 			|| FirmamentOverride.isFirmamentItem(item)
 			|| WorldshaperOverride.isWorldshaperItem(item)
 			|| isPotionInjectorItem(item);
 	}
 
+	private static final int MAX_SPECIAL_SHULKERS = 2;
+
 	private boolean swapEquipment(Player player, PlayerInventory pInv, ShulkerBox sbox) {
 		/* Prevent swapping/nesting shulkers */
+		int specialShulkerCount = 0;
 		for (Map.Entry<Integer, Integer> slot : SWAP_SLOTS.entrySet()) {
 			ItemStack item = pInv.getItem(slot.getKey());
 			if (!canSwapItem(item)) {
@@ -315,6 +318,20 @@ public class ShulkerEquipmentListener implements Listener {
 				player.playSound(player.getLocation(), Sound.ENTITY_SHULKER_HURT, SoundCategory.PLAYERS, 1.0f, 1.1f);
 				return false;
 			}
+			// Only count shulkers that will actually be swapped into the box
+			if (item != null
+				&& ItemUtils.isShulkerBox(item.getType())
+				&& !(slot.getKey() >= 36 && slot.getKey() <= 39 && ItemStatUtils.hasEnchantment(item, EnchantmentType.CURSE_OF_BINDING))
+				&& !ItemStatUtils.hasEnchantment(item, EnchantmentType.CURSE_OF_EPHEMERALITY)
+				&& !ItemStatUtils.hasInfusion(item, InfusionType.LOCKED)) {
+				specialShulkerCount++;
+			}
+		}
+		if (specialShulkerCount > MAX_SPECIAL_SHULKERS) {
+			player.sendMessage(Component.text("You can not store more than " + MAX_SPECIAL_SHULKERS + " shulker boxes", NamedTextColor.RED));
+			player.sendMessage(Component.text("Consider adding 'Locked' to these excess shulkers via NPC in the willows lobby to keep them on your hotbar", NamedTextColor.RED));
+			player.playSound(player.getLocation(), Sound.ENTITY_SHULKER_HURT, SoundCategory.PLAYERS, 1.0f, 1.1f);
+			return false;
 		}
 
 		StatTrackManager.getInstance().updateInventory(player);

@@ -3,6 +3,7 @@ package com.playmonumenta.plugins.depths.bosses.spells.vesperidys;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.bosses.ChargeUpManager;
 import com.playmonumenta.plugins.bosses.spells.Spell;
+import com.playmonumenta.plugins.chunk.ChunkManager;
 import com.playmonumenta.plugins.depths.DepthsUtils;
 import com.playmonumenta.plugins.depths.bosses.Vesperidys;
 import com.playmonumenta.plugins.events.DamageEvent;
@@ -445,7 +446,7 @@ public class SpellStarStorm extends Spell {
 			@Override
 			public synchronized void cancel() {
 				super.cancel();
-				if (bullet.isValid()) {
+				if (bullet.isValid() && ChunkManager.isChunkLoaded(bullet)) {
 					bullet.remove();
 				}
 			}
@@ -502,7 +503,7 @@ public class SpellStarStorm extends Spell {
 			@Override
 			public synchronized void cancel() {
 				super.cancel();
-				if (bullet.isValid()) {
+				if (bullet.isValid() && ChunkManager.isChunkLoaded(bullet)) {
 					bullet.remove();
 				}
 			}

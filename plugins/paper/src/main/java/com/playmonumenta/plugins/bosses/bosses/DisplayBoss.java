@@ -163,6 +163,10 @@ public class DisplayBoss extends BossAbilityGroup {
 	@Override
 	public void unload() {
 		super.unload();
-		mDisplay.remove();
+		// If unload is triggered because the boss is dead, remove the display.
+		// Otherwise, don't remove it - mDisplay has setPersistent(false) so it won't be saved
+		if (mBoss.isDead()) {
+			mDisplay.remove();
+		}
 	}
 }

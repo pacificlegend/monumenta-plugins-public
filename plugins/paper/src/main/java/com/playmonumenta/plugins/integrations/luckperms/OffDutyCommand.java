@@ -47,11 +47,6 @@ public class OffDutyCommand extends TogglePermCommand {
 		return true;
 	}
 
-	@Override
-	public boolean assumeDefaultDisabled() {
-		return true;
-	}
-
 	public static void register() {
 		new OffDutyCommand().registerCommand();
 	}

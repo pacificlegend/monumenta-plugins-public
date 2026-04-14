@@ -463,6 +463,24 @@ public class ItemUtils {
 		Material.BEDROCK
 	);
 
+	public static final Set<Material> BUCKETS = EnumSet.of(
+		Material.BUCKET,
+		Material.WATER_BUCKET,
+		Material.LAVA_BUCKET,
+		Material.POWDER_SNOW_BUCKET,
+		Material.COD_BUCKET,
+		Material.SALMON_BUCKET,
+		Material.PUFFERFISH_BUCKET,
+		Material.TROPICAL_FISH_BUCKET,
+		Material.AXOLOTL_BUCKET,
+		Material.TADPOLE_BUCKET
+	);
+
+	public static final Set<Material> ITEM_FRAMES = EnumSet.of(
+		Material.ITEM_FRAME,
+		Material.GLOW_ITEM_FRAME
+	);
+
 	private static final Map<Material, Float> VANILLA_PROJECTILE_SPEEDS = ImmutableMap.<Material, Float>builder()
 		.put(Material.SNOWBALL, 1.5f)
 		.put(Material.TRIDENT, 2.5f)

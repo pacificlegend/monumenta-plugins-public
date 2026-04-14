@@ -97,7 +97,7 @@ public class SpellOmen extends Spell {
 	}
 
 	public void launchBlade(List<Vector> basevec, boolean warning, double yaw) {
-		if (basevec == null) {
+		if (basevec == null || basevec.isEmpty()) {
 			return;
 		}
 		Set<Player> hitPlayers = new HashSet<>();

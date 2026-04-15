@@ -180,4 +180,3 @@ public class DivineBeam extends DepthsAbility {
 
 
 }
-

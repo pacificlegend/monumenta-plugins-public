@@ -30,4 +30,3 @@ public final class SpinBoss extends BossAbilityGroup {
 		super.constructBoss(SpellManager.EMPTY, passiveSpells, -1, null, 100, 1);
 	}
 }
-

@@ -33,4 +33,3 @@ public class DamageReducedBoss extends BossAbilityGroup {
 		}
 	}
 }
-

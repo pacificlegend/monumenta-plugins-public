@@ -19,4 +19,3 @@ public class TurtleEggOverride extends BaseOverride {
 		return player.getGameMode() == GameMode.CREATIVE || !ZoneUtils.hasZoneProperty(loc, ZoneUtils.ZoneProperty.ADVENTURE_MODE);
 	}
 }
-

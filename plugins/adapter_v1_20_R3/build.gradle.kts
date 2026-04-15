@@ -5,7 +5,7 @@ dependencies {
 }
 
 tasks {
-	remapAccessWidener {
-		fileOverride.set("v1_20_R3/monumenta.accesswidener")
+	reobfJar {
+		accessWideners.add("v1_20_R3/monumenta.accesswidener")
 	}
 }

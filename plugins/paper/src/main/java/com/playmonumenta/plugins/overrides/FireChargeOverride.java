@@ -12,4 +12,3 @@ public class FireChargeOverride extends BaseOverride {
 		return !(clickedEntity instanceof Creeper);
 	}
 }
-

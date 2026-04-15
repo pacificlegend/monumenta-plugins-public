@@ -44,4 +44,3 @@ public class AxeAspect extends WeaponAspectDepthsAbility {
 	}
 
 }
-

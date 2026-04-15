@@ -117,4 +117,3 @@ public class FrozenDomain extends DepthsAbility {
 			.add(" seconds after leaving the frozen ground. Standing on ice or snow also extinguishes you if you are on fire.");
 	}
 }
-

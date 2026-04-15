@@ -25,4 +25,3 @@ public class MarketListener implements Listener {
 	}
 
 }
-

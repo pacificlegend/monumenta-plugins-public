@@ -21,4 +21,3 @@ public class MonumentaReload {
 		MMQuest.setupQuests(Plugin.getInstance());
 	}
 }
-

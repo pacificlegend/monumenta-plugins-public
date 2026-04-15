@@ -72,4 +72,3 @@ public class Icebreaker extends DepthsAbility {
 			.add(" if the mob is debuffed.");
 	}
 }
-

@@ -231,4 +231,3 @@ public class Snowstorm extends DepthsAbility {
 
 
 }
-

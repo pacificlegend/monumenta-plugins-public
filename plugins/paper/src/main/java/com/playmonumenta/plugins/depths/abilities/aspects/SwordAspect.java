@@ -34,4 +34,3 @@ public class SwordAspect extends WeaponAspectDepthsAbility {
 	}
 
 }
-

@@ -45,4 +45,3 @@ public class BowAspect extends WeaponAspectDepthsAbility {
 	}
 
 }
-

@@ -64,6 +64,6 @@ tasks {
 			exclude(project(":velocity"))
 		}
 
-		dependsOn(":adapter_v1_20_R3:remapAccessWidener")
+		dependsOn(":adapter_v1_20_R3:reobfJar")
 	}
 }

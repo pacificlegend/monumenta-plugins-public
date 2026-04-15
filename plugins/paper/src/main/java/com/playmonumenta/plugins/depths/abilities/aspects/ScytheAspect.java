@@ -80,4 +80,3 @@ public class ScytheAspect extends WeaponAspectDepthsAbility {
 	}
 
 }
-

@@ -155,4 +155,3 @@ public class VolcanicMeteor extends DepthsAbility {
 	}
 
 }
-

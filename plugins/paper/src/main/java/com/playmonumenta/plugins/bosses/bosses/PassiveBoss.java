@@ -16,4 +16,3 @@ public final class PassiveBoss extends BossAbilityGroup {
 		event.setCancelled(true);
 	}
 }
-

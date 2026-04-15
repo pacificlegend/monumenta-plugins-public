@@ -188,4 +188,3 @@ public class IceLance extends DepthsAbility {
 	}
 
 }
-

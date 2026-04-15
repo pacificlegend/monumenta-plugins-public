@@ -267,6 +267,3 @@ public class DeclarationAurora extends Spell {
 
 
 }
-
-
-

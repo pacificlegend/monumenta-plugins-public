@@ -110,5 +110,3 @@ public class Stasis extends Effect {
 	}
 
 }
-
-

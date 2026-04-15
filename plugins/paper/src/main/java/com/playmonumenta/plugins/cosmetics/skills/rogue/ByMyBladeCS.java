@@ -49,4 +49,3 @@ public class ByMyBladeCS implements CosmeticSkill {
 		new PartialParticle(Particle.HEART, player.getLocation().add(0, 1, 0), 10, 0.7, 0.7, 0.7, 0.001).spawnAsPlayerActive(player);
 	}
 }
-

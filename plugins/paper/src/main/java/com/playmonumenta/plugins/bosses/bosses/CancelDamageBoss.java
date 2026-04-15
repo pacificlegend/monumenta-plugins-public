@@ -20,4 +20,3 @@ public final class CancelDamageBoss extends BossAbilityGroup {
 		event.setCancelled(true);
 	}
 }
-

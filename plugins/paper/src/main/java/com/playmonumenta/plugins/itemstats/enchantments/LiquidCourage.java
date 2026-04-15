@@ -89,4 +89,3 @@ public class LiquidCourage implements Enchantment {
 		}
 	}
 }
-

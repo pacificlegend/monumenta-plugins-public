@@ -123,5 +123,3 @@ public class RadiantBlessing extends DepthsAbility {
 	}
 
 }
-
-

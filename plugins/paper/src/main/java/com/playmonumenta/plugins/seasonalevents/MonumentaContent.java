@@ -115,4 +115,3 @@ public enum MonumentaContent {
 		return null;
 	}
 }
-

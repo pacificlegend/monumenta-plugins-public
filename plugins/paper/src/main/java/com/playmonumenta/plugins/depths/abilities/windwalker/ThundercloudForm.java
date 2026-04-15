@@ -311,4 +311,3 @@ public class ThundercloudForm extends DepthsAbility implements AbilityWithDurati
 		return mCurrDuration >= 0 ? getInitialAbilityDuration() - mCurrDuration : 0;
 	}
 }
-

@@ -183,4 +183,3 @@ public class Aeroblast extends DepthsAbility {
 	}
 
 }
-

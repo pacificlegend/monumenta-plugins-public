@@ -179,4 +179,3 @@ public class DummyDecoy extends DepthsAbility {
 			.addCooldown(COOLDOWN);
 	}
 }
-

@@ -161,4 +161,3 @@ public final class RestoringDraft extends DepthsAbility {
 			.add(" blocks). All fall damage is canceled.");
 	}
 }
-

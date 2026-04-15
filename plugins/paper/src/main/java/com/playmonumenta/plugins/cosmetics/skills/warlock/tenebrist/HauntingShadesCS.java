@@ -79,4 +79,3 @@ public class HauntingShadesCS implements CosmeticSkill {
 		world.playSound(bLoc, Sound.ENTITY_VEX_DEATH, SoundCategory.PLAYERS, 0.6f, 0.1f);
 	}
 }
-

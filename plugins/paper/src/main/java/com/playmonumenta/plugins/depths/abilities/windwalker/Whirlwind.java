@@ -114,4 +114,3 @@ public class Whirlwind extends DepthsAbility {
 			.addCooldown(COOLDOWN);
 	}
 }
-

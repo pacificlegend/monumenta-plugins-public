@@ -158,4 +158,3 @@ public class DepthsDodging extends DepthsAbility {
 			.addCooldown(COOLDOWN[rarity - 1], true);
 	}
 }
-

@@ -146,4 +146,3 @@ public class Infection implements Enchantment {
 		}
 	}
 }
-

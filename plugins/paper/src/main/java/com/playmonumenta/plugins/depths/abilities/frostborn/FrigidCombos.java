@@ -240,4 +240,3 @@ public class FrigidCombos extends DepthsAbility {
 			.addCooldown(COOLDOWN);
 	}
 }
-

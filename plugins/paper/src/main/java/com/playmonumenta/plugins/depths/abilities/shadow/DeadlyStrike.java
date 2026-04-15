@@ -51,4 +51,3 @@ public class DeadlyStrike extends DepthsAbility {
 
 
 }
-

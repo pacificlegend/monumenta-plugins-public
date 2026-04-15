@@ -86,4 +86,3 @@ public class PickLevelAfterAnvils extends GenericCommand {
 		menu.open(target);
 	}
 }
-

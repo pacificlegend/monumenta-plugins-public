@@ -146,4 +146,3 @@ public class RapidFire extends DepthsAbility {
 			.addCooldown(COOLDOWN);
 	}
 }
-

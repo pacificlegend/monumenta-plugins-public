@@ -70,5 +70,3 @@ public class SpellHyceneaLeyline extends Spell {
 		return 0;
 	}
 }
-
-

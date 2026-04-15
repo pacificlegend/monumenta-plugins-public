@@ -396,4 +396,3 @@ public class Refraction extends DepthsAbility implements AbilityWithDuration {
 			.add(" seconds to players hit by the beam.");
 	}
 }
-

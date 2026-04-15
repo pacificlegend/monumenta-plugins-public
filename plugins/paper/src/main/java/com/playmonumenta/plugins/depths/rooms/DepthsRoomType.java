@@ -49,4 +49,3 @@ public enum DepthsRoomType {
 		public static final List<DepthsRewardType> GIFT_REWARDS = List.of(WEBBING, POINTED, GRIMOIRE, POETS, STATUE, CUBE);
 	}
 }
-

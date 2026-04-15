@@ -51,4 +51,3 @@ public class WandAspect extends WeaponAspectDepthsAbility {
 			.add(" of the wand's Spell Power.");
 	}
 }
-

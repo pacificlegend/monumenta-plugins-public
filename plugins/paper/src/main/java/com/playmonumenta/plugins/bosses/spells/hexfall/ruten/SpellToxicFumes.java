@@ -71,4 +71,3 @@ public class SpellToxicFumes extends Spell {
 		return 0;
 	}
 }
-

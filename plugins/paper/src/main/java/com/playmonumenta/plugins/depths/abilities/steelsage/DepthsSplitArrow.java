@@ -111,4 +111,3 @@ public class DepthsSplitArrow extends DepthsAbility {
 			.add(" of the projectile's damage.");
 	}
 }
-

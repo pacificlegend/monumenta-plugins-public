@@ -75,4 +75,3 @@ public class Pyromania extends DepthsAbility {
 			.add(" increased damage.");
 	}
 }
-

@@ -176,4 +176,3 @@ public class FestiveTesseractOverride extends BaseOverride implements Listener {
 	}
 
 }
-

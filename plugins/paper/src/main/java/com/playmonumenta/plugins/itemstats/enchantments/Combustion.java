@@ -80,4 +80,3 @@ public class Combustion implements Enchantment {
 		}
 	}
 }
-

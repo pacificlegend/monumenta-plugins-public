@@ -78,4 +78,3 @@ public class OneWithTheWind extends DepthsAbility {
 		return mActive ? "active" : null;
 	}
 }
-

@@ -113,4 +113,3 @@ public abstract class GraySwarmSummonerBase extends BossAbilityGroup {
 		super.constructBoss(activeSpells, Collections.emptyList(), detectionRange, null);
 	}
 }
-

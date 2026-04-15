@@ -76,6 +76,3 @@ public class DragonsBreathFinisher implements EliteFinisher {
 		return dragon;
 	}
 }
-
-
-

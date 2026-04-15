@@ -6,5 +6,3 @@ public class AllMyQuests {
 	public ArrayList<Quest> mQuestArrayList = new ArrayList<>();
 
 }
-
-

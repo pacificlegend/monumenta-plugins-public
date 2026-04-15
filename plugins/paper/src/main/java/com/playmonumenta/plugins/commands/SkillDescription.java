@@ -51,4 +51,3 @@ public class SkillDescription extends GenericCommand {
 		error(sender, "Could not find the skill " + scoreboardId + ".");
 	}
 }
-

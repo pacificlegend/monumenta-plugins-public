@@ -23,4 +23,3 @@ public class PlayerDamageOnlyBoss extends BossAbilityGroup {
 		}
 	}
 }
-

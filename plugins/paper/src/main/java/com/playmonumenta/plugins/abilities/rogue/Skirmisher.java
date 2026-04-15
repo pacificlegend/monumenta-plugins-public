@@ -144,4 +144,3 @@ public class Skirmisher extends Ability {
 			.addDashedLine();
 	}
 }
-

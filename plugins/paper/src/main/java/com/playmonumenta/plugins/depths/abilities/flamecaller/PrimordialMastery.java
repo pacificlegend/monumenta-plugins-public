@@ -52,4 +52,3 @@ public class PrimordialMastery extends DepthsAbility {
 			.add(" more damage.");
 	}
 }
-

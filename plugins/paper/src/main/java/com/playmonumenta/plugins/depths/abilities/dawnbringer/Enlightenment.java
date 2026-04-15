@@ -54,4 +54,3 @@ public class Enlightenment extends DepthsAbility {
 	}
 
 }
-

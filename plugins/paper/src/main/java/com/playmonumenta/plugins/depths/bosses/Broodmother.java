@@ -525,4 +525,3 @@ public class Broodmother extends SerializedLocationBossAbilityGroup {
 		return amount;
 	}
 }
-

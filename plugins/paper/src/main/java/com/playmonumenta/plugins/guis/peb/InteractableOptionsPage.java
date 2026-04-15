@@ -45,4 +45,3 @@ final class InteractableOptionsPage extends PebPage {
 		).invertedToggle("Offhand swapping in inventory: ", ToggleSwap.SWAP_INVENTORY_TAG).set(3, 6);
 	}
 }
-

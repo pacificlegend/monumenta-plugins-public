@@ -34,4 +34,3 @@ public class SpellRutenRecover extends Spell {
 		return 0;
 	}
 }
-

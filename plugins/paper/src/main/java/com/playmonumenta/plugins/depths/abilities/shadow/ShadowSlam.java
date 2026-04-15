@@ -165,4 +165,3 @@ public final class ShadowSlam extends DepthsAbility {
 			.add(" blocks and dealing a melee hit to an enemy also generates a slam and cancels fall damage.");
 	}
 }
-

@@ -115,4 +115,3 @@ public class AmalgamatedNightmaresCS extends UnstableAmalgamCS {
 			.spawnAsPlayerActive(caster);
 	}
 }
-

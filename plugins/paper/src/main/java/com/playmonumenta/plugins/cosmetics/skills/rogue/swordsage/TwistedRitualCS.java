@@ -147,4 +147,3 @@ public class TwistedRitualCS extends BladeDanceCS {
 	}
 
 }
-

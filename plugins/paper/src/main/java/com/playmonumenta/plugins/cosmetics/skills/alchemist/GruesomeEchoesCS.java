@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.alchemist;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.DelvesCS;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
@@ -21,7 +22,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class GruesomeEchoesCS extends GruesomeAlchemyCS {
+public class GruesomeEchoesCS extends GruesomeAlchemyCS implements DelvesCS {
 	//Twisted theme
 
 	public static final String NAME = "Gruesome Echoes";

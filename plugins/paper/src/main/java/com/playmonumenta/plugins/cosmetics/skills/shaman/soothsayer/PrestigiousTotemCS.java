@@ -43,21 +43,6 @@ public class PrestigiousTotemCS extends WhirlwindTotemCS implements PrestigeCS {
 		return NAME;
 	}
 
-	@Override
-	public boolean isUnlocked(Player player) {
-		return player != null;
-	}
-
-	@Override
-	public String[] getLockDesc() {
-		return List.of("LOCKED").toArray(new String[0]);
-	}
-
-	@Override
-	public int getPrice() {
-		return 1;
-	}
-
 	private final BlockData[] mBlockData = {Material.WHITE_WOOL.createBlockData(), Material.BIRCH_WOOD.createBlockData(), Material.OAK_WOOD.createBlockData(), Material.DIRT.createBlockData()};
 
 	@Override

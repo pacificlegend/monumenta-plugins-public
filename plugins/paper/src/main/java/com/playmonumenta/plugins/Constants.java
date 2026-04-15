@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins;
 
+import com.playmonumenta.plugins.utils.NamespacedKeyUtils;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.function.Function;
 import net.kyori.adventure.text.KeybindComponent.KeybindLike;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -122,6 +124,15 @@ public class Constants {
 		// plots
 		public static final String OWN_PLOT = "Plot";
 		public static final String CURRENT_PLOT = "CurrentPlot";
+
+		// Access scores
+		public static final String GALLERY_OF_FEAR_ACCESS = "DGLobby";
+
+		// Completion scores
+		public static final String R1_MONUMENT = "R1Complete";
+		public static final String DARKEST_DEPTHS = "Depths";
+		public static final String HEXFALL = "Hexfall";
+		public static final String TWISTED_INTRUDER = "TwistedXWins";
 	}
 
 	public static class Tags {
@@ -227,6 +238,13 @@ public class Constants {
 	public static class Colors {
 		public static final TextColor GREENISH_BLUE = TextColor.color(85, 255, 170);
 		public static final TextColor GREENISH_BLUE_DARK = TextColor.color(76, 230, 153);
+
+		public static final TextColor DARKEST_DEPTHS = TextColor.fromHexString("#5D2D87");
+		public static final TextColor DUNGEON_DELVES = TextColor.fromHexString("#B47028");
+		public static final TextColor CHALLENGE_DELVES = TextColor.fromHexString("#FEDC10");
+		public static final TextColor SANGUINE_HALLS = TextColor.fromHexString("#AB0000");
+		public static final TextColor HEXFALL = TextColor.fromHexString("#A930DA");
+		public static final TextColor TWISTED_INTRUDER = TextColor.fromHexString("#6B0000");
 	}
 
 	public enum Keybind implements KeybindLike {
@@ -390,5 +408,14 @@ public class Constants {
 		public static String[] getLowerCaseNames() {
 			return Arrays.stream(values()).map(e -> e.name().toLowerCase(Locale.ROOT)).toArray(String[]::new);
 		}
+	}
+
+	public static class Loot {
+		public static final NamespacedKey TWISTED_PIGMENT = NamespacedKeyUtils.fromString("epic:r2/delves/items/twisted_pigment");
+		public static final NamespacedKey VOIDSTAINED_GEODE = NamespacedKeyUtils.fromString("epic:r2/depths/loot/voidstained_geode");
+		public static final NamespacedKey TWISTED_STRAND = NamespacedKeyUtils.fromString("epic:r2/delves/items/twisted_strand");
+		public static final NamespacedKey TORN_CANVAS = NamespacedKeyUtils.fromString("epic:r3/gallery/items/torn_canvas");
+		public static final NamespacedKey LIFEROOT_SAPLING = NamespacedKeyUtils.fromString("epic:r3/items/currency/liferoot_sapling");
+		public static final NamespacedKey FRACTURED_PSYCHE = NamespacedKeyUtils.fromString("epic:r3/items/currency/fractured_psyche");
 	}
 }

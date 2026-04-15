@@ -1,16 +1,14 @@
 package com.playmonumenta.plugins.cosmetics.skills.alchemist.apothecary;
 
-import com.playmonumenta.plugins.cosmetics.skills.GalleryCS;
+import com.playmonumenta.plugins.cosmetics.skills.SanguineCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPLine;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.ParticleUtils;
-import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -20,7 +18,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class RitualRingCS extends TransmutationRingCS implements GalleryCS {
+public class RitualRingCS extends TransmutationRingCS implements SanguineCS {
 	//Gallery map1: blood theme
 
 	public static final String NAME = "Ritual Ring";
@@ -46,22 +44,6 @@ public class RitualRingCS extends TransmutationRingCS implements GalleryCS {
 	@Override
 	public @Nullable String getName() {
 		return NAME;
-	}
-
-	@Override
-	public GalleryMap getMap() {
-		return GalleryMap.SANGUINE;
-	}
-
-	@Override
-	public boolean isUnlocked(Player mPlayer) {
-		return ScoreboardUtils.getScoreboardValue(mPlayer, GALLERY_COMPLETE_SCB).orElse(0) >= 1
-			|| mPlayer.getGameMode() == GameMode.CREATIVE;
-	}
-
-	@Override
-	public String[] getLockDesc() {
-		return List.of("Complete Sanguine Halls to unlock!").toArray(new String[0]);
 	}
 
 	@Override

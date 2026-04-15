@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.custominventories;
 
 import com.google.common.collect.ImmutableList;
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.itemstats.enums.InfusionType;
 import com.playmonumenta.plugins.itemstats.infusions.*;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
@@ -124,7 +125,7 @@ public final class DelveInfusionCustomInventory extends CustomInventory {
 		super(owner, 54, "Delve Infusions");
 		mMapFunction = new HashMap<>();
 		mSlotSelected = null;
-		mDepthsCompleted = ScoreboardUtils.getScoreboardValue(owner, "Depths").orElse(0) > 0;
+		mDepthsCompleted = ScoreboardUtils.getScoreboardValue(owner, Constants.Objectives.DARKEST_DEPTHS).orElse(0) > 0;
 		mZenithCompleted = ScoreboardUtils.getScoreboardValue(owner, "Zenith").orElse(0) > 0;
 		mDelveInfusionMaterial = mZenithCompleted ?
 			                         (mDepthsCompleted ?

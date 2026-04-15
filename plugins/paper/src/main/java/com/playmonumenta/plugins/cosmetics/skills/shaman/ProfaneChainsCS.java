@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.shaman;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.IntruderCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPLine;
 import com.playmonumenta.plugins.particle.PPParametric;
@@ -21,7 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class ProfaneChainsCS extends ChainLightningCS {
+public class ProfaneChainsCS extends ChainLightningCS implements IntruderCS {
 	public static final String NAME = "Profane Chains";
 
 	@Override

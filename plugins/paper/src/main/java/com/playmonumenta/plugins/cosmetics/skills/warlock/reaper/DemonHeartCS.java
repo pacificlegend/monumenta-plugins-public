@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.warlock.reaper;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.IntruderCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.AbilityUtils;
@@ -21,7 +22,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class DemonHeartCS extends DarkPactCS {
+public class DemonHeartCS extends DarkPactCS implements IntruderCS {
 	public static final String NAME = "Demon Heart";
 	private static final int TWIST_ITERATIONS = 4;
 	private static final Color TWIST_COLOR_BASE = Color.fromRGB(0x6b0000);

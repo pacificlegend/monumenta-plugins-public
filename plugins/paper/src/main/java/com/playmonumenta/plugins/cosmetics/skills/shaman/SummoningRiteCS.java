@@ -1,16 +1,14 @@
 package com.playmonumenta.plugins.cosmetics.skills.shaman;
 
 import com.playmonumenta.plugins.Plugin;
-import com.playmonumenta.plugins.cosmetics.skills.GalleryCS;
+import com.playmonumenta.plugins.cosmetics.skills.SanguineCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPLine;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.LocationUtils;
-import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import com.playmonumenta.plugins.utils.VectorUtils;
 import java.util.List;
 import org.bukkit.Color;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -22,7 +20,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class SummoningRiteCS extends TotemicProjectionCS implements GalleryCS {
+public class SummoningRiteCS extends TotemicProjectionCS implements SanguineCS {
 
 	public static final String NAME = "Summoning Rite";
 
@@ -47,28 +45,12 @@ public class SummoningRiteCS extends TotemicProjectionCS implements GalleryCS {
 		return NAME;
 	}
 
-	@Override
-	public GalleryCS.GalleryMap getMap() {
-		return GalleryCS.GalleryMap.SANGUINE;
-	}
-
-	@Override
-	public boolean isUnlocked(Player player) {
-		return ScoreboardUtils.getScoreboardValue(player, GALLERY_COMPLETE_SCB).orElse(0) >= 1
-			|| player.getGameMode() == GameMode.CREATIVE;
-	}
-
 	private static final Particle.DustTransition CRIMSON = new Particle.DustTransition(Color.fromRGB(200, 0, 0), Color.fromRGB(0, 0, 0), 1.25f);
 	private static final Particle.DustTransition CLEANSING_COLOR = new Particle.DustTransition(Color.fromRGB(0, 87, 255), Color.fromRGB(0, 0, 0), 1.25f);
 	private static final Particle.DustTransition FLAME_COLOR = new Particle.DustTransition(Color.fromRGB(240, 102, 0), Color.fromRGB(0, 0, 0), 1.25f);
 	private static final Particle.DustTransition LIGHTNING_COLOR = new Particle.DustTransition(Color.fromRGB(255, 255, 102), Color.fromRGB(0, 0, 0), 1.25f);
 	private static final Particle.DustTransition WHIRLWIND_COLOR = new Particle.DustTransition(Color.fromRGB(204, 255, 255), Color.fromRGB(0, 0, 0), 1.25f);
 	private static final Particle.DustTransition DECAYED_COLOR = new Particle.DustTransition(Color.fromRGB(5, 120, 5), Color.fromRGB(0, 0, 0), 1.25f);
-
-	@Override
-	public String[] getLockDesc() {
-		return List.of("Complete Sanguine Halls to unlock!").toArray(new String[0]);
-	}
 
 	@Override
 	public void totemCast(Player player, Projectile proj, String totemName) {

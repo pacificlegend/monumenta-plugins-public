@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.shaman;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.HexfallCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPLine;
 import com.playmonumenta.plugins.particle.PPSpiral;
@@ -30,7 +31,7 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class AbyssalEffigyCS extends LightningTotemCS {
+public class AbyssalEffigyCS extends LightningTotemCS implements HexfallCS {
 
 	public static final String NAME = "Abyssal Effigy";
 

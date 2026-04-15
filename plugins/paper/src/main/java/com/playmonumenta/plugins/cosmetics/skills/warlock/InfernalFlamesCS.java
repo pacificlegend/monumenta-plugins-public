@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.warlock;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.DelvesCS;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.ParticleUtils;
@@ -18,7 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class InfernalFlamesCS extends CholericFlamesCS {
+public class InfernalFlamesCS extends CholericFlamesCS implements DelvesCS {
 	//Twisted theme
 
 	public static final String NAME = "Infernal Flames";

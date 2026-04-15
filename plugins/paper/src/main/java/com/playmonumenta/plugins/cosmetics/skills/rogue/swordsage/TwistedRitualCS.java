@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.rogue.swordsage;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.IntruderCS;
 import com.playmonumenta.plugins.particle.PPFlower;
 import com.playmonumenta.plugins.particle.PPSpiral;
 import com.playmonumenta.plugins.particle.PartialParticle;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class TwistedRitualCS extends BladeDanceCS {
+public class TwistedRitualCS extends BladeDanceCS implements IntruderCS {
 	public static final String NAME = "Twisted Ritual";
 	private static final float PI_2 = (float) (2 * Math.PI);
 

@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.rogue;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.DelvesCS;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
@@ -23,7 +24,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class TranscCombosCS extends ViciousCombosCS {
+public class TranscCombosCS extends ViciousCombosCS implements DelvesCS {
 	//Twisted theme
 
 	public static final String NAME = "Transcendent Combos";

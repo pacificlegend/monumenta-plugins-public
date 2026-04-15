@@ -2,6 +2,7 @@ package com.playmonumenta.plugins.cosmetics.skills.scout;
 
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.scout.SteelTrap;
+import com.playmonumenta.plugins.cosmetics.skills.IntruderCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class MandibleOfTheBeastCS extends SteelTrapCS {
+public class MandibleOfTheBeastCS extends SteelTrapCS implements IntruderCS {
 	public static final String NAME = "Mandible of the Beast";
 
 	@Override

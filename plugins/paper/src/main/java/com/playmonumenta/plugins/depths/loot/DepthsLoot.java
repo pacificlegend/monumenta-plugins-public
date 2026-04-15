@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.depths.loot;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.managers.GlowingManager;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.NamespacedKeyUtils;
@@ -25,7 +26,7 @@ public class DepthsLoot {
 	public static final NamespacedKey HCS_KEY = NamespacedKeyUtils.fromString("epic:r2/items/currency/hyper_crystalline_shard");
 	public static final NamespacedKey POTION_KEY = NamespacedKeyUtils.fromString("epic:r2/depths/loot/potion_roll");
 	public static final NamespacedKey RELIC_KEY = NamespacedKeyUtils.fromString("epic:r2/depths/loot/relicroll");
-	public static final NamespacedKey GEODE_KEY = NamespacedKeyUtils.fromString("epic:r2/depths/loot/voidstained_geode");
+	public static final NamespacedKey GEODE_KEY = Constants.Loot.VOIDSTAINED_GEODE;
 	public static final NamespacedKey POME_KEY = NamespacedKeyUtils.fromString("epic:r2/delves/items/twisted_pome");
 	public static final NamespacedKey TROPHY_KEY = NamespacedKeyUtils.fromString("epic:r2/delves/trophies/depths");
 	public static final NamespacedKey HALLOWEEN_KEY = NamespacedKey.fromString("epic:event/halloween2019/creepers_delight");

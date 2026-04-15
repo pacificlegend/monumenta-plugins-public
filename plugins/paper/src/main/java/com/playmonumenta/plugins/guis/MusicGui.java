@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.guis;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.bosses.bosses.ImperialConstruct;
 import com.playmonumenta.plugins.bosses.bosses.Lich;
 import com.playmonumenta.plugins.bosses.bosses.TealSpirit;
@@ -168,7 +169,7 @@ public class MusicGui extends Gui {
 
 				addMusicItem(5, 3, Material.MUSIC_DISC_CAT, "Herbal Charmer", Location.DEPTHS, "Hedera", "Casiel368", Hedera.MUSIC_TITLE, Hedera.MUSIC_DURATION, checkScore("DepthsEndless", 11));
 				addMusicItem(5, 4, Material.MUSIC_DISC_MALL, "Duel in the Depths", Location.DEPTHS, "Davey", "Xernial", Davey.MUSIC_TITLE, Davey.MUSIC_DURATION, checkScore("DepthsEndless", 21));
-				addMusicItem(5, 5, Material.MUSIC_DISC_STAL, "Core Tenebris", Location.DEPTHS, "Gyrhaeddant", "Whitebeard_OP", Nucleus.MUSIC_TITLE, Nucleus.MUSIC_DURATION, checkScore("Depths"));
+				addMusicItem(5, 5, Material.MUSIC_DISC_STAL, "Core Tenebris", Location.DEPTHS, "Gyrhaeddant", "Whitebeard_OP", Nucleus.MUSIC_TITLE, Nucleus.MUSIC_DURATION, checkScore(Constants.Objectives.DARKEST_DEPTHS));
 			}
 
 			case RING -> {
@@ -196,9 +197,9 @@ public class MusicGui extends Gui {
 				addMusicItem(4, 2, Material.MUSIC_DISC_OTHERSIDE, "The Fate of Time", Location.SILVER, "Orasomn", "Salamanderlonk", TealSpirit.MUSIC_TITLE_1, TealSpirit.MUSIC_DURATION_1, checkScore("SKT"));
 				addMusicItem(4, 3, Material.MUSIC_DISC_OTHERSIDE, "The Hour of Oblivion", Location.SILVER, "Orasomn", "Salamanderlonk", TealSpirit.MUSIC_TITLE_2, TealSpirit.MUSIC_DURATION_2, checkScore("SKT"));
 
-				addMusicItem(4, 5, Material.MUSIC_DISC_BLOCKS, "Usurpation I: They Can Hear You Breathe", Location.TWISTED_INTRUDER, "Twisted Intruder", "Xernial", "epic:music.intruder_phase1", 244.8, checkScore("TwistedXWins"));
-				addMusicItem(4, 6, Material.MUSIC_DISC_BLOCKS, "Usurpation II: Waking Shadows", Location.TWISTED_INTRUDER, "Twisted Intruder", "Xernial", "epic:music.intruder_phase2", 328.3, checkScore("TwistedXWins"));
-				addMusicItem(4, 7, Material.MUSIC_DISC_BLOCKS, "Usurpation III: The Staring Eclipse", Location.TWISTED_INTRUDER, "Twisted Intruder", "Xernial", "epic:music.intruder_phase3", 53, checkScore("TwistedXWins"));
+				addMusicItem(4, 5, Material.MUSIC_DISC_BLOCKS, "Usurpation I: They Can Hear You Breathe", Location.TWISTED_INTRUDER, "Twisted Intruder", "Xernial", "epic:music.intruder_phase1", 244.8, checkScore(Constants.Objectives.TWISTED_INTRUDER));
+				addMusicItem(4, 6, Material.MUSIC_DISC_BLOCKS, "Usurpation II: Waking Shadows", Location.TWISTED_INTRUDER, "Twisted Intruder", "Xernial", "epic:music.intruder_phase2", 328.3, checkScore(Constants.Objectives.TWISTED_INTRUDER));
+				addMusicItem(4, 7, Material.MUSIC_DISC_BLOCKS, "Usurpation III: The Staring Eclipse", Location.TWISTED_INTRUDER, "Twisted Intruder", "Xernial", "epic:music.intruder_phase3", 53, checkScore(Constants.Objectives.TWISTED_INTRUDER));
 			}
 
 			case DUNGEONS -> {

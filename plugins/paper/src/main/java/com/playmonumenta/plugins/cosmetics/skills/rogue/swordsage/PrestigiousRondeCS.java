@@ -47,21 +47,6 @@ public class PrestigiousRondeCS extends DeadlyRondeCS implements PrestigeCS {
 	}
 
 	@Override
-	public boolean isUnlocked(Player player) {
-		return player != null;
-	}
-
-	@Override
-	public String[] getLockDesc() {
-		return List.of("LOCKED").toArray(new String[0]);
-	}
-
-	@Override
-	public int getPrice() {
-		return 1;
-	}
-
-	@Override
 	public void rondeHitEffect(World world, Player player, Entity enemy, double radius, double rondeBaseRadius, boolean lv2) {
 		Vector mFront = player.getEyeLocation().getDirection();
 		Location particleLoc = player.getEyeLocation().add(mFront.multiply(0.6 * radius));

@@ -52,21 +52,6 @@ public class PrestigiousMoonbladeCS extends CosmicMoonbladeCS implements Prestig
 	}
 
 	@Override
-	public boolean isUnlocked(Player player) {
-		return player != null;
-	}
-
-	@Override
-	public String[] getLockDesc() {
-		return List.of("LOCKED").toArray(new String[0]);
-	}
-
-	@Override
-	public int getPrice() {
-		return 1;
-	}
-
-	@Override
 	public void moonbladeSwingEffect(World world, Player player, Location origin, double range, int swings, int maxSwing) {
 		float pitch = maxSwing <= 1 ? 1.25f : ((swings - 1) * 0.85f + (maxSwing - swings) * 0.6f) / (maxSwing - 1);
 		world.playSound(origin, Sound.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS, 0.6f, 0.7f);

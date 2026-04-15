@@ -382,7 +382,7 @@ public final class ParrotCustomInventory extends Gui {
 			ImmutableMap.of(voidstainedGeode, 64),
 			// unlock requirements hidden (and not purchasable) until having beaten Depths at least once
 			List.of("Defeat Darkest Depths to learn more about this parrot"),
-			(player, inv) -> ScoreboardUtils.getScoreboardValue(mPlayer, "Depths").orElse(0) > 0);
+			(player, inv) -> ScoreboardUtils.getScoreboardValue(mPlayer, Constants.Objectives.DARKEST_DEPTHS).orElse(0) > 0);
 
 		//Depths Upgrade
 		createParrotItems(ParrotVariant.DEPTHS_UPGRADE, ParrotGUIPage.R2, 21,

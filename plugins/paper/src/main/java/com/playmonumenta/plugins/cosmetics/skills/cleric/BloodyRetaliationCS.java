@@ -1,14 +1,12 @@
 package com.playmonumenta.plugins.cosmetics.skills.cleric;
 
 import com.playmonumenta.plugins.Plugin;
-import com.playmonumenta.plugins.cosmetics.skills.GalleryCS;
+import com.playmonumenta.plugins.cosmetics.skills.SanguineCS;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.ParticleUtils;
-import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import java.util.List;
 import org.bukkit.Color;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -21,7 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class BloodyRetaliationCS extends SanctifiedArmorCS implements GalleryCS {
+public class BloodyRetaliationCS extends SanctifiedArmorCS implements SanguineCS {
 	// Gallery set: blood
 
 	public static final String NAME = "Bloody Retaliation";
@@ -47,22 +45,6 @@ public class BloodyRetaliationCS extends SanctifiedArmorCS implements GalleryCS 
 	@Override
 	public @Nullable String getName() {
 		return NAME;
-	}
-
-	@Override
-	public GalleryCS.GalleryMap getMap() {
-		return GalleryCS.GalleryMap.SANGUINE;
-	}
-
-	@Override
-	public boolean isUnlocked(Player player) {
-		return ScoreboardUtils.getScoreboardValue(player, GALLERY_COMPLETE_SCB).orElse(0) >= 1
-			|| player.getGameMode() == GameMode.CREATIVE;
-	}
-
-	@Override
-	public String[] getLockDesc() {
-		return List.of("Complete Sanguine Halls to unlock!").toArray(new String[0]);
 	}
 
 	@Override

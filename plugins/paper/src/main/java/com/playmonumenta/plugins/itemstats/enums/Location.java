@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.itemstats.enums;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.classes.Alchemist;
 import com.playmonumenta.plugins.classes.Cleric;
 import com.playmonumenta.plugins.classes.Mage;
@@ -9,7 +10,6 @@ import com.playmonumenta.plugins.classes.Scout;
 import com.playmonumenta.plugins.classes.Shaman;
 import com.playmonumenta.plugins.classes.Warlock;
 import com.playmonumenta.plugins.classes.Warrior;
-import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkillShopGUI;
 import com.playmonumenta.plugins.depths.DepthsTree;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
@@ -41,9 +41,9 @@ public enum Location {
 	PASS("seasonpass", "Seasonal Pass", TextColor.fromHexString("#FFF63C")),
 	SKETCHED("sketched", "Sketched Skin", TextColor.fromHexString("#FFF63C")),
 	TRUENORTH("truenorth", "True North", TextColor.fromHexString("#FFBF00")),
-	DELVES("delves", "Dungeon Delves", TextColor.fromHexString("#B47028")),
+	DELVES("delves", "Dungeon Delves", Constants.Colors.DUNGEON_DELVES),
 	MYTHIC("mythic", "Mythic Reliquary", TextColor.fromHexString("#C4971A")),
-	CHALLENGER_SKIN("challenger", "Challenger Skin", CosmeticSkillShopGUI.PRESTIGE_COLOR),
+	CHALLENGER_SKIN("challenger", "Challenger Skin", Constants.Colors.CHALLENGE_DELVES),
 
 	// R1 dungeons, strikes, bosses
 	LABS("labs", "Alchemy Labs", TextColor.fromHexString("#B4ACC3")),
@@ -88,8 +88,8 @@ public enum Location {
 	REMORSE("remorse", "Sealed Remorse", TextColor.fromHexString("#EEE6D6")),
 	REMORSEFULSKIN("remorsefulskin", "Remorseful Skin", TextColor.fromHexString("#EEE6D6")),
 	VIGIL("vigil", "The Eternal Vigil", TextColor.fromHexString("#72999C")),
-	DEPTHS("depths", "Darkest Depths", TextColor.fromHexString("#5D2D87")),
-	DEPTHS_SKIN("abyssalskin", "Abyssal Skin", TextColor.fromHexString("#5D2D87")),
+	DEPTHS("depths", "Darkest Depths", Constants.Colors.DARKEST_DEPTHS),
+	DEPTHS_SKIN("abyssalskin", "Abyssal Skin", Constants.Colors.DARKEST_DEPTHS),
 	RUSH("rush", "Rush of Dissonance", TextColor.fromHexString("#C21E56")),
 	RUSH_SKIN("rushskin", "Dissonant Skin", TextColor.fromHexString("#C21E56"), true),
 	// bosses
@@ -109,7 +109,7 @@ public enum Location {
 
 	// R3 dungeons, strikes, bosses
 	SILVER("silver", "Silver Knight's Tomb", TextColor.fromHexString("#C0C0C0")),
-	HEXFALL("hexfall", "Hexfall", TextColor.fromHexString("#A930DA")),
+	HEXFALL("hexfall", "Hexfall", Constants.Colors.HEXFALL),
 	BLUE("blue", "Coven's Gambit", TextColor.fromHexString("#0C2CA2")),
 	BROWN("brown", "Cradle of the Broken God", TextColor.fromHexString("#703608")),
 	INDIGO("indigo", "Phyrrys, City of Fallen Stars", TextColor.fromHexString("#6F00FF")),
@@ -120,7 +120,7 @@ public enum Location {
 	BLUESTRIKE("bluestrike", "Masquerader's Ruin", TextColor.fromHexString("#326DA8")),
 	GODSPORE("godspore", "The Godspore's Domain", TextColor.fromHexString("#426B29")),
 	GALLERYOFFEAR("gallerybase", "Gallery of Fear", TextColor.fromHexString("#39B14E")),
-	SANGUINEHALLS("gallery1", "Sanguine Halls", TextColor.fromHexString("#AB0000")),
+	SANGUINEHALLS("gallery1", "Sanguine Halls", Constants.Colors.SANGUINE_HALLS),
 	MARINANOIR("gallery2", "Marina Noir", TextColor.fromHexString("#324150")),
 	FALLENSTAR("fallenstar", "Shadow of a Fallen Star", TextColor.fromHexString("#00C0A3")),
 	PERIWINKLE("periwinkle", "Voidrun Warrens", TextColor.fromHexString("#BE93E4")),
@@ -138,7 +138,7 @@ public enum Location {
 	// bosses
 	SIRIUS("sirius", "The Final Blight", TextColor.fromHexString("#34CFBC")),
 	HUNTS("hunts", "Diamenean Hunts", TextColor.fromHexString("#414e18")),
-	TWISTED_INTRUDER("twisted", Component.text("Twisted ", TextColor.fromHexString("#6b0000")).decoration(TextDecoration.ITALIC, false).append(Component.text("lxxxxxxx", TextColor.fromHexString("#6b0000")).decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.OBFUSCATED, true))),
+	TWISTED_INTRUDER("twisted", Component.text("Twisted ", Constants.Colors.TWISTED_INTRUDER).decoration(TextDecoration.ITALIC, false).append(Component.text("lxxxxxxx", Constants.Colors.TWISTED_INTRUDER).decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.OBFUSCATED, true))),
 	AURORA("aurora", "Aurora's Endgame", TextColor.fromHexString("#A6CFE3"), true),
 	// events, legacy
 	VALENTINE("valentine", "Valentine Event", TextColor.fromHexString("#FF7F7F")),

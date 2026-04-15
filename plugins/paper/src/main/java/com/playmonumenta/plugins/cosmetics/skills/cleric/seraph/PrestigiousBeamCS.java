@@ -49,21 +49,6 @@ public class PrestigiousBeamCS extends HallowedBeamCS implements PrestigeCS {
 	}
 
 	@Override
-	public boolean isUnlocked(Player player) {
-		return player != null;
-	}
-
-	@Override
-	public String[] getLockDesc() {
-		return List.of("LOCKED").toArray(new String[0]);
-	}
-
-	@Override
-	public int getPrice() {
-		return 1;
-	}
-
-	@Override
 	public void beamCast(Player player, Location startLocation, double range, Location targetLocation) {
 		World world = player.getWorld();
 		// Launch sound

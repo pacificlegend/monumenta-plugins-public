@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.cleric;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.HexfallCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPLightning;
 import com.playmonumenta.plugins.particle.PPSpiral;
@@ -25,7 +26,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class RebirthCS extends CelestialBlessingCS {
+public class RebirthCS extends CelestialBlessingCS implements HexfallCS {
 
 	public static final String NAME = "Rebirth";
 	private static final Color BRIGHT_AQUA = Color.AQUA.mixColors(Color.WHITE);

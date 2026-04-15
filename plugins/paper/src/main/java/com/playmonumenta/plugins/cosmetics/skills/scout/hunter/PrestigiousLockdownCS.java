@@ -46,21 +46,6 @@ public class PrestigiousLockdownCS extends LockdownCS implements PrestigeCS {
 	}
 
 	@Override
-	public boolean isUnlocked(Player player) {
-		return player != null;
-	}
-
-	@Override
-	public String[] getLockDesc() {
-		return List.of("LOCKED").toArray(new String[0]);
-	}
-
-	@Override
-	public int getPrice() {
-		return 1;
-	}
-
-	@Override
 	public void lockdownShoot(Plugin plugin, Player player, Location loc) {
 		World world = player.getWorld();
 

@@ -385,7 +385,7 @@ public class DepthsParty {
 			Player p = Bukkit.getPlayer(dp.mPlayerId);
 			if (p != null && p.isOnline()) {
 				partyMembers.append(" ").append(p.getName());
-				if (ScoreboardUtils.getScoreboardValue(p, "Depths").orElse(0) > 0) {
+				if (ScoreboardUtils.getScoreboardValue(p, Constants.Objectives.DARKEST_DEPTHS).orElse(0) > 0) {
 					endlessModeUnlocked = true;
 				}
 			}

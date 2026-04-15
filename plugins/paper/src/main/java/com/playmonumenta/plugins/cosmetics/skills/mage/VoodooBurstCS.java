@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.mage;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.HexfallCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPSpiral;
 import com.playmonumenta.plugins.utils.ParticleUtils;
@@ -15,7 +16,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class VoodooBurstCS extends FrostNovaCS {
+public class VoodooBurstCS extends FrostNovaCS implements HexfallCS {
 	public static final String NAME = "Voodoo Burst";
 
 	@Override

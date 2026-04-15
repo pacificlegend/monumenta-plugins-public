@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.warrior;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.DelvesCS;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
@@ -19,7 +20,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class ColossalBruteCS extends BruteForceCS {
+public class ColossalBruteCS extends BruteForceCS implements DelvesCS {
 	//Delve theme
 
 	public static final String NAME = "Colossal Brute";

@@ -2,6 +2,7 @@ package com.playmonumenta.plugins.depths;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.AbilityManager;
 import com.playmonumenta.plugins.delves.DelvesUtils;
@@ -1810,7 +1811,7 @@ public class DepthsManager {
 					playerInParty.sendMessage("Congratulations! Your final treasure score is " + playerInParty.mFinalTreasureScore + "!");
 					party.populateLootRoom(player, true);
 					if (party.getContent() == DepthsContent.DARKEST_DEPTHS) {
-						int depthsWins = ScoreboardUtils.getScoreboardValue(player, "Depths").orElse(0);
+						int depthsWins = ScoreboardUtils.getScoreboardValue(player, Constants.Objectives.DARKEST_DEPTHS).orElse(0);
 						if (depthsWins == 0) {
 							MonumentaNetworkRelayIntegration.broadcastCommand("tellmini msg @a[all_worlds=true] <gold><italic>" + player.getName() + "</gold> defeated the Darkest Depths for the first time!");
 						} else {
@@ -1819,7 +1820,7 @@ public class DepthsManager {
 								.append(Component.text(" defeated the Darkest Depths!", NamedTextColor.YELLOW, TextDecoration.ITALIC)));
 						}
 						//Set score
-						ScoreboardUtils.setScoreboardValue(player, "Depths", depthsWins + 1);
+						ScoreboardUtils.setScoreboardValue(player, Constants.Objectives.DARKEST_DEPTHS, depthsWins + 1);
 						Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "leaderboard update " + player.getName() + " Depths");
 					} else if (party.getContent() == DepthsContent.CELESTIAL_ZENITH) {
 						int depthsWins = ScoreboardUtils.getScoreboardValue(player, "Zenith").orElse(0);
@@ -1849,10 +1850,10 @@ public class DepthsManager {
 						transformMysteryBox(player, playerInParty);
 					}
 					//Set score
-					ScoreboardUtils.setScoreboardValue(player, "Depths",
-						ScoreboardUtils.getScoreboardValue(player, "Depths").orElse(0) + 1);
+					ScoreboardUtils.setScoreboardValue(player, Constants.Objectives.DARKEST_DEPTHS,
+						ScoreboardUtils.getScoreboardValue(player, Constants.Objectives.DARKEST_DEPTHS).orElse(0) + 1);
 					Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(),
-						"leaderboard update " + player.getName() + " Depths");
+						"leaderboard update " + player.getName() + " " + Constants.Objectives.DARKEST_DEPTHS);
 				}
 			}
 		} else if (party.mContent == DepthsContent.CELESTIAL_ZENITH) {

@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.custominventories;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.cosmetics.CosmeticType;
 import com.playmonumenta.plugins.cosmetics.CosmeticsManager;
 import com.playmonumenta.plugins.cosmetics.skills.alchemist.SunriseBrewCS;
@@ -636,7 +637,7 @@ public class KnickKnackSackGui extends Gui {
 					return;
 				}
 				// Give the player 64 geodes
-				InventoryUtils.giveItemFromLootTable(mPlayer, NamespacedKeyUtils.fromString("epic:r2/depths/loot/voidstained_geode"), 64);
+				InventoryUtils.giveItemFromLootTable(mPlayer, Constants.Loot.VOIDSTAINED_GEODE, 64);
 
 				// Set scoreboard value so refund can't be claimed twice
 				ScoreboardUtils.setScoreboardValue(mPlayer, t.mUnlockObjective, 2);

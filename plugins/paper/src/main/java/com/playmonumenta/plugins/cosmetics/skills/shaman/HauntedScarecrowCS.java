@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.shaman;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.DelvesCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPLine;
 import com.playmonumenta.plugins.particle.PartialParticle;
@@ -23,7 +24,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
-public class HauntedScarecrowCS extends FlameTotemCS {
+public class HauntedScarecrowCS extends FlameTotemCS implements DelvesCS {
 
 	public static final String NAME = "Haunted Scarecrow";
 

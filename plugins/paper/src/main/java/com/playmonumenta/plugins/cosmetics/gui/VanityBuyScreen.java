@@ -1,9 +1,9 @@
 package com.playmonumenta.plugins.cosmetics.gui;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.guis.Gui;
 import com.playmonumenta.plugins.utils.InventoryUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
-import com.playmonumenta.plugins.utils.NamespacedKeyUtils;
 import com.playmonumenta.plugins.utils.WalletUtils;
 import java.util.List;
 import java.util.Objects;
@@ -27,7 +27,7 @@ class VanityBuyScreen extends Gui {
 	private final ItemStack mItem;
 	private final VanityGUI mVanityGUI;
 
-	private static final NamespacedKey TWISTED_STRAND_LOOT_TABLE = NamespacedKeyUtils.fromString("epic:r2/delves/items/twisted_strand");
+	private static final NamespacedKey TWISTED_STRAND_LOOT_TABLE = Constants.Loot.TWISTED_STRAND;
 	private static @Nullable ItemStack mTwistedStrand;
 
 	public VanityBuyScreen(Player player, ItemStack item, VanityGUI vanityGUI) {

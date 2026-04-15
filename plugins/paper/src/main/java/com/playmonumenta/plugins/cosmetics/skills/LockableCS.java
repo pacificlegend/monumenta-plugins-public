@@ -6,6 +6,6 @@ public interface LockableCS {
 
 	boolean isUnlocked(Player player);
 
-	String[] getLockDesc();
+	String getLockDesc();
 
 }

@@ -48,21 +48,6 @@ public class PrestigiousStarfallCS extends StarfallCS implements PrestigeCS {
 	}
 
 	@Override
-	public boolean isUnlocked(Player player) {
-		return player != null;
-	}
-
-	@Override
-	public String[] getLockDesc() {
-		return List.of("LOCKED").toArray(new String[0]);
-	}
-
-	@Override
-	public int getPrice() {
-		return 1;
-	}
-
-	@Override
 	public void starfallCastEffect(World world, Player player, Location loc) {
 		world.playSound(loc, Sound.ENTITY_BLAZE_DEATH, SoundCategory.PLAYERS, 1f, 0.65f);
 		world.playSound(loc, Sound.ENTITY_ELDER_GUARDIAN_CURSE, SoundCategory.PLAYERS, 1.5f, 0.6f);

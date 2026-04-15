@@ -51,21 +51,6 @@ public class PrestigiousRemedyCS extends WardingRemedyCS implements PrestigeCS {
 	}
 
 	@Override
-	public boolean isUnlocked(Player player) {
-		return player != null;
-	}
-
-	@Override
-	public String[] getLockDesc() {
-		return List.of("LOCKED").toArray(new String[0]);
-	}
-
-	@Override
-	public int getPrice() {
-		return 1;
-	}
-
-	@Override
 	public void remedyStartEffect(World world, Location loc, Player mPlayer, double radius) {
 		world.playSound(loc, Sound.BLOCK_BELL_USE, SoundCategory.PLAYERS, 1f, 1.25f);
 		world.playSound(loc, Sound.BLOCK_BEACON_ACTIVATE, SoundCategory.PLAYERS, 1.6f, 0.8f);

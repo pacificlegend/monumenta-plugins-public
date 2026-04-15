@@ -33,16 +33,6 @@ public class PrestigiousSlamCS extends MeteorSlamCS implements PrestigeCS {
 	}
 
 	@Override
-	public boolean isUnlocked(Player player) {
-		return player != null;
-	}
-
-	@Override
-	public String[] getLockDesc() {
-		return List.of("LOCKED").toArray(new String[0]);
-	}
-
-	@Override
 	public @Nullable String getName() {
 		return NAME;
 	}
@@ -52,11 +42,6 @@ public class PrestigiousSlamCS extends MeteorSlamCS implements PrestigeCS {
 		return List.of(
 			"Only the best can balance",
 			"both power and grace.");
-	}
-
-	@Override
-	public int getPrice() {
-		return 1;
 	}
 
 	public static final @NotNull Color COLOR_GOLD = Color.fromRGB(199, 175, 31);

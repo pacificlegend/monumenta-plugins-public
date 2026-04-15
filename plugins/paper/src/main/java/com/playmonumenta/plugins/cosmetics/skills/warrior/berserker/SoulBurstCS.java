@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.warrior.berserker;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.IntruderCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPParametric;
 import com.playmonumenta.plugins.particle.PartialParticle;
@@ -23,7 +24,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class SoulBurstCS extends RampageCS {
+public class SoulBurstCS extends RampageCS implements IntruderCS {
 	public static final String NAME = "Soul Burst";
 
 	@Override

@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.alchemist;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.HexfallCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
@@ -19,7 +20,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class LiferootTonicCS extends EnergizingElixirCS {
+public class LiferootTonicCS extends EnergizingElixirCS implements HexfallCS {
 
 	public static final String NAME = "Liferoot Tonic";
 

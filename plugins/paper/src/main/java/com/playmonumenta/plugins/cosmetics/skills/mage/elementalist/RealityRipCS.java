@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.cosmetics.skills.mage.elementalist;
 
+import com.playmonumenta.plugins.cosmetics.skills.IntruderCS;
 import com.playmonumenta.plugins.particle.AbstractPartialParticle;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPParametric;
@@ -19,7 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class RealityRipCS extends ElementalSpiritCS {
+public class RealityRipCS extends ElementalSpiritCS implements IntruderCS {
 	public static final String NAME = "Reality Rip";
 
 	@Override

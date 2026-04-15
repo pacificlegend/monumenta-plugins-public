@@ -2,6 +2,7 @@ package com.playmonumenta.plugins.cosmetics.skills.scout.ranger;
 
 import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.HexfallCS;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.DisplayEntityUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
-public class VerdantRazorCS extends RendingRazorCS {
+public class VerdantRazorCS extends RendingRazorCS implements HexfallCS {
 	public static final String NAME = "Verdant Razor";
 
 	private final HashMap<Integer, ItemDisplay> mRazorDisplayMap = new HashMap<>();

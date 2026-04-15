@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.itemstats.enums;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import net.kyori.adventure.text.Component;
@@ -30,7 +31,7 @@ public enum Tier {
 	FISH("fish", "Fish", TextColor.fromHexString("#1DCC9A")),
 	KEYTIER("key", "Key", TextColor.fromHexString("#47B6B5")),
 	TROPHY("trophy", "Trophy", TextColor.fromHexString("#CAFFFD")),
-	OBFUSCATED("obfuscated", Component.text("Stick_:)", TextColor.fromHexString("#5D2D87")).decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.OBFUSCATED, true)),
+	OBFUSCATED("obfuscated", Component.text("Stick_:)", Constants.Colors.DARKEST_DEPTHS).decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.OBFUSCATED, true)),
 	SHULKER_BOX("shulker", "Invalid Type", TextColor.fromHexString("#EEE6D6")),
 	CHARM("charm", "Charm", TextColor.fromHexString("#FFFA75")),
 	LEGACY_CHARM("legacycharm", "Legacy Charm", TextColor.fromHexString("#EEE6D6")),

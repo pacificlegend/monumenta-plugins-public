@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.cosmetics.skills.alchemist;
 
+import com.playmonumenta.plugins.cosmetics.skills.IntruderCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPLightning;
 import com.playmonumenta.plugins.particle.PPPillar;
@@ -17,7 +18,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class AmalgamatedNightmaresCS extends UnstableAmalgamCS {
+public class AmalgamatedNightmaresCS extends UnstableAmalgamCS implements IntruderCS {
 	public static final String NAME = "Amalgamated Nightmares";
 
 	@Override

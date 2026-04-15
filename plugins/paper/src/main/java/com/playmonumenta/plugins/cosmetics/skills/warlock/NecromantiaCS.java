@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.cosmetics.skills.warlock;
 
+import com.playmonumenta.plugins.cosmetics.skills.HexfallCS;
 import com.playmonumenta.plugins.particle.PPLightning;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
@@ -18,7 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class NecromantiaCS extends CursedWoundCS {
+public class NecromantiaCS extends CursedWoundCS implements HexfallCS {
 
 	public static final String NAME = "Necromantia";
 

@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.cosmetics.skills.cleric;
 
+import com.playmonumenta.plugins.cosmetics.skills.IntruderCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPParametric;
 import com.playmonumenta.plugins.particle.PPPillar;
@@ -21,7 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class UsurpersGazeCS extends TouchofRadianceCS {
+public class UsurpersGazeCS extends TouchofRadianceCS implements IntruderCS {
 	public static final String NAME = "Usurper's Gaze";
 
 	@Override

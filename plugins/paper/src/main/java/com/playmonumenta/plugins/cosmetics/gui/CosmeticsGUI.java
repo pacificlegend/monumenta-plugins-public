@@ -151,7 +151,7 @@ public class CosmeticsGUI extends CustomInventory {
 					// Choose class or shop
 					if (slot == CosmeticSkillGUIConfig.SHOP_LOC) {
 						close();
-						new CosmeticSkillShopGUI(mPlugin, player).openInventory(player, mPlugin);
+						new CosmeticSkillShopGUI(player).open();
 						return;
 					}
 					final MonumentaClasses mClasses = new MonumentaClasses();

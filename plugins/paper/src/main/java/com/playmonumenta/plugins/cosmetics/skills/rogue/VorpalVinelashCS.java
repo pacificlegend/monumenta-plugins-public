@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.cosmetics.skills.rogue;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.cosmetics.skills.HexfallCS;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
@@ -23,7 +24,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class VorpalVinelashCS extends DaggerThrowCS {
+public class VorpalVinelashCS extends DaggerThrowCS implements HexfallCS {
 
 	public static final String NAME = "Vorpal Vinelash";
 

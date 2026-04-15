@@ -138,7 +138,7 @@ import com.playmonumenta.plugins.cosmetics.skills.warrior.berserker.SoulBurstCS;
 import com.playmonumenta.plugins.cosmetics.skills.warrior.guardian.BiLineCS;
 import com.playmonumenta.plugins.cosmetics.skills.warrior.guardian.EssenceBurstCS;
 import com.playmonumenta.plugins.cosmetics.skills.warrior.guardian.PrestigiousShieldCS;
-import java.util.Objects;
+import java.util.List;
 import java.util.function.Supplier;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -321,42 +321,8 @@ public class CosmeticSkills {
 	 * 4. 注册 Put a new entry here.
 	 */
 
-	private static final ImmutableList<DepthsCS> DEPTHS_CS;
-	private static final ImmutableList<GalleryCS> GALLERY_CS;
-	private static final ImmutableList<PrestigeCS> PRESTIGE_CS;
-
-	static {
-		ImmutableList.Builder<DepthsCS> depthsBuilder = ImmutableList.builder();
-		ImmutableList.Builder<GalleryCS> galleryBuilder = ImmutableList.builder();
-		for (Supplier<CosmeticSkill> supplier : COSMETIC_SKILLS_BY_NAME.values()) {
-			CosmeticSkill cs = supplier.get();
-			if (cs instanceof DepthsCS) {
-				depthsBuilder.add((DepthsCS) cs);
-			} else if (cs instanceof GalleryCS) {
-				galleryBuilder.add((GalleryCS) cs);
-			}
-		}
-		DEPTHS_CS = depthsBuilder.build();
-		GALLERY_CS = galleryBuilder.build();
-		// Prestige skins need a special order in shop GUI
-		PRESTIGE_CS = ImmutableList.<PrestigeCS>builder()
-			.add(new PrestigiousEsotericCS())
-			.add(new PrestigiousInfusionCS())
-			.add(new PrestigiousMoonbladeCS())
-			.add(new PrestigiousRondeCS())
-			.add(new PrestigiousManeuverCS())
-			.add(new PrestigiousTotemCS())
-			.add(new PrestigiousBondsCS())
-			.add(new PrestigiousSlamCS())
-			.add(new PrestigiousRemedyCS())
-			.add(new PrestigiousBeamCS())
-			.add(new PrestigiousStarfallCS())
-			.add(new PrestigiousBlitzCS())
-			.add(new PrestigiousLockdownCS())
-			.add(new PrestigiousDevastationCS())
-			.add(new PrestigiousShadesCS())
-			.add(new PrestigiousShieldCS())
-			.build();
+	public static List<Supplier<CosmeticSkill>> getCosmeticSkills() {
+		return COSMETIC_SKILLS;
 	}
 
 	public static @Nullable Cosmetic getCosmeticByName(String name) {
@@ -388,80 +354,5 @@ public class CosmeticSkills {
 
 	public static String[] getNames() {
 		return COSMETIC_SKILLS_BY_NAME.keySet().toArray(String[]::new);
-	}
-
-	public static ImmutableList<DepthsCS> getDepthsSkins() {
-		return DEPTHS_CS;
-	}
-
-	public static ImmutableList<String> getDepthsNames() {
-		ImmutableList.Builder<String> builder = ImmutableList.builder();
-		for (DepthsCS cs : getDepthsSkins()) {
-			builder.add(Objects.requireNonNull(((CosmeticSkill) cs).getName()));
-		}
-		return builder.build();
-	}
-
-	public static ImmutableList<String> getDelvesNames() {
-		return ImmutableList.<String>builder()
-			.add(GruesomeEchoesCS.NAME)
-			.add(TouchOfEntropyCS.NAME)
-			.add(TwistedLanceCS.NAME)
-			.add(TranscCombosCS.NAME)
-			.add(TwistedCompanionCS.NAME)
-			.add(HauntedScarecrowCS.NAME)
-			.add(InfernalFlamesCS.NAME)
-			.add(ColossalBruteCS.NAME)
-			.build();
-	}
-
-	public static ImmutableList<GalleryCS> getGallerySkins() {
-		return GALLERY_CS;
-	}
-
-	public static ImmutableList<String> getGalleryNames() {
-		ImmutableList.Builder<String> builder = ImmutableList.builder();
-		for (GalleryCS cs : getGallerySkins()) {
-			builder.add(Objects.requireNonNull(((CosmeticSkill) cs).getName()));
-		}
-		return builder.build();
-	}
-
-	public static ImmutableList<PrestigeCS> getPrestigeSkins() {
-		return PRESTIGE_CS;
-	}
-
-	public static ImmutableList<String> getPrestigeNames() {
-		ImmutableList.Builder<String> builder = ImmutableList.builder();
-		for (PrestigeCS cs : getPrestigeSkins()) {
-			builder.add(Objects.requireNonNull(((CosmeticSkill) cs).getName()));
-		}
-		return builder.build();
-	}
-
-	public static ImmutableList<String> getHexfallNames() {
-		return ImmutableList.<String>builder()
-			.add(LiferootTonicCS.NAME)
-			.add(RebirthCS.NAME)
-			.add(VoodooBurstCS.NAME)
-			.add(VorpalVinelashCS.NAME)
-			.add(VerdantRazorCS.NAME)
-			.add(AbyssalEffigyCS.NAME)
-			.add(NecromantiaCS.NAME)
-			.add(EssenceBurstCS.NAME)
-			.build();
-	}
-
-	public static ImmutableList<String> getIntruderNames() {
-		return ImmutableList.<String>builder()
-			.add(AmalgamatedNightmaresCS.NAME)
-			.add(UsurpersGazeCS.NAME)
-			.add(RealityRipCS.NAME)
-			.add(TwistedRitualCS.NAME)
-			.add(MandibleOfTheBeastCS.NAME)
-			.add(ProfaneChainsCS.NAME)
-			.add(DemonHeartCS.NAME)
-			.add(SoulBurstCS.NAME)
-			.build();
 	}
 }

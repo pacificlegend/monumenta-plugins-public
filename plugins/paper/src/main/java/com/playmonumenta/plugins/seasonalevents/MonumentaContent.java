@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 
 public enum MonumentaContent {
-	LABS("labs", ContentType.DUNGEON, 1),
+	LABS("labs", ContentType.OTHER, 0), // only used when missions specifically call for it
 	WHITE("white", ContentType.DUNGEON, 1),
 	ORANGE("orange", ContentType.DUNGEON, 1),
 	MAGENTA("magenta", ContentType.DUNGEON, 1),

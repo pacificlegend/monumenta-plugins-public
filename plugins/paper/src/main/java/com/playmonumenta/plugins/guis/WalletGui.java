@@ -5,6 +5,7 @@ import com.playmonumenta.plugins.inventories.BaseWallet;
 import com.playmonumenta.plugins.inventories.CustomContainerItemManager;
 import com.playmonumenta.plugins.inventories.WalletManager;
 import com.playmonumenta.plugins.itemstats.enums.Region;
+import com.playmonumenta.plugins.utils.GUIUtils;
 import com.playmonumenta.plugins.utils.InventoryUtils;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -35,6 +37,8 @@ public class WalletGui extends Gui {
 	private final WalletManager.WalletSettings mSettings;
 	private final String mPlainName;
 	private int mPage;
+	private String mFilterTerm;
+	private boolean mFilterSelected;
 
 	public WalletGui(Player player, BaseWallet wallet, WalletManager.WalletSettings settings, Component displayName, boolean openedAsModerator) {
 		super(player, 6 * 9, displayName);
@@ -81,6 +85,7 @@ public class WalletGui extends Gui {
 		// Items grouped by region, and sorted within each region
 		Map<Region, List<BaseWallet.WalletItem>> items =
 			walletItemsCopy.stream()
+				.filter(walletItem -> !mFilterSelected || ItemUtils.getPlainName(walletItem.mItem).toLowerCase().contains(mFilterTerm.toLowerCase()))
 				.sorted(
 					// sort main currencies to the very front
 					Comparator.comparing((BaseWallet.WalletItem item) -> {
@@ -344,6 +349,25 @@ public class WalletGui extends Gui {
 					update();
 				});
 		}
+		{
+			setItem(3, new GuiItem(GUIUtils.createBasicItem(
+				Material.SPYGLASS,
+				Component.text("Search By Name", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false),
+				List.of("Click to filter items by name", "Shift-click to reset"), NamedTextColor.GRAY
+			)).onClick(evt -> {
+				if (evt.isShiftClick()) {
+					mFilterTerm = "";
+					mFilterSelected = false;
+				} else {
+					openSignMenu((filterTerm) -> {
+						mFilterSelected = true;
+						mFilterTerm = filterTerm;
+						open();
+					});
+				}
+				update();
+			}));
+		}
 		if (pos > itemsPerPage * (mPage + 1)) {
 			ItemStack nextPageIcon = new ItemStack(Material.ARROW);
 			ItemMeta itemMeta = nextPageIcon.getItemMeta();
@@ -355,6 +379,23 @@ public class WalletGui extends Gui {
 					update();
 				});
 		}
+	}
+
+	private void openSignMenu(Consumer<String> onSuccess) {
+		close();
+		SignUtils.newMenu(List.of("", "~~~~~~~~~~~", "Enter a name", "to search for"))
+			.response((player, lines) -> {
+				// Cancel if no input
+				if (lines[0].isEmpty()) {
+					onSuccess.accept("");
+					return true;
+				}
+
+				onSuccess.accept(lines[0]);
+				return true;
+			})
+			.reopenIfFail(false)
+			.open(mPlayer);
 	}
 
 	@Override

@@ -190,15 +190,18 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityDismountEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -614,6 +617,10 @@ public class AbilityManager {
 		return conditionalCastCancellable(player, (ability) -> ability.blockBreakEvent(event));
 	}
 
+	public boolean blockDamageEvent(Player player, BlockDamageEvent event) {
+		return conditionalCastCancellable(player, (ability) -> ability.blockDamageEvent(event));
+	}
+
 	public void onDamage(Player player, DamageEvent event, LivingEntity enemy) {
 		if (EntityUtils.isHostileMob(enemy)) {
 			for (Ability abil : getPlayerAbilities(player).getAbilities()) {
@@ -817,6 +824,14 @@ public class AbilityManager {
 
 	public void playerItemHeldEvent(Player player, PlayerItemHeldEvent event) {
 		conditionalCast(player, ability -> ability.playerItemHeldEvent(event));
+	}
+
+	public void playerPickupItemEvent(Player player, EntityPickupItemEvent event) {
+		conditionalCast(player, ability -> ability.playerPickupItemEvent(event));
+	}
+
+	public void inventoryOpenEvent(Player player, InventoryOpenEvent event) {
+		conditionalCast(player, ability -> ability.inventoryOpenEvent(event));
 	}
 
 	public void playerQuitEvent(Player player, PlayerQuitEvent event) {

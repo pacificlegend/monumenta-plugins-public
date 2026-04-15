@@ -23,7 +23,7 @@ public class StringLightHook extends Ability {
 
 	public static final AbilityInfo<StringLightHook> INFO =
 		new SnowPerkGui.SnowPerkInfo<>(StringLightHook.class, "String Light Hook", StringLightHook::new)
-			.advancementReq(ADVANCEMENT_REQ)
+			.unlockReq(player -> AdvancementUtils.checkAdvancement(player, ADVANCEMENT_REQ))
 			.snowPointCost(POINT_COST)
 			.scoreboardId(SCOREBOARD)
 			.displayItem(Material.CROSSBOW)

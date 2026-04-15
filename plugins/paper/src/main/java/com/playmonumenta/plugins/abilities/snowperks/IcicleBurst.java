@@ -43,7 +43,7 @@ public class IcicleBurst extends Ability {
 	private static final double INDIRECT_CHANCE = 0.30;
 	private static final double ELITE_CHANCE = 1;
 	private static final double DAMAGE = 10;
-	private static final double RADIUS = 3;
+	private static final double RADIUS = 4;
 	private static final int FREEZE_DURATION = 50;
 	private static final double VULN_AMOUNT = 0.3;
 	private static final int VULN_DURATION = 5 * 20;
@@ -126,9 +126,7 @@ public class IcicleBurst extends Ability {
 			.addLine("guaranteed on Elite kills.")
 			.addLine()
 			.addStat("Explosion Chance: %p *if killed by* (m/p),").styles(DescriptionUtils.GREY).statValues(stat(DIRECT_ATTACK_CHANCE))
-			.tab().addLine("%p otherwise").statValues(stat(INDIRECT_CHANCE))
-			.addStat("Explosion Chance: %p *on Elites*").styles(DescriptionUtils.GREY).statValues(stat(ELITE_CHANCE))
-			.addLine()
+			.tab().addLine("%p otherwise, %p on Elites").statValues(stat(INDIRECT_CHANCE), stat(ELITE_CHANCE))
 			.addStat("Cost: %d Snow Points").statValues(stat(POINT_COST))
 			.addDashedLine();
 	}

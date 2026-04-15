@@ -57,14 +57,14 @@ public class DruidicHexCS extends AmplifyingHexCS {
 		world.playSound(loc, Sound.ENTITY_GLOW_SQUID_DEATH, SoundCategory.PLAYERS, 1f, 1f);
 
 		new BukkitRunnable() {
-			final Location mLoc = player.getLocation();
 			double mRadiusIncrement = 2;
+			final Location mLoc = player.getLocation();
+			{
+				mLoc.setDirection(player.getLocation().getDirection().setY(0).normalize());
+			}
 
 			@Override
 			public void run() {
-				if (mRadiusIncrement == 2) {
-					mLoc.setDirection(player.getLocation().getDirection().setY(0).normalize());
-				}
 				Vector vec;
 				mRadiusIncrement += radius * 0.15;
 				double degree = 90 - angle;

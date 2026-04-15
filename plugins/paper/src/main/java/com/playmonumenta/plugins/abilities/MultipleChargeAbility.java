@@ -60,7 +60,7 @@ public abstract class MultipleChargeAbility extends Ability implements AbilityWi
 		}
 
 		// If the skill is somehow on cooldown when charges are full, take it off cooldown
-		if (mCharges == mMaxCharges && isOnCooldown()) {
+		if (mCharges >= mMaxCharges && isOnCooldown()) {
 			mPlugin.mTimers.removeCooldown(mPlayer, mLinkedSpell);
 		}
 	}
@@ -92,4 +92,8 @@ public abstract class MultipleChargeAbility extends Ability implements AbilityWi
 		return Math.max(mMaxCharges - getChargesOnCooldown(), 0);
 	}
 
+	public void incrementCharges() {
+		mCharges++;
+		manageChargeCooldowns();
+	}
 }

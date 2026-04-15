@@ -80,7 +80,7 @@ public class CarbonCapture extends Ability {
 
 				new PartialParticle(Particle.TOTEM, loc).count(50).delta(1).extra(0.25).spawnAsPlayerActive(mPlayer);
 				loc.getWorld().playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.PLAYERS, 0.75f, 1.7f);
-				mPlayer.sendMessage(MessagingUtils.fromMiniMessage("<dark_gray>[Carbon Capture] <gray>%d Elites killed! Coal granted.".formatted(MISSION_REQ)));
+				mPlayer.sendMessage(MessagingUtils.fromMiniMessage("<#74D2D2>[Carbon Capture] <gray>%d Elites killed! Coal granted.".formatted(MISSION_REQ)));
 			}
 		}
 	}

@@ -37,16 +37,15 @@ public class MagmaShieldCS implements CosmeticSkill {
 		world.playSound(mPlayer.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS, 1f, 1.25f);
 		new PartialParticle(Particle.SMOKE_LARGE, mPlayer.getLocation(), 15, 0.05, 0.05, 0.05, 0.1).spawnAsPlayerActive(mPlayer);
 
-		final Location mLoc = mPlayer.getLocation();
-
 		new BukkitRunnable() {
 			double mRadius = 0;
+			final Location mLoc = mPlayer.getLocation();
+			{
+				mLoc.setDirection(mPlayer.getLocation().getDirection().setY(0).normalize());
+			}
 
 			@Override
 			public void run() {
-				if (mRadius == 0) {
-					mLoc.setDirection(mPlayer.getLocation().getDirection().setY(0).normalize());
-				}
 				Vector vec;
 				mRadius += 1.25;
 				double degree = 90 - angle;
@@ -76,12 +75,13 @@ public class MagmaShieldCS implements CosmeticSkill {
 		new BukkitRunnable() {
 			final double mRadius = 1.25;
 			double mY = 0.15;
+			final Location mLoc = mPlayer.getLocation();
 
 			@Override
 			public void run() {
 				mY += 0.25;
 
-				Location playerLoc = mPlayer.getLocation().add(0, mY, 0);
+				Location playerLoc = mLoc.clone().add(0, mY, 0);
 
 				new PPCircle(Particle.SMALL_FLAME, playerLoc, mRadius)
 					.count(10).rotateDelta(true).directionalMode(true)

@@ -80,7 +80,7 @@ public class SnowyOwlFeather extends Ability {
 					mPlayer.setAllowFlight(true);
 				}
 				if (mPlayer.isFlying() && !AbilityUtils.isSilenced(mPlayer) && !(mPlayer.getGameMode() == GameMode.CREATIVE || mPlayer.getGameMode() == GameMode.SPECTATOR)) {
-					putOnCooldown();
+					putOnCooldown(false);
 
 					mPlayer.setAllowFlight(false);
 					mPlayer.setFlying(false);

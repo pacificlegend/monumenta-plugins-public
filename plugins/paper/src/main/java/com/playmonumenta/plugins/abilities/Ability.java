@@ -26,15 +26,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityDismountEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
@@ -149,6 +152,10 @@ public abstract class Ability {
 	//---------------------------------------------------------------------------------------------------------------
 
 	public boolean blockBreakEvent(BlockBreakEvent event) {
+		return true;
+	}
+
+	public boolean blockDamageEvent(BlockDamageEvent event) {
 		return true;
 	}
 
@@ -316,6 +323,15 @@ public abstract class Ability {
 	public void playerItemHeldEvent(PlayerItemHeldEvent event) {
 
 	}
+
+	public void playerPickupItemEvent(EntityPickupItemEvent event) {
+
+	}
+
+	public void inventoryOpenEvent(InventoryOpenEvent event) {
+
+	}
+
 
 	//---------------------------------------------------------------------------------------------------------------
 

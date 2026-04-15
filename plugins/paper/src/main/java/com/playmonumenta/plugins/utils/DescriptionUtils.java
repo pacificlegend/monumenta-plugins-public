@@ -16,7 +16,7 @@ public class DescriptionUtils {
 	public static final Style GREY = Style.style(TextColor.color(0x999999));
 	public static final Style DARK_GREY = Style.style(TextColor.color(0x424242));
 	public static final Style BLACK = Style.style(TextColor.color(0x303030));
-	public static final Style RED = Style.style(TextColor.color(0xFF4040));
+	public static final Style RED = Style.style(TextColor.color(0xFF5050));
 	public static final Style GOLD = Style.style(TextColor.color(0xFFAA00));
 	public static final Style GREEN = Style.style(TextColor.color(0x40FF40));
 

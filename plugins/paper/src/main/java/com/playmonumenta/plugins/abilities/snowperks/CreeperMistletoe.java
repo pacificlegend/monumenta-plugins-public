@@ -50,7 +50,7 @@ public class CreeperMistletoe extends Ability {
 
 	public static final AbilityInfo<CreeperMistletoe> INFO =
 		new SnowPerkGui.SnowPerkInfo<>(CreeperMistletoe.class, "Creeper Mistletoe", CreeperMistletoe::new)
-			.advancementReq(ADVANCEMENT_REQ)
+			.unlockReq(player -> AdvancementUtils.checkAdvancement(player, ADVANCEMENT_REQ))
 			.snowPointCost(POINT_COST)
 			.scoreboardId(SCOREBOARD)
 			.displayItem(Material.SWEET_BERRIES)

@@ -174,7 +174,7 @@ public final class Svalgot extends SerializedLocationBossAbilityGroup {
 		if ((mGhalkor == null || mGhalkor.isDead() || !mGhalkor.isValid()) && (mGhalkorBoss == null || !mGhalkorBoss.mSummonedFinalBoss)) {
 			mSummonedFinalBoss = true;
 
-			sendMessage("With mine Laastasem...  My lifeblood fuels the ritual... Come forth o Beast!");
+			sendMessage("With mine Laastasem... My lifeblood fuels the ritual... Come forth o Beast!");
 
 			Entity beast = LibraryOfSoulsIntegration.summon(mSpawnLoc.clone().add(2, -3, 0), BeastOfTheBlackFlame.losName);
 			if (beast instanceof LivingEntity leBeast) {

@@ -221,7 +221,7 @@ public final class Ghalkor extends SerializedLocationBossAbilityGroup {
 		if ((mSvalgot == null || mSvalgot.isDead() || !mSvalgot.isValid()) && (mSvalgotBoss == null || !mSvalgotBoss.mSummonedFinalBoss)) {
 			mSummonedFinalBoss = true;
 
-			sendMessage("With mine Laastasem...  My lifeblood fuels the ritual... Come forth o Beast!");
+			sendMessage("With mine Laastasem... My lifeblood fuels the ritual... Come forth o Beast!");
 
 			Entity beast = LibraryOfSoulsIntegration.summon(mSpawnLoc.clone().add(-2, -3, 0), BeastOfTheBlackFlame.losName);
 			if (beast instanceof LivingEntity leBeast) {

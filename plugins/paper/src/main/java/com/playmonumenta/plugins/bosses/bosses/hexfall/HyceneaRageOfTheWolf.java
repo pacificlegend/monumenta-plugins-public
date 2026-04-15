@@ -328,7 +328,7 @@ public class HyceneaRageOfTheWolf extends SerializedLocationBossAbilityGroup {
 				activeSpells.add(new SpellStranglingRupture(mMonumentaPlugin, mBoss, detectionRange, 20 * 8, 9, 9, 20 * 3, mSpawnLoc, 20 * 12));
 				activeSpells.add(stranglingSequences.get(0).get(1));
 				activeSpells.add(new SpellStranglingRupture(mMonumentaPlugin, mBoss, detectionRange, 20 * 8, 9, 9, 20 * 3, mSpawnLoc, 20 * 12));
-				activeSpells.add(new SpellHyceneaDialogue(Component.text("Hah... bah.... Ha... ha ha... HA HA HA HA HA HA.", NamedTextColor.WHITE), 0, mSpawnLoc, true));
+				activeSpells.add(new SpellHyceneaDialogue(Component.text("Hah... bah... Ha... ha ha... HA HA HA HA HA HA.", NamedTextColor.WHITE), 0, mSpawnLoc, true));
 				activeSpells.add(stranglingSequences.get(0).get(2));
 				activeSpells.add(new SpellStranglingRupture(mMonumentaPlugin, mBoss, detectionRange, 20 * 8, 9, 9, 20 * 3, mSpawnLoc, 20 * 12));
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("A deafening crack shakes the arena. You see the Blue Wool emerge from your bag and levitate, slowly, into Hycenea's hands. She smiles.", NamedTextColor.GRAY, TextDecoration.ITALIC), 0, mSpawnLoc, false));
@@ -378,7 +378,7 @@ public class HyceneaRageOfTheWolf extends SerializedLocationBossAbilityGroup {
 
 				// Cascades 1
 				activeSpells.add(new SpellCascadingHex(mMonumentaPlugin, mBoss, detectionRange, 5, 1000, 20 * 20, 20 * 10, 20 * 20, 20 * 5, 20 * 5, mSpawnLoc));
-				activeSpells.add(new SpellHyceneaDialogue(Component.text("It’s... it’s you. It must be. You’ve wounded him. You’ve... taken my... love’s mind from him. You vile thing. You creature of the Knights... you foolish pawn... you... YOU... ", NamedTextColor.WHITE), 20 * 10, mSpawnLoc, true));
+				activeSpells.add(new SpellHyceneaDialogue(Component.text("It's... it's you. It must be. You've wounded him. You've... taken my... love's mind from him. You vile thing. You creature of the Knights... you foolish pawn... you... YOU... ", NamedTextColor.WHITE), 20 * 10, mSpawnLoc, true));
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("You see tendrils of Blue light begin to wrap themselves around Hycenea.", NamedTextColor.GRAY, TextDecoration.ITALIC), 20 * 13, mSpawnLoc, false));
 
 				// Layered Flechettes + Organic
@@ -387,7 +387,7 @@ public class HyceneaRageOfTheWolf extends SerializedLocationBossAbilityGroup {
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("PITIFUL WORM. I WILL CAST YOU INTO NOTHINGNESS. NOT EVEN THE BEYOND WILL HARBOR YOUR MANGLED SOUL.", NamedTextColor.BLUE), 0, mSpawnLoc, true));
 				activeSpells.add(new SpellOrganicShock(mMonumentaPlugin, mBoss, 10, 18, 500, 20 * 3, 20 * 3, mSpawnLoc));
 				activeSpells.add(new SpellOrganicShock(mMonumentaPlugin, mBoss, 10, 18, 500, 20 * 3, 20 * 3, mSpawnLoc));
-				activeSpells.add(new SpellHyceneaDialogue(Component.text("YOU AROSE FROM MY CONSORT’S VERY FOOTSTEPS. THE TREAD OF HIS PAW SPAWNED YOUR VILE RACE. YOU ARE... NOTHING.", NamedTextColor.BLUE), 0, mSpawnLoc, true));
+				activeSpells.add(new SpellHyceneaDialogue(Component.text("YOU AROSE FROM MY CONSORT'S VERY FOOTSTEPS. THE TREAD OF HIS PAW SPAWNED YOUR VILE RACE. YOU ARE... NOTHING.", NamedTextColor.BLUE), 0, mSpawnLoc, true));
 				activeSpells.add(new SpellOrganicShock(mMonumentaPlugin, mBoss, 10, 18, 500, 20 * 3, 20 * 3, mSpawnLoc));
 				activeSpells.add(new SpellOrganicShock(mMonumentaPlugin, mBoss, 10, 18, 500, 20 * 3, 20 * 6, mSpawnLoc));
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("I ALONE HAVE WATCHED AS YOU MANGLED THE CHILDREN OF MY BELOVED.", NamedTextColor.BLUE), 0, mSpawnLoc, true));
@@ -397,7 +397,7 @@ public class HyceneaRageOfTheWolf extends SerializedLocationBossAbilityGroup {
 				activeSpells.add(new SpellMortalChains(mMonumentaPlugin, mBoss, detectionRange, 5, 1000, 20 * 8, 20 * 30, 20 * 8, 22, 20 * 6, 20 * 10, mSpawnLoc));
 				activeSpells.add(new SpellEarthenCleave(mMonumentaPlugin, mBoss, mSpawnLoc, centerArenaRadius, 500, 20 * 7, 20 * 7, yawOptions.get(0)));
 				activeSpells.add(new SpellEarthenCleave(mMonumentaPlugin, mBoss, mSpawnLoc, centerArenaRadius, 500, 20 * 7, 20 * 7, yawOptions.get(1)));
-				activeSpells.add(new SpellHyceneaDialogue(Component.text("THOUSANDS HAVE...  THOUSANDS HAVE YOU SLAIN.", NamedTextColor.BLUE).append(Component.text(" this... rage... Love, I...", NamedTextColor.WHITE)).append(Component.text(" THOUSANDS HAVE YOU SLAIN.", NamedTextColor.BLUE)), 0, mSpawnLoc, true));
+				activeSpells.add(new SpellHyceneaDialogue(Component.text("THOUSANDS HAVE... THOUSANDS HAVE YOU SLAIN.", NamedTextColor.BLUE).append(Component.text(" this... rage... Love, I...", NamedTextColor.WHITE)).append(Component.text(" THOUSANDS HAVE YOU SLAIN.", NamedTextColor.BLUE)), 0, mSpawnLoc, true));
 				activeSpells.add(new SpellEarthenCleave(mMonumentaPlugin, mBoss, mSpawnLoc, centerArenaRadius, 500, 20 * 7, 20 * 7, yawOptions.get(2)));
 				activeSpells.add(new SpellEarthenCleave(mMonumentaPlugin, mBoss, mSpawnLoc, centerArenaRadius, 500, 20 * 7, 20 * 7, yawOptions.get(3)));
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("I WILL FREE THIS PLANE FROM YOUR VICIOUS PRESENCE.", NamedTextColor.BLUE), 2 * 20, mSpawnLoc, true));
@@ -474,7 +474,7 @@ public class HyceneaRageOfTheWolf extends SerializedLocationBossAbilityGroup {
 
 				// Totemic & Voodoo
 				activeSpells.add(new SpellVoodooBindings(mMonumentaPlugin, mBoss, detectionRange, 20 * 5, 20 * 6, mSpawnLoc, getRandomVoodooSet(phase)));
-				activeSpells.add(new SpellHyceneaDialogue(Component.text("Hycenea’s eyes blink and refocus, the tendrils of blue light now unraveled from her newly frail-looking form. She speaks not to you, but to herself.", NamedTextColor.GRAY, TextDecoration.ITALIC), 0, mSpawnLoc, false));
+				activeSpells.add(new SpellHyceneaDialogue(Component.text("Hycenea's eyes blink and refocus, the tendrils of blue light now unraveled from her newly frail-looking form. She speaks not to you, but to herself.", NamedTextColor.GRAY, TextDecoration.ITALIC), 0, mSpawnLoc, false));
 				activeSpells.add(new SpellCommandingIncantation(mMonumentaPlugin, mBoss, detectionRange, 20 * 10, 20 * 7, 5, 20 * 2, mSpawnLoc, false));
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("I see it now... That feeling... that fury... My love... he is... he is gone.", NamedTextColor.WHITE), 0, mSpawnLoc, true));
 				activeSpells.add(new SpellCommandingIncantation(mMonumentaPlugin, mBoss, detectionRange, 20 * 10, 20 * 7, 5, 20 * 2, mSpawnLoc, false));
@@ -529,8 +529,8 @@ public class HyceneaRageOfTheWolf extends SerializedLocationBossAbilityGroup {
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("The tendrils begin to reach out to Hycenea again.", NamedTextColor.GRAY, TextDecoration.ITALIC), 20 * 2, mSpawnLoc, false));
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("They took your body from you... the least I can do... is offer myself.", NamedTextColor.WHITE), 20 * 4, mSpawnLoc, true));
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("The tendrils spear into Hycenea. She grows and morphs before your eyes, and speaks with two voices in one.", NamedTextColor.GRAY, TextDecoration.ITALIC), 20 * 4, mSpawnLoc, false));
-				activeSpells.add(new SpellHyceneaDialogue(Component.text("LOVERS BORN AT AGE’S END", NamedTextColor.BLUE), 20 * 2, mSpawnLoc, true));
-				activeSpells.add(new SpellHyceneaDialogue(Component.text("CLEFT APART BY SILVER’S CHAINS", NamedTextColor.BLUE), 20 * 2, mSpawnLoc, true));
+				activeSpells.add(new SpellHyceneaDialogue(Component.text("LOVERS BORN AT AGE'S END", NamedTextColor.BLUE), 20 * 2, mSpawnLoc, true));
+				activeSpells.add(new SpellHyceneaDialogue(Component.text("CLEFT APART BY SILVER'S CHAINS", NamedTextColor.BLUE), 20 * 2, mSpawnLoc, true));
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("ROOT AND LEAF MADE ONE AGAIN", NamedTextColor.BLUE), 20 * 2, mSpawnLoc, true));
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("SUCCORED NOW ON NAUGHT BUT PAINS", NamedTextColor.BLUE), 20 * 4, mSpawnLoc, true));
 				activeSpells.add(new SpellHyceneaDialogue(Component.text("ONE, THEN TWO, THEN ONE AGAIN", NamedTextColor.BLUE), 20 * 2, mSpawnLoc, true));

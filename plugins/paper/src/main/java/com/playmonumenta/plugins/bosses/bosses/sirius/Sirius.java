@@ -446,7 +446,7 @@ public class Sirius extends SerializedLocationBossAbilityGroup {
 			if (declarationParticipation == null) {
 				if (fail != null) {
 					if (fail.getMagnitude() + 1 == 3) {
-						p.sendMessage(Component.text("Aurora and Tuulen’s protection for you against the blight is fading.", NamedTextColor.GRAY));
+						p.sendMessage(Component.text("Aurora and Tuulen's protection for you against the blight is fading.", NamedTextColor.GRAY));
 					}
 					Plugin.getInstance().mEffectManager.addEffect(p, FAIL_PARTICIPATION_TAG, new CustomTimerEffect(2 * 60 * 20, (int) (1 + fail.getMagnitude()), "").displays(false).deleteOnLogout(true));
 				} else {
@@ -456,7 +456,7 @@ public class Sirius extends SerializedLocationBossAbilityGroup {
 				Plugin.getInstance().mEffectManager.clearEffects(p, PARTICIPATION_TAG);
 				if (fail != null) {
 					Plugin.getInstance().mEffectManager.clearEffects(p, FAIL_PARTICIPATION_TAG);
-					p.sendMessage(Component.text("Aurora and Tuulen’s protection for you against the blight is regaining power.", NamedTextColor.GRAY));
+					p.sendMessage(Component.text("Aurora and Tuulen's protection for you against the blight is regaining power.", NamedTextColor.GRAY));
 				}
 				if (pass) {
 					cleanse(p);
@@ -2438,8 +2438,8 @@ public class Sirius extends SerializedLocationBossAbilityGroup {
 					mAuroraDisplay.setInterpolationDelay(-1);
 					for (Player p : getPlayers()) {
 						p.sendMessage(Component.text("[Sirius]", NamedTextColor.GOLD).append(Component.text(" If I am to die, I am taking them with me...", NamedTextColor.AQUA, TextDecoration.BOLD)));
-						p.sendMessage(Component.text("[Tuulen]", NamedTextColor.GOLD).append(Component.text(" What is this?! The blight is gathering around me! Please, destroy Sirius now, before it’s too late!", NamedTextColor.GRAY, TextDecoration.BOLD)));
-						p.sendMessage(Component.text("[Aurora]", NamedTextColor.GOLD).append(Component.text(" I as well... I can’t... hold it off anymore...", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD)));
+						p.sendMessage(Component.text("[Tuulen]", NamedTextColor.GOLD).append(Component.text(" What is this?! The blight is gathering around me! Please, destroy Sirius now, before it's too late!", NamedTextColor.GRAY, TextDecoration.BOLD)));
+						p.sendMessage(Component.text("[Aurora]", NamedTextColor.GOLD).append(Component.text(" I as well... I can't... hold it off anymore...", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD)));
 					}
 				}
 				if (mTicks == 2) {

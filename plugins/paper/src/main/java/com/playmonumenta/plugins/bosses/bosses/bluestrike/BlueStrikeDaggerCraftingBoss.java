@@ -102,25 +102,25 @@ public class BlueStrikeDaggerCraftingBoss extends BossAbilityGroup {
 	public void onInteract(Player player) {
 		if (mSamwellAbility.mDefeated) {
 			sendMessage(player,
-				"Quick, grab the wool. Let’s get out of here...",
+				"Quick, grab the wool. Let's get out of here...",
 				"He be DEAD!! Go get us tha wool! The traitor be DEAD!",
-				"Hurry, go grab the wool. I don’t want to be here anymore."
+				"Hurry, go grab the wool. I don't want to be here anymore."
 			);
 			return;
 		}
 
 		if (mSamwellAbility.mCraftPhase) {
 			sendMessage(player,
-				"I’ve started crafting the dagger. Keep them off me!",
-				"I’m puttin’ yer dagger togetha! Keep me safe, cap’n!",
-				"I’ve started putting together the dagger. Keep me safe!"
+				"I've started crafting the dagger. Keep them off me!",
+				"I'm puttin' yer dagger togetha! Keep me safe, cap'n!",
+				"I've started putting together the dagger. Keep me safe!"
 			);
 			return;
 		}
 
 		if (mSamwellAbility.mPhase >= 4) {
 			sendMessage(player,
-				"He’s vulnerable now, don’t worry about the stupid daggers!",
+				"He's vulnerable now, don't worry about the stupid daggers!",
 				"It be no time fer another dagger! Go finish ‘im!",
 				"Just focus on Samwell so we can get the wool!"
 			);

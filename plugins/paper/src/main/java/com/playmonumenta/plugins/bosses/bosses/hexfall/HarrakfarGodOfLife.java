@@ -78,7 +78,7 @@ public class HarrakfarGodOfLife extends BossAbilityGroup implements Listener {
 
 		if (mParameters.FIRST) {
 			activeSpells.add(new SpellBlueUnchain(mMonumentaPlugin, mBlue, detectionRange, 60 * 20, 0, mSpawnLoc));
-			activeSpells.add(new SpellHyceneaDialogue(Component.text("Ye know not what... you’ve done. My consort... he feels my pain... he sees my rage... every scrap of my... bark that you tear allows him to buck at his chains...", NamedTextColor.WHITE), 0, mSpawnLoc, true));
+			activeSpells.add(new SpellHyceneaDialogue(Component.text("Ye know not what... you've done. My consort... he feels my pain... he sees my rage... every scrap of my... bark that you tear allows him to buck at his chains...", NamedTextColor.WHITE), 0, mSpawnLoc, true));
 			activeSpells.add(new SpellEssenceWave(mMonumentaPlugin, mBlue, 8 * 20, 120, 10 * 20, 20, 50, 0.75f, mSpawnLoc));
 			activeSpells.add(new SpellHyceneaDialogue(Component.text("Amour... allende... pour mai...", NamedTextColor.WHITE), 0, mSpawnLoc, true));
 			activeSpells.add(new SpellEssenceWave(mMonumentaPlugin, mBlue, 8 * 20, 120, 10 * 20, 20, 50, 0.75f, mSpawnLoc));

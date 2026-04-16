@@ -443,7 +443,7 @@ public class VolatileReaction extends Ability implements PotionAbility {
 			.addLine("Additionally, the level of the *Gruesome*/*Brutal*").styles(GRUESOME_COLOR, BRUTAL_COLOR)
 			.addLine("effect applied to the main mob is increased by *1*.").styles(WHITE)
 			.addLine()
-			.addStat("Direct Damage: %p (s) (of potion damage)")
+			.addStat("Direct Damage: %p1 (s) (of potion damage)")
 				.statValues(stat(a -> a.mMainDamageMultiplier, MAIN_DAMAGE_MULTIPLIER_1))
 			.addStat("Explosion Damage: %p (s) (of potion damage)")
 				.statValues(stat(a -> a.mDetonateDamageMultiplier, DETONATION_DAMAGE_MULTIPLIER))

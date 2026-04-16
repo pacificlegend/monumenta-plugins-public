@@ -53,7 +53,6 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 	private static final int MAX_CHARGES = 2;
 	private static final int TRAP_COOLDOWN = 12 * Constants.TICKS_PER_SECOND;
 	private static final double[] DAMAGE = {7, 12, 16};
-	private static final double DMG_ENHANCE = 18;
 	private static final double RADIUS_L1 = 3;
 	private static final double RADIUS_L2 = 4;
 	private static final int STAGGER_DURATION = 2 * Constants.TICKS_PER_SECOND;
@@ -65,6 +64,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 	private static final float KNOCKBACK_HORIZONTAL = 0.75f;
 	private static final float KNOCKBACK_VERTICAL = 0.45f;
 	private static final double VULN = 0.15;
+	private static final double VULN_E = 0.1;
 	private static final int VULN_DURATION = 5 * Constants.TICKS_PER_SECOND;
 
 	public static final String CHARM_COOLDOWN = "Steel Trap Cooldown";
@@ -74,7 +74,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 	public static final String CHARM_DURATION = "Steel Trap Duration";
 	public static final String CHARM_PRIMING_DURATION = "Steel Trap Priming Duration";
 	public static final String CHARM_VELOCITY = "Steel Trap Velocity";
-	public static final String CHARM_CHARGES = "Steel Trap Charge";
+	public static final String CHARM_CHARGES = "Steel Trap Charges";
 	public static final String CHARM_TRIGGER_RADIUS = "Steel Trap Trigger Radius";
 	public static final String CHARM_KNOCKBACK = "Steel Trap Knockback";
 	public static final String CHARM_VULN = "Steel Trap Vulnerability Amplifier";
@@ -117,8 +117,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 		super(plugin, player, INFO);
 
 		mMaxCharges = MAX_CHARGES + (int) CharmManager.getLevel(player, CHARM_CHARGES);
-		mDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE,
-			isEnhanced() ? DMG_ENHANCE : AbilityUtils.getRegionScaled(player, DAMAGE));
+		mDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, AbilityUtils.getRegionScaled(player, DAMAGE));
 		mRadius = CharmManager.getRadius(mPlayer, CHARM_RADIUS, isLevelOne() ? RADIUS_L1 : RADIUS_L2);
 		mTrapDuration = CharmManager.getDuration(mPlayer, CHARM_DURATION, DURATION);
 		mPrimingDuration = CharmManager.getDuration(mPlayer, CHARM_PRIMING_DURATION, isEnhanced() ? PRIMING_DURATION_L3 : PRIMING_DURATION_L1);
@@ -127,7 +126,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 		mTriggerRadius = CharmManager.getRadius(mPlayer, CHARM_TRIGGER_RADIUS, TRIGGER_RADIUS);
 		mKnockbackHorizontal = (float) CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_KNOCKBACK, KNOCKBACK_HORIZONTAL);
 		mKnockbackVertical = (float) CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_KNOCKBACK, KNOCKBACK_VERTICAL);
-		mVulnerability = VULN + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_VULN);
+		mVulnerability = (isLevelTwo() ? VULN : 0) + (isEnhanced() ? VULN_E : 0) + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_VULN);
 		mVulnerabilityDuration = CharmManager.getDuration(mPlayer, CHARM_VULN_DURATION, VULN_DURATION);
 
 		mCharges = Math.min(AbilityManager.getManager().getTrackedCharges(mPlayer, ClassAbility.STEEL_TRAP), mMaxCharges);
@@ -278,7 +277,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 								DamageUtils.damage(mPlayer, entity, DamageEvent.DamageType.PROJECTILE_SKILL, mDamage, mInfo.getLinkedSpell(), true);
 								EntityUtils.applyStagger(mPlugin, mStaggerDuration, entity);
 
-								if (isLevelTwo()) {
+								if (isLevelTwo() || isEnhanced()) {
 									EntityUtils.applyVulnerability(mPlugin, mVulnerabilityDuration, mVulnerability, entity);
 								}
 
@@ -469,7 +468,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 			.addLine()
 			.addStatComparison("Radius: %r1 -> %r2")
 			.statValues(stat(RADIUS_L1), stat(a -> a.mRadius, RADIUS_L2))
-			.addStat("Effect : %p Vulnerability for %t")
+			.addStat("Effect: %p Vulnerability for %t")
 			.statValues(stat(a -> a.mVulnerability, VULN), stat(a -> a.mVulnerabilityDuration, VULN_DURATION))
 			.addDashedLine();
 	}
@@ -478,14 +477,17 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 3)
 			.addDashedLine()
 			.addLine("*Steel Trap* no longer explodes automatically.").styles(UNDERLINED)
-			.addLine("Casting when %d *Traps* are primed detonates them.").styles(LIGHT_GREY)
+			.addLine("Casting when %d *Traps* are primed detonates them").styles(LIGHT_GREY)
 			.statValues(stat(a -> a.mMaxCharges, MAX_CHARGES))
+			.addLine("while also launching you.")
 			.addLine()
-			.addLine("Increase *Steel Trap*'s damage and").styles(UNDERLINED)
+			.addLine("Increase *Steel Trap*'s vulnerability and").styles(UNDERLINED)
 			.addLine("decrease priming duration.")
 			.addLine()
-			.addStatComparison("Damage: %d1e -> %d2")
-			.statValues(perRegion(DAMAGE[0], DAMAGE[1], DAMAGE[2]), stat(a -> a.mDamage, DMG_ENHANCE))
+			.addStat("Effect: %p Vulnerability for %t")
+			.addIfElse((a, p) -> a != null && a.isLevelTwo(),
+				desc -> desc.statValues(stat(a -> a.mVulnerability, VULN + VULN_E), stat(a -> a.mVulnerabilityDuration, VULN_DURATION)),
+				desc -> desc.statValues(stat(a -> a.mVulnerability, VULN_E), stat(a -> a.mVulnerabilityDuration, VULN_DURATION)))
 			.addStatComparison("Priming Duration: %t1e -> %t3")
 			.statValues(stat(PRIMING_DURATION_L1), stat(a -> a.mPrimingDuration, PRIMING_DURATION_L3))
 			.addDashedLine();

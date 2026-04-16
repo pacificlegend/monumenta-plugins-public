@@ -154,7 +154,6 @@ public class Swiftness extends Ability {
 			mCosmetic.swiftnessDash(mPlayer, mPlayer.getLocation());
 
 			dir.normalize().multiply(1 + jumpStrength);
-			dir.setY(dir.getY() * 0.5);
 
 			if (mDashRunnable != null) {
 				mDashRunnable.cancel();
@@ -162,7 +161,7 @@ public class Swiftness extends Ability {
 
 			mIsActive = true;
 			mDashRunnable = new BukkitRunnable() {
-				final int mDuration = (int) (jumpStrength * 4);
+				final int mDuration = (int) (jumpStrength * 5);
 				int mT = 0;
 				boolean mDash = true;
 

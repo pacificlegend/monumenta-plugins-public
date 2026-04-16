@@ -54,7 +54,7 @@ public class ShrapnelBomb extends Ability {
 	private static final double[] BOMB_DAMAGE_L1 = {8, 13, 18};
 	private static final double[] BOMB_DAMAGE_L2 = {12, 18, 24};
 	private static final double[] SHRAP_DAMAGE_L1 = {5, 8, 13};
-	private static final double[] SHRAP_DAMAGE_L2 = {8, 2, 18};
+	private static final double[] SHRAP_DAMAGE_L2 = {8, 12, 18};
 	private static final double BOMB_DAMAGE_ENHANCEMENT = 0.8;
 	private static final double SHRAPNEL_SPREAD = 15;
 	private static final double BOMB_RADIUS = 4;
@@ -182,8 +182,7 @@ public class ShrapnelBomb extends Ability {
 
 		event.setCancelled(true);
 
-		// You can. hit. players ?
-		if (event.getHitEntity() instanceof Player) {
+		if (!EntityUtils.isHostileMob(event.getHitEntity())) {
 			return;
 		}
 

@@ -75,7 +75,7 @@ public class WindBomb extends Ability {
 	private static final double VORTEX_HEIGHT = 3;
 	private static final int PULL_INTERVAL = 4;
 	private static final double PULL_RADIUS = 10;
-	private static final int PULL_DURATION = (Constants.TICKS_PER_SECOND * 3);
+	private static final int PULL_DURATION = Constants.TICKS_PER_SECOND * 5;
 	private static final double PULL_RATIO = 0.05;
 	private static final float TRANSFER_COEFFICIENT = 0.25f;
 
@@ -210,7 +210,6 @@ public class WindBomb extends Ability {
 
 				if (mTicks >= mBombDuration) {
 					removeWindBomb();
-					mPlugin.mTimers.removeCooldown(mPlayer, ClassAbility.WIND_BOMB);
 					this.cancel();
 					return;
 				}

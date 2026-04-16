@@ -3,6 +3,7 @@ package com.playmonumenta.plugins.abilities.scout;
 import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.AbilityInfo;
+import com.playmonumenta.plugins.abilities.AbilityWithDuration;
 import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.abilities.MultipleChargeAbility;
@@ -14,7 +15,6 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.itemstats.enchantments.Grappling;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
-import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
@@ -39,12 +39,13 @@ import org.bukkit.entity.ThrowableProjectile;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.cooldown;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.stat;
 import static com.playmonumenta.plugins.utils.DescriptionUtils.UNDERLINED;
 
-public class Volley extends MultipleChargeAbility {
+public class Volley extends MultipleChargeAbility implements AbilityWithDuration {
 	public static final String ENHANCEMENT_METADATA = "VolleyMultishotEnhancement";
 	public static final String VOLLEY_METADATA = "VolleyThisTick";
 
@@ -57,7 +58,7 @@ public class Volley extends MultipleChargeAbility {
 	private static final double VOLLEY_1_DAMAGE_FLAT = 6;
 	private static final double VOLLEY_2_DAMAGE_FLAT = 8;
 	private static final int MULTISHOT_BUFF = 1;
-	private static final int MULTISHOT_SHOTS = 1;
+	private static final int MULTISHOT_DURATION = 3 * 20;
 
 	public Set<Projectile> mVolley;
 	private final Map<LivingEntity, Integer> mVolleyHitMap;
@@ -68,7 +69,7 @@ public class Volley extends MultipleChargeAbility {
 	public static final String CHARM_PIERCING = "Volley Piercing";
 	public static final String CHARM_CHARGES = "Volley Charges";
 	public static final String CHARM_MULTISHOT_LEVEL = "Volley Multishot Level";
-	public static final String CHARM_MULTISHOT_SHOT = "Volley Multishot Shots";
+	public static final String CHARM_MULTISHOT_DURATION = "Volley Multishot Duration";
 
 	public static final AbilityInfo<Volley> INFO =
 		new AbilityInfo<>(Volley.class, "Volley", Volley::new)
@@ -85,12 +86,14 @@ public class Volley extends MultipleChargeAbility {
 	private final double mPercentDamage;
 	private final double mFlatDamage;
 	private final int mMultishotLevel;
-	private final int mMultishotShots;
+	private final int mMultiShotDuration;
 	private final VolleyCS mCosmetic;
-	private int mEnhancementShots = 0;
 
 	private int mVolleyTime;
 	private int mMultishotTime;
+	private int mCurrDuration = -1;
+	@Nullable
+	private BukkitRunnable mMultishotRunnable;
 
 	public Volley(Plugin plugin, Player player) {
 		super(plugin, player, INFO);
@@ -99,7 +102,7 @@ public class Volley extends MultipleChargeAbility {
 		mFlatDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, isLevelOne() ? VOLLEY_1_DAMAGE_FLAT : VOLLEY_2_DAMAGE_FLAT);
 		mMaxCharges = 2 + (int) CharmManager.getLevel(mPlayer, CHARM_CHARGES);
 		mMultishotLevel = MULTISHOT_BUFF + (int) CharmManager.getLevel(mPlayer, CHARM_MULTISHOT_LEVEL);
-		mMultishotShots = MULTISHOT_SHOTS + (int) CharmManager.getLevel(mPlayer, CHARM_MULTISHOT_SHOT);
+		mMultiShotDuration = (int) CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_MULTISHOT_DURATION, MULTISHOT_DURATION);
 		mVolley = new HashSet<>();
 		mVolleyHitMap = new HashMap<>();
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new VolleyCS());
@@ -121,12 +124,11 @@ public class Volley extends MultipleChargeAbility {
 
 		int tick = Bukkit.getServer().getCurrentTick();
 
-		if (mEnhancementShots > 0
+		if (mMultishotRunnable != null && !mMultishotRunnable.isCancelled()
 			&& !mVolley.contains(projectile)
 			&& !isVolleyShot(mPlayer)
 			&& tick - mMultishotTime >= 2
 		) {
-			mEnhancementShots--;
 			mMultishotTime = tick;
 			multishotEnhancement(projectile);
 		}
@@ -139,13 +141,31 @@ public class Volley extends MultipleChargeAbility {
 			return true;
 		}
 
-		ClientModHandler.updateAbility(mPlayer, this);
 		MetadataUtils.markThisTick(mPlugin, mPlayer, VOLLEY_METADATA);
 		mVolleyTime = tick;
 		mCosmetic.volleyEffect(mPlayer);
 
 		if (isEnhanced()) {
-			mEnhancementShots = mMultishotShots;
+			if (mMultishotRunnable != null && !mMultishotRunnable.isCancelled()) {
+				mMultishotRunnable.cancel();
+			}
+			mCurrDuration = mMultiShotDuration;
+
+			mMultishotRunnable = new BukkitRunnable() {
+
+				@Override
+				public void run() {
+					int hasMultishot = ItemStatUtils.getEnchantmentLevel(mPlayer.getInventory().getItemInMainHand(), EnchantmentType.MULTISHOT);
+					mCosmetic.volleyMultishotParticle(mPlayer, mMultiShotDuration - mCurrDuration, mMultishotLevel + hasMultishot, mMultiShotDuration);
+					mCurrDuration--;
+					if (mCurrDuration <= 0) {
+						mCurrDuration = 0;
+						updateAbility();
+						this.cancel();
+					}
+				}
+			};
+			cancelOnDeath(mMultishotRunnable.runTaskTimer(mPlugin, 0, 1));
 		}
 
 		float arrowSpeed = ItemUtils.getVanillaProjectileSpeed(mPlayer.getInventory().getItemInMainHand());
@@ -182,6 +202,7 @@ public class Volley extends MultipleChargeAbility {
 			}
 		}.runTaskLater(mPlugin, 0);
 
+		updateAbility();
 		return true;
 	}
 
@@ -284,17 +305,25 @@ public class Volley extends MultipleChargeAbility {
 	private static Description<Volley> getDescriptionEnhancement() {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 3)
 			.addDashedLine()
-			.addLine("Casting *Volley* empowers your").styles(UNDERLINED)
-			.addLine("next shot with Multishot.")
+			.addLine("Casting *Volley* temporarily empowers your").styles(UNDERLINED)
+			.addLine("shots with Multishot.")
 			.addLine("(Works with any weapon type)")
-			.addIf((a, p) -> a != null && (a.mMultishotLevel != 1 || a.mMultishotShots != 1),
-				FormattedDescriptionBuilder::addLine)
+			.addLine()
+			.addStat("Duration: %t")
+			.statValues(stat(MULTISHOT_DURATION))
 			.addIf((a, p) -> a != null && a.mMultishotLevel != 1,
 				desc -> desc.addStat("Multishot Level: %d")
 					.statValues(stat(a -> a.mMultishotLevel, 1)))
-			.addIf((a, p) -> a != null && a.mMultishotShots != 1,
-				desc -> desc.addStat("Empowered Shots: %d")
-					.statValues(stat(a -> a.mMultishotShots, 1)))
 			.addDashedLine();
+	}
+
+	@Override
+	public int getInitialAbilityDuration() {
+		return mMultiShotDuration;
+	}
+
+	@Override
+	public int getRemainingAbilityDuration() {
+		return mCurrDuration;
 	}
 }

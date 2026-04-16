@@ -7,14 +7,17 @@ import com.playmonumenta.plugins.abilities.AbilityWithChargesOrStacks;
 import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.abilities.scout.hunter.QuiverStorm;
+import com.playmonumenta.plugins.abilities.scout.ranger.GaleShot;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.scout.SharpshooterCS;
+import com.playmonumenta.plugins.effects.PercentThrowRate;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.itemstats.enchantments.Multiload;
 import com.playmonumenta.plugins.itemstats.enchantments.ThrowingKnife;
+import com.playmonumenta.plugins.itemstats.enums.AttributeType;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.listeners.DamageListener;
 import com.playmonumenta.plugins.network.ClientModHandler;
@@ -25,6 +28,7 @@ import com.playmonumenta.plugins.utils.MetadataUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -60,7 +64,8 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 	private static final int MAX_STACKS_L2 = 30;
 	private static final double PERCENT_DAMAGE_PER_STACK = 0.01;
 	private static final double ARROW_SAVE_CHANCE = 0.3;
-	private static final double PROJECTILE_SPEED = 0.01;
+	private static final double PROJECTILE_SPEED_PER_STACK = 0.01;
+	private static final double THROW_RATE_PER_STACK = 0.005;
 	private static final int STACKS_PER_PIERCE = 15;
 
 	public static final String CHARM_STACK_DAMAGE = "Sharpshooter Stack Damage";
@@ -70,8 +75,8 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 	public static final String CHARM_MISS = "Sharpshooter Stacks On Miss";
 	public static final String CHARM_HIT = "Sharpshooter Stacks On Hit";
 	public static final String CHARM_PROJ_SPEED = "Sharpshooter Stack Projectile Speed";
+	public static final String CHARM_THROW_RATE = "Sharpshooter Stack Throw Rate";
 	public static final String CHARM_PIERCE = "Sharpshooter Stack Per Pierce";
-
 
 	public static final AbilityInfo<Sharpshooter> INFO =
 		new AbilityInfo<>(Sharpshooter.class, "Sharpshooter", Sharpshooter::new)
@@ -91,6 +96,7 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 	private final double mArrowSaveChance;
 	private final int mMissPenalty;
 	private final double mProjectileSpeed;
+	private final double mThrowRate;
 	private final int mStacksPerPierce;
 	private final SharpshooterCS mCosmetic;
 	private @Nullable PartingShot mPartingShot;
@@ -106,7 +112,8 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 		mDamagePerStack = PERCENT_DAMAGE_PER_STACK + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_STACK_DAMAGE);
 		mArrowSaveChance = ARROW_SAVE_CHANCE + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_RETRIEVAL);
 		mMissPenalty = MISS_PENALTY + (int) CharmManager.getLevel(mPlayer, CHARM_MISS);
-		mProjectileSpeed = PROJECTILE_SPEED + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_PROJ_SPEED);
+		mProjectileSpeed = PROJECTILE_SPEED_PER_STACK + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_PROJ_SPEED);
+		mThrowRate = THROW_RATE_PER_STACK + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_THROW_RATE);
 		mStacksPerPierce = STACKS_PER_PIERCE + (int) CharmManager.getLevelPercentDecimal(mPlayer, CHARM_PIERCE);
 
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(mPlayer, new SharpshooterCS());
@@ -118,7 +125,6 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 	public boolean onDamage(final DamageEvent event, final LivingEntity enemy) {
 		final DamageEvent.DamageType type = event.getType();
 
-		mCosmetic.hitEffect(mPlayer, enemy);
 		if (DamageEvent.DamageType.getAllProjectileTypes().contains(type)) {
 			double multiplier = 1;
 			multiplier += mStacks * mDamagePerStack;
@@ -159,13 +165,20 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 			final ItemStatManager.PlayerItemStats.ItemStatsMap map = stats != null ? stats.getItemStats() : null;
 			if (map != null) {
 				// Quiver Storm handles pierce modification (QuiverStorm.java line 159)
-				if (projectile instanceof AbstractArrow arrow && !arrow.hasMetadata(QuiverStorm.ARROW_METADATA)) {
+				if (projectile instanceof AbstractArrow arrow
+					&& !(arrow instanceof Trident)
+					&& !arrow.hasMetadata(QuiverStorm.ARROW_METADATA)) {
 					int pierce = (int) (mStacks * (1.0 / mStacksPerPierce));
-					arrow.setPierceLevel(arrow.getPierceLevel() + pierce);
+					arrow.setPierceLevel(Math.clamp(arrow.getPierceLevel() + pierce, 0, 127));
 				}
 
+				double gearProjSpeed = map.get(AttributeType.PROJECTILE_SPEED);
 				double projSpeed = 1;
-				projSpeed *= 1 + mStacks * mProjectileSpeed;
+				projSpeed /= gearProjSpeed;
+				double mSharpshooterMultiplier = mStacks * mProjectileSpeed;
+				projSpeed *= gearProjSpeed + mSharpshooterMultiplier;
+				// Updating for calculateBowDraw method
+				map.add(Objects.requireNonNull(AttributeType.PROJECTILE_SPEED.getItemStat()), mSharpshooterMultiplier);
 				if (projSpeed != 1 && !ZoneUtils.hasZoneProperty(player.getLocation(), ZoneUtils.ZoneProperty.MASK_GEAR_PROJECTILE_SPEED)) {
 					projectile.setVelocity(projectile.getVelocity().multiply(projSpeed));
 				}
@@ -180,6 +193,12 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 
 			Entity e = event.getHitEntity();
 			if (e != null) {
+				if (mStacks >= mMaxStacks
+					&& e instanceof LivingEntity en
+					&& !proj.hasMetadata(GaleShot.GALE_SHOT_PROJECTILE_METAKEY)) {
+					mCosmetic.hitEffect(mPlayer, en);
+				}
+
 				Pair<Set<Projectile>, Integer> pair = TIME_TO_ARROW.remove(time);
 
 				if (pair != null) {
@@ -215,6 +234,12 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 				mStacks--;
 				showChargesMessage();
 				ClientModHandler.updateAbility(mPlayer, this);
+			}
+
+			if (isEnhanced()) {
+				mPlugin.mEffectManager.addEffect(mPlayer,
+					"SharpshooterThrowRate",
+					new PercentThrowRate(10, mThrowRate * mStacks).displaysTime(false));
 			}
 
 			// Ran every 5 ticks, see AbilityCooldownDecrease
@@ -343,10 +368,10 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 	private static Description<Sharpshooter> getDescription1() {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 1)
 			.addDashedLine()
-			.addLine("Hitting a mob with a projectile grants")
-			.addLine("*Sharpshooter* stacks, which decay after %t").styles(UNDERLINED)
+			.addLine("Hitting a mob with a projectile grants *Sharpshooter*")
+			.addLine("stacks, which decay after %t of not gaining any.").styles(UNDERLINED)
 			.statValues(stat(a -> a.mDecayTime, SHARPSHOOTER_DECAY_TIMER))
-			.addLine("not gaining any. Each stack grants projectile damage.")
+			.addLine("Each stack grants projectile damage.")
 			.addLine("(Stack gain is based on weapon's draw speed)")
 			.addLine()
 			.addLine("Missing will deduct %d stacks of *Sharpshooter*.").styles(UNDERLINED)
@@ -375,10 +400,13 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 	private static Description<Sharpshooter> getDescriptionEnhancement() {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 3)
 			.addDashedLine()
-			.addLine("*Sharpshooter* stacks grant projectile speed.").styles(UNDERLINED)
+			.addLine("*Sharpshooter* stacks grant projectile speed").styles(UNDERLINED)
+			.addLine("and throw rate.")
 			.addLine()
 			.addStat("Projectile Speed: %p per stack")
-			.statValues(stat(a -> a.mProjectileSpeed, PROJECTILE_SPEED))
+			.statValues(stat(a -> a.mProjectileSpeed, PROJECTILE_SPEED_PER_STACK))
+			.addStat("Throw Rate: %p per stack")
+			.statValues(stat(a -> a.mThrowRate, THROW_RATE_PER_STACK))
 			.addLine()
 			.addLine("Increase arrow pierce by *1* for every %d stacks.").styles(WHITE)
 			.statValues(stat(a -> a.mStacksPerPierce, STACKS_PER_PIERCE))

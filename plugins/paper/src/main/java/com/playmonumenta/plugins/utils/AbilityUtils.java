@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.utils;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.AbilityInfo;
@@ -105,6 +106,16 @@ public class AbilityUtils {
 	private static @Nullable BukkitRunnable invisTracker = null;
 
 	public static final String IGNORE_TAG = "summon_ignore";
+
+	public static final ImmutableList<EnchantmentType> PROJ_DAMAGE_ENCHANTS = ImmutableList.of(
+		EnchantmentType.POINT_BLANK,
+		EnchantmentType.SNIPER,
+		EnchantmentType.SMITE,
+		EnchantmentType.SLAYER,
+		EnchantmentType.DUELIST,
+		EnchantmentType.HEX_EATER,
+		EnchantmentType.CHAOTIC
+	);
 
 	private static void startInvisTracker(Plugin plugin, @Nullable StealthCosmeticSkill cosmetic) {
 		invisTracker = new BukkitRunnable() {

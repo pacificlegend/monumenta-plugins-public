@@ -66,7 +66,7 @@ public class TwistedCompanionCS extends HuntingCompanionCS implements DelvesCS {
 		world.playSound(loc, Sound.BLOCK_SWEET_BERRY_BUSH_BREAK, SoundCategory.NEUTRAL, 1.0f, 1.0f);
 		world.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.NEUTRAL, 1.5f, 0.85f);
 		world.playSound(loc, Sound.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.NEUTRAL, 1.5f, 0.8f);
-		world.playSound(loc, Sound.ENTITY_WITHER_AMBIENT, SoundCategory.NEUTRAL, 1.5f, 1.5f);
+		world.playSound(loc, Sound.ENTITY_WITHER_AMBIENT, SoundCategory.NEUTRAL, 0.9f, 1.5f);
 		createOrb(new Vector(FastUtils.randomDoubleInRange(-1, 1), 1,
 			FastUtils.randomDoubleInRange(-1, 1)), player.getLocation().add(0, 1.35, 0), player, summon);
 
@@ -114,7 +114,7 @@ public class TwistedCompanionCS extends HuntingCompanionCS implements DelvesCS {
 
 	@Override
 	public void foxOnJump(World world, Location loc, LivingEntity summon, Player player, LivingEntity target) {
-		world.playSound(loc, Sound.ENTITY_GHAST_SCREAM, 0.75f, 0.85f);
+		world.playSound(loc, Sound.ENTITY_GHAST_SCREAM, 0.5f, 0.85f);
 		world.playSound(loc, Sound.ENTITY_FOX_SCREECH, 1.25f, 0.75f);
 		world.playSound(loc, Sound.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.NEUTRAL, 1.5f, 0.8f);
 		world.playSound(loc, Sound.ENTITY_HORSE_JUMP, SoundCategory.NEUTRAL, 1.5f, 1.5f);

@@ -28,6 +28,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -45,18 +46,17 @@ public class RendingRazor extends Ability {
 	private static final String CDR_EFFECT_NAME = "RendingRazorCDRBuff";
 	private static final int MAX_CDR_COUNT = 3;
 
-	private static final double[] DAMAGE = {16, 20};
-	private static final int RAZOR_TRAVEL_TIME = Constants.TICKS_PER_SECOND * 2;
+	private static final double[] DAMAGE = {14, 18};
+	private static final int RAZOR_TRAVEL_TIME = Constants.TICKS_PER_SECOND * 6;
 	private static final double MAXIMUM_BLOCK_DISTANCE = 14.0;
 	private static final float KNOCKBACK = 0.15f;
-	private static final double REND_SPEED = 1.0; // blocks per tick
-	private static final double RADIUS_L1 = 1;
-	private static final double RADIUS_L2 = 1.5;
+	private static final double REND_SPEED = 1.25; // blocks per tick
+	private static final double RADIUS_L1 = 2;
+	private static final double RADIUS_L2 = 2.5;
 	private static final double CDR_EFFECT = 0.75;
 	private static final int BLEED = 2;
 	private static final int CDR_DURATION = Constants.TICKS_PER_SECOND * 2;
-	private static final int PIERCE = 2;
-
+	private static final int PIERCE = 999;
 	private static final int COOLDOWN_L1 = 14 * Constants.TICKS_PER_SECOND;
 	private static final int COOLDOWN_L2 = 12 * Constants.TICKS_PER_SECOND;
 
@@ -118,19 +118,27 @@ public class RendingRazor extends Ability {
 		}
 
 		putOnCooldown();
+		mCosmetic.addItemDisplay(mPlayer, mRadius);
 		mCosmetic.razorCast(mPlayer);
 		ClientModHandler.updateAbility(mPlayer, this);
+
+		Vector eyeDir = mPlayer.getLocation().getDirection();
 
 		double razorDuration = RAZOR_TRAVEL_TIME / mRendSpeed;
 
 		BukkitTask razorTask = new BukkitRunnable() {
 			final int mStartingTick = Bukkit.getCurrentTick();
+			double mStartAngle = Math.atan(eyeDir.getZ() / eyeDir.getX());
 			final HashSet<LivingEntity> mStruckMobs = new HashSet<>();
 			final HashSet<LivingEntity> mExcludedMobs = new HashSet<>();
 
 			final Location mOrigin = mPlayer.getEyeLocation();
 			Location mRazorLoc = mPlayer.getEyeLocation();
+			final World mWorld = mRazorLoc.getWorld();
+
 			Vector mDir = mPlayer.getLocation().getDirection().normalize().multiply(mRendSpeed);
+
+			int mIncrementDegrees = 0;
 
 			boolean mReturning = false;
 			int mTicks = 0;
@@ -140,8 +148,16 @@ public class RendingRazor extends Ability {
 			public void run() {
 				if (!mPlayer.getWorld().equals(mRazorLoc.getWorld()) ||
 					mTicks >= razorDuration) {
-					cancel();
+					mCosmetic.removeDisplay(mStartingTick);
+					this.cancel();
 					return;
+				}
+
+				if (mIncrementDegrees == 0) {
+					if (mRazorLoc.getDirection().getX() < 0) {
+						mStartAngle += Math.PI;
+					}
+					mStartAngle += Math.PI * 90 / 180;
 				}
 
 				boolean hasCollided = !mRazorLoc.getBlock().isPassable();
@@ -165,10 +181,8 @@ public class RendingRazor extends Ability {
 				mRazorLoc = mRazorLoc.add(mDir);
 				mRazorLoc.setDirection(mDir);
 
-				mCosmetic.razorProjectileEffects(mPlayer, mRazorLoc, mStartingTick);
-				if (mTicks % 3 == 0) {
-					mCosmetic.razorTravelSound(mPlayer, mRazorLoc);
-				}
+				mCosmetic.tick(mPlayer, mWorld, mRazorLoc, mRadius, mIncrementDegrees);
+				mCosmetic.spinDisplay(mRazorLoc, mStartingTick);
 
 				final Hitbox razorHitbox = new Hitbox.SphereHitbox(mRazorLoc, mRadius);
 				final List<LivingEntity> hitEnemies = razorHitbox.getHitMobs();
@@ -198,10 +212,12 @@ public class RendingRazor extends Ability {
 
 				if (mReturning && mPlayer.getEyeLocation().distanceSquared(mRazorLoc) <= mRendSpeed * mRendSpeed) {
 					mCosmetic.razorReturned(mPlayer.getLocation(), mStartingTick);
+					mCosmetic.removeDisplay(mStartingTick);
 					this.cancel();
 					return;
 				}
 
+				mIncrementDegrees += 60;
 				mTicks++;
 			}
 		}.runTaskTimer(mPlugin, 0, 1);
@@ -233,8 +249,7 @@ public class RendingRazor extends Ability {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 1)
 			.addTrigger()
 			.addDashedLine()
-			.addLine("Throw a spinning razor that hits %d mobs before returning.")
-			.statValues(stat(a -> a.mPierce + 1, PIERCE + 1))
+			.addLine("Throw a spinning razor that rend through mobs before returning.")
 			.addLine("Each hit grants faster cooldown recharge rate.")
 			.addLine()
 			.addStat("Damage: %d0R (p)")

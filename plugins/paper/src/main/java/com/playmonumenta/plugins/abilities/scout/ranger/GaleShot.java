@@ -67,19 +67,20 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 			.simpleDescription("Your projectile will be enhanced after casting multiple skills.")
 			.displayItem(Material.BONE_MEAL);
 
+	public static final String GALE_SHOT_PROJECTILE_METAKEY = "GaleShotProjectile";
+
 	private static final String GALE_SHOT_IMBUEMENT = "GaleShotImbuement";
-	private static final String GALE_SHOT_PROJECTILE_METAKEY = "GaleShotProjectile";
-	private static final double DAMAGE_L1 = 14;
-	private static final double DAMAGE_L2 = 16;
-	private static final double DAMAGE_PERCENT_L1 = 1.4;
-	private static final double DAMAGE_PERCENT_L2 = 1.6;
+	private static final double DAMAGE_L1 = 12;
+	private static final double DAMAGE_L2 = 14;
+	private static final double DAMAGE_PERCENT_L1 = 1.2;
+	private static final double DAMAGE_PERCENT_L2 = 1.4;
 	private static final String GALE_SHOT_IFRAME_METAKEY = "GaleShotIFrame";
 	private static final int ABILITY_REQ = 2;
 	private static final int SHOT_REQ = 2;
 	private static final int DURATION = Constants.TICKS_PER_SECOND * 12;
 	private static final int SLOWNESS_DURATION = Constants.TICKS_PER_SECOND * 3;
 	private static final double SLOWNESS_AMPLIFIER = 0.25;
-	private static final double SIZE = 0.6;
+	private static final double SIZE = 0.75;
 	private static final double VERTICAL_LAUNCH = 0.55;
 	private static final double KB_VEL_BASE = 1.5;
 	private static final double KB_VEL_PUNCH_LEVEL = 0.5;
@@ -134,7 +135,7 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 	public boolean playerShotProjectileEvent(Projectile projectile) {
 		int currTick = Bukkit.getServer().getCurrentTick();
 
-		if (!EntityUtils.isAbilityTriggeringProjectile(projectile, true)
+		if (!EntityUtils.isAbilityTriggeringProjectile(projectile, false)
 			|| Volley.isVolleyShot(mPlayer)
 			|| Grappling.playerHoldingHook(mPlayer)
 			|| currTick - mCastTime < 1
@@ -159,8 +160,9 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 		}
 
 		ItemStack mainHand = mPlayer.getInventory().getItemInMainHand();
-		float projSpeed = ItemUtils.getVanillaProjectileSpeed(mainHand);
-		Arrow galeArrow = (Arrow) EntityUtils.spawnProjectile(mPlayer, 0, 0, new Vector(0, 0, 0), projSpeed, EntityType.ARROW);
+		double bowDraw = projectile instanceof AbstractArrow arrow ? PlayerUtils.calculateBowDraw(arrow) : 1;
+		double projSpeed = ItemUtils.getVanillaProjectileSpeed(mainHand) * bowDraw;
+		Arrow galeArrow = (Arrow) EntityUtils.spawnProjectile(mPlayer, 0, 0, new Vector(0, 0, 0), (float) projSpeed, EntityType.ARROW);
 
 		// Destroy the original projectile and use an arrow instead because it pierces
 
@@ -171,7 +173,13 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 			ItemStatManager.PlayerItemStats.ItemStatsMap statsMap = stats.getItemStats();
 			double originalProjDamage = statsMap.get(AttributeType.PROJECTILE_DAMAGE_ADD);
 			ItemStat projAddStat = Objects.requireNonNull(AttributeType.PROJECTILE_DAMAGE_ADD.getItemStat());
-			statsMap.set(projAddStat, mDamageFlat + mDamagePercent * originalProjDamage);
+			statsMap.set(projAddStat, mDamageFlat + mDamagePercent * originalProjDamage * bowDraw);
+
+			for (EnchantmentType enchant : AbilityUtils.PROJ_DAMAGE_ENCHANTS) {
+				ItemStat stat = Objects.requireNonNull(enchant.getItemStat());
+
+				statsMap.set(stat, statsMap.get(stat) * mDamagePercent * bowDraw);
+			}
 		}
 
 		ProjectileLaunchEvent event = new ProjectileLaunchEvent(galeArrow);

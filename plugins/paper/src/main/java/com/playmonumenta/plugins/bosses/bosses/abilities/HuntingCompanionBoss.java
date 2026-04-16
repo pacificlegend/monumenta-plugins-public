@@ -18,6 +18,7 @@ import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.NmsUtils;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -32,7 +33,6 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,6 +50,7 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 	private int mPounceCooldown = 0;
 	private double mRange = 0;
 
+	private final List<LivingEntity> mTargets = new ArrayList<>(10);
 	private int mLastPounceCast = Bukkit.getCurrentTick();
 	private boolean mIsPouncing = false;
 
@@ -116,32 +117,22 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 			mFox.setFireTicks(0);
 		}
 
-		boolean isAfk = HuntingCompanion.isAFK(mPlayer);
-
-		LivingEntity target = getTarget();
-
-		// If the companion is targeting a mob, check if it should drop the target
-		if (target != null) {
-			boolean isTooFar = (!mIsPouncing && isTooFar(target, mPlayer, mRange));
-			if (isTooFar || isAfk || !target.isValid() || target.isDead()) {
-				mFox.setTarget(null);
+		mTargets.removeIf(entity -> !entity.isValid() || entity.getLocation().distanceSquared(mPlayer.getLocation()) >= mRange * mRange);
+		if (!mTargets.isEmpty()) {
+			LivingEntity target = mTargets.getFirst();
+			if (getTarget() != target) {
+				mCosmetic.onAggro(mFox.getWorld(), mFox.getLocation(), mPlayer, mFox);
 			}
+			mFox.setTarget(target);
 			return true;
-		}
-
-		// Otherwise, find a new one if the player isn't afk
-		if (!isAfk) {
-			LivingEntity newTarget = HuntingCompanion.findNearestNonTargetedMob(mFox, mPlayer, mRange);
-			if (newTarget != null) {
-				mFox.setTarget(newTarget);
-				return true;
-			}
+		} else {
+			mFox.setTarget(null);
 		}
 
 		// If it doesn't have a target nor can find one, follow the player
 		double distanceSquared = mFox.getLocation().distanceSquared(mPlayer.getLocation());
 		if (distanceSquared > 16 * 16) {
-			teleportCompanion();
+			teleportCompanion(false);
 		} else if (distanceSquared > 4 * 4) {
 			mFox.getPathfinder().moveTo(mPlayer.getLocation(), distanceSquared > 6 * 6 ? 1 : 0.66);
 		} else {
@@ -159,6 +150,20 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 		mLastPounceCast = Bukkit.getCurrentTick();
 		mIsPouncing = true;
 
+		if (!mFox.hasLineOfSight(target) || target.getLocation().distanceSquared(mFox.getLocation()) >= mRange * mRange) {
+			if (mPlayer.hasLineOfSight(target)) {
+				teleportCompanion(true);
+			} else {
+				teleportCompanion(target);
+			}
+		}
+		// Place punce target at the front
+		mTargets.remove(target);
+		mTargets.addFirst(target);
+		mFox.setTarget(target);
+
+		mFox.getPathfinder().stopPathfinding();
+
 		World world = mFox.getWorld();
 		Location loc = mFox.getLocation();
 
@@ -168,7 +173,6 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 		mFox.teleport(mFox.getLocation().setDirection(velDir));
 
 		mCosmetic.onJump(world, loc, mPlayer, mFox, target);
-		mFox.setTarget(target);
 
 		mFox.setVelocity(velDir);
 
@@ -190,11 +194,7 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 
 				// Delay by 1s so it can do the jump effect
 				if (mT > Constants.TICKS_PER_SECOND && canAttack) {
-					BoundingBox hitbox = mFox.getBoundingBox().expand(0.25);
-
-					boolean canPounce = EntityUtils.getNearbyMobs(mFox.getLocation(), 5)
-						.stream()
-						.anyMatch(e -> hitbox.overlaps(e.getBoundingBox()));
+					boolean canPounce = !EntityUtils.getNearbyMobs(mFox.getLocation(), mPounceRadius).isEmpty();
 
 					if (canPounce) {
 						pounceAttack();
@@ -215,12 +215,28 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 		return true;
 	}
 
-	public void teleportCompanion() {
+	public boolean isPouncing() {
+		return mIsPouncing;
+	}
+
+	public void teleportCompanion(boolean playSound) {
 		mCosmetic.onTeleport(mPlayer.getWorld(), mFox.getLocation(), mPlayer, mFox);
 		Location tpLoc = LocationUtils.randomLocationInDonut(mPlayer.getLocation(), 1, 2);
 
 		mFox.teleport(tpLoc);
 		mFox.setTarget(null);
+
+		if (playSound) {
+			mCosmetic.onTeleport(mPlayer.getWorld(), mFox.getLocation(), mPlayer, mFox);
+			mCosmetic.onSummon(mPlayer.getWorld(), mFox.getLocation(), mPlayer, mFox);
+		}
+	}
+
+	public void teleportCompanion(LivingEntity target) {
+		mCosmetic.onTeleport(mPlayer.getWorld(), mFox.getLocation(), mPlayer, mFox);
+		Location tpLoc = LocationUtils.randomLocationInDonut(target.getLocation(), 1, 2);
+
+		mFox.teleport(tpLoc);
 
 		mCosmetic.onTeleport(mPlayer.getWorld(), mFox.getLocation(), mPlayer, mFox);
 		mCosmetic.onSummon(mPlayer.getWorld(), mFox.getLocation(), mPlayer, mFox);
@@ -279,6 +295,12 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 		}
 	}
 
+	@Override
+	public void unload() {
+		super.unload();
+		mTargets.clear();
+	}
+
 	// Static util methods
 
 	private static boolean isApplicableTarget(Entity entity) {
@@ -308,5 +330,12 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 		newVelocity.setY(originalVelocity.getY());
 		newVelocity.setZ((originalVelocity.getZ() * 20 + targetDir.getZ() * scale) / 20);
 		summon.setVelocity(newVelocity);
+	}
+
+	public void addTarget(LivingEntity enemy) {
+		if (mTargets.size() >= 10 || mTargets.contains(enemy)) {
+			return;
+		}
+		mTargets.add(enemy);
 	}
 }

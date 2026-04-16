@@ -230,7 +230,7 @@ public class PredatorStrike extends Ability implements AbilityWithDuration {
 			Vector actualDir = NmsUtils.getVersionAdapter().getActualDirection(mPlayer).normalize();
 			pLoc.setDirection(actualDir);
 			Hitbox hitbox = Hitbox
-				.approximateCylinder(pLoc, pLoc.clone().add(actualDir.multiply(mSplinterRequirement)), 2.5, true)
+				.approximateCylinder(pLoc, pLoc.clone().add(actualDir.multiply(mSplinterRequirement)), 2.5, false)
 				.accuracy(0.5);
 
 			if (!hitbox.getHitMobs().isEmpty()) {

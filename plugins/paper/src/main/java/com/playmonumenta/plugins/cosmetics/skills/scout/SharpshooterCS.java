@@ -21,7 +21,10 @@ public class SharpshooterCS implements CosmeticSkill {
 	}
 
 	public void hitEffect(Player player, LivingEntity enemy) {
-		player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_FALL, SoundCategory.PLAYERS, 1.0f, 1.0f);
+		player.playSound(enemy.getLocation(), Sound.ENTITY_ARROW_HIT, SoundCategory.PLAYERS, 0.6f, 1.4f);
+		player.playSound(enemy.getLocation(), Sound.ITEM_TRIDENT_HIT, SoundCategory.PLAYERS, 0.6f, 0.8f);
+		player.playSound(enemy.getLocation(), Sound.ENTITY_BLAZE_HURT, SoundCategory.PLAYERS, 0.6f, 2f);
+
 	}
 
 	public void arrowSave(Player player) {

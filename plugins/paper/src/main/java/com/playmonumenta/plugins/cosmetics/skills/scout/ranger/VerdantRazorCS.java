@@ -1,12 +1,9 @@
 package com.playmonumenta.plugins.cosmetics.skills.scout.ranger;
 
-import com.playmonumenta.plugins.Constants;
-import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.cosmetics.skills.HexfallCS;
 import com.playmonumenta.plugins.particle.PartialParticle;
-import com.playmonumenta.plugins.utils.DisplayEntityUtils;
-import com.playmonumenta.plugins.utils.EntityUtils;
-import java.util.HashMap;
+import com.playmonumenta.plugins.utils.FastUtils;
+import com.playmonumenta.plugins.utils.ParticleUtils;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -16,17 +13,13 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
-import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.Nullable;
-import org.joml.AxisAngle4f;
-import org.joml.Vector3f;
 
 public class VerdantRazorCS extends RendingRazorCS implements HexfallCS {
 	public static final String NAME = "Verdant Razor";
 
-	private final HashMap<Integer, ItemDisplay> mRazorDisplayMap = new HashMap<>();
+	private float mStartingAngle = 0;
 
 	@Override
 	public @Nullable List<String> getDescription() {
@@ -45,78 +38,77 @@ public class VerdantRazorCS extends RendingRazorCS implements HexfallCS {
 		return NAME;
 	}
 
+	@Override
+	public Material getSpinningMaterial() {
+		return Material.STONE_HOE;
+	}
+
+	@Override
+	public String getSpinningName() {
+		return "Forest's Reaper";
+	}
+
+	@Override
+	public double sizeOffset() {
+		return -0.5;
+	}
+
 	private static final Particle.DustTransition GREEN = new Particle.DustTransition(Color.fromRGB(140, 210, 45), Color.fromRGB(70, 105, 27), 1.2f);
 
 	@Override
 	public void razorCast(Player player) {
-		int currentTick = Bukkit.getCurrentTick();
 		Location loc = player.getLocation();
 		World world = loc.getWorld();
 
-		if (mRazorDisplayMap.get(currentTick) != null) {
-			mRazorDisplayMap.get(currentTick).remove();
-		}
-
-		mRazorDisplayMap.put(currentTick,
-			loc.getWorld().spawn(loc, ItemDisplay.class));
-		EntityUtils.setRemoveEntityOnUnload(mRazorDisplayMap.get(currentTick));
-		Bukkit.getScheduler().runTaskLater(Plugin.getInstance(),
-			() -> {
-				if (mRazorDisplayMap.get(currentTick) != null) {
-					mRazorDisplayMap.get(currentTick).remove();
-				}
-				mRazorDisplayMap.remove(currentTick);
-			}, Constants.TICKS_PER_MINUTE);
-		mRazorDisplayMap.get(currentTick).setItemStack(DisplayEntityUtils.generateRPItem(Material.STONE_HOE, "Forest's Reaper"));
-		mRazorDisplayMap.get(currentTick).setTransformation(
-			new Transformation(
-				new Vector3f(),
-				new AxisAngle4f(),
-				new Vector3f(1.4f),
-				new AxisAngle4f()
-			));
-		mRazorDisplayMap.get(currentTick).setTeleportDuration(2);
-		mRazorDisplayMap.get(currentTick).setInterpolationDelay(0);
-
+		mStartingAngle = player.getLocation().getYaw();
 		world.playSound(loc, Sound.ITEM_TRIDENT_THROW, SoundCategory.PLAYERS, 1f, 0.7f);
 		world.playSound(loc, Sound.BLOCK_GRASS_BREAK, SoundCategory.PLAYERS, 1f, 0.6f);
 		world.playSound(loc, Sound.ENTITY_IRON_GOLEM_DAMAGE, SoundCategory.PLAYERS, 1f, 0.8f);
 	}
 
 	@Override
-	public void razorProjectileEffects(final Player player, final Location location, int startingTick) {
-		ItemDisplay display = mRazorDisplayMap.get(startingTick);
-		if (display != null) {
-			// TODO: Would be nice if pitch adjusted itself
-			Location loc = location.clone();
-			loc.setYaw(40 * (Bukkit.getCurrentTick() - startingTick));
-			loc.setPitch(90);
-			display.teleport(loc);
-		}
+	public void tick(Player player, World world, Location loc, double bladeRadius, int degrees) {
+		world.playSound(loc, "minecraft:entity.breeze.charge", SoundCategory.PLAYERS, 1f, 1f);
+		world.playSound(loc, Sound.BLOCK_AZALEA_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f);
 
-		new PartialParticle(Particle.DUST_COLOR_TRANSITION, location)
+		new PartialParticle(Particle.DUST_COLOR_TRANSITION, loc)
 			.count(10)
-			.delta(0.2)
+			.delta(0.25)
 			.extra(0.1)
 			.data(GREEN)
 			.spawnAsPlayerActive(player);
 
-		new PartialParticle(Particle.ELECTRIC_SPARK, location)
+		new PartialParticle(Particle.ELECTRIC_SPARK, loc)
 			.count(3)
-			.delta(0.2)
+			.delta(0.25)
 			.extra(0.1)
 			.spawnAsPlayerActive(player);
 
-		new PartialParticle(Particle.FALLING_DUST, location, 1)
-			.delta(0.2)
+		new PartialParticle(Particle.FALLING_DUST, loc, 1)
+			.delta(0.25)
 			.extra(0)
 			.data(Bukkit.createBlockData(Material.GREEN_TERRACOTTA))
 			.spawnAsPlayerActive(player);
-	}
 
-	@Override
-	public void razorTravelSound(final Player player, final Location location) {
-		location.getWorld().playSound(location, "minecraft:entity.breeze.charge", SoundCategory.PLAYERS, 1f, 1f);
+		float pitch = FastUtils.randomFloatInRange(8, 35) * (FastUtils.RANDOM.nextBoolean() ? -1.0f : 0.5f);
+		loc.setPitch(pitch);
+		loc.setYaw(mStartingAngle - degrees + 15);
+
+		if (degrees % 60 == 0) {
+			final int rings = (int) Math.round(bladeRadius / 0.8);
+
+			ParticleUtils.drawHalfArc(loc, bladeRadius / 2, 180, -30, 120, rings, 0.4, false, 90,
+				(pLoc, ring, angleProgress) -> {
+					new PartialParticle(Particle.REDSTONE, pLoc, 1)
+						.count(1)
+						.data(new Particle.DustOptions(ParticleUtils.getTransition(
+							Color.fromRGB(140, 210, 45),
+							Color.fromRGB(70, 105, 27),
+							Math.min(angleProgress + 0.5 * ring / rings, 1)),
+							0.7f + 0.8f * (float) angleProgress * ring / rings))
+						.spawnAsPlayerActive(player);
+				});
+		}
 	}
 
 	@Override
@@ -165,21 +157,5 @@ public class VerdantRazorCS extends RendingRazorCS implements HexfallCS {
 		world.playSound(loc, Sound.ITEM_AXE_SCRAPE, SoundCategory.PLAYERS, 1f, 0.8f);
 		world.playSound(loc, Sound.ITEM_FLINTANDSTEEL_USE, SoundCategory.PLAYERS, 1f, 0.4f);
 		world.playSound(loc, "block.vault.insert_item", SoundCategory.PLAYERS, 1.8f, 1.1f);
-
-		ItemDisplay display = mRazorDisplayMap.remove(startingTick);
-		if (display != null) {
-			display.remove();
-		}
-	}
-
-	@Override
-	public void onDeath() {
-		// Just in case the player dies / unloads, hopefully proof against memory leaks
-		for (ItemDisplay display : mRazorDisplayMap.values()) {
-			if (display != null) {
-				display.remove();
-			}
-		}
-		mRazorDisplayMap.clear();
 	}
 }

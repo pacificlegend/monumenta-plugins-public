@@ -18,11 +18,9 @@ import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.integrations.LibraryOfSoulsIntegration;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.utils.AbilityUtils;
-import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.MMLog;
-import com.playmonumenta.plugins.utils.MetadataUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -43,7 +41,6 @@ import org.bukkit.entity.Fox;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Strider;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -59,7 +56,6 @@ import static com.playmonumenta.plugins.utils.DescriptionUtils.UNDERLINED;
 
 public class HuntingCompanion extends Ability {
 	private static final int TICK_INTERVAL = 5;
-	private static final String NOT_AFK_METADATA = "HuntingCompanionNotAFKEffect";
 	public static final Style FOX_COLOR = Style.style(TextColor.color(0xE68129));
 
 	private static final double MELEE_RANGE = 12;
@@ -70,7 +66,6 @@ public class HuntingCompanion extends Ability {
 	private static final int INTERNAL_COOLDOWN = Constants.TICKS_PER_SECOND * 3;
 	private static final double POUNCE_RADIUS = 3;
 	private static final double HEALING_PERCENT = 0.1;
-	private static final double MAX_TARGET_Y = 4; // Not charmable
 
 	public static final String CHARM_DAMAGE = "Hunting Companion Damage";
 	public static final String CHARM_RANGE = "Hunting Companion Range";
@@ -237,7 +232,7 @@ public class HuntingCompanion extends Ability {
 		mRecalled = currTick;
 
 		for (HuntingCompanionBoss fox : mSummons) {
-			fox.teleportCompanion();
+			fox.teleportCompanion(true);
 		}
 
 		return true;
@@ -253,16 +248,10 @@ public class HuntingCompanion extends Ability {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		if (!ClassAbility.HUNTING_COMPANION.equals(event.getAbility())) {
-			MetadataUtils.markThisTick(mPlugin, mPlayer, NOT_AFK_METADATA);
-		}
-
-		if (event.getType() == DamageType.PROJECTILE && event.getDamager() instanceof Projectile proj && EntityUtils.isAbilityTriggeringProjectile(proj, false)) {
+		if (DamageType.getAllProjectileTypes().contains(event.getType())) {
 			HuntingCompanionBoss nearestSummon = findNearestSummon(mPlayer, enemy, mSummons, mRange);
-			if (nearestSummon != null) {
-				LivingEntity summon = nearestSummon.getBoss();
-				mCosmetic.onAggro(summon.getWorld(), summon.getLocation(), mPlayer, summon);
-				nearestSummon.getBoss().setTarget(enemy);
+			if (nearestSummon != null && EntityUtils.isHostileMob(enemy)) {
+				nearestSummon.addTarget(enemy);
 			}
 		}
 
@@ -377,36 +366,6 @@ public class HuntingCompanion extends Ability {
 		attemptPounce(player, entity, true);
 	}
 
-	public static boolean isAFK(Player player) {
-		return !MetadataUtils.happenedInRecentTicks(player, NOT_AFK_METADATA, Constants.TICKS_PER_SECOND * 10);
-	}
-
-	public static @Nullable LivingEntity findNearestNonTargetedMob(LivingEntity summon, Player player, double range) {
-		Location loc = player.getLocation();
-		List<LivingEntity> nearbyMobs = getNearbyValidMob(loc, range);
-
-		List<LivingEntity> unfilteredNearbyMobs = new ArrayList<>(nearbyMobs);
-
-		HuntingCompanion hcAbility = AbilityManager.getManager().getPlayerAbilityIgnoringSilence(player, HuntingCompanion.class);
-		if (hcAbility != null) {
-			hcAbility.mSummons.forEach(e -> nearbyMobs.remove(e.getTarget()));
-		}
-
-		if (summon instanceof Fox || summon instanceof Strider) {
-			nearbyMobs.removeIf(mob -> Math.abs(mob.getLocation().getY() - loc.getY()) > MAX_TARGET_Y);
-			nearbyMobs.removeIf(mob -> EntityUtils.isFlyingMob(EntityUtils.getEntityStackBase(mob)));
-		} else if (summon instanceof Axolotl) {
-			nearbyMobs.removeIf(mob -> !EntityUtils.isInWater(mob));
-		}
-
-		// If there are no other mobs, double up
-		if (nearbyMobs.isEmpty()) {
-			return EntityUtils.getNearestMob(summon.getLocation(), unfilteredNearbyMobs);
-		}
-
-		return EntityUtils.getNearestMob(summon.getLocation(), nearbyMobs);
-	}
-
 	private static void attemptPounce(Player player, LivingEntity entity, boolean isAttack) {
 		HuntingCompanion companion = Plugin.getInstance().mAbilityManager.getPlayerAbilityIgnoringSilence(player, HuntingCompanion.class);
 		if (companion != null) {
@@ -416,17 +375,6 @@ public class HuntingCompanion extends Ability {
 				}
 			}
 		}
-	}
-
-	private static List<LivingEntity> getNearbyValidMob(Location loc, double range) {
-		List<LivingEntity> nearbyMobs = EntityUtils.getNearbyMobs(loc, range);
-
-		// Remove immune & ignored
-
-		nearbyMobs.removeIf(mob -> DamageUtils.isImmuneToDamage(mob, DamageType.PROJECTILE_SKILL));
-		nearbyMobs.removeIf(mob -> mob.getScoreboardTags().contains(AbilityUtils.IGNORE_TAG));
-
-		return nearbyMobs;
 	}
 
 	private static @Nullable HuntingCompanionBoss findNearestSummon(Player player, LivingEntity target,
@@ -452,7 +400,7 @@ public class HuntingCompanion extends Ability {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 1)
 			.addDashedLine()
 			.addLine("A *Fox* will follow you around, attacking").styles(FOX_COLOR)
-			.addLine("nearby mobs within a %d block radius of you.")
+			.addLine("nearby mobs within a %d block radius that you have damaged.")
 			.statValues(stat(a -> a.mRange, MELEE_RANGE))
 			.addLine()
 			.addStat("Damage: %dR (p) every 1s")

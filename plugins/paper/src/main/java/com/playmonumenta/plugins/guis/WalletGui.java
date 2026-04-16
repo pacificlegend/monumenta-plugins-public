@@ -15,6 +15,7 @@ import com.playmonumenta.plugins.utils.SignUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ public class WalletGui extends Gui {
 		mWallet = wallet;
 		mSettings = settings;
 		mPlainName = MessagingUtils.plainText(displayName);
+		mFilterTerm = "";
 	}
 
 	@Override
@@ -85,7 +87,7 @@ public class WalletGui extends Gui {
 		// Items grouped by region, and sorted within each region
 		Map<Region, List<BaseWallet.WalletItem>> items =
 			walletItemsCopy.stream()
-				.filter(walletItem -> !mFilterSelected || ItemUtils.getPlainName(walletItem.mItem).toLowerCase().contains(mFilterTerm.toLowerCase()))
+				.filter(walletItem -> !mFilterSelected || ItemUtils.getPlainName(walletItem.mItem).toLowerCase(Locale.ROOT).contains(mFilterTerm.toLowerCase(Locale.ROOT)))
 				.sorted(
 					// sort main currencies to the very front
 					Comparator.comparing((BaseWallet.WalletItem item) -> {

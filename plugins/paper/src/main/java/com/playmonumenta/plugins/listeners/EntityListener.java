@@ -34,7 +34,6 @@ import com.playmonumenta.plugins.utils.NmsUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import com.playmonumenta.plugins.utils.PotionUtils;
 import com.playmonumenta.plugins.utils.PotionUtils.PotionInfo;
-import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils.ZoneProperty;
 import de.tr7zw.nbtapi.NBT;
@@ -985,18 +984,6 @@ public class EntityListener implements Listener {
 
 		if (!event.isCancelled()) {
 			mPlugin.mProjectileEffectTimers.removeEntity(proj);
-		}
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void projectileHitEventLowest(ProjectileHitEvent event) {
-		Entity entity = event.getHitEntity();
-		Projectile proj = event.getEntity();
-		ProjectileSource source = proj.getShooter();
-
-		// Make projectiles shot by players pass through players and specified mobs
-		if (source instanceof Player && entity != null && (entity instanceof Player || ScoreboardUtils.checkTag(entity, PROJECTILE_PASSTHROUGH_TAG)) && EntityUtils.isAbilityTriggeringProjectile(proj, false)) {
-			event.setCancelled(true);
 		}
 	}
 

@@ -182,7 +182,7 @@ public class ShrapnelBomb extends Ability {
 
 		event.setCancelled(true);
 
-		if (!EntityUtils.isHostileMob(event.getHitEntity())) {
+		if (event.getHitEntity() != null && !EntityUtils.isHostileMob(event.getHitEntity())) {
 			return;
 		}
 

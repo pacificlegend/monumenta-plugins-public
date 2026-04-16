@@ -42,6 +42,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.cooldown;
+import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.perLevel;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.perRegion;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.stat;
 import static com.playmonumenta.plugins.utils.DescriptionUtils.LIGHT_GREY;
@@ -485,9 +486,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 			.addLine("decrease priming duration.")
 			.addLine()
 			.addStat("Effect: %p Vulnerability for %t")
-			.addIfElse((a, p) -> a != null && a.isLevelTwo(),
-				desc -> desc.statValues(stat(a -> a.mVulnerability, VULN + VULN_E), stat(a -> a.mVulnerabilityDuration, VULN_DURATION)),
-				desc -> desc.statValues(stat(a -> a.mVulnerability, VULN_E), stat(a -> a.mVulnerabilityDuration, VULN_DURATION)))
+			.statValues(perLevel(a -> a.mVulnerability, VULN_E, VULN + VULN_E), stat(VULN_DURATION))
 			.addStatComparison("Priming Duration: %t1e -> %t3")
 			.statValues(stat(PRIMING_DURATION_L1), stat(a -> a.mPrimingDuration, PRIMING_DURATION_L3))
 			.addDashedLine();

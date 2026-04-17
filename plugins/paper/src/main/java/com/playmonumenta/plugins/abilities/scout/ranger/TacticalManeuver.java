@@ -153,11 +153,13 @@ public class TacticalManeuver extends MultipleChargeAbility {
 					for (LivingEntity e : EntityUtils.getNearbyMobs(le.getLocation(), mRadius)) {
 						if (isLevelTwo()) {
 							mStruckMobs.add(e);
-							EntityUtils.applyWeaken(mPlugin, mWeaknessDuration, mWeaknessAmplifier, mPlayer);
+							EntityUtils.applyWeaken(mPlugin, mWeaknessDuration, mWeaknessAmplifier, e);
 							maneuverMark(e);
 						}
 						EntityUtils.applyStagger(mPlugin, mDuration, e);
-						HuntingCompanion.staggerApplied(mPlayer, e);
+						if (mDuration > 0) {
+							HuntingCompanion.staggerApplied(mPlayer, e);
+						}
 					}
 					mCosmetic.maneuverHitEffect(world, mPlayer, le);
 

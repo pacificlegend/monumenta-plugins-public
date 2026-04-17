@@ -247,7 +247,9 @@ public class PartingShot extends Ability implements AbilityWithDuration {
 	private void doPartingAbility() {
 		for (LivingEntity e : EntityUtils.getNearbyMobs(mPlayer.getLocation(), mPartingRadius)) {
 			EntityUtils.applyStagger(mPlugin, mStaggerDuration, e);
-			HuntingCompanion.staggerApplied(mPlayer, e);
+			if (mStaggerDuration > 0) {
+				HuntingCompanion.staggerApplied(mPlayer, e);
+			}
 			MovementUtils.knockAway(mPlayer, e, mKnockback, true);
 			mCosmetic.hitMob(mPlayer.getWorld(), mPlayer, e.getEyeLocation());
 		}

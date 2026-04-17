@@ -282,7 +282,9 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 									EntityUtils.applyVulnerability(mPlugin, mVulnerabilityDuration, mVulnerability, entity);
 								}
 
-								HuntingCompanion.staggerApplied(mPlayer, entity);
+								if (mStaggerDuration > 0) {
+									HuntingCompanion.staggerApplied(mPlayer, entity);
+								}
 							}
 
 							if (isEnhanced()

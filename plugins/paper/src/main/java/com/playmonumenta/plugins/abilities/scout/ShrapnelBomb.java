@@ -181,8 +181,9 @@ public class ShrapnelBomb extends Ability {
 		}
 
 		event.setCancelled(true);
+		Entity hitEntity = event.getHitEntity();
 
-		if (event.getHitEntity() != null && !EntityUtils.isHostileMob(event.getHitEntity())) {
+		if (hitEntity != null && !EntityUtils.isHostileMob(hitEntity) && !WindBomb.isWindBomb(hitEntity)) {
 			return;
 		}
 
@@ -193,7 +194,7 @@ public class ShrapnelBomb extends Ability {
 			return;
 		}
 
-		explode(proj, stats, event.getHitEntity());
+		explode(proj, stats, hitEntity);
 	}
 
 	public void explode(Projectile bomb, ItemStatManager.PlayerItemStats stats, @Nullable Entity struckMob) {
@@ -207,7 +208,7 @@ public class ShrapnelBomb extends Ability {
 
 			DamageUtils.damage(mPlayer, e, DamageEvent.DamageType.PROJECTILE_SKILL, mBombDamage, mInfo.getLinkedSpell(), true);
 
-			MovementUtils.knockAwayDirection(dir, e, mKnockback/2);
+			MovementUtils.knockAwayDirection(dir, e, mKnockback / 2);
 
 			boolean enhancementMark = isEnhanced() && e.equals(struckMob);
 
@@ -227,7 +228,9 @@ public class ShrapnelBomb extends Ability {
 			}
 
 			EntityUtils.applyStagger(mPlugin, mStaggerDuration, e);
-			HuntingCompanion.staggerApplied(mPlayer, e);
+			if (mStaggerDuration > 0) {
+				HuntingCompanion.staggerApplied(mPlayer, e);
+			}
 		}
 	}
 
@@ -291,7 +294,7 @@ public class ShrapnelBomb extends Ability {
 						mCosmetic.shrapnelHit(mPhysicsItem.getWorld(), mPlayer, mPhysicsItem.getLocation());
 
 						Vector dir = shrap.getVelocity();
-						MovementUtils.knockAwayDirection(dir.setY(0.1), e, mKnockback/3);
+						MovementUtils.knockAwayDirection(dir.setY(0.1), e, mKnockback / 3);
 						DamageUtils.damage(mPlayer, e, DamageEvent.DamageType.PROJECTILE_SKILL, mShrapnelDamage, mInfo.getLinkedSpell(), true);
 					}
 

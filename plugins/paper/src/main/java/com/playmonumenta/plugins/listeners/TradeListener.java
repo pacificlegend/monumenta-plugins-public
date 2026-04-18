@@ -223,8 +223,8 @@ public class TradeListener implements Listener {
 		tradeSelectEvent.setResult(Event.Result.DENY);
 
 		Inventory playerInventory = player.getInventory();
-		ItemStack[] playerInventoryContents = playerInventory.getStorageContents();
 		Wallet wallet = WalletManager.getWallet(player);
+		ItemStack[] playerInventoryContents = playerInventory.getStorageContents();
 		boolean isCreative = player.getGameMode() == GameMode.CREATIVE && player.hasPermission(CustomTradeGui.TRADE_FREE_PERMISSION);
 		if (isCreative) {
 			player.sendMessage(Component.text("Since you are in creative mode, this item is free.", NamedTextColor.LIGHT_PURPLE));
@@ -267,6 +267,7 @@ public class TradeListener implements Listener {
 
 				if (inventoryDebt > 0) {
 					playerInventory.removeItem(requirement.asQuantity(inventoryDebt));
+					InventoryUtils.removeItemFromArray(playerInventoryContents, requirement.asQuantity(inventoryDebt));
 				}
 				if (walletDebt > 0) {
 					player.playSound(player, Sound.ENTITY_SHULKER_OPEN, SoundCategory.NEUTRAL, 1.0f, 0.8f);

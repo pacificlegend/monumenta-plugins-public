@@ -76,7 +76,7 @@ public class SporousAmalgam extends Quarry {
 	);
 
 	private static final int ENTITY_RISE_DURATION = 20 * 2;
-	private static final double UPROOT_SELF_DAMAGE_PERCENTAGE = 2.5;
+	private static final double UPROOT_SELF_DAMAGE_PERCENTAGE = 5;
 
 	private static final int BASE_SUMMONS_TO_KILL = 12;
 	private int mSummonsToKill;

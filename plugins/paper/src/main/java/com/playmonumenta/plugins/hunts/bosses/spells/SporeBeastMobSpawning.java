@@ -11,10 +11,11 @@ import org.bukkit.util.Vector;
 
 public class SporeBeastMobSpawning extends Spell {
 	private static final int SPAWN_COOLDOWN = 20 * 12;
+	private static final int HASTENED_COOLDOWN = 20 * 2;
 	private static final int MAX_SPAWN_RANGE = 8;
 	private static final int MIN_SPAWN_RANGE = 8;
 	private static final double PLAYERS_PER_ELITE = 5;
-	private static final int HALVE_SUMMON_THRESHOLD = 12;
+	private static final int HALVE_SUMMON_THRESHOLD = 16;
 	private static final int MIN_MOBS = 4;
 
 	private final LoSPool NORMAL_POOL = new LoSPool.LibraryPool(SporousAmalgam.NORMAL_POOL_NAME);
@@ -114,6 +115,6 @@ public class SporeBeastMobSpawning extends Spell {
 		}
 		mHastened = true;
 		int temp = mTicks % SPAWN_COOLDOWN;
-		mTicks = mTicks + (SPAWN_COOLDOWN - temp) / 2;
+		mTicks = (SPAWN_COOLDOWN - temp <= HASTENED_COOLDOWN) ? mTicks : mTicks + SPAWN_COOLDOWN - HASTENED_COOLDOWN;
 	}
 }

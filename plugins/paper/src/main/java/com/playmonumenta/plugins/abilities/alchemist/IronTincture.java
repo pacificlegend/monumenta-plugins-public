@@ -145,6 +145,7 @@ public class IronTincture extends Ability implements AbilityWithChargesOrStacks 
 		if (!isOnCooldown()) {
 			putOnCooldown();
 		}
+		updateAbility();
 
 		mLastCastTime = mPlayer.getTicksLived();
 		World world = mPlayer.getWorld();

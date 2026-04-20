@@ -8,6 +8,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.itemstats.enums.Region;
 import com.playmonumenta.plugins.plots.PlotManager;
 import com.playmonumenta.plugins.utils.DungeonCommandMapping;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.NamespacedKeyUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
@@ -398,7 +399,7 @@ public class ServerProperties {
 					mRepairExplosionsWorldPattern = Pattern.compile(repairExplosionsWorldPattern);
 				} catch (PatternSyntaxException e) {
 					String error = "Error in repairExplosionsWorldPattern: " + e.getMessage();
-					plugin.getLogger().warning(error);
+					MMLog.warning(error);
 					if (sender != null) {
 						sender.sendMessage(Component.text(error, NamedTextColor.RED));
 					}
@@ -430,9 +431,9 @@ public class ServerProperties {
 			mShardName = getPropertyValueString(object, "shardName", mShardName);
 			mGameplayDataExportPath = getPropertyValueString(object, "gameplayDataExportPath", mGameplayDataExportPath);
 
-			getPropertyValueMaterialList(plugin, object, "unbreakableBlocks", sender, mUnbreakableBlocks);
-			getPropertyValueMaterialList(plugin, object, "alwaysPickupMaterials", sender, mAlwaysPickupMats);
-			getPropertyValueMaterialList(plugin, object, "namedPickupMaterials", sender, mNamedPickupMats);
+			getPropertyValueMaterialList(object, "unbreakableBlocks", sender, mUnbreakableBlocks);
+			getPropertyValueMaterialList(object, "alwaysPickupMaterials", sender, mAlwaysPickupMats);
+			getPropertyValueMaterialList(object, "namedPickupMaterials", sender, mNamedPickupMats);
 
 			// Set default value
 			mPreciousBlocks.clear();
@@ -444,11 +445,11 @@ public class ServerProperties {
 				Material.DIAMOND_BLOCK
 			));
 			// Replace default value if possible
-			getPropertyValueMaterialList(plugin, object, "preciousBlocks", sender, mPreciousBlocks);
+			getPropertyValueMaterialList(object, "preciousBlocks", sender, mPreciousBlocks);
 
-			getPropertyValueCollection(plugin, object, "formattingFreeBlockNames", sender, String::toString, mFormattingFreeBlockNames);
-			getPropertyValueCollection(plugin, object, "droppedItemReplacements", sender, NamespacedKeyUtils::fromString, mDroppedItemReplacements);
-			getPropertyValueCollection(plugin, object, "eggifySpawnEggs", sender, NamespacedKeyUtils::fromString, mEggifySpawnEggs);
+			getPropertyValueCollection(object, "formattingFreeBlockNames", sender, String::toString, mFormattingFreeBlockNames);
+			getPropertyValueCollection(object, "droppedItemReplacements", sender, NamespacedKeyUtils::fromString, mDroppedItemReplacements);
+			getPropertyValueCollection(object, "eggifySpawnEggs", sender, NamespacedKeyUtils::fromString, mEggifySpawnEggs);
 
 			mLootingLimiterMobKills = getPropertyValueInt(object, "lootingLimiterMobKills", mLootingLimiterMobKills);
 			mLootingLimiterSpawners = getPropertyValueInt(object, "lootingLimiterSpawners", mLootingLimiterSpawners);
@@ -474,12 +475,12 @@ public class ServerProperties {
 			return null;
 		});
 
-		plugin.getLogger().info("Properties:");
+		MMLog.info("Properties:");
 		if (sender != null) {
 			sender.sendMessage("Properties:");
 		}
 		for (String str : toDisplay()) {
-			plugin.getLogger().info("  " + str);
+			MMLog.info("  " + str);
 			if (sender != null) {
 				sender.sendMessage("  " + str);
 			}
@@ -575,11 +576,11 @@ public class ServerProperties {
 		return value;
 	}
 
-	private void getPropertyValueMaterialList(Plugin plugin, JsonObject object, String propertyName, @Nullable CommandSender sender, Set<Material> set) {
-		getPropertyValueCollection(plugin, object, propertyName, sender, Material::getMaterial, set);
+	private void getPropertyValueMaterialList(JsonObject object, String propertyName, @Nullable CommandSender sender, Set<Material> set) {
+		getPropertyValueCollection(object, propertyName, sender, Material::getMaterial, set);
 	}
 
-	private <T> void getPropertyValueCollection(Plugin plugin, JsonObject object, String propertyName, @Nullable CommandSender sender,
+	private <T> void getPropertyValueCollection(JsonObject object, String propertyName, @Nullable CommandSender sender,
 	                                            Function<String, T> parser, Collection<T> collection) {
 		JsonElement element = object.get(propertyName);
 		if (element != null) {
@@ -592,8 +593,7 @@ public class ServerProperties {
 						collection.add(value);
 					}
 				} catch (Exception e) {
-					plugin.getLogger().severe("Invalid " + propertyName + " element: '" + iter + "'");
-					e.printStackTrace();
+					MMLog.severe("Invalid " + propertyName + " element: '" + iter + "'", e);
 
 					if (sender != null) {
 						sender.sendMessage(Component.text("Invalid " + propertyName + " element: '" + iter + "'", NamedTextColor.RED));

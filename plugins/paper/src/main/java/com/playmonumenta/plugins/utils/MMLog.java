@@ -1,121 +1,136 @@
 package com.playmonumenta.plugins.utils;
 
-import com.playmonumenta.plugins.CustomLogger;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.Level;
+import org.jetbrains.annotations.Nullable;
 
 public class MMLog {
-	public static void setLevel(Level level) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.setLevel(level);
+	private static @Nullable com.playmonumenta.common.MMLog INSTANCE = null;
+
+	/**
+	 * Call once from the platform-specific plugin entry point before any logging.
+	 * Pass {@code getName()} on Paper.
+	 */
+	public static void init(String pluginName) {
+		if (INSTANCE == null) {
+			INSTANCE = new com.playmonumenta.common.MMLog(pluginName);
 		}
+	}
+
+	/** For use in tests — pass Mockito.mock(com.playmonumenta.common.MMLog.class) */
+	public static void init(com.playmonumenta.common.MMLog log) {
+		INSTANCE = log;
+	}
+
+	/** Returns the instance for command registration from platform-specific code. */
+	public static com.playmonumenta.common.MMLog getLog() {
+		return get();
+	}
+
+	private static com.playmonumenta.common.MMLog get() {
+		if (INSTANCE == null) {
+			throw new RuntimeException("Monumenta logger invoked before being initialized!");
+		}
+		return INSTANCE;
+	}
+
+	public static void setLevel(Level level) {
+		get().setLevel(level);
 	}
 
 	public static boolean isLevelEnabled(Level level) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			return level.intValue() >= logger.getLevel().intValue();
-		}
-		return true;
+		return get().isLevelEnabled(level);
 	}
 
-	public static void finest(Supplier<String> msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.finest(msg);
-		}
+	public static void trace(Supplier<String> msg) {
+		get().trace(msg);
 	}
 
-	public static void finest(String msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.finest(msg);
-		}
+	public static void trace(String msg) {
+		get().trace(msg);
 	}
 
-	public static void finer(Supplier<String> msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.finer(msg);
-		}
+	public static void trace(String msg, Throwable t) {
+		get().trace(msg, t);
 	}
 
-	public static void finer(String msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.finer(msg);
-		}
+	public static void debug(Supplier<String> msg) {
+		get().debug(msg);
 	}
 
-	public static void fine(Supplier<String> msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.fine(msg);
-		}
+	public static void debug(String msg) {
+		get().debug(msg);
 	}
 
-	public static void fine(String msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.fine(msg);
-		}
+	public static void debug(String msg, Throwable t) {
+		get().debug(msg, t);
 	}
 
 	public static void info(String msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.info(msg);
-		}
+		get().info(msg);
 	}
 
 	public static void info(Supplier<String> msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.info(msg);
-		}
+		get().info(msg);
 	}
 
 	public static void warning(Supplier<String> msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.warning(msg);
-		}
+		get().warning(msg);
 	}
 
 	public static void warning(String msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.warning(msg);
-		}
+		get().warning(msg);
 	}
 
-	public static void warning(String msg, Throwable throwable) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.log(Level.WARNING, msg, throwable);
-		}
+	public static void warning(String msg, Throwable t) {
+		get().warning(msg, t);
 	}
 
 	public static void severe(Supplier<String> msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.severe(msg);
-		}
+		get().severe(msg);
 	}
 
 	public static void severe(String msg) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.severe(msg);
-		}
+		get().severe(msg);
 	}
 
-	public static void severe(String msg, Throwable throwable) {
-		Logger logger = CustomLogger.getInstance();
-		if (logger != null) {
-			logger.log(Level.SEVERE, msg, throwable);
-		}
+	public static void severe(String msg, Throwable t) {
+		get().severe(msg, t);
+	}
+
+	/** @deprecated Use {@link #trace(Supplier)} instead. */
+	@Deprecated
+	public static void finest(Supplier<String> msg) {
+		get().trace(msg);
+	}
+
+	/** @deprecated Use {@link #trace(String)} instead. */
+	@Deprecated
+	public static void finest(String msg) {
+		get().trace(msg);
+	}
+
+	/** @deprecated Use {@link #trace(Supplier)} instead. */
+	@Deprecated
+	public static void finer(Supplier<String> msg) {
+		get().trace(msg);
+	}
+
+	/** @deprecated Use {@link #trace(String)} instead. */
+	@Deprecated
+	public static void finer(String msg) {
+		get().trace(msg);
+	}
+
+	/** @deprecated Use {@link #debug(Supplier)} instead. */
+	@Deprecated
+	public static void fine(Supplier<String> msg) {
+		get().debug(msg);
+	}
+
+	/** @deprecated Use {@link #debug(String)} instead. */
+	@Deprecated
+	public static void fine(String msg) {
+		get().debug(msg);
 	}
 }

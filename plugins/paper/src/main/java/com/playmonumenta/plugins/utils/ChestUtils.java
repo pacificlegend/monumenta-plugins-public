@@ -17,11 +17,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeSet;
-import java.util.logging.Level;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.apache.logging.log4j.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -338,7 +338,7 @@ public class ChestUtils {
 					winterItem = true; // Winter item found, alert the player later!
 				}
 			}
-			if (MMLog.isLevelEnabled(Level.FINER)) { // Performance optimization to avoid calling lootItem.toString() when this log level is disabled
+			if (MMLog.isLevelEnabled(Level.TRACE)) { // Performance optimization to avoid calling lootItem.toString() when this log level is disabled
 				MMLog.finer("generateLootInventory: Putting item in slot " + slot + ": " + lootItem.toString());
 			}
 			if (lootItem.getAmount() > 1) {
@@ -359,7 +359,7 @@ public class ChestUtils {
 			int amountToSplit = toSplitItem.getAmount() / 2;
 			int amountRemaining = toSplitItem.getAmount() - amountToSplit;
 
-			if (MMLog.isLevelEnabled(Level.FINER)) {
+			if (MMLog.isLevelEnabled(Level.TRACE)) {
 				MMLog.finer("generateLootInventory: Splitting item type " + toSplitItem.getType() +
 					" with count " + toSplitItem.getAmount() + " in slot " + splitSlot +
 					" into count " + amountRemaining + " and " + amountToSplit + " in slot " + slot);

@@ -14,6 +14,7 @@ monumenta {
 			"BKCommonLib",
 			"CommandAPI",
 			"FastAsyncWorldEdit",
+			"MonumentaCommon",
 			"ScriptedQuests"
 		),
 		softDepends = listOf(

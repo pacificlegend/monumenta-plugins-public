@@ -29,11 +29,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.apache.logging.log4j.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -124,7 +124,7 @@ public class LootboxManager implements Listener {
 			tempBuckets.add(Bukkit.createInventory(null, 54));
 		}
 
-		if (MMLog.isLevelEnabled(Level.FINER)) {
+		if (MMLog.isLevelEnabled(Level.TRACE)) {
 			MMLog.finer("LOOTBOX: # of Buckets: " + numBuckets);
 			MMLog.finer("LOOTBOX: Processing chest which contains:");
 			loot.forEach((item) -> MMLog.finer("LOOTBOX:     " + item.toString()));
@@ -135,7 +135,7 @@ public class LootboxManager implements Listener {
 		lootInventory.addItem(loot.toArray(new ItemStack[0]));
 		ChestSortAPI.sortInventory(lootInventory);
 
-		if (MMLog.isLevelEnabled(Level.FINER)) {
+		if (MMLog.isLevelEnabled(Level.TRACE)) {
 			MMLog.finer("LOOTBOX: Sorted chest which contains:");
 			List<ItemStack> lootChest = Arrays.asList(lootInventory.getContents()).stream()
 				.filter((item) -> !ItemUtils.isNullOrAir(item))
@@ -181,7 +181,7 @@ public class LootboxManager implements Listener {
 			List<ItemStack> newBucket = Arrays.asList(inv.getContents()).stream()
 				.filter((item) -> !ItemUtils.isNullOrAir(item))
 				.toList();
-			if (MMLog.isLevelEnabled(Level.FINER)) {
+			if (MMLog.isLevelEnabled(Level.TRACE)) {
 				MMLog.finer("LOOTBOX: Bucket contents");
 				newBucket.forEach((item) -> MMLog.finer("LOOTBOX:     " + item.toString()));
 			}

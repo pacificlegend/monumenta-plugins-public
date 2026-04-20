@@ -128,8 +128,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -219,7 +217,6 @@ public class Plugin extends JavaPlugin {
 	public @Nullable AuditListener mAuditListener = null;
 	public HuntsManager mHuntsManager;
 	public BalanceModeManager mBalanceModeManager;
-	private @Nullable CustomLogger mLogger = null;
 	public @Nullable ProtocolLibIntegration mProtocolLibIntegration = null;
 
 	// INSTANCE is set if the plugin is properly enabled
@@ -237,9 +234,8 @@ public class Plugin extends JavaPlugin {
 
 	@Override
 	public void onLoad() {
-		if (mLogger == null) {
-			mLogger = new CustomLogger(super.getLogger(), Level.INFO);
-		}
+		MMLog.init(getName());
+		com.playmonumenta.common.MMLogPaper.registerCommand(MMLog.getLog());
 
 		NmsUtils.loadVersionAdapter(this.getServer().getClass(), getLogger());
 		/*
@@ -258,7 +254,6 @@ public class Plugin extends JavaPlugin {
 		BossDebug.register();
 		BossFight.register();
 		Bounce.register();
-		ChangeLogLevel.register();
 		ChargeUpBarCommand.register(this);
 		CharmsCommand.register();
 		ClaimRaffle.register(this);
@@ -296,7 +291,6 @@ public class Plugin extends JavaPlugin {
 		MailMan.registerCommands();
 		MarketCommands.register();
 		MMQuest.register(this);
-		MonumentaDebug.register(this);
 		MonumentaReload.register(this);
 		MonumentaTrigger.register();
 		NameMCVerify.register(this);
@@ -939,12 +933,11 @@ public class Plugin extends JavaPlugin {
 		ServerProperties.load(this, sender);
 	}
 
+	/** @deprecated Use {@link MMLog} static methods instead. */
+	@Deprecated
 	@Override
-	public Logger getLogger() {
-		if (mLogger == null) {
-			mLogger = new CustomLogger(super.getLogger(), Level.INFO);
-		}
-		return mLogger;
+	public java.util.logging.Logger getLogger() {
+		return super.getLogger();
 	}
 
 	private void exportPlayers(String path, Set<UUID> playerUuids) throws IOException {

@@ -3,6 +3,9 @@ repositories {
 }
 
 dependencies {
+	compileOnly("com.playmonumenta:monumenta-common:1.0.0")
+	compileOnly("org.apache.logging.log4j:log4j-core:2.17.1")
+
 	// NOTE - Make sure if you add another version here you make sure to exclude it from minimization below!
 	implementation(project(":adapter_api"))
 	implementation(project(":adapter_unsupported"))

@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.commands;
 
 import com.playmonumenta.plugins.itemstats.infusions.Shattered;
+import com.playmonumenta.plugins.utils.MMLog;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
@@ -42,7 +43,7 @@ public class RepairItemCommand {
 						repairItem(itemStack);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					MMLog.severe("Failed to repair item entity", e);
 				}
 			})
 			.register();
@@ -56,7 +57,7 @@ public class RepairItemCommand {
 						repairItem(itemStack);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					MMLog.severe("Failed to repair held item", e);
 				}
 			})
 			.register();

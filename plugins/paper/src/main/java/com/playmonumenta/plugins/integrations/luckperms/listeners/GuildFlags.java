@@ -107,7 +107,7 @@ public class GuildFlags implements Listener {
 		boolean isEnabled
 	) {
 		String guildName = LuckPermsIntegration.getNonNullGuildName(guildRoot);
-		MMLog.fine(
+		MMLog.debug(
 			"[Guild Flags Listener/Flag Change] " + guildName
 				+ " had their " + guildFlag.mFlagLpId
 				+ " flag " + (isEnabled ? "enabled" : "disabled")

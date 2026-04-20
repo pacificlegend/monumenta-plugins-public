@@ -222,12 +222,12 @@ public class FileUtils {
 
 		Map<NamespacedKey, Path> results = new LinkedHashMap<>();
 
-		MMLog.fine("Searching for enabled datapack files matching subfolder '" + subfolder + "' and extension '" + extension + "'");
+		MMLog.debug("Searching for enabled datapack files matching subfolder '" + subfolder + "' and extension '" + extension + "'");
 		for (Datapack pack : Bukkit.getDatapackManager().getEnabledPacks()) {
 			if (pack.getName().startsWith("file/")) {
 				String packName = pack.getName().substring("file/".length());
 				Path datapackPath = Paths.get(datapacksRoot.toString(), packName);
-				MMLog.finer("Searching datapack '" + packName + "': " + datapackPath);
+				MMLog.trace("Searching datapack '" + packName + "': " + datapackPath);
 				try {
 					for (Path path : getFilesInDirectory(datapackPath, extension)) {
 						// Get just the path under the datapack (e.g. data/monumenta/loot_tables/whatever)
@@ -243,26 +243,25 @@ public class FileUtils {
 								try {
 									NamespacedKey key = NamespacedKeyUtils.fromString(split[1] + ":" + split[3].replace(File.separator, "/"));
 									results.put(key, path);
-									MMLog.finer("Matched datapack file " + key + " -> " + path);
+									MMLog.trace("Matched datapack file " + key + " -> " + path);
 								} catch (IllegalArgumentException ex) {
 									MMLog.warning("Datapack file name can't be parsed to NamespacedKey: " + path);
 								}
 							} else {
-								MMLog.finest("Datapack file matches extension '" + extension + "' but not subfolder '" + subfolder + "': " + path);
+								MMLog.trace("Datapack file matches extension '" + extension + "' but not subfolder '" + subfolder + "': " + path);
 							}
 						} else {
 							MMLog.warning("Datapack file is nested in an invalid folder. Likely should be moved or deleted: " + path);
 						}
 					}
 				} catch (Exception ex) {
-					MMLog.severe("Failed to load loot tables from datapack '" + datapackPath + "': " + ex.getMessage());
-					ex.printStackTrace();
+					MMLog.severe("Failed to load loot tables from datapack '" + datapackPath + "'", ex);
 				}
 			} else {
 				MMLog.warning("Datapack '" + pack.getName() + "' isn't a file/ pack, so its contents won't be properly returned by getEnabledDatapackFiles()");
 			}
 		}
-		MMLog.fine("Identified " + results.size() + " datapack files matching subfolder '" + subfolder + "' and extension '" + extension + "'");
+		MMLog.debug("Identified " + results.size() + " datapack files matching subfolder '" + subfolder + "' and extension '" + extension + "'");
 
 		return results;
 	}

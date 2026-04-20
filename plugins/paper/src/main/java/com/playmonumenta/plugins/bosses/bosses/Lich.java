@@ -44,6 +44,7 @@ import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.MovementUtils;
 import com.playmonumenta.plugins.utils.NmsUtils;
@@ -616,7 +617,7 @@ public final class Lich extends SerializedLocationBossAbilityGroup {
 							GrowableAPI.grow("LichNoFlameNxNz", mStart.getLocation().add(-23, 21, -23), 1, 3, false);
 							GrowableAPI.grow("LichNoFlamePxNz", mStart.getLocation().add(23, 21, -23), 1, 3, false);
 						} catch (Exception e) {
-							e.printStackTrace();
+							MMLog.severe("Failed to grow Lich torch growables", e);
 						}
 						List<Player> players = playersInRange(mStart.getLocation(), detectionRange, true);
 						for (Player p : players) {
@@ -1753,7 +1754,7 @@ public final class Lich extends SerializedLocationBossAbilityGroup {
 					try {
 						GrowableAPI.grow("LichFlame", tower.get(top).clone().add(0, 3, 0), 1, 4, false);
 					} catch (Exception e) {
-						e.printStackTrace();
+						MMLog.severe("Failed to grow Lich flame growable", e);
 					}
 					// beacon effect
 					new BukkitRunnable() {

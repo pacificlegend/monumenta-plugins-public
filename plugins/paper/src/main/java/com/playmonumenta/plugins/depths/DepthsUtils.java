@@ -574,8 +574,7 @@ public class DepthsUtils {
 			try {
 				FileUtils.writeFile(Path.of(fileName), json.toString());
 			} catch (Exception e) {
-				MMLog.severe("Caught exception saving file '" + fileName + "': " + e);
-				e.printStackTrace();
+				MMLog.severe("Caught exception saving file '" + fileName + "'", e);
 			}
 		});
 	}

@@ -250,7 +250,7 @@ public class WorldListener implements Listener {
 			if (!mEntityScoresDeletedThisTick.contains(scoreHolder)) {
 				versionAdapter.resetScoreHolderScores(scoreHolder, scoreboard);
 				mEntityScoresDeletedThisTick.add(scoreHolder);
-				MMLog.finer(() -> "[Entity Scores] "
+				MMLog.trace(() -> "[Entity Scores] "
 					+ Bukkit.getCurrentTick()
 					+ ": "
 					+ scoreHolder
@@ -259,7 +259,7 @@ public class WorldListener implements Listener {
 					+ ", "
 					+ reason);
 			} else {
-				MMLog.finer(() -> "[Entity Scores] "
+				MMLog.trace(() -> "[Entity Scores] "
 					+ Bukkit.getCurrentTick()
 					+ ": "
 					+ scoreHolder
@@ -270,7 +270,7 @@ public class WorldListener implements Listener {
 				return;
 			}
 		} else if (mEntityScoresDeletedThisTick.contains(scoreHolder)) {
-			MMLog.finer(() -> "[Entity Scores] "
+			MMLog.trace(() -> "[Entity Scores] "
 				+ Bukkit.getCurrentTick()
 				+ ": "
 				+ scoreHolder
@@ -539,11 +539,11 @@ public class WorldListener implements Listener {
 					List<Player> players = PlayerUtils.playersInLootScalingRange(spawner.getLocation());
 					((Lootable) interestingBlock).setSeed(players.size());
 					interestingBlock.update();
-					MMLog.fine("SpawnerBreakLootScaling : Players in radius: " + players.size());
+					MMLog.debug("SpawnerBreakLootScaling : Players in radius: " + players.size());
 				}
 			}
 		}
-		MMLog.fine("SpawnerBreakLootScaling : Set loot table seed for " + chests + " chests.");
+		MMLog.debug("SpawnerBreakLootScaling : Set loot table seed for " + chests + " chests.");
 	}
 
 	public boolean shouldCancelPiston(Block piston, BlockFace direction, Block affectedBlock) {

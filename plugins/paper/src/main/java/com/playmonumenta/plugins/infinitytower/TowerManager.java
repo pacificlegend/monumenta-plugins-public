@@ -8,6 +8,7 @@ import com.playmonumenta.plugins.chunk.ChunkPartialUnloadEvent;
 import com.playmonumenta.plugins.infinitytower.guis.TowerGuiFloorDesignMob;
 import com.playmonumenta.plugins.infinitytower.guis.TowerGuiShowMobs;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class TowerManager implements Listener {
 				TowerFileUtils.loadFloors();
 				TowerGuiShowMobs.loadGuiItems();
 				TowerGuiFloorDesignMob.loadGuiItems();
-				mPlugin.getLogger().info("[InfinityTower - Blitz] loaded all the files! With result: " + (TowerConstants.SHOULD_GAME_START ? "POSITIVE" : "NEGATIVE - check warnings!"));
+				MMLog.info("[InfinityTower - Blitz] loaded all the files! With result: " + (TowerConstants.SHOULD_GAME_START ? "POSITIVE" : "NEGATIVE - check warnings!"));
 			}, 10);
 		} else {
 			Bukkit.getScheduler().runTaskLaterAsynchronously(mPlugin, () -> {
@@ -54,7 +55,7 @@ public class TowerManager implements Listener {
 				TowerFileUtils.loadDefaultTeams();
 				TowerFileUtils.loadPlayerTeams();
 				TowerGuiShowMobs.loadGuiItems();
-				mPlugin.getLogger().info("[InfinityTower - Blitz] loaded all the files!");
+				MMLog.info("[InfinityTower - Blitz] loaded all the files!");
 			}, 10);
 		}
 
@@ -125,7 +126,7 @@ public class TowerManager implements Listener {
 		try {
 			NetworkRelayAPI.sendBroadcastMessage("com.playmonumenta.plugins.infinitytower.updatetower", newTeamFloor);
 		} catch (Exception e) {
-			Plugin.getInstance().getLogger().warning("[TowerManager] can't send broadcast update tower. Reason : " + e.getMessage());
+			MMLog.warning("[TowerManager] can't send broadcast update tower", e);
 		}
 	}
 

@@ -3,6 +3,7 @@ package com.playmonumenta.plugins.gallery.interactables;
 import com.playmonumenta.plugins.gallery.GalleryGame;
 import com.playmonumenta.plugins.gallery.GalleryPlayer;
 import com.playmonumenta.plugins.gallery.GalleryUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.HashSet;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +76,7 @@ public class BasePricedInteractable extends BaseInteractable {
 			}
 		} catch (Exception e) {
 			GalleryUtils.printDebugMessage("Catch an exception while converting BasePricedInteractable. Reason: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to create BasePricedInteractable from entity", e);
 		}
 		return interactable;
 	}

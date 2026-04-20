@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.bosses.SpellManager;
 import com.playmonumenta.plugins.bosses.spells.Spell;
 import com.playmonumenta.plugins.bosses.spells.SpellDistanceCloser;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.List;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -29,7 +30,7 @@ public class DistanceCloserBoss extends BossAbilityGroup {
 					distance = Integer.parseInt(values[0]);
 					speed = Integer.parseInt(values[1]) / 100.0;
 				} catch (Exception e) {
-					e.printStackTrace();
+					MMLog.severe("Failed to parse DistanceCloserBoss parameters", e);
 				}
 
 				break;

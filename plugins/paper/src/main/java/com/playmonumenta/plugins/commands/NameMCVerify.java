@@ -50,7 +50,7 @@ public class NameMCVerify extends GenericCommand {
 								while ((responseLine = br.readLine()) != null) {
 									response.append(responseLine.trim());
 								}
-								MMLog.fine("Got request from NameMC API for player " + player.getName() + ": " + response);
+								MMLog.debug("Got request from NameMC API for player " + player.getName() + ": " + response);
 
 								Bukkit.getScheduler().runTask(plugin, () -> {
 									int val = response.toString().equals("true") ? 1 : 0;
@@ -64,7 +64,7 @@ public class NameMCVerify extends GenericCommand {
 						}
 					} catch (Exception e) {
 						Bukkit.getScheduler().runTask(plugin, () -> {
-							MMLog.fine("NameMC API request failed for player " + player.getName() + ": " + e.getMessage());
+							MMLog.warning("NameMC API request failed for player '" + player.getName() + "': ", e);
 							player.sendMessage(Component.text("Failed to get NameMC status, please try again. If this continues please report this bug", NamedTextColor.RED));
 						});
 					}

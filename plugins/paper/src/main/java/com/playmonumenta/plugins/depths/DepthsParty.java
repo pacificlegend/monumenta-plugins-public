@@ -530,8 +530,7 @@ public class DepthsParty {
 
 					}
 				} catch (Exception e) {
-					MMLog.warning("Null depths party member");
-					e.printStackTrace();
+					MMLog.severe("Null depths party member", e);
 				}
 			} else if (mContent == DepthsContent.DARKEST_DEPTHS) {
 				DepthsRewardType rewardType = DepthsUtils.rewardFromRoom(room.mRoomType);
@@ -551,8 +550,7 @@ public class DepthsParty {
 					mPlayersInParty.forEach((dp) -> dp.addReward(rewardType));
 				}
 			} catch (Exception e) {
-				MMLog.warning("Null depths party member");
-				e.printStackTrace();
+				MMLog.severe("Null depths party member", e);
 			}
 		}
 

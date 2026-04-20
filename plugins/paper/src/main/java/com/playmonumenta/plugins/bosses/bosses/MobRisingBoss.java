@@ -8,6 +8,7 @@ import com.playmonumenta.plugins.bosses.parameters.ParticlesList;
 import com.playmonumenta.plugins.bosses.parameters.SoundsList;
 import com.playmonumenta.plugins.bosses.spells.Spell;
 import com.playmonumenta.plugins.bosses.spells.SpellBaseSummon;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import java.util.ArrayList;
 import org.bukkit.Location;
@@ -115,7 +116,7 @@ public class MobRisingBoss extends BossAbilityGroup {
 
 			super.constructBoss(spell, p.DETECTION, null, p.DELAY);
 		} else {
-			Plugin.getInstance().getLogger().warning("[MobRisingBoss] tried to summon a boss with default LoSPool MOB_POOL = EMPTY, boss name=" + boss.getName());
+			MMLog.warning("[MobRisingBoss] tried to summon a boss with default LoSPool MOB_POOL = EMPTY, boss name=" + boss.getName());
 		}
 	}
 

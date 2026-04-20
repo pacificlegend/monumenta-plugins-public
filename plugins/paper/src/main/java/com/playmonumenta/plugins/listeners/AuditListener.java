@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.listeners;
 
 import com.playmonumenta.plugins.integrations.MonumentaNetworkRelayIntegration;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.SignUtils;
 import java.util.ArrayList;
@@ -8,7 +9,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
@@ -135,11 +135,9 @@ public class AuditListener implements Listener {
 	}
 
 	private final Map<HumanEntity, ItemStack> mLastCreativeDestroy = new HashMap<>();
-	private final Logger mLogger;
 	private static @Nullable AuditListener INSTANCE = null;
 
-	public AuditListener(Logger logger) {
-		mLogger = logger;
+	public AuditListener() {
 		INSTANCE = this;
 	}
 
@@ -297,56 +295,56 @@ public class AuditListener implements Listener {
 
 	public static void logSevere(String message) {
 		if (INSTANCE != null) {
-			INSTANCE.mLogger.info("Audit | " + message);
+			MMLog.info("Audit | " + message);
 			MonumentaNetworkRelayIntegration.sendAuditLogSevereMessage(createLocationData() + " " + message);
 		}
 	}
 
 	public static void log(String message) {
 		if (INSTANCE != null) {
-			INSTANCE.mLogger.info("Audit | " + message);
+			MMLog.info("Audit | " + message);
 			MonumentaNetworkRelayIntegration.sendModAuditLogMessage(createLocationData() + " " + message);
 		}
 	}
 
 	public static void logMail(String message) {
 		if (INSTANCE != null) {
-			INSTANCE.mLogger.info("Audit | " + message);
+			MMLog.info("Audit | " + message);
 			MonumentaNetworkRelayIntegration.sendMailAuditLogMessage(createLocationData() + " " + message);
 		}
 	}
 
 	public static void logMarket(String message) {
 		if (INSTANCE != null) {
-			INSTANCE.mLogger.info("Audit | " + message);
+			MMLog.info("Audit | " + message);
 			MonumentaNetworkRelayIntegration.sendMarketAuditLogMessage(createLocationData() + " " + message);
 		}
 	}
 
 	public static void logChatMod(String message) {
 		if (INSTANCE != null) {
-			INSTANCE.mLogger.info("Audit | " + message);
+			MMLog.info("Audit | " + message);
 			MonumentaNetworkRelayIntegration.sendAuditLogChatModMessage(createLocationData() + " " + message);
 		}
 	}
 
 	public static void logDeath(String message) {
 		if (INSTANCE != null) {
-			INSTANCE.mLogger.info("Audit | " + createLocationData() + " " + message);
+			MMLog.info("Audit | " + createLocationData() + " " + message);
 			MonumentaNetworkRelayIntegration.sendDeathAuditLogMessage(createLocationData() + " " + message);
 		}
 	}
 
 	public static void logPlayer(String message) {
 		if (INSTANCE != null) {
-			INSTANCE.mLogger.info("Audit | " + message);
+			MMLog.info("Audit | " + message);
 			MonumentaNetworkRelayIntegration.sendPlayerAuditLogMessage(createLocationData() + " " + message);
 		}
 	}
 
 	public static void logReport(String message) {
 		if (INSTANCE != null) {
-			INSTANCE.mLogger.info("Audit | " + message);
+			MMLog.info("Audit | " + message);
 			MonumentaNetworkRelayIntegration.sendReportAuditLogMessage(createLocationData() + " " + message);
 		}
 

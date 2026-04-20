@@ -5,6 +5,7 @@ import com.playmonumenta.plugins.bosses.TemporaryBlockChangeManager;
 import com.playmonumenta.plugins.chunk.ChunkPartialUnloadEvent;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.plugins.utils.BlockUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -207,7 +208,7 @@ public class RepairExplosionsListener implements Listener {
 				continue;
 			}
 
-			mPlugin.getLogger().fine("Marking block " + state.getType() + " at " + state.getLocation() + " for repair");
+			MMLog.debug(() -> "Marking block " + state.getType() + " at " + state.getLocation() + " for repair");
 			chunkBlocks.add(state);
 		}
 	}
@@ -341,7 +342,7 @@ public class RepairExplosionsListener implements Listener {
 				// Don't repair if a valuable block has been placed in its place (e.g. a chest or shulker box)
 				continue;
 			}
-			mPlugin.getLogger().fine("Repairing block " + state.getType() + " at " + state.getLocation());
+			MMLog.debug(() -> "Repairing block " + state.getType() + " at " + state.getLocation());
 			needsSave = true;
 			state.update(true, false);
 			if (state.getType().equals(Material.GRASS_BLOCK) && state.getBlockData() instanceof Snowable && ((Snowable) state.getBlockData()).isSnowy()) {
@@ -385,7 +386,7 @@ public class RepairExplosionsListener implements Listener {
 		while (iter.hasNext()) {
 			BlockState state = iter.next();
 			if (state.getLocation().distanceSquared(deathLoc) <= 144) {
-				mPlugin.getLogger().fine("Removing repair block " + state.getType() + " at " + state.getLocation() + " due to death");
+				MMLog.debug(() -> "Removing repair block " + state.getType() + " at " + state.getLocation() + " due to death");
 				iter.remove();
 			}
 		}
@@ -408,7 +409,7 @@ public class RepairExplosionsListener implements Listener {
 			 * Be lazy and just grab four chunks, re-iterating them isn't going to take that much time anyway
 			 */
 			Location deathLoc = event.getEntity().getLocation();
-			mPlugin.getLogger().fine("Player died at: " + deathLoc);
+			MMLog.debug(() -> "Player died at: " + deathLoc);
 
 			removeRepairBlocksNear(deathLoc.clone().add(7, 0, -7).getChunk(), deathLoc);
 			removeRepairBlocksNear(deathLoc.clone().add(7, 0, 7).getChunk(), deathLoc);

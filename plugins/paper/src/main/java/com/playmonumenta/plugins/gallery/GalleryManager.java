@@ -7,6 +7,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.gallery.effects.GalleryEffect;
 import com.playmonumenta.plugins.utils.FileUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -158,12 +159,12 @@ public class GalleryManager implements Listener {
 							//but if it throws any, means something HARD BROKE!
 							//print all the info about what game broke and what its status then stop that game.
 							GalleryUtils.printDebugMessage("GalleryGame.tick(..) BROKE! saving game status to: " + crashedGame.mUUIDGame.toString() + ".json");
-							e.printStackTrace();
+							MMLog.severe("GalleryGame.tick() threw exception for game " + crashedGame.mUUIDGame, e);
 							removeGame(crashedGame);
 							try {
 								FileUtils.writeJson(plugin.getDataFolder() + "/Gallery/Crashed/" + crashedGame.mUUIDGame + ".json", crashedGame.toJson());
 							} catch (IOException ex) {
-								ex.printStackTrace();
+								MMLog.severe("Failed to write crashed gallery game JSON", ex);
 							}
 						}
 					}
@@ -224,7 +225,7 @@ public class GalleryManager implements Listener {
 			FileUtils.writeJson(Plugin.getInstance().getDataFolder() + "/Gallery/GalleryGames.json", games);
 		} catch (Exception e) {
 			GalleryUtils.printDebugMessage("Error while saving files - This is a serious bug! Reason: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to save gallery games JSON", e);
 		}
 	}
 
@@ -247,7 +248,7 @@ public class GalleryManager implements Listener {
 				GAMES.put(game.mUUIDGame, game);
 			} catch (Exception e) {
 				GalleryUtils.printDebugMessage("Error while converting json to game - This is a serious bug! Reason: " + e.getMessage());
-				e.printStackTrace();
+				MMLog.severe("Failed to convert JSON to gallery game", e);
 			}
 		}
 

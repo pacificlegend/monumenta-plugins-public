@@ -173,10 +173,10 @@ public class LuckPermsIntegration implements Listener {
 	}
 
 	public LuckPermsIntegration(Plugin plugin) {
-		plugin.getLogger().info("Enabling LuckPerms integration");
+		MMLog.info("Enabling LuckPerms integration");
 		RegisteredServiceProvider<LuckPerms> luckPermsProvider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
 		if (luckPermsProvider == null) {
-			plugin.getLogger().severe("Failed to load LuckPerms registration");
+			MMLog.severe("Failed to load LuckPerms registration");
 			return;
 		}
 		LP = luckPermsProvider.getProvider();

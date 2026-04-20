@@ -2,6 +2,7 @@ package com.playmonumenta.plugins.tracking;
 
 import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -111,25 +112,25 @@ public final class TrackingManager {
 		try {
 			mCreepers.update(ticks);
 		} catch (Exception e) {
-			e.printStackTrace();
+			MMLog.severe("Failed to update creeper tracking", e);
 		}
 
 		try {
 			mBoats.update(ticks);
 		} catch (Exception e) {
-			e.printStackTrace();
+			MMLog.severe("Failed to update boat tracking", e);
 		}
 
 		try {
 			mMinecarts.update(ticks);
 		} catch (Exception e) {
-			e.printStackTrace();
+			MMLog.severe("Failed to update minecart tracking", e);
 		}
 
 		try {
 			mSilverfish.update(ticks);
 		} catch (Exception e) {
-			e.printStackTrace();
+			MMLog.severe("Failed to update silverfish tracking", e);
 		}
 	}
 }

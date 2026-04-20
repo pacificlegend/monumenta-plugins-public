@@ -108,7 +108,7 @@ public class SpawnerListener implements Listener {
 			if (mPersistentUntil > 0) {
 				@Nullable LivingEntity mob = getMob();
 				if (mob != null && mob.getTicksLived() > mPersistentUntil) {
-					MMLog.fine(() -> "SpawnerListener: Mob persistence removed after time elapsed: " + mob.getUniqueId());
+					MMLog.debug("SpawnerListener: Mob persistence removed after time elapsed: " + mob.getUniqueId());
 					mob.setRemoveWhenFarAway(true);
 					mPersistentUntil = -1;
 					return false;
@@ -149,25 +149,25 @@ public class SpawnerListener implements Listener {
 			public void run() {
 				// Removes mob info entries from the map if mob is dead or invalid
 				if (!mMobInfos.isEmpty()) {
-					MMLog.finer("SpawnerListener: mMobInfos current entries:");
+					MMLog.trace("SpawnerListener: mMobInfos current entries:");
 				}
 				Iterator<MobInfo> mobInfoIter = mMobInfos.values().iterator();
 				while (mobInfoIter.hasNext()) {
 					MobInfo info = mobInfoIter.next();
 					@Nullable LivingEntity mob = info.getMob();
 
-					MMLog.finer(() -> "SpawnerListener:    " + info);
+					MMLog.trace(() -> "SpawnerListener:    " + info);
 
 					// If the mob has NOT despawned but is dead or was removed, remove this tracker
 					if (!info.checkUpdatePersistent() && !info.isDespawned() && (mob == null || mob.isDead() || !mob.isValid())) {
-						MMLog.fine(() -> "SpawnerListener: Removing non-persistent, non-despawned dead mob from mMobInfos: " + info.getUniqueId());
+						MMLog.debug("SpawnerListener: Removing non-persistent, non-despawned dead mob from mMobInfos: " + info.getUniqueId());
 						mobInfoIter.remove();
 					}
 				}
 
 				// Removes spawner mob list entries from the map if mob list for spawner is empty
 				if (!mSpawnerInfos.isEmpty()) {
-					MMLog.finer("SpawnerListener: mSpawnerInfos current entries:");
+					MMLog.trace("SpawnerListener: mSpawnerInfos current entries:");
 				}
 				Iterator<Map.Entry<Location, List<MobInfo>>> spawnerInfoIter = mSpawnerInfos.entrySet().iterator();
 				while (spawnerInfoIter.hasNext()) {
@@ -180,10 +180,10 @@ public class SpawnerListener implements Listener {
 						@Nullable LivingEntity mob = info.getMob();
 
 						Location loc = entry.getKey();
-						MMLog.finer(() -> "SpawnerListener:    " + loc.getWorld().getName() + "(" + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ") " + info);
+						MMLog.trace(() -> "SpawnerListener:    " + loc.getWorld().getName() + "(" + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ") " + info);
 
 						if (!info.checkUpdatePersistent() && !info.isDespawned() && (mob == null || mob.isDead() || !mob.isValid())) {
-							MMLog.fine(() -> "SpawnerListener: Removing non-persistent, non-despawned dead mob from mSpawnerInfos: " + info.getUniqueId());
+							MMLog.debug("SpawnerListener: Removing non-persistent, non-despawned dead mob from mSpawnerInfos: " + info.getUniqueId());
 							spawnerListIter.remove();
 						}
 					}
@@ -213,7 +213,7 @@ public class SpawnerListener implements Listener {
 							double distanceSquared = mob.getLocation().distanceSquared(spawnerLoc);
 							if (distanceSquared > PROTECTOR_MAX_DISTANCE_SQUARED) {
 
-								MMLog.fine(() -> "SpawnerListener: Removed protection from mob due to distance from spawner: " + mob.getUniqueId() +
+								MMLog.debug(() -> "SpawnerListener: Removed protection from mob due to distance from spawner: " + mob.getUniqueId() +
 									" (distance: " + Math.sqrt(distanceSquared) + " blocks)");
 								mob.setInvulnerable(false);
 								GlowingManager.clear(mob, "protectedMob");
@@ -260,7 +260,7 @@ public class SpawnerListener implements Listener {
 
 				@Nullable LivingEntity innerMob = mobInfo.getMob();
 				if (innerMob == null || innerMob.isDead() || !innerMob.isValid()) {
-					MMLog.fine(() -> "SpawnerListener: Removed dead/invalid mob from spawnerInfo on new spawn: " + mobInfo.getUniqueId());
+					MMLog.debug("SpawnerListener: Removed dead/invalid mob from spawnerInfo on new spawn: " + mobInfo.getUniqueId());
 					iter.remove();
 					mMobInfos.remove(mobInfo.getUniqueId());
 					continue;
@@ -278,7 +278,7 @@ public class SpawnerListener implements Listener {
 					}
 
 					if (remove) {
-						MMLog.fine(() -> "SpawnerListener: Removed mob from world due to anti buildup inactivity: " + innerMob.getUniqueId());
+						MMLog.debug("SpawnerListener: Removed mob from world due to anti buildup inactivity: " + innerMob.getUniqueId());
 						iter.remove();
 						mMobInfos.remove(innerMob.getUniqueId());
 						innerMob.remove();
@@ -291,7 +291,7 @@ public class SpawnerListener implements Listener {
 				DelvesManager.setForcedReferenceToSpawner(event.getSpawner());
 				Entity spawnedEntity = losPool.spawn(mob.getLocation());
 				if (spawnedEntity instanceof LivingEntity livingEntity) {
-					MMLog.fine(() -> "SpawnerListener: Started tracking mob: " + mob.getUniqueId());
+					MMLog.debug("SpawnerListener: Started tracking mob: " + mob.getUniqueId());
 					mMobInfos.put(livingEntity.getUniqueId(), new MobInfo(livingEntity));
 					MobInfo mobInfo = new MobInfo(livingEntity);
 					spawnerInfo.add(mobInfo);
@@ -316,7 +316,7 @@ public class SpawnerListener implements Listener {
 				}
 				event.setCancelled(true);
 			} else {
-				MMLog.fine(() -> "SpawnerListener: Started tracking mob: " + mob.getUniqueId());
+				MMLog.debug("SpawnerListener: Started tracking mob: " + mob.getUniqueId());
 				MobInfo mobInfo = new MobInfo(mob);
 				spawnerInfo.add(mobInfo);
 				mMobInfos.put(mob.getUniqueId(), mobInfo);
@@ -380,7 +380,7 @@ public class SpawnerListener implements Listener {
 			@Nullable MobInfo info = mMobInfos.get(mob.getUniqueId());
 
 			if (info != null) {
-				MMLog.fine(() -> "SpawnerListener: Marking mob persistent due to nearby player logout: " + mob.getUniqueId());
+				MMLog.debug("SpawnerListener: Marking mob persistent due to nearby player logout: " + mob.getUniqueId());
 				mob.setRemoveWhenFarAway(false);
 				info.mPersistentUntil = mob.getTicksLived() + PLAYER_LOGOUT_MOB_PERSIST_TICKS;
 			}
@@ -394,7 +394,7 @@ public class SpawnerListener implements Listener {
 		mMobInfos.values().removeIf((info) -> {
 			@Nullable LivingEntity mob = info.getMob();
 			if (mob != null && mob.getWorld().equals(event.getWorld())) {
-				MMLog.fine(() -> "SpawnerListener: Unloaded mob due to world unload: " + mob.getUniqueId());
+				MMLog.debug("SpawnerListener: Unloaded mob due to world unload: " + mob.getUniqueId());
 				return true;
 			}
 			return false;
@@ -409,7 +409,7 @@ public class SpawnerListener implements Listener {
 			@Nullable MobInfo mobInfo = mMobInfos.get(event.getEntity().getUniqueId());
 			if (mobInfo != null) {
 				mobInfo.mHasTarget = (event.getTarget() != null);
-				MMLog.fine(() -> "SpawnerListener: Set mob hasTarget=" + mobInfo.hasTarget() + " : " + event.getEntity().getUniqueId());
+				MMLog.debug(() -> "SpawnerListener: Set mob hasTarget=" + mobInfo.hasTarget() + " : " + event.getEntity().getUniqueId());
 				mobInfo.mTickLastTargeted = event.getEntity().getTicksLived();
 			}
 		}
@@ -423,7 +423,7 @@ public class SpawnerListener implements Listener {
 			UUID mobUuid = mob.getUniqueId();
 			@Nullable MobInfo mobInfo = mMobInfos.get(mobUuid);
 			if (mobInfo != null) {
-				MMLog.fine(() -> "SpawnerListener: Marked mob as despawned: " + mobUuid);
+				MMLog.debug("SpawnerListener: Marked mob as despawned: " + mobUuid);
 				mobInfo.mDespawned = true;
 			}
 		}
@@ -438,7 +438,7 @@ public class SpawnerListener implements Listener {
 			UUID mobUuid = mob.getUniqueId();
 			@Nullable MobInfo mobInfo = mMobInfos.get(mobUuid);
 			if (mobInfo != null) {
-				MMLog.fine(() -> "SpawnerListener: Updated mob with new entity: " + mobUuid);
+				MMLog.debug("SpawnerListener: Updated mob with new entity: " + mobUuid);
 				mobInfo.mDespawned = false;
 				mobInfo.mMob = new WeakReference<>(mob);
 				mobInfo.mUUID = event.getEntity().getUniqueId();

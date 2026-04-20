@@ -2,6 +2,7 @@ package com.playmonumenta.plugins.gallery.interactables;
 
 import com.playmonumenta.plugins.gallery.GalleryUtils;
 import com.playmonumenta.plugins.utils.AbilityUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import java.util.Collection;
 import java.util.HashSet;
@@ -139,7 +140,7 @@ public class MysteryBoxInteractable extends BasePricedInteractable {
 			}
 		} catch (Exception e) {
 			GalleryUtils.printDebugMessage("Catch an exception while converting MysteryBoxEntity. Reason: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to create MysteryBoxInteractable from entity", e);
 		}
 		throw new RuntimeException("Can't Load a MysteryBoxInteractable");
 	}

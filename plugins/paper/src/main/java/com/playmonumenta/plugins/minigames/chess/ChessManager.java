@@ -11,6 +11,7 @@ import com.playmonumenta.plugins.minigames.chess.events.EndGameChessEvent;
 import com.playmonumenta.plugins.minigames.chess.events.MovePieceChessEvent;
 import com.playmonumenta.plugins.minigames.chess.events.PromotingChessEvent;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
@@ -463,7 +464,7 @@ public class ChessManager implements Listener {
 				}
 
 				if (DEBUG) {
-					Plugin.getInstance().getLogger().warning(msg);
+					MMLog.warning(msg);
 				}
 
 			} else if (event instanceof EndGameChessEvent) {
@@ -474,7 +475,7 @@ public class ChessManager implements Listener {
 				msg += " | EndGameEvent Players-> W: " + (winnerPlayer != null ? winnerPlayer.mPlayer().getName() : "null") + " L: " + (loserPlayer != null ? loserPlayer.mPlayer().getName() : "null") + " Result: " + result;
 
 				if (DEBUG) {
-					Plugin.getInstance().getLogger().warning(msg);
+					MMLog.warning(msg);
 				}
 
 				if (winnerPlayer != null && winnerPlayer.mPlayer() != null) {
@@ -497,7 +498,7 @@ public class ChessManager implements Listener {
 
 
 				if (DEBUG) {
-					Plugin.getInstance().getLogger().warning(msg);
+					MMLog.warning(msg);
 				}
 			}
 		}

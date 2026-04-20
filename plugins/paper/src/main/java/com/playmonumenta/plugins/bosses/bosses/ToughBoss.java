@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.bosses.BossManager;
 import com.playmonumenta.plugins.bosses.SpellManager;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.Collections;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -38,8 +39,7 @@ public class ToughBoss extends BossAbilityGroup {
 		try {
 			BossManager.createBoss(null, mBannerHolder, ImmortalPassengerBoss.identityTag);
 		} catch (Exception e) {
-			Plugin.getInstance().getLogger().warning("Failed to create boss ImmortalPassengerBoss: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to create boss ImmortalPassengerBoss", e);
 		}
 		mBoss.addPassenger(mBannerHolder);
 	}

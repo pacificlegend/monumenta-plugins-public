@@ -64,8 +64,7 @@ public class SpreadEffectOnDeath extends Effect {
 
 				entity.getWorld().playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 0.6f, 1.1f);
 			} catch (Exception e) {
-				MMLog.warning("Caught exception when spreading effect: " + effect);
-				e.printStackTrace();
+				MMLog.severe("Caught exception when spreading effect: " + effect, e);
 			}
 		}
 	}

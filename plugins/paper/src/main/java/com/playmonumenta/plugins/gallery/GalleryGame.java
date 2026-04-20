@@ -13,6 +13,7 @@ import com.playmonumenta.plugins.gallery.interactables.MysteryBoxInteractable;
 import com.playmonumenta.plugins.seasonalevents.SeasonalEventListener;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.FastUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -389,7 +390,7 @@ public class GalleryGame {
 
 			} catch (Exception e) {
 				GalleryUtils.printDebugMessage("catch exception while converting interactable - reason: " + e.getMessage());
-				e.printStackTrace();
+				MMLog.severe("Failed to convert gallery interactable", e);
 			}
 		}
 
@@ -415,7 +416,7 @@ public class GalleryGame {
 
 			} catch (Exception e) {
 				GalleryUtils.printDebugMessage("catch exception while converting spawner - reason: " + e.getMessage());
-				e.printStackTrace();
+				MMLog.severe("Failed to convert gallery spawner", e);
 			}
 		}
 
@@ -581,7 +582,7 @@ public class GalleryGame {
 
 			} catch (Exception e) {
 				GalleryUtils.printDebugMessage("catch exception while converting interactable - reason: " + e.getMessage());
-				e.printStackTrace();
+				MMLog.severe("Failed to convert gallery interactable on update", e);
 			}
 		}
 		if (entity.getScoreboardTags().contains(GallerySpawner.TAG_STRING)) {
@@ -597,7 +598,7 @@ public class GalleryGame {
 
 			} catch (Exception e) {
 				GalleryUtils.printDebugMessage("catch exception while converting spawner - reason: " + e.getMessage());
-				e.printStackTrace();
+				MMLog.severe("Failed to convert gallery spawner on update", e);
 			}
 		}
 

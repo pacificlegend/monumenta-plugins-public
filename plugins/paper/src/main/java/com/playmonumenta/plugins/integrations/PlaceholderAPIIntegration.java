@@ -70,7 +70,7 @@ public class PlaceholderAPIIntegration extends PlaceholderExpansion {
 
 	public PlaceholderAPIIntegration(Plugin plugin) {
 		super();
-		plugin.getLogger().info("Enabling PlaceholderAPI integration");
+		MMLog.info("Enabling PlaceholderAPI integration");
 		mPlugin = plugin;
 		mSystemTask = new BukkitRunnable() {
 

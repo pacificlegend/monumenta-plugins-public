@@ -57,7 +57,7 @@ public class Lockdown implements Listener {
 		eventBus.subscribe(plugin, NodeRemoveEvent.class, Lockdown::nodeRemoveEvent);
 		eventBus.subscribe(plugin, PostSyncEvent.class, Lockdown::postSyncEvent);
 
-		MMLog.fine("[Guild Lockdown Kicker] Getting guilds list async...");
+		MMLog.debug("[Guild Lockdown Kicker] Getting guilds list async...");
 		Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
 			List<Group> guilds = LuckPermsIntegration.getGuilds().join();
 			afterLoad(guilds);
@@ -147,7 +147,7 @@ public class Lockdown implements Listener {
 
 	// Remote events
 	public static void postSyncEvent(PostSyncEvent event) {
-		MMLog.fine("[Guild Lockdown Kicker] Got post sync event");
+		MMLog.debug("[Guild Lockdown Kicker] Got post sync event");
 		Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
 			List<Group> guilds = LuckPermsIntegration.getGuilds().join();
 

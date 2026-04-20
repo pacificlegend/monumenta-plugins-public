@@ -15,7 +15,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -400,7 +399,7 @@ public class PassiveStarBlightConversion extends Spell {
 				}
 				mLoaded = true;
 			} catch (Exception e) {
-				com.playmonumenta.plugins.Plugin.getInstance().getLogger().log(Level.FINER, "StarblightConversion: File failed to be found" + e);
+				MMLog.severe("StarblightConversion: File failed to be found", e);
 			}
 
 		});

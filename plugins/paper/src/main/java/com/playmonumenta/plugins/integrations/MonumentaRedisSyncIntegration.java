@@ -9,7 +9,7 @@ import com.playmonumenta.plugins.seasonalevents.SeasonalEventManager;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.InventoryUtils;
-import com.playmonumenta.plugins.utils.MessagingUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.NmsUtils;
 import com.playmonumenta.plugins.utils.StringUtils;
 import com.playmonumenta.redissync.BukkitConfigAPI;
@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -72,13 +71,10 @@ public class MonumentaRedisSyncIntegration implements Listener {
 	);
 
 	private final Plugin mPlugin;
-	private final Logger mLogger;
 
 	public MonumentaRedisSyncIntegration(Plugin plugin) {
 		mPlugin = plugin;
-		mLogger = plugin.getLogger();
-
-		mLogger.info("Enabling MonumentaRedisSync integration");
+		MMLog.info("Enabling MonumentaRedisSync integration");
 		mEnabled = true;
 	}
 
@@ -96,7 +92,7 @@ public class MonumentaRedisSyncIntegration implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void playerServerTransferEvent(PlayerServerTransferEvent event) {
 		Player player = event.getPlayer();
-		mLogger.info("PlayerTransferEvent: Player: " + player + "   Target: " + event.getTarget());
+		MMLog.info("PlayerTransferEvent: Player: " + player + "   Target: " + event.getTarget());
 		event.getPlayer().clearTitle();
 
 		player.closeInventory();
@@ -132,20 +128,18 @@ public class MonumentaRedisSyncIntegration implements Listener {
 			if (data.has("potions")) {
 				try {
 					mPlugin.mPotionManager.loadFromJsonObject(player, data.get("potions").getAsJsonObject());
-					mLogger.fine("Loaded potion data for player " + player.getName());
+					MMLog.debug("Loaded potion data for player " + player.getName());
 				} catch (Exception ex) {
-					mLogger.severe("Failed to load potion data for player " + player.getName() + ":" + ex.getMessage());
-					MessagingUtils.sendStackTrace(Bukkit.getConsoleSender(), ex);
+					MMLog.severe("Failed to load potion data for player " + player.getName(), ex);
 				}
 			}
 
 			if (data.has("effects")) {
 				try {
 					mPlugin.mEffectManager.loadFromJsonObject(player, data.get("effects").getAsJsonObject(), mPlugin);
-					mLogger.fine("Loaded effects data for player " + player.getName());
+					MMLog.debug("Loaded effects data for player " + player.getName());
 				} catch (Exception ex) {
-					mLogger.severe("Failed to load effects data for player " + player.getName() + ":" + ex.getMessage());
-					MessagingUtils.sendStackTrace(Bukkit.getConsoleSender(), ex);
+					MMLog.severe("Failed to load effects data for player " + player.getName(), ex);
 				}
 			}
 
@@ -163,10 +157,9 @@ public class MonumentaRedisSyncIntegration implements Listener {
 						}, 5);
 					}
 
-					mLogger.fine("Loaded health data (" + StringUtils.to2DP(health) + ") for player " + player.getName());
+					MMLog.debug("Loaded health data (" + StringUtils.to2DP(health) + ") for player " + player.getName());
 				} catch (Exception ex) {
-					mLogger.severe("Failed to load health data for player " + player.getName() + ":" + ex.getMessage());
-					MessagingUtils.sendStackTrace(Bukkit.getConsoleSender(), ex);
+					MMLog.severe("Failed to load health data for player " + player.getName(), ex);
 				}
 			}
 		} else {

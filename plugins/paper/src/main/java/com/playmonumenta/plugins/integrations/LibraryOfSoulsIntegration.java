@@ -3,9 +3,9 @@ package com.playmonumenta.plugins.integrations;
 import com.playmonumenta.libraryofsouls.LibraryOfSoulsAPI;
 import com.playmonumenta.libraryofsouls.Soul;
 import com.playmonumenta.plugins.utils.FastUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 public class LibraryOfSoulsIntegration {
 	private static boolean ENABLED = false;
 
-	public static void enable(Logger logger) {
-		logger.info("Enabling LibraryOfSouls integration");
+	public static void enable() {
+		MMLog.info("Enabling LibraryOfSouls integration");
 		ENABLED = true;
 	}
 

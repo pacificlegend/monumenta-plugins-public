@@ -157,12 +157,12 @@ public class CharmFactory {
 
 			// replace charm effects according to map
 			String effect = playerModified.getString(CHARM_EFFECTS_KEY + count);
-			MMLog.fine("retrieved nbt " + effect + " " + count);
+			MMLog.debug("retrieved nbt " + effect + " " + count);
 
 			String newEffect = effect;
 			if (charmConversionMap.get(effect) != null) {
 				newEffect = charmConversionMap.get(effect);
-				MMLog.fine("changed charm effect from " + effect + " to " + newEffect + " " + count);
+				MMLog.debug("changed charm effect from " + effect + " to " + newEffect + " " + count);
 			}
 
 			charmEffectOrder.add(newEffect);
@@ -174,7 +174,7 @@ public class CharmFactory {
 		// effects and rolls should always come in the same amount, so this should work instead
 		for (int i = 1; i < count; i++) {
 			charmRollsOrder.add(playerModified.getDouble(CHARM_ROLLS_KEY + i));
-			MMLog.fine("retrieved nbt " + charmRollsOrder.get(i - 1) + " " + i);
+			MMLog.debug("retrieved nbt " + charmRollsOrder.get(i - 1) + " " + i);
 		}
 
 		count = 1;
@@ -184,22 +184,22 @@ public class CharmFactory {
 			String actionName = playerModified.getString(CHARM_ACTIONS_KEY + count);
 
 			charmActionOrder.add(actionName);
-			MMLog.fine("retrieved nbt " + charmActionOrder.get(count - 1) + " " + count);
+			MMLog.debug("retrieved nbt " + charmActionOrder.get(count - 1) + " " + count);
 			count++;
 		}
 
-		MMLog.finer("updateCharm final review:");
-		MMLog.finer("charmEffectOrder:");
+		MMLog.trace("updateCharm final review:");
+		MMLog.trace("charmEffectOrder:");
 		for (String effect : charmEffectOrder) {
-			MMLog.finer(effect);
+			MMLog.trace(effect);
 		}
-		MMLog.finer("charmRollsOrder:");
+		MMLog.trace("charmRollsOrder:");
 		for (Double roll : charmRollsOrder) {
-			MMLog.finer(roll.toString());
+			MMLog.trace(roll.toString());
 		}
-		MMLog.finer("charmActionOrder:");
+		MMLog.trace("charmActionOrder:");
 		for (String action : charmActionOrder) {
-			MMLog.finer(action);
+			MMLog.trace(action);
 		}
 
 		try {
@@ -346,7 +346,7 @@ public class CharmFactory {
 					ReadWriteNBT playerModified = ItemStatUtils.addPlayerModified(nbt);
 					playerModified.setInteger(CHARM_WILDCARD_TREE_CAP_KEY, finalCap);
 				});
-				MMLog.finest("tree cap: " + cap);
+				MMLog.trace("tree cap: " + cap);
 			}
 			charmTypeName = "Wildcard";
 		}
@@ -394,18 +394,18 @@ public class CharmFactory {
 					CharmEffects effect = applyRandomCharmEffect(chosenAbility, isTreeLocked ? chosenTree : null, action.mRarity, item, r, activeEffects, action.mIsNegative, false, effectOrder, rollsOrder, charmTextLines);
 
 					if (effect == null) {
-						MMLog.fine("load failed - " + action.mAction);
+						MMLog.debug("load failed - " + action.mAction);
 					} else {
 						budget += action.mBudget;
 						NBT.modify(item, nbt -> {
 							ItemStatUtils.addPlayerModified(nbt).setString(CHARM_ACTIONS_KEY + (activeEffects.size() - 1), action.mAction);
 						});
-						MMLog.fine("added nbt- " + action.mAction + " " + (activeEffects.size() - 1));
+						MMLog.debug("added nbt- " + action.mAction + " " + (activeEffects.size() - 1));
 
 						if (action.mIsNegative) {
 							hasNegative = true;
 						}
-						MMLog.fine("action success- " + action.mAction);
+						MMLog.debug("action success- " + action.mAction);
 					}
 				}
 			}
@@ -415,7 +415,7 @@ public class CharmFactory {
 		if (!isUpgrade) {
 			// after existing effects have been loaded, add additional effects depending on remaining budget
 			while (budget > 0) {
-				MMLog.fine("budget is " + budget);
+				MMLog.debug("budget is " + budget);
 
 				boolean success = false;
 				List<CharmEffectActions> potentialActions = Arrays.asList(CharmEffectActions.values());
@@ -423,7 +423,7 @@ public class CharmFactory {
 
 				// old charms with 10+ effects can keep them. if we're adding new effects or making a new charm, don't go above 10
 				if (activeEffects.size() >= 10) {
-					MMLog.fine("reached 10 effects, won't add more! breaking budget loop");
+					MMLog.debug("reached 10 effects, won't add more! breaking budget loop");
 					break;
 				}
 
@@ -431,7 +431,7 @@ public class CharmFactory {
 				for (CharmEffectActions action : potentialActions) {
 					//Skip action if it's rarity is above the budget for this charm, common and uncommon are always fine
 					if (action.mRarity > level && action.mRarity > 2) {
-						MMLog.fine("action skipped 1- " + action.mAction);
+						MMLog.debug("action skipped 1- " + action.mAction);
 
 						continue;
 					}
@@ -439,35 +439,35 @@ public class CharmFactory {
 					// Skip negative if the charm already has a negative (1 max)
 					// Skip negative if we're preloading a charm (never add new negative effects onto existing charms)
 					if ((action.mIsNegative && chosenAbility == null) || (action.mIsNegative && hasNegative) || isPreloaded) {
-						MMLog.fine("action skipped 2- " + action.mAction);
+						MMLog.debug("action skipped 2- " + action.mAction);
 
 						continue;
 					}
 					//Skip action if we do not have the budget for it
 					if (budget + action.mBudget < 0) {
-						MMLog.fine("action skipped 3- " + action.mAction);
+						MMLog.debug("action skipped 3- " + action.mAction);
 
 						continue;
 					}
-					MMLog.fine("attempting action- " + action.mAction);
+					MMLog.debug("attempting action- " + action.mAction);
 
 					// Finally, attempt the action. If successful, subtract budget, otherwise try next action
 					DepthsTree lockedTree = isTreeLocked ? chosenTree : null;
 					CharmEffects effect = applyRandomCharmEffect(chosenAbility, lockedTree, action.mRarity, item, r, activeEffects, action.mIsNegative, false, effectOrder, rollsOrder, charmTextLines);
 					if (effect == null) {
-						MMLog.fine("action failed- " + action.mAction);
+						MMLog.debug("action failed- " + action.mAction);
 					} else {
 						budget += action.mBudget;
 						success = true;
 						NBT.modify(item, nbt -> {
 							ItemStatUtils.addPlayerModified(nbt).setString(CHARM_ACTIONS_KEY + (activeEffects.size() - 1), action.mAction);
 						});
-						MMLog.fine("added nbt- " + action.mAction + " " + (activeEffects.size() - 1));
+						MMLog.debug("added nbt- " + action.mAction + " " + (activeEffects.size() - 1));
 
 						if (action.mIsNegative) {
 							hasNegative = true;
 						}
-						MMLog.fine("action success- " + action.mAction);
+						MMLog.debug("action success- " + action.mAction);
 
 						break;
 					}
@@ -496,15 +496,15 @@ public class CharmFactory {
 				if (action == null || newAction == null || action.mIsNegative || action.mRarity <= level || action.mRarity <= 2) {
 					continue;
 				}
-				MMLog.fine("downgrade to rarity: action " + action.mAction);
-				MMLog.fine("downgrade to rarity: newAction " + newAction.mAction);
+				MMLog.debug("downgrade to rarity: action " + action.mAction);
+				MMLog.debug("downgrade to rarity: newAction " + newAction.mAction);
 				// check if we have enough budget
 				int budgetDifference = newAction.mBudget - action.mBudget;
 				budget += budgetDifference;
 
 				CharmEffects effect = CharmEffects.getEffect(activeEffects.get(index));
 				if (effect != null && effect.isValidAtLevel(newAction.mRarity)) { // check if valid at the new rarity
-					MMLog.fine("downgrade to rarity: effect " + effect.mAbility);
+					MMLog.debug("downgrade to rarity: effect " + effect.mAbility);
 					// update the action NBT to the new action
 					NBT.modify(item, nbt -> {
 						ItemStatUtils.addPlayerModified(nbt).setString(CHARM_ACTIONS_KEY + index, newAction.mAction);
@@ -518,7 +518,7 @@ public class CharmFactory {
 						}
 						return playerModified.getDouble(CHARM_ROLLS_KEY + (index + 1));
 					});
-					MMLog.fine("downgrade to rarity: roll " + roll);
+					MMLog.debug("downgrade to rarity: roll " + roll);
 					Component newText = generateCharmText(effect, effect.mRarityValues[newAction.mRarity - 1], roll, newAction.mIsNegative, newAction.mRarity);
 					charmTextLines.set(index, newText);
 				}
@@ -549,9 +549,9 @@ public class CharmFactory {
 				}
 				CharmEffects effect = CharmEffects.getEffect(activeEffects.get(index));
 				if (effect != null && effect.isValidAtLevel(upgraded.mRarity) && effect.isNotRestrictedAtLevel(upgraded.mRarity, upgraded.mIsNegative)) { // check if valid at the new rarity
-					MMLog.fine("upgrade: effect " + effect.mAbility);
-					MMLog.fine("upgrade: from " + action.mAction);
-					MMLog.fine("upgrade: to " + upgraded.mAction);
+					MMLog.debug("upgrade: effect " + effect.mAbility);
+					MMLog.debug("upgrade: from " + action.mAction);
+					MMLog.debug("upgrade: to " + upgraded.mAction);
 
 					budget += budgetDifference;
 
@@ -568,7 +568,7 @@ public class CharmFactory {
 						}
 						return playerModified.getDouble(CHARM_ROLLS_KEY + (index + 1));
 					});
-					MMLog.fine("upgrade: roll " + roll);
+					MMLog.debug("upgrade: roll " + roll);
 					Component newText = generateCharmText(effect, effect.mRarityValues[upgraded.mRarity - 1], roll, upgraded.mIsNegative, upgraded.mRarity);
 					charmTextLines.set(index, newText);
 				}
@@ -582,7 +582,7 @@ public class CharmFactory {
 			NBT.modify(item, nbt -> {
 				ItemStatUtils.addPlayerModified(nbt).setString(key, effect);
 			});
-			MMLog.fine("added nbt- " + effect + " " + count);
+			MMLog.debug("added nbt- " + effect + " " + count);
 		}
 
 		// this gets our active effects as strings, turns them into CharmEffects and sorts them via order of declaration
@@ -705,14 +705,14 @@ public class CharmFactory {
 		NBT.modify(charm, nbt -> {
 			ItemStatUtils.addPlayerModified(nbt).setDouble(CHARM_ROLLS_KEY + (effectHistory.size() + 1), nbtDouble);
 		});
-		MMLog.fine("added nbt- " + nbtDouble + " " + effectHistory.size());
+		MMLog.debug("added nbt- " + nbtDouble + " " + effectHistory.size());
 
 		Component text = generateCharmText(chosenEffect, value, nbtDouble, isNegative, level);
 
 		// Add to history
 		effectHistory.add(chosenEffect.mEffectName);
 		charmTextOrder.add(text);
-		MMLog.fine("chosen effect- " + chosenEffect.mEffectName + " " + effectHistory.size());
+		MMLog.debug("chosen effect- " + chosenEffect.mEffectName + " " + effectHistory.size());
 
 		return chosenEffect;
 	}
@@ -743,7 +743,7 @@ public class CharmFactory {
 			text = Component.text(lore, DepthsUtils.getRarityTextColor(level)).decoration(TextDecoration.ITALIC, false);
 		}
 
-		MMLog.fine("generated charm text " + lore);
+		MMLog.debug("generated charm text " + lore);
 
 		return text;
 	}

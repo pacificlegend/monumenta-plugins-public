@@ -1,7 +1,7 @@
 package com.playmonumenta.plugins.commands;
 
-import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.integrations.MonumentaNetworkRelayIntegration;
+import com.playmonumenta.plugins.utils.MMLog;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import dev.jorel.commandapi.arguments.Argument;
@@ -30,7 +30,7 @@ public class AdminNotify {
 					textWithReplacedText = PlaceholderAPI.setPlaceholders(player, message);
 				}
 
-				Plugin.getInstance().getLogger().info("Sent admin notify message for: " + textWithReplacedText);
+				MMLog.info("Sent admin notify message for: " + textWithReplacedText);
 
 				MonumentaNetworkRelayIntegration.sendAdminMessage(textWithReplacedText);
 			})

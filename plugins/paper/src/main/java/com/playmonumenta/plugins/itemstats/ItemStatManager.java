@@ -495,12 +495,10 @@ public class ItemStatManager implements Listener {
 							tick(mPlugin, player, entry.getValue(), twoHertz, oneHertz);
 						}
 					} catch (Exception ex) {
-						Plugin.getInstance().getLogger().severe("Error in item stat manager tick: " + ex.getMessage());
-						ex.printStackTrace();
+						MMLog.severe("Error in item stat manager tick", ex);
 					}
 				} catch (Exception ex) {
-					Plugin.getInstance().getLogger().severe("SEVERE error in item stat manager ticking task that caused many pieces to be skipped: " + ex.getMessage());
-					ex.printStackTrace();
+					MMLog.severe("SEVERE error in item stat manager ticking task that caused many pieces to be skipped: ", ex);
 				}
 			}
 		}.runTaskTimer(plugin, 0, PERIOD);

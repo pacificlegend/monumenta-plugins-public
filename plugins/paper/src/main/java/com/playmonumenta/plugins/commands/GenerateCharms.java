@@ -2,6 +2,7 @@ package com.playmonumenta.plugins.commands;
 
 import com.opencsv.CSVReader;
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -37,7 +38,7 @@ public class GenerateCharms extends GenericCommand {
 			}
 		} catch (Exception ex) {
 			MessagingUtils.sendStackTrace(sender, ex);
-			ex.printStackTrace();
+			MMLog.severe("Failed to read charms CSV", ex);
 		}
 		int itemCounter = 0;
 		int chestCounter = 0;

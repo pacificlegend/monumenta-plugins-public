@@ -52,7 +52,7 @@ public class PumpkinPieOverride extends BaseOverride {
 		try {
 			BossManager.createBoss(null, creeper, "boss_halloween_creeper");
 		} catch (Exception e) {
-			plugin.getLogger().warning("Failed to create Tricky Creeper boss: " + e.getMessage());
+			MMLog.severe("Failed to create Tricky Creeper boss", e);
 		}
 
 		// Consume the item

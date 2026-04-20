@@ -264,7 +264,7 @@ public class BroadcastedEvents implements Listener {
 
 				try {
 					NetworkRelayAPI.sendMessage(shard, PROXIED_TASK_BROADCAST_CHANNEL, data);
-					MMLog.finer("Sent event clear task to shard " + shard);
+					MMLog.trace("Sent event clear task to shard " + shard);
 				} catch (Exception ex) {
 					MMLog.warning("Failed to send task to shard " + shard, ex);
 				}
@@ -288,7 +288,7 @@ public class BroadcastedEvents implements Listener {
 				if (sender instanceof Player player) {
 					player.sendMessage(Component.text(msg, NamedTextColor.GOLD));
 				}
-				MMLog.finer(msg);
+				MMLog.trace(msg);
 				return;
 			}
 
@@ -304,7 +304,7 @@ public class BroadcastedEvents implements Listener {
 			if (sender instanceof Player player) {
 				player.sendMessage(Component.text(msg, NamedTextColor.GOLD));
 			}
-			MMLog.finer(msg);
+			MMLog.trace(msg);
 		} else if (timeLeft != -1) {
 			ParentEvent event = new ParentEvent(shard, eventName, timeLeft);
 			mEventMap.put(key, event);
@@ -313,7 +313,7 @@ public class BroadcastedEvents implements Listener {
 			if (sender instanceof Player player) {
 				player.sendMessage(Component.text(msg, NamedTextColor.GOLD));
 			}
-			MMLog.finer(msg);
+			MMLog.trace(msg);
 		}
 	}
 
@@ -342,16 +342,16 @@ public class BroadcastedEvents implements Listener {
 			if (event.mTimeLeft == -1) {
 				//force-clear
 				mEventMap.remove(key);
-				MMLog.finer("Deleted child event: " + key);
+				MMLog.trace("Deleted child event: " + key);
 				return;
 			}
 
 			//replace current version.
 			mEventMap.put(key, event);
-			MMLog.finer("Updated child event: " + key);
+			MMLog.trace("Updated child event: " + key);
 		} else if (event.mTimeLeft != -1) {
 			mEventMap.put(key, event);
-			MMLog.finer("Created new child event: " + key);
+			MMLog.trace("Created new child event: " + key);
 		}
 	}
 
@@ -401,7 +401,7 @@ public class BroadcastedEvents implements Listener {
 		}
 
 		if (!toRemove.isEmpty()) {
-			MMLog.finer("[Boss Event Relay/Dest Offline] Caught remote destination '" + destination + "' going offline, cleared all related events.");
+			MMLog.trace("[Boss Event Relay/Dest Offline] Caught remote destination '" + destination + "' going offline, cleared all related events.");
 		}
 	}
 
@@ -443,7 +443,7 @@ public class BroadcastedEvents implements Listener {
 			childEvent.mStatus = BroadcastedEvents.EventStatus.contains(eventStatus) ? BroadcastedEvents.EventStatus.valueOf(eventStatus) : BroadcastedEvents.EventStatus.UNKNOWN;
 
 
-			MMLog.finer("[Boss Event Relay/Update] Caught child event: " + childEvent.mShard + "@" + childEvent.mEventName);
+			MMLog.trace("[Boss Event Relay/Update] Caught child event: " + childEvent.mShard + "@" + childEvent.mEventName);
 			registerChildEvent(childEvent);
 		} else if (event.getChannel().equals(PROXIED_TASK_BROADCAST_CHANNEL)) {
 			JsonObject data = event.getData();
@@ -462,10 +462,10 @@ public class BroadcastedEvents implements Listener {
 			String eventName = data.getAsJsonPrimitive(Event.EVENT_PROP_KEY).getAsString();
 			int timeLeft = data.getAsJsonPrimitive(BroadcastedEvents.Event.TIME_PROP_KEY).getAsInt();
 
-			MMLog.finer("[Boss Event Relay/Task] Received Task: " + shard + "@" + eventName);
+			MMLog.trace("[Boss Event Relay/Task] Received Task: " + shard + "@" + eventName);
 			runCommandLogic(Bukkit.createCommandSender((feedback) -> {
 				if (feedback instanceof TextComponent textFeedback) {
-					MMLog.finer("[Boss Event Relay/Task] " + textFeedback.content());
+					MMLog.trace("[Boss Event Relay/Task] " + textFeedback.content());
 				}
 			}), shard, eventName, timeLeft);
 		}
@@ -499,7 +499,7 @@ public class BroadcastedEvents implements Listener {
 			try {
 				/* Send packet through network relay. */
 				NetworkRelayAPI.sendBroadcastMessage(UPDATE_BROADCAST_CHANNEL, data);
-				MMLog.finer("Broadcasted child version of: " + mShard + SEPARATOR + mEventName);
+				MMLog.trace("Broadcasted child version of: " + mShard + SEPARATOR + mEventName);
 			} catch (Exception ex) {
 				MMLog.warning("Failed to send event periodic update for: " + mShard + SEPARATOR + mEventName, ex);
 			}

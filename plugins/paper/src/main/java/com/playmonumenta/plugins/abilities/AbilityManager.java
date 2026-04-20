@@ -164,6 +164,7 @@ import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.AbsorptionUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MetadataUtils;
 import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import com.playmonumenta.redissync.MonumentaRedisSyncAPI;
@@ -880,10 +881,10 @@ public class AbilityManager {
 					if (entry.getValue().isJsonPrimitive() && entry.getValue().getAsJsonPrimitive().isNumber()) {
 						chargeMap.put(ability, entry.getValue().getAsJsonPrimitive().getAsInt());
 					} else {
-						mPlugin.getLogger().warning("Got player " + player.getName() + " with ability charge for " + ability.getName() + " with unknown value '" + entry.getValue() + "'");
+						MMLog.warning("Got player " + player.getName() + " with ability charge for " + ability.getName() + " with unknown value '" + entry.getValue() + "'");
 					}
 				} else {
-					mPlugin.getLogger().warning("Got player " + player.getName() + " with unknown ability charges: " + entry.getKey());
+					MMLog.warning("Got player " + player.getName() + " with unknown ability charges: " + entry.getKey());
 				}
 			}
 			if (!chargeMap.isEmpty()) {

@@ -183,8 +183,7 @@ public class DelvesManager implements Listener {
 		try {
 			obj = MonumentaRedisSyncAPI.getPlayerPluginData(player.getUniqueId(), KEY_DELVES_PLUGIN_DATA);
 		} catch (Exception e) {
-			MMLog.warning("[DelveManager] error while loading player info. Reason: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("[DelveManager] error while loading player info", e);
 			return;
 		}
 
@@ -204,8 +203,7 @@ public class DelvesManager implements Listener {
 
 				loadPlayerDungeonData(player, name, dungeonObj);
 			} catch (Exception e) {
-				MMLog.warning("[DelveManager] error while loading player info. Reason: " + e.getMessage());
-				e.printStackTrace();
+				MMLog.severe("[DelveManager] error while loading player info", e);
 				player.sendMessage(Component.text("Some of your delve data have not loaded correctly, try reloading!", NamedTextColor.RED).hoverEvent(HoverEvent.showText(Component.text(e.toString()))));
 			}
 		}

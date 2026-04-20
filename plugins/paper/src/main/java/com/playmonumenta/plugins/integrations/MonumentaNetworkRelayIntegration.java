@@ -15,13 +15,12 @@ import com.playmonumenta.networkrelay.shardhealth.LowMemoryEvent;
 import com.playmonumenta.networkrelay.shardhealth.ShardHealth;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.integrations.luckperms.LuckPermsIntegration;
-import com.playmonumenta.plugins.utils.MessagingUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,14 +42,12 @@ public class MonumentaNetworkRelayIntegration implements Listener {
 	public static final String ADMIN_ALERT_CHANNEL = "Monumenta.Automation.AdminNotification";
 	private static final int CHARS_PER_MESSAGE_GROUP = 1950;
 
-	private final Logger mLogger;
 	private static @Nullable MonumentaNetworkRelayIntegration INSTANCE = null;
 	private Map<String, StringBuilder> mLogBuffer = new HashMap<>();
 	private @Nullable BukkitRunnable mLogBufferRunnable = null;
 
-	public MonumentaNetworkRelayIntegration(Logger logger) {
-		logger.info("Enabling MonumentaNetworkRelay integration");
-		mLogger = logger;
+	public MonumentaNetworkRelayIntegration() {
+		MMLog.info("Enabling MonumentaNetworkRelay integration");
 		INSTANCE = this;
 	}
 
@@ -60,7 +57,7 @@ public class MonumentaNetworkRelayIntegration implements Listener {
 			return;
 		}
 
-		instance.mLogger.info("Disabling MonumentaNetworkRelay integration");
+		MMLog.info("Disabling MonumentaNetworkRelay integration");
 
 		if (instance.mLogBufferRunnable != null) {
 			instance.mLogBufferRunnable.cancel();
@@ -132,8 +129,7 @@ public class MonumentaNetworkRelayIntegration implements Listener {
 			try {
 				NetworkRelayAPI.sendMessage("*", channel, data);
 			} catch (Exception ex) {
-				instance.mLogger.severe("Failed to send audit log message: " + ex.getMessage());
-				MessagingUtils.sendStackTrace(Bukkit.getConsoleSender(), ex);
+				MMLog.severe("Failed to send audit log message", ex);
 			}
 		}
 	}
@@ -172,8 +168,7 @@ public class MonumentaNetworkRelayIntegration implements Listener {
 			try {
 				NetworkRelayAPI.sendBroadcastCommand(command);
 			} catch (Exception ex) {
-				instance.mLogger.severe("Failed to send broadcast message: " + ex.getMessage());
-				MessagingUtils.sendStackTrace(Bukkit.getConsoleSender(), ex);
+				MMLog.severe("Failed to send broadcast message", ex);
 			}
 		}
 	}
@@ -186,8 +181,7 @@ public class MonumentaNetworkRelayIntegration implements Listener {
 			try {
 				NetworkRelayAPI.sendMessage("*", ADMIN_ALERT_CHANNEL, data);
 			} catch (Exception ex) {
-				instance.mLogger.severe("Failed to send admin alert message: " + ex.getMessage());
-				MessagingUtils.sendStackTrace(Bukkit.getConsoleSender(), ex);
+				MMLog.severe("Failed to send admin alert message", ex);
 			}
 		}
 	}

@@ -902,7 +902,7 @@ public class EntityUtils {
 			bleedEffect.actuallyApplyHemorrhageCooldown(mob, applyWeakness);
 		} else {
 			// Should never happen
-			MMLog.finer("Bleeding attempted to hemorrhage to a mob which somehow did not have any Bleed effect, despite it being added previously.");
+			MMLog.warning("Bleeding attempted to hemorrhage to a mob which somehow did not have any Bleed effect, despite it being added previously.");
 		}
 	}
 

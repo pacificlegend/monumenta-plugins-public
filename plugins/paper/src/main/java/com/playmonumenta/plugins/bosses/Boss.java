@@ -143,8 +143,7 @@ public class Boss {
 				ability.triggerOnSpells(spell -> spell.bossCastAbility(event));
 			}
 		} catch (ConcurrentModificationException cme) {
-			MMLog.severe("Caught CME in SpellCastEvent of " + event.getBoss().getName());
-			cme.printStackTrace();
+			MMLog.severe("Caught CME in SpellCastEvent of " + event.getBoss().getName(), cme);
 		}
 	}
 

@@ -68,7 +68,7 @@ public class ChunkManager implements Listener {
 				if (loadedState.add(ChunkType.BLOCK_CHUNK_LOAD_DELAY)) {
 					if (loadedState.size() == ChunkType.values().length) {
 						mLoaded++;
-						MMLog.finest(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s); block load");
+						MMLog.trace(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s); block load");
 						Bukkit.getPluginManager().callEvent(new ChunkFullLoadEvent(chunk));
 					}
 				}
@@ -93,7 +93,7 @@ public class ChunkManager implements Listener {
 				if (loadedState.add(ChunkType.ENTITY_CHUNK_LOAD_DELAY)) {
 					if (loadedState.size() == ChunkType.values().length) {
 						mLoaded++;
-						MMLog.finest(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s); entity load");
+						MMLog.trace(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s); entity load");
 						Bukkit.getPluginManager().callEvent(new ChunkFullLoadEvent(chunk));
 					}
 				}
@@ -117,7 +117,7 @@ public class ChunkManager implements Listener {
 		loadedState.remove(ChunkType.BLOCK_CHUNK);
 		if (loadedState.size() == ChunkType.values().length - 1) {
 			mLoaded--;
-			MMLog.finest(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s) block partial unload");
+			MMLog.trace(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s) block partial unload");
 			ChunkPartialUnloadEvent partialEvent = new ChunkPartialUnloadEvent(chunk, event.isSaveChunk(), Arrays.stream(chunk.getEntities()).toList());
 			Bukkit.getPluginManager().callEvent(partialEvent);
 			if (partialEvent.isNeedsSave()) {
@@ -137,7 +137,7 @@ public class ChunkManager implements Listener {
 			if (worldNeedsSave.isEmpty()) {
 				mNeedsSave.remove(worldId);
 			}
-			MMLog.finest(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s) block full unload");
+			MMLog.trace(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s) block full unload");
 		}
 	}
 
@@ -157,7 +157,7 @@ public class ChunkManager implements Listener {
 		loadedState.remove(ChunkType.ENTITY_CHUNK);
 		if (loadedState.size() == ChunkType.values().length - 1) {
 			mLoaded--;
-			MMLog.finest(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s); entity partial unload");
+			MMLog.trace(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s); entity partial unload");
 			ChunkPartialUnloadEvent partialEvent = new ChunkPartialUnloadEvent(chunk, true, event.getEntities());
 			Bukkit.getPluginManager().callEvent(partialEvent);
 			if (partialEvent.isNeedsSave()) {
@@ -174,7 +174,7 @@ public class ChunkManager implements Listener {
 			if (worldNeedsSave.isEmpty()) {
 				mNeedsSave.remove(worldId);
 			}
-			MMLog.finest(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s); entity full unload");
+			MMLog.trace(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s); entity full unload");
 		}
 	}
 
@@ -193,7 +193,7 @@ public class ChunkManager implements Listener {
 			Bukkit.getPluginManager().callEvent(partialEvent);
 			// Chunks get saved on unload by default
 			mLoaded--;
-			MMLog.finest(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s); world unload");
+			MMLog.trace(() -> "[CHUNK] Loaded " + mLoaded + "/" + worldChunks.size() + "/" + mLoadedChunks.size() + "chunk(s); world unload");
 		}
 	}
 

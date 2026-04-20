@@ -156,8 +156,7 @@ public class SpellVoidGrenades extends Spell {
 
 			}.runTaskTimer(mPlugin, 0, 1);
 		} catch (Exception e) {
-			MMLog.warning("Failed to summon grenade for hellzone grenade toss: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to summon grenade for hellzone grenade toss", e);
 		}
 	}
 

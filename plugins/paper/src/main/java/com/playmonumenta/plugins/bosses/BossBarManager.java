@@ -119,7 +119,7 @@ public class BossBarManager {
 				return OptionalDouble.empty();
 			}
 
-			MMLog.fine("Running BossHealthAction for %s at %s%% health.".formatted(MessagingUtils.plainText(mBoss.name()), currentPercent));
+			MMLog.debug(() -> "Running BossHealthAction for %s at %s%% health.".formatted(MessagingUtils.plainText(mBoss.name()), currentPercent));
 			entry.getValue().run(mBoss);
 			mEvents.remove();
 			if (mCapDamage) {

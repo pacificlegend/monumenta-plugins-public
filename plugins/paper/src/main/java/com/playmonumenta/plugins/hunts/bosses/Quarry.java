@@ -206,7 +206,7 @@ public abstract class Quarry extends SerializedLocationBossAbilityGroup {
 		MessagingUtils.sendTitle(player, Component.text(""), Component.text(SPOIL_CHARACTER, mQuarryType.getColor()));
 
 		mSpoiledPlayers.add(uuid);
-		MMLog.fine("[Hunts] Player " + player.getName() + " spoiled quarry " + mBoss.getName());
+		MMLog.debug("[Hunts] Player " + player.getName() + " spoiled quarry " + mBoss.getName());
 		return true;
 	}
 
@@ -220,7 +220,7 @@ public abstract class Quarry extends SerializedLocationBossAbilityGroup {
 		PotionUtils.applyPotion(Plugin.getInstance(), player, new PotionEffect(PotionEffectType.BLINDNESS, 3 * 20, 0, true, false));
 		PotionUtils.applyPotion(Plugin.getInstance(), player, new PotionEffect(PotionEffectType.DARKNESS, 2 * 20, 0, true, false));
 		EffectManager.getInstance().addEffect(player, "QuarryBanishStasis", new Stasis(2 * 20, false));
-		MMLog.fine("[Hunts] Player " + player.getName() + " banished by quarry " + mBoss.getName());
+		MMLog.debug("[Hunts] Player " + player.getName() + " banished by quarry " + mBoss.getName());
 
 		// banish message obeys player's PEB setting for whether death messages are broadcasted
 		Component banishMessage = formatBanishMessage(player);

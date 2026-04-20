@@ -248,7 +248,7 @@ public class SpiritArcheryMinigame extends Minigame {
 					MessagingUtils.sendActionBarMessage(mPlayer, String.format("Score: %d (%s%d)", mScore, scoreGain > 0 ? "+" : "", scoreGain));
 				}
 			} else {
-				MMLog.finer("Mob other than target was killed in the firing range.");
+				MMLog.trace("Mob other than target was killed in the firing range.");
 			}
 		}
 	}

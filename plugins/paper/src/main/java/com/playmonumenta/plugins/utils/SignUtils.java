@@ -237,7 +237,7 @@ public final class SignUtils {
 				ProtocolLibrary.getProtocolManager().sendServerPacket(player, signData);
 				NmsUtils.getVersionAdapter().sendOpenSignPacket(player, location.getBlockX(), location.getBlockY(), location.getBlockZ(), true);
 			} catch (Exception exception) {
-				exception.printStackTrace();
+				MMLog.severe("Failed to send sign packet to player", exception);
 			}
 			mInputs.put(player, this);
 		}

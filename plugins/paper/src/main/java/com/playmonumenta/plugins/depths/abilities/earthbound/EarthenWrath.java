@@ -228,8 +228,7 @@ public class EarthenWrath extends DepthsAbility {
 					}
 				}
 			} catch (Exception e) {
-				MMLog.warning("Exception for depths on entity damage- earthen wrath", e);
-				e.printStackTrace();
+				MMLog.severe("Exception for depths on entity damage- earthen wrath", e);
 			}
 		}
 	}

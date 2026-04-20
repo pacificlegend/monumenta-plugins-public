@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.cosmetics.CosmeticType;
 import com.playmonumenta.plugins.cosmetics.CosmeticsManager;
 import com.playmonumenta.plugins.utils.GUIUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.scriptedquests.utils.CustomInventory;
 import com.playmonumenta.scriptedquests.utils.ScoreboardUtils;
 import com.playmonumenta.structures.StructuresAPI;
@@ -211,7 +212,7 @@ public class PlotBorderCustomInventory extends CustomInventory {
 				StructuresAPI.loadAndPasteStructure("plots/borders/" + cmd, loc, false, true).whenComplete((unused, ex) -> {
 					if (ex != null) {
 						player.sendMessage("Plot border completed with error: " + ex.getMessage());
-						ex.printStackTrace();
+						MMLog.severe("Failed to load plot border structure", ex);
 					} else {
 						player.sendMessage("Plot border loading complete");
 					}

@@ -1,18 +1,18 @@
 package com.playmonumenta.plugins.integrations;
 
+import com.playmonumenta.plugins.utils.MMLog;
 import de.myzelyam.api.vanish.VanishAPI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 public class PremiumVanishIntegration {
 	private static boolean DISABLED = true;
 
-	public static void enable(Logger logger) {
-		logger.info("Enabling PremiumVanish integration");
+	public static void enable() {
+		MMLog.info("Enabling PremiumVanish integration");
 		DISABLED = false;
 	}
 

@@ -9,6 +9,7 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.utils.BossUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.NmsUtils;
 import java.util.Collections;
 import org.bukkit.entity.Creature;
@@ -72,7 +73,7 @@ public class HostileBoss extends BossAbilityGroup {
 				}, p.MELEE_ATTACK_RANGE);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			MMLog.severe("Failed to construct HostileBoss", e);
 		} finally {
 			//this will make the mobs get damage from abilities
 			boss.addScoreboardTag("Hostile");

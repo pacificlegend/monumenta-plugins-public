@@ -579,7 +579,7 @@ public class DelvesUtils {
 			}
 
 			if (structures.isEmpty()) {
-				MMLog.fine("Delve party is not in any structures");
+				MMLog.debug("Delve party is not in any structures");
 				return Collections.emptyMap();
 			} else if (structures.size() > 1) {
 				MMLog.warning("Delve party is in multiple structures at once: " + structures.stream().map(DelvesUtils::getStructureName).collect(Collectors.joining(", ")));
@@ -594,8 +594,7 @@ public class DelvesUtils {
 				try {
 					BOUNTY_DATA = bountyData = BountyGui.parseData(3);
 				} catch (Exception e) {
-					MMLog.warning("Caught exception parsing r3 bounty data");
-					e.printStackTrace();
+					MMLog.severe("Caught exception parsing r3 bounty data", e);
 					bountyData = Collections.emptyList();
 				}
 			}

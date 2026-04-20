@@ -80,7 +80,7 @@ public class ItemDiscovery {
 	public boolean giveLootToPlayer(Player player) {
 		LootTable lootTable = Bukkit.getServer().getLootTable(mLootTablePath);
 		if (lootTable == null) {
-			MMLog.fine("[Discoveries] Invalid loot table on Discovery with id: " + mId + " to player: " + player.getName());
+			MMLog.debug("[Discoveries] Invalid loot table on Discovery with id: " + mId + " to player: " + player.getName());
 			return false;
 		}
 

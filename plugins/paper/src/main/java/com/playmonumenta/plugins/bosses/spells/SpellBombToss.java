@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.bosses.spells;
 
 import com.playmonumenta.plugins.utils.LocationUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -185,8 +186,7 @@ public class SpellBombToss extends Spell {
 			explosion.runTaskLater(mPlugin, mFuse);
 			mActiveRunnables.add(explosion);
 		} catch (Exception e) {
-			mPlugin.getLogger().warning("Failed to summon TNT for bomb toss: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to summon TNT for bomb toss", e);
 		}
 	}
 

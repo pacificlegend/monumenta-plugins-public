@@ -50,7 +50,7 @@ public class Morbid {
 		JsonObject delvesData = MonumentaRedisSyncAPI.getPlayerPluginData(player.getUniqueId(), DelvesManager.KEY_DELVES_PLUGIN_DATA);
 		// shouldnt be possible?
 		if (delvesData == null) {
-			MMLog.fine("Couldn't get morbid deaths for " + player.getName());
+			MMLog.debug("Couldn't get morbid deaths for " + player.getName());
 			return;
 		}
 
@@ -107,7 +107,7 @@ public class Morbid {
 		JsonObject delvesData = MonumentaRedisSyncAPI.getPlayerPluginData(player.getUniqueId(), DelvesManager.KEY_DELVES_PLUGIN_DATA);
 		if (delvesData != null && delvesData.has(REDIS_KEY)) {
 			delvesData.remove(REDIS_KEY);
-			MMLog.fine("Reset weekly morbid death counts for " + player.getName());
+			MMLog.debug("Reset weekly morbid death counts for " + player.getName());
 		}
 	}
 }

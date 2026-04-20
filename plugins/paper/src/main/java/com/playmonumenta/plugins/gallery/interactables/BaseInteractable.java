@@ -3,6 +3,7 @@ package com.playmonumenta.plugins.gallery.interactables;
 import com.playmonumenta.plugins.gallery.GalleryGame;
 import com.playmonumenta.plugins.gallery.GalleryPlayer;
 import com.playmonumenta.plugins.gallery.GalleryUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.HashSet;
 import java.util.Set;
 import net.kyori.adventure.text.Component;
@@ -150,7 +151,7 @@ public class BaseInteractable {
 			}
 		} catch (Exception e) {
 			GalleryUtils.printDebugMessage("Exception while reading entity. Reason: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to create BaseInteractable from entity", e);
 		}
 
 		//how do we get here?

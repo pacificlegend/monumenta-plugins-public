@@ -1,6 +1,6 @@
 package com.playmonumenta.plugins.integrations;
 
-import java.util.logging.Logger;
+import com.playmonumenta.plugins.utils.MMLog;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
 import org.bukkit.Bukkit;
@@ -15,8 +15,8 @@ import org.jetbrains.annotations.Nullable;
 public class CoreProtectIntegration {
 	private static @Nullable CoreProtectAPI API = null;
 
-	public static void enable(Logger logger) {
-		logger.info("Enabling CoreProtect integration");
+	public static void enable() {
+		MMLog.info("Enabling CoreProtect integration");
 
 		Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("CoreProtect");
 

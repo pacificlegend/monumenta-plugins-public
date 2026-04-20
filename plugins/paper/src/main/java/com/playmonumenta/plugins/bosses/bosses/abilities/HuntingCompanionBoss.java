@@ -83,8 +83,7 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 					mCosmetic.onAttack(mFox.getWorld(), mFox.getLocation(), mPlayer, mFox);
 				}, 3);
 			} catch (Exception e) {
-				MMLog.warning("Catch an exception while creating " + mFox.getName() + ". Reason: " + e.getMessage());
-				e.printStackTrace();
+				MMLog.severe("Catch an exception while creating " + mFox.getName(), e);
 			}
 		}
 

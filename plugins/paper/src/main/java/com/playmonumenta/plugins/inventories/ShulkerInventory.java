@@ -3,6 +3,7 @@ package com.playmonumenta.plugins.inventories;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -203,7 +204,7 @@ public class ShulkerInventory {
 	 */
 	void openShulker() {
 		if (mDepositLimit > 0) {
-			mPlugin.getLogger().warning("ShulkerInventory attempted to open a Shulker Box marked as For Deposit Only");
+			MMLog.warning("ShulkerInventory attempted to open a Shulker Box marked as For Deposit Only");
 		} else {
 			mPlayer.openInventory(mInventory);
 		}

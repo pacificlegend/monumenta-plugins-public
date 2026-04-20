@@ -629,8 +629,7 @@ public final class ParrotCustomInventory extends Gui {
 			GUI_ITEMS.clear();
 			loadItems();
 		} catch (Exception e) {
-			MMLog.warning("Caught exception refreshing Parrot GUI");
-			e.printStackTrace();
+			MMLog.severe("Caught exception refreshing Parrot GUI", e);
 		}
 		update();
 	}

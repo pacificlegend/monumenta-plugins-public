@@ -117,7 +117,7 @@ public class GuildPermissions implements Listener {
 	}
 
 	public static void anyPostSyncEvent(String eventLabel) {
-		MMLog.fine("[Guild Permissions Listener/" + eventLabel + "] Checking recent update");
+		MMLog.debug("[Guild Permissions Listener/" + eventLabel + "] Checking recent update");
 		for (User user : getLoadedUsers()) {
 			refreshPermissions(user);
 		}
@@ -183,7 +183,7 @@ public class GuildPermissions implements Listener {
 			return; // Player is not loaded locally - they are most likely in the process of logging in
 		}
 
-		MMLog.fine("[Guild Permissions Listener] Refreshing guild permissions for " + player.getName());
+		MMLog.debug("[Guild Permissions Listener] Refreshing guild permissions for " + player.getName());
 		refreshPermissions(player, LuckPermsIntegration.getUser(player));
 	}
 
@@ -241,7 +241,7 @@ public class GuildPermissions implements Listener {
 		GuildPermission guildPermission,
 		boolean isEnabled
 	) {
-		MMLog.fine(
+		MMLog.debug(
 			"[Guild Permissions Listener/Permission Change] " + player.getName()
 				+ " had their " + guildPermission.mLabel
 				+ " permission " + (isEnabled ? "granted" : "revoked")

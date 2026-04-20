@@ -77,7 +77,6 @@ public class ExecutorWrapper {
 				mTask.run();
 			} catch (Exception ex) {
 				MMLog.severe("Error executing task in ExecutorWrapper: " + mName, ex);
-				ex.printStackTrace();
 			}
 		}
 	}

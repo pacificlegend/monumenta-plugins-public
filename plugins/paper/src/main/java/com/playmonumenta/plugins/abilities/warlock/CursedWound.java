@@ -129,8 +129,7 @@ public class CursedWound extends Ability {
 									mPlugin.mEffectManager.addEffect(mob, source, deserializedEffect);
 								}
 							} catch (Exception e) {
-								MMLog.warning("Caught exception deserializing effect in Cursed Wound:");
-								e.printStackTrace();
+								MMLog.severe("Caught exception deserializing effect in Cursed Wound:", e);
 							}
 						});
 						DamageUtils.damage(mPlayer, mob, DamageEvent.DamageType.MAGIC, damage, mInfo.getLinkedSpell(), true, true);

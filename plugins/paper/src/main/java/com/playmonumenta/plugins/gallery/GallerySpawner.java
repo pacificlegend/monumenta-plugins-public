@@ -5,6 +5,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.bosses.BossManager;
 import com.playmonumenta.plugins.gallery.bosses.GenericGalleryMobBoss;
 import com.playmonumenta.plugins.integrations.LibraryOfSoulsIntegration;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.NmsUtils;
 import com.playmonumenta.plugins.utils.VectorUtils;
 import java.util.HashSet;
@@ -105,7 +106,7 @@ public class GallerySpawner {
 					} catch (Exception e) {
 						//this SHOULD NEVER happen
 						GalleryUtils.printDebugMessage("Catch an exception while creating GenericGalleryMobBoss. Reason: " + e.getMessage());
-						e.printStackTrace();
+						MMLog.severe("Failed to create GenericGalleryMobBoss", e);
 					}
 					cancel();
 				}
@@ -143,7 +144,7 @@ public class GallerySpawner {
 			}
 		} catch (Exception e) {
 			GalleryUtils.printDebugMessage("Catch an exception while converting spawner to Object. Reason " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to convert entity to GallerySpawner", e);
 		}
 
 		return null;

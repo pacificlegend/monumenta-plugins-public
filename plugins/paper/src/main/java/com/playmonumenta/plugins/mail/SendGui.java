@@ -161,7 +161,7 @@ public class SendGui extends MailGui {
 	@Override
 	public void refreshMailbox(Mailbox mailbox) {
 		if (mMailbox.equals(mailbox)) {
-			MMLog.fine(() -> "[Mailbox] refreshMailboxSlot: SendGui (" + mPlayer.getName()
+			MMLog.debug(() -> "[Mailbox] refreshMailboxSlot: SendGui (" + mPlayer.getName()
 				+ " " + mailbox.receiver().friendlyStr(MailDirection.TO) + ") refreshing");
 			refresh();
 		}

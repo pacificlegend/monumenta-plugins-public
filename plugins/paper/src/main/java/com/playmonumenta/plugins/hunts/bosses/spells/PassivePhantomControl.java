@@ -123,7 +123,7 @@ public class PassivePhantomControl extends Spell {
 	}
 
 	public void setNextPoint(Location point, double distancePerTick, int rotationTicks, int cooldown, boolean rotateFirst) {
-		MMLog.fine("[Steel Wing Hawk] Set next point to " + point.toVector() + ". Currently at " + mBoss.getLocation().toVector());
+		MMLog.debug("[Steel Wing Hawk] Set next point to " + point.toVector() + ". Currently at " + mBoss.getLocation().toVector());
 		Vector vecToPoint = LocationUtils.getDirectionTo(point, mBoss.getLocation());
 		mVec = vecToPoint.clone().multiply(2 * distancePerTick);
 		float pitchToPoint = (float) Math.toDegrees(Math.asin(vecToPoint.getY()));
@@ -138,7 +138,7 @@ public class PassivePhantomControl extends Spell {
 	}
 
 	public void freeze(int cooldown) {
-		MMLog.fine("[Steel Wing Hawk] Froze for " + cooldown + " ticks.");
+		MMLog.debug("[Steel Wing Hawk] Froze for " + cooldown + " ticks.");
 		mVec = null;
 		mTicks = 0;
 		mCooldown = cooldown;

@@ -15,6 +15,7 @@ import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkillShopGUI;
 import com.playmonumenta.plugins.depths.DepthsUtils;
 import com.playmonumenta.plugins.integrations.MonumentaNetworkRelayIntegration;
 import com.playmonumenta.plugins.utils.GUIUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.scriptedquests.utils.CustomInventory;
 import java.util.ArrayList;
 import java.util.List;
@@ -366,7 +367,7 @@ public class CosmeticsGUI extends CustomInventory {
 				}
 				mInventory.setItem(COSMETICS_START + (i % COSMETICS_PER_PAGE), c.getDisplayItem());
 			} catch (Exception e) {
-				e.printStackTrace();
+				MMLog.severe("Failed to set cosmetic display item in GUI", e);
 			}
 		}
 

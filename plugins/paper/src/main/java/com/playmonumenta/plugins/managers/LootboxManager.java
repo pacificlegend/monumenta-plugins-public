@@ -125,9 +125,9 @@ public class LootboxManager implements Listener {
 		}
 
 		if (MMLog.isLevelEnabled(Level.TRACE)) {
-			MMLog.finer("LOOTBOX: # of Buckets: " + numBuckets);
-			MMLog.finer("LOOTBOX: Processing chest which contains:");
-			loot.forEach((item) -> MMLog.finer("LOOTBOX:     " + item.toString()));
+			MMLog.trace("LOOTBOX: # of Buckets: " + numBuckets);
+			MMLog.trace("LOOTBOX: Processing chest which contains:");
+			loot.forEach((item) -> MMLog.trace("LOOTBOX:     " + item.toString()));
 		}
 
 		// Sort the Loot Inventory
@@ -136,11 +136,11 @@ public class LootboxManager implements Listener {
 		ChestSortAPI.sortInventory(lootInventory);
 
 		if (MMLog.isLevelEnabled(Level.TRACE)) {
-			MMLog.finer("LOOTBOX: Sorted chest which contains:");
+			MMLog.trace("LOOTBOX: Sorted chest which contains:");
 			List<ItemStack> lootChest = Arrays.asList(lootInventory.getContents()).stream()
 				.filter((item) -> !ItemUtils.isNullOrAir(item))
 				.toList();
-			lootChest.forEach((item) -> MMLog.finer("LOOTBOX:     " + item.toString()));
+			lootChest.forEach((item) -> MMLog.trace("LOOTBOX:     " + item.toString()));
 		}
 
 		// Distribute even
@@ -182,8 +182,8 @@ public class LootboxManager implements Listener {
 				.filter((item) -> !ItemUtils.isNullOrAir(item))
 				.toList();
 			if (MMLog.isLevelEnabled(Level.TRACE)) {
-				MMLog.finer("LOOTBOX: Bucket contents");
-				newBucket.forEach((item) -> MMLog.finer("LOOTBOX:     " + item.toString()));
+				MMLog.trace("LOOTBOX: Bucket contents");
+				newBucket.forEach((item) -> MMLog.trace("LOOTBOX:     " + item.toString()));
 			}
 			outputBuckets.add(newBucket);
 		}

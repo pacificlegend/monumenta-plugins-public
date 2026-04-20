@@ -5,6 +5,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.integrations.MonumentaRedisSyncIntegration;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.nbtapi.iface.ReadableNBT;
@@ -119,7 +120,7 @@ public class ThrownItem {
 			Material material = mEntity.getItemStack().getType();
 			// Note that as of 1.19, mEntity.isValid() is false at this point.
 			// We need to remove it anyway - it's still in the chunk that is unloading.
-			Plugin.getInstance().getLogger().fine(() -> "Removing thrown item due to chunk unload at " + entityLocation + " " + material);
+			MMLog.debug(() -> "Removing thrown item due to chunk unload at " + entityLocation + " " + material);
 			mEntity.remove();
 			mEntity = null;
 			stopTracking();

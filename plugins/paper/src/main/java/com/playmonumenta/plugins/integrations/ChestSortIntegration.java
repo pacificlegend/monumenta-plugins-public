@@ -10,6 +10,7 @@ import com.playmonumenta.plugins.itemstats.enums.Tier;
 import com.playmonumenta.plugins.utils.InventoryUtils;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils.ZoneProperty;
 import de.jeff_media.chestsort.api.ChestSortAPI;
@@ -43,7 +44,7 @@ public class ChestSortIntegration implements Listener {
 
 	public ChestSortIntegration(Plugin plugin) {
 		mPlugin = plugin;
-		plugin.getLogger().info("Enabling ChestSort integration");
+		MMLog.info("Enabling ChestSort integration");
 	}
 
 	private static void checkForPlugin() {

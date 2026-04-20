@@ -6,6 +6,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.bosses.bosses.BossAbilityGroup;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.plugins.utils.FileUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -78,7 +79,7 @@ public class CopyBlightArena extends BossAbilityGroup {
 			try {
 				FileUtils.writeJson(mPlugin.getDataFolder() + "/SiriusBlightArena.json", blight);
 			} catch (Exception e) {
-				e.printStackTrace();
+				MMLog.severe("Failed to write Sirius blight arena JSON", e);
 			}
 		} else {
 			for (Player p : PlayerUtils.playersInRange(boss.getLocation(), 10, true, true)) {

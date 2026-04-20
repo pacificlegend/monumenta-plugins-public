@@ -52,7 +52,7 @@ public class CompareScoresCommand {
 					}
 				} else {
 					sender.sendMessage(Component.text("Non-entity found? Most likely a glitch.", NamedTextColor.RED));
-					MMLog.fine("CompareScoresCommand found a non-entity in its multiple entities selector, it's called " + target);
+					MMLog.debug("CompareScoresCommand found a non-entity in its multiple entities selector, it's called " + target);
 				}
 			}
 		}

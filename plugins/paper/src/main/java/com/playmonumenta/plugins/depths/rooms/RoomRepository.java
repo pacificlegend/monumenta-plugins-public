@@ -229,7 +229,7 @@ public abstract class RoomRepository {
 
 		StructuresAPI.loadAndPasteStructure(path, loc, true, true).whenComplete((unused, ex) -> {
 			if (ex != null) {
-				ex.printStackTrace();
+				MMLog.severe("Failed to load depths lobby structure " + path, ex);
 				party.sendMessage(Component.text("Failed to load lobby structure " + path + ". Contact a moderator.", NamedTextColor.RED));
 			} else {
 				if (party.mFloorLobbyLoadPlayerTpPoint == null) {

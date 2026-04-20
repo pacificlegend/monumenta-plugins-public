@@ -362,8 +362,7 @@ public class MusicGui extends Gui {
 				try {
 					Plugin.getInstance().mGuiManager.showGui("recordplayer", mPlayer, "main");
 				} catch (WrapperCommandSyntaxException e) {
-					MMLog.warning("Caught exception attempting to open recordplayer GUI:");
-					e.printStackTrace();
+					MMLog.severe("Caught exception attempting to open recordplayer GUI:", e);
 				}
 			});
 		}

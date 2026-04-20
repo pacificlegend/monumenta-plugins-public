@@ -336,8 +336,7 @@ public class MobListener implements Listener {
 							event.setDamage(damage);
 						}
 					} catch (Exception e) {
-						MMLog.warning("[MobListener] Error while replacing EvokerFangs damage with custom EvokerFangDamage. Reason: " + e.getMessage());
-						e.printStackTrace();
+						MMLog.severe("[MobListener] Error while replacing EvokerFangs damage with custom EvokerFangDamage. Reason: " + e.getMessage(), e);
 					}
 				}
 			}

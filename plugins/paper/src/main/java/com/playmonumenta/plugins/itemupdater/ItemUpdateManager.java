@@ -8,6 +8,7 @@ import com.playmonumenta.plugins.tracking.PlayerTracking;
 import com.playmonumenta.plugins.utils.GUIUtils;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
@@ -60,7 +61,7 @@ public class ItemUpdateManager implements Listener {
 	public void playerJoinEvent(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		String pathNode = "PlayerJoinEvent " + player.getName();
-		mPlugin.getLogger().fine("ItemUpdateManager: " + pathNode);
+		MMLog.debug("ItemUpdateManager: " + pathNode);
 
 		List<String> path = new ArrayList<>();
 		path.add(pathNode);
@@ -498,14 +499,14 @@ public class ItemUpdateManager implements Listener {
 	}
 
 	public static void logNestedException(List<String> path, Exception e) {
-		Plugin.getInstance().getLogger().warning("ItemUpdateManager: An exception occurred:");
+		MMLog.warning("ItemUpdateManager: An exception occurred:");
 		for (String node : path) {
-			Plugin.getInstance().getLogger().warning("ItemUpdateManager: " + node);
+			MMLog.warning("ItemUpdateManager: " + node);
 		}
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		e.printStackTrace(pw);
 		String sStackTrace = sw.toString();
-		Plugin.getInstance().getLogger().warning(e.getLocalizedMessage() + "\n" + sStackTrace);
+		MMLog.warning(e.getLocalizedMessage() + "\n" + sStackTrace);
 	}
 }

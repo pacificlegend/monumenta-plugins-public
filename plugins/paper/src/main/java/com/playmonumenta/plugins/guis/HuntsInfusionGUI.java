@@ -13,6 +13,7 @@ import com.playmonumenta.plugins.utils.InfusionUtils;
 import com.playmonumenta.plugins.utils.InventoryUtils;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.NamespacedKeyUtils;
 import com.playmonumenta.plugins.utils.StringUtils;
 import com.playmonumenta.plugins.utils.WalletUtils;
@@ -153,7 +154,7 @@ public class HuntsInfusionGUI extends Gui {
 			}
 		} catch (Exception e) {
 			p.sendMessage(Component.text("If you see this message please contact a mod! (Error in infusing)", NamedTextColor.RED));
-			e.printStackTrace();
+			MMLog.severe("Failed to process hunts infusion", e);
 		}
 	}
 

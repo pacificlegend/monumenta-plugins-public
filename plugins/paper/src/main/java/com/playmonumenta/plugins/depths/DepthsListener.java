@@ -373,7 +373,7 @@ public class DepthsListener implements Listener {
 			}
 
 			Location deathLocation = player.getLocation();
-			MMLog.finer(player.getName() + " died. mNumDeaths = " + dp.mNumDeaths);
+			MMLog.debug(player.getName() + " died. mNumDeaths = " + dp.mNumDeaths);
 			int graveDuration = getGraveDuration(party, dp, player);
 			dp.mNumDeaths++;
 
@@ -652,7 +652,7 @@ public class DepthsListener implements Listener {
 		DepthsManager dm = DepthsManager.getInstance();
 		DepthsPlayer dp = dm.getDepthsPlayer(player);
 
-		MMLog.finer("Player " + player.getName() + " quit." +
+		MMLog.debug("Player " + player.getName() + " quit." +
 			" has_depths_player=" + (dp != null) +
 			" transferring=" + Plugin.getInstance().mPlayerListener.isPlayerTransferring(player) +
 			" quit_reason=" + event.getReason().name()
@@ -678,7 +678,7 @@ public class DepthsListener implements Listener {
 					return applicableBossTags.stream().anyMatch(scoreboardTags::contains);
 				});
 
-			MMLog.finer("Player " + player.getName() +
+			MMLog.debug("Player " + player.getName() +
 				" nearZenithBoss=" + nearZenithBoss +
 				" nearHostileMob=" + (EntityUtils.getNearestHostileTargetable(player.getLocation(), DISCONNECT_ANTICHEESE_RADIUS) != null)
 			);
@@ -790,7 +790,7 @@ public class DepthsListener implements Listener {
 		Player player = event.getPlayer();
 		DepthsManager manager = DepthsManager.getInstance();
 		DepthsPlayer dp = manager.getDepthsPlayer(player);
-		MMLog.finer("Player " + player.getName() + " logged in. has_depths_player=" + (dp != null));
+		MMLog.debug("Player " + player.getName() + " logged in. has_depths_player=" + (dp != null));
 		if (dp != null) {
 			boolean stillInGame = true;
 
@@ -801,7 +801,7 @@ public class DepthsListener implements Listener {
 			}
 
 			DepthsParty party = manager.getPartyFromId(dp);
-			MMLog.finer("Player " + player.getName() + " has_party=" + (party != null));
+			MMLog.debug("Player " + player.getName() + " has_party=" + (party != null));
 			if (party != null) {
 				Map<DelvesModifier, Integer> delvePointsForParty = party.mDelveModifiers;
 				for (DelvesModifier m : DelvesModifier.values()) {
@@ -815,16 +815,16 @@ public class DepthsListener implements Listener {
 					disconnectAnticheese = true;
 					dp.mNumDeaths++;
 					dp.mDisconnects++;
-					MMLog.finer(player.getName() + " logged in with anticheese mob tag. mDisconnects = " + dp.mDisconnects);
+					MMLog.debug(player.getName() + " logged in with anticheese mob tag. mDisconnects = " + dp.mDisconnects);
 				}
 				if (player.getScoreboardTags().contains(DISCONNECT_ANTICHEESE_BOSS_TAG)) {
 					disconnectAnticheese = true;
 					dp.mNumDeaths += 2;
 					dp.mDisconnects += 2;
-					MMLog.finer(player.getName() + " logged in with anticheese boss tag. mDisconnects = " + dp.mDisconnects);
+					MMLog.debug(player.getName() + " logged in with anticheese boss tag. mDisconnects = " + dp.mDisconnects);
 				}
 				if (dp.mZenithAbandonedByParty) {
-					MMLog.finer(player.getName() + " logged in with zenith sacrificed tag (send to lootroom on login due to being abandoned by their party while logged out). ");
+					MMLog.debug(player.getName() + " logged in with zenith sacrificed tag (send to lootroom on login due to being abandoned by their party while logged out). ");
 					sendPlayerToLootRoom(player, false); // Assumes that treasure score was successfully set.
 					stillInGame = false;
 					player.sendMessage(Component.text("Your party has abandoned you...", NamedTextColor.DARK_AQUA));

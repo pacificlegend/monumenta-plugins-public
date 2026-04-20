@@ -196,7 +196,7 @@ public class MailMan implements Listener {
 				}
 
 				Mailbox remoteMailbox = Mailbox.fromJson(data.getAsJsonObject("mailbox")).join();
-				MMLog.finer(() -> "[Mailbox] Got remote mail slot update message for mailbox: "
+				MMLog.debug(() -> "[Mailbox] Got remote mail slot update message for mailbox: "
 					+ MessagingUtils.plainText(remoteMailbox.friendlyName()));
 
 				MailCache receiverCache = mRecipientMailCaches.get(remoteMailbox.receiver());
@@ -204,14 +204,14 @@ public class MailMan implements Listener {
 
 				Mailbox mailbox = getOrRegister(remoteMailbox, true);
 				if (mailbox == null) {
-					MMLog.finer(() -> "[Mailbox] No locally cached mailbox for remote mail slot update; ignoring");
+					MMLog.debug("[Mailbox] No locally cached mailbox for remote mail slot update; ignoring");
 					return;
 				}
 
 				int slot = data.getAsJsonPrimitive("slot").getAsInt();
-				MMLog.finer(() -> "[Mailbox] Preparing to update slot " + slot);
+				MMLog.debug("[Mailbox] Preparing to update slot " + slot);
 				mailbox.refreshSlot(slot).join();
-				MMLog.finer(() -> "[Mailbox] Updating any GUIs affected by remote mail slot update");
+				MMLog.debug("[Mailbox] Updating any GUIs affected by remote mail slot update");
 				Bukkit.getScheduler().runTask(Plugin.getInstance(), () -> {
 					for (MailGui mailGui : mOpenMailGuis) {
 						mailGui.refreshMailbox(mailbox);
@@ -447,11 +447,11 @@ public class MailMan implements Listener {
 	}
 
 	private static void removeUnusedMailCaches() {
-		MMLog.finer(() -> "[MailMan] Clearing unused mail caches...");
+		MMLog.debug("[MailMan] Clearing unused mail caches...");
 
 		// Don't remove caches for online players
 		Set<Recipient> toRemove = new TreeSet<>(mRecipientMailCaches.keySet());
-		MMLog.finer(() -> "[MailMan] Caches: " + recipientCollectionToString(toRemove));
+		MMLog.debug(() -> "[MailMan] Caches: " + recipientCollectionToString(toRemove));
 		toRemove.removeIf(e -> {
 			if (!(e instanceof PlayerRecipient playerRecipient)) {
 				return true;
@@ -467,7 +467,7 @@ public class MailMan implements Listener {
 			mPlayerActiveTransactions.remove(playerId);
 			return false;
 		});
-		MMLog.finer(() -> "[MailMan] Offline players: " + recipientCollectionToString(toRemove));
+		MMLog.debug(() -> "[MailMan] Offline players: " + recipientCollectionToString(toRemove));
 
 		// Don't remove any caches for guilds that have players online
 		Set<Recipient> guildRecipientsToRemove = new TreeSet<>(mRecipientMailCaches.keySet());
@@ -487,7 +487,7 @@ public class MailMan implements Listener {
 			Recipient recipient = new GuildRecipient(guildId, guild);
 			guildRecipientsToRemove.remove(recipient);
 		}
-		MMLog.finer(() -> "[MailMan] Guilds with no online players: " + recipientCollectionToString(guildRecipientsToRemove));
+		MMLog.debug(() -> "[MailMan] Guilds with no online players: " + recipientCollectionToString(guildRecipientsToRemove));
 		toRemove.addAll(guildRecipientsToRemove);
 
 		// Don't remove any caches currently in use by GUIs
@@ -497,11 +497,11 @@ public class MailMan implements Listener {
 				guiRecipientsToKeep.add(mailCache.recipient());
 			}
 		}
-		MMLog.finer(() -> "[MailMan] Caches in use by GUIs; to keep: " + recipientCollectionToString(guiRecipientsToKeep));
+		MMLog.debug(() -> "[MailMan] Caches in use by GUIs; to keep: " + recipientCollectionToString(guiRecipientsToKeep));
 		toRemove.removeAll(guiRecipientsToKeep);
 
 		for (Recipient recipient : toRemove) {
-			MMLog.finer(() -> "[Mailbox] Unloaded mail cache for " + recipient.friendlyStr(MailDirection.DEFAULT));
+			MMLog.debug(() -> "[Mailbox] Unloaded mail cache for " + recipient.friendlyStr(MailDirection.DEFAULT));
 			mRecipientMailCaches.remove(recipient);
 		}
 	}

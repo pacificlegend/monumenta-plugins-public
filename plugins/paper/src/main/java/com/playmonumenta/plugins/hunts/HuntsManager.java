@@ -185,7 +185,7 @@ public class HuntsManager implements Listener {
 			Location loc = getLocation(world);
 			if (!loc.isChunkLoaded()) {
 				BroadcastedEvents.clearEvent(name(), "ring");
-				MMLog.fine("[Hunts] Failed to summon quarry " + mName + " because the chunk was unloaded.");
+				MMLog.debug("[Hunts] Failed to summon quarry " + mName + " because the chunk was unloaded.");
 				return null;
 			}
 
@@ -203,7 +203,7 @@ public class HuntsManager implements Listener {
 
 				try {
 					BossManager.createBoss(null, quarry, mTag, loc);
-					MMLog.fine("[Hunts] Successfully summoned quarry " + mName);
+					MMLog.debug("[Hunts] Successfully summoned quarry " + mName);
 				} catch (Exception e) {
 					MMLog.severe("[Hunts] Failed to initialize boss tag " + mTag, e);
 				}
@@ -289,7 +289,7 @@ public class HuntsManager implements Listener {
 					if (remainingTime <= 0) {
 						if (overseer) {
 							sendTransferRequest();
-							MMLog.fine("[Hunts] Timer is up, sending transfer request");
+							MMLog.debug("[Hunts] Timer is up, sending transfer request");
 						}
 						return;
 					} else if (remainingTime <= WARNING_5) {
@@ -298,14 +298,14 @@ public class HuntsManager implements Listener {
 						if (overseer && !mTriggeredFive) {
 							sendWarning();
 							mTriggeredFive = true;
-							MMLog.fine("[Hunts] Sent 5 minute warning");
+							MMLog.debug("[Hunts] Sent 5 minute warning");
 						}
 					} else if (remainingTime <= WARNING_15) {
 						if (!mTriggeredFifteen) {
 							if (overseer) {
 								sendWarning();
 								mTriggeredFifteen = true;
-								MMLog.fine("[Hunts] Sent 15 minute warning");
+								MMLog.debug("[Hunts] Sent 15 minute warning");
 							}
 
 							if (mNextQuarry != null && mWorld != null) {
@@ -316,7 +316,7 @@ public class HuntsManager implements Listener {
 						if (overseer && !mTriggeredThirty) {
 							sendWarning();
 							mTriggeredThirty = true;
-							MMLog.fine("[Hunts] Sent 30 minute warning");
+							MMLog.debug("[Hunts] Sent 30 minute warning");
 						}
 					}
 
@@ -362,19 +362,19 @@ public class HuntsManager implements Listener {
 				mTriggeredFifteen = false;
 				mTriggeredFive = false;
 			});
-		MMLog.fine("[Hunts] Starting random hunt");
+		MMLog.debug("[Hunts] Starting random hunt");
 	}
 
 	public void refreshOthers() {
 		MonumentaNetworkRelayIntegration.broadcastCommand("hunts refresh");
-		MMLog.fine("[Hunts] Refreshing other shards");
+		MMLog.debug("[Hunts] Refreshing other shards");
 	}
 
 	public CompletableFuture<Void> refresh() {
 		if (!Plugin.IS_PLAY_SERVER) {
 			return CompletableFuture.allOf();
 		}
-		MMLog.fine("[Hunts] Refreshing information");
+		MMLog.debug("[Hunts] Refreshing information");
 		return CompletableFuture.allOf(
 			RBoardAPI.getAsLong(HUNTS_SCOREHOLDER, QUARRY_OBJECTIVE, 0).whenComplete((val, ex) -> {
 				if (ex != null) {
@@ -386,7 +386,7 @@ public class HuntsManager implements Listener {
 						score = 0;
 					}
 					mNextQuarry = QuarryType.values()[score];
-					MMLog.finer("[Hunts] Next Quarry is " + mNextQuarry.getName());
+					MMLog.trace("[Hunts] Next Quarry is " + mNextQuarry.getName());
 				}
 			}),
 
@@ -395,7 +395,7 @@ public class HuntsManager implements Listener {
 					MMLog.warning("[Hunts] Encountered exception when refreshing baited status:", ex);
 				} else {
 					mIsBaited = val > 0;
-					MMLog.finer("[Hunts] Next baited status is " + mIsBaited);
+					MMLog.trace("[Hunts] Next baited status is " + mIsBaited);
 				}
 			}),
 
@@ -404,7 +404,7 @@ public class HuntsManager implements Listener {
 					MMLog.warning("[Hunts] Encountered exception when refreshing spawn time:", ex);
 				} else {
 					mSpawnTime = val;
-					MMLog.finer("[Hunts] Next spawn time is " + mSpawnTime);
+					MMLog.trace("[Hunts] Next spawn time is " + mSpawnTime);
 				}
 			}),
 
@@ -413,7 +413,7 @@ public class HuntsManager implements Listener {
 					MMLog.warning("[Hunts] Encountered exception when refreshing last spawn time", ex);
 				} else {
 					mLastSpawnTime = val;
-					MMLog.finer("[Hunts] Last spawn time is " + mLastSpawnTime);
+					MMLog.trace("[Hunts] Last spawn time is " + mLastSpawnTime);
 				}
 			})
 		);
@@ -438,17 +438,17 @@ public class HuntsManager implements Listener {
 	}
 
 	private CompletableFuture<Long> setLastHuntTime() {
-		MMLog.finer("[Hunts] Set last spawn time to " + mSpawnTime);
+		MMLog.trace("[Hunts] Set last spawn time to " + mSpawnTime);
 		return RBoardAPI.set(HUNTS_SCOREHOLDER, LAST_TIME_OBJECTIVE, mSpawnTime);
 	}
 
 	public CompletableFuture<Long> setTime(long seconds) {
-		MMLog.finer("[Hunts] Set spawn time to " + seconds + " seconds from now");
+		MMLog.trace("[Hunts] Set spawn time to " + seconds + " seconds from now");
 		return RBoardAPI.set(HUNTS_SCOREHOLDER, TIME_OBJECTIVE, seconds + DateUtils.getSecondsSinceEpoch());
 	}
 
 	private CompletableFuture<Long> setBaited(boolean isBaited) {
-		MMLog.finer("[Hunts] Set baited to " + isBaited);
+		MMLog.trace("[Hunts] Set baited to " + isBaited);
 		return RBoardAPI.set(HUNTS_SCOREHOLDER, BAITED_OBJECTIVE, isBaited ? 1 : 0);
 	}
 
@@ -463,7 +463,7 @@ public class HuntsManager implements Listener {
 	}
 
 	private CompletableFuture<Long> setQuarry(int ordinal) {
-		MMLog.finer("[Hunts] Set next Quarry to " + QuarryType.values()[ordinal].getName());
+		MMLog.trace("[Hunts] Set next Quarry to " + QuarryType.values()[ordinal].getName());
 		return RBoardAPI.set(HUNTS_SCOREHOLDER, QUARRY_OBJECTIVE, ordinal);
 	}
 

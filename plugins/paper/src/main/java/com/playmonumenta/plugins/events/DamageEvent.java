@@ -1,6 +1,5 @@
 package com.playmonumenta.plugins.events;
 
-import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
@@ -13,7 +12,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EvokerFangs;
 import org.bukkit.entity.LivingEntity;
@@ -160,7 +158,7 @@ public class DamageEvent extends Event implements Cancellable {
 		public Metadata(DamageType type, @Nullable ClassAbility ability, @Nullable ItemStatManager.PlayerItemStats playerItemStats, @Nullable String bossSpellName) {
 			if (type == null) {
 				mType = DamageType.OTHER;
-				Plugin.getInstance().getLogger().log(Level.WARNING, "Attempted to construct DamageEvent with null DamageType");
+				MMLog.warning("Attempted to construct DamageEvent with null DamageType");
 			} else {
 				mType = type;
 			}
@@ -267,24 +265,24 @@ public class DamageEvent extends Event implements Cancellable {
 
 	public void setFlatDamage(double damage) {
 		if (damage < 0) {
-			Plugin.getInstance().getLogger().log(Level.FINE, "Negative damage dealt: " + damage, new Exception());
+			MMLog.debug("Negative damage dealt: " + damage, new Exception());
 		}
 		if (!Double.isFinite(damage)) {
-			Plugin.getInstance().getLogger().log(Level.WARNING, "Non-finite damage dealt: " + damage, new Exception());
+			MMLog.warning("Non-finite damage dealt: " + damage, new Exception());
 			damage = 0;
 		}
 
 		// Update flat damage, since we're setting a new base
 		// In case something goes horribly wrong, log the stack trace when set to finest
 		mFlatDamage = damage;
-		MMLog.finest(() -> Arrays.toString(Thread.currentThread().getStackTrace()));
+		MMLog.trace(() -> Arrays.toString(Thread.currentThread().getStackTrace()));
 
 		recalculateDamage();
 	}
 
 	public void updateDamageWithMultiplier(double damageMultiplier) {
 		if (damageMultiplier < 0) {
-			Plugin.getInstance().getLogger().log(Level.FINE, "Negative damage multiplier: " + damageMultiplier, new Exception());
+			MMLog.debug("Negative damage multiplier: " + damageMultiplier, new Exception());
 		}
 		if (damageMultiplier > 1) {
 			// Accumulate damage multiplier (Additively)
@@ -298,7 +296,7 @@ public class DamageEvent extends Event implements Cancellable {
 
 	public void updateGearDamageWithMultiplier(double damageGearMultiplier) {
 		if (damageGearMultiplier < 0) {
-			Plugin.getInstance().getLogger().log(Level.FINE, "Negative damage multiplier: " + damageGearMultiplier, new Exception());
+			MMLog.debug("Negative damage multiplier: " + damageGearMultiplier, new Exception());
 		}
 		// Accumulate damage multiplier
 		mGearDamageMultiplier += (damageGearMultiplier - 1);

@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.commands;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.utils.MMLog;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import dev.jorel.commandapi.arguments.LiteralArgument;
@@ -35,7 +36,7 @@ public class RestartEmptyCommand {
 				TASK.cancel();
 				TASK = null;
 				sender.sendMessage("Pending restart cancelled");
-				plugin.getLogger().info("restart-empty: Pending restart cancelled");
+				MMLog.info("restart-empty: Pending restart cancelled");
 			} else {
 				sender.sendMessage("Server is already pending restart");
 			}
@@ -48,14 +49,14 @@ public class RestartEmptyCommand {
 					if (Bukkit.getOnlinePlayers().isEmpty()) {
 						this.cancel();
 						TASK = null;
-						plugin.getLogger().info("restart-empty: Restarting server now that it is empty");
+						MMLog.info("restart-empty: Restarting server now that it is empty");
 						Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "stop");
 					}
 				}
 			};
 			TASK.runTaskTimer(plugin, 0, 40);
 			sender.sendMessage("The server will restart the next time it is empty");
-			plugin.getLogger().info("restart-empty: The server will restart the next time it is empty");
+			MMLog.info("restart-empty: The server will restart the next time it is empty");
 		}
 	}
 }

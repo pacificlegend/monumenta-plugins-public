@@ -19,6 +19,7 @@ import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.SignUtils;
 import com.playmonumenta.scriptedquests.utils.ScoreboardUtils;
@@ -27,7 +28,6 @@ import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -130,8 +130,8 @@ public class MonumentaNetworkChatIntegration {
 		return ENABLED;
 	}
 
-	public static void onEnable(Logger logger) {
-		logger.info("Enabling NetworkChat integration");
+	public static void onEnable() {
+		MMLog.info("Enabling NetworkChat integration");
 		ENABLED = true;
 
 		// register replacement for <abilities> and <charms>

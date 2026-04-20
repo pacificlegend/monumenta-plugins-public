@@ -5,6 +5,7 @@ import com.playmonumenta.plugins.managers.DungeonAccessManager;
 import com.playmonumenta.plugins.poi.POIManager;
 import com.playmonumenta.plugins.seasonalevents.SeasonalEventManager;
 import com.playmonumenta.plugins.utils.DateUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.NmsUtils;
 import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import java.time.LocalDateTime;
@@ -68,16 +69,16 @@ public class DailyReset {
 						String message;
 						boolean targetIsNew = mLastCountdownTarget != nextTarget;
 						boolean newDailyVersion = mLastDailyVersion != dailyVersion;
-						plugin.getLogger().fine("[DailyReset] nextTarget = " + nextTarget);
-						plugin.getLogger().fine("[DailyReset] targetIsNew = " + targetIsNew);
-						plugin.getLogger().fine("[DailyReset] newDailyVersion = " + newDailyVersion);
+						MMLog.debug("[DailyReset] nextTarget = " + nextTarget);
+						MMLog.debug("[DailyReset] targetIsNew = " + targetIsNew);
+						MMLog.debug("[DailyReset] newDailyVersion = " + newDailyVersion);
 						if (newDailyVersion) {
 							handle(plugin);
 						} else if (targetIsNew) {
 							message = getCountdownMessage(mLastCountdownTarget);
 							if (message != null) {
 								Component component = Component.text(message, NamedTextColor.GOLD, TextDecoration.BOLD);
-								plugin.getLogger().info("[DailyReset] " + message);
+								MMLog.info("[DailyReset] " + message);
 								for (Player player : plugin.getServer().getOnlinePlayers()) {
 									player.sendMessage(component);
 								}
@@ -89,7 +90,7 @@ public class DailyReset {
 			}
 		};
 		mRealTimePool.schedule(mRealTimeRunnable, remainingMillis, TimeUnit.MILLISECONDS);
-		plugin.getLogger().fine(String.format("[DailyReset] Scheduled for %5.3f seconds", remainingMillis / 1000.0));
+		MMLog.debug(String.format("[DailyReset] Scheduled for %5.3f seconds", remainingMillis / 1000.0));
 	}
 
 	private static int getNextSecondsTarget() {
@@ -208,7 +209,7 @@ public class DailyReset {
 		}
 		String message = getNewDayMessage(mLastDailyVersion);
 		mLastDailyVersion = dailyVersion;
-		plugin.getLogger().info("[DailyReset] " + message);
+		MMLog.info("[DailyReset] " + message);
 		NmsUtils.getVersionAdapter().runConsoleCommandSilently(DAILY_SERVER_CHANGES_COMMAND);
 		SeasonalEventManager.reloadPasses(Bukkit.getConsoleSender());
 		for (Player player : plugin.getServer().getOnlinePlayers()) {

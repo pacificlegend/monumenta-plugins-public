@@ -7,6 +7,7 @@ import com.playmonumenta.plugins.minigames.chess.ChessBoard.ChessTeam;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -454,7 +455,7 @@ public class ChessInterface {
 			try {
 				frame.remove();
 			} catch (Exception e) {
-				Plugin.getInstance().getLogger().warning("[Chess Interface] Error during unload. Can't remove frame!");
+				MMLog.severe("[Chess Interface] Error during unload. Can't remove frame!", e);
 			}
 		}
 		mFramePosMap.clear();

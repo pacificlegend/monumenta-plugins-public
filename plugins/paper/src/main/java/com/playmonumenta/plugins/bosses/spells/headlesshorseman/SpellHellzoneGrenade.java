@@ -8,6 +8,7 @@ import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.BossUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import java.util.Collections;
 import java.util.List;
@@ -169,8 +170,7 @@ public class SpellHellzoneGrenade extends Spell {
 
 			}.runTaskTimer(mPlugin, 0, 1);
 		} catch (Exception e) {
-			mPlugin.getLogger().warning("Failed to summon grenade for hellzone grenade toss: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to summon grenade for hellzone grenade toss", e);
 		}
 	}
 

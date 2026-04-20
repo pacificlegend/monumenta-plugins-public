@@ -1,7 +1,7 @@
 package com.playmonumenta.plugins.listeners;
 
-import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -35,8 +35,8 @@ public class IndigoListener implements Listener {
 
 	public static void revokeBlocklessEligibility(Player player, String message) {
 		if (player.getScoreboardTags().contains("IndigoBlockless")) {
-			Plugin.getInstance().getLogger().info("IndigoListener: Player " + player.getName() + " lost eligibility for the blockless advancement:");
-			Plugin.getInstance().getLogger().info("IndigoListener: " + message);
+			MMLog.info("IndigoListener: Player " + player.getName() + " lost eligibility for the blockless advancement:");
+			MMLog.info("IndigoListener: " + message);
 		}
 		player.getScoreboardTags().remove("IndigoBlockless");
 	}

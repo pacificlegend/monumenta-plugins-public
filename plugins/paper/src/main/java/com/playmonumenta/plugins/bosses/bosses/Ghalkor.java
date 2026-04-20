@@ -14,6 +14,7 @@ import com.playmonumenta.plugins.integrations.LibraryOfSoulsIntegration;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.BossUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import java.util.Arrays;
@@ -108,7 +109,7 @@ public final class Ghalkor extends SerializedLocationBossAbilityGroup {
 				}
 			}.runTaskLater(mPlugin, 1);
 		} else {
-			mPlugin.getLogger().warning("Svalgot was not found by Ghalkor!");
+			MMLog.warning("Svalgot was not found by Ghalkor!");
 		}
 
 		new BukkitRunnable() {
@@ -228,11 +229,10 @@ public final class Ghalkor extends SerializedLocationBossAbilityGroup {
 				try {
 					BossManager.createBoss(null, leBeast, BeastOfTheBlackFlame.identityTag, mEndLoc);
 				} catch (Exception e) {
-					mPlugin.getLogger().warning("Failed to create boss BeastOfTheBlackFlame: " + e.getMessage());
-					e.printStackTrace();
+					MMLog.severe("Failed to create boss BeastOfTheBlackFlame", e);
 				}
 			} else {
-				mPlugin.getLogger().warning("Failed to summon BeastOfTheBlackFlame");
+				MMLog.severe("Failed to summon BeastOfTheBlackFlame");
 			}
 		}
 	}

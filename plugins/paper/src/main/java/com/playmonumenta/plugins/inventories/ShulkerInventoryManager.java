@@ -2,6 +2,7 @@ package com.playmonumenta.plugins.inventories;
 
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -122,7 +123,7 @@ public class ShulkerInventoryManager {
 				shulkerInventory.openShulker();
 				return true;
 			} catch (Exception e) {
-				mPlugin.getLogger().warning("Failed to open shulker via shortcut: " + e.getMessage());
+				MMLog.warning("Failed to open shulker via shortcut", e);
 			}
 		}
 		return false;
@@ -204,10 +205,10 @@ public class ShulkerInventoryManager {
 				try {
 					return shulkerInventory.depositItem(item);
 				} catch (Exception e) {
-					mPlugin.getLogger().warning("Shulker Deposit Limit Exceeded ... Somehow");
+					MMLog.warning("Shulker Deposit Limit Exceeded ... Somehow", e);
 				}
 			} catch (Exception e) {
-				mPlugin.getLogger().warning("Failed to open shulker via shortcut: " + e.getMessage());
+				MMLog.warning("Failed to open shulker via shortcut", e);
 			}
 		}
 		player.sendMessage(ERROR_NOT_A_SHULKER);

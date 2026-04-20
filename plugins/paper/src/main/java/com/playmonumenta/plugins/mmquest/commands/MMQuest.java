@@ -229,11 +229,11 @@ public class MMQuest {
 				stringQuestHashMap.put(questString, quest);
 			}
 		} catch (Exception e) {
-			MMLog.fine("MMQuest Error: " + e);
+			MMLog.severe("MMQuest Error", e);
 		}
 		int size = stringQuestHashMap.size();
 		if (size > 0) {
-			MMLog.fine("MMQuest Setup with: " + size + " quests.");
+			MMLog.info("MMQuest Setup with: " + size + " quests.");
 		}
 	}
 

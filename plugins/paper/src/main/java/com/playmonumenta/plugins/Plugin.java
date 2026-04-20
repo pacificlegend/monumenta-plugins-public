@@ -380,8 +380,7 @@ public class Plugin extends JavaPlugin {
 		try {
 			mHttpManager = new HttpManager(this);
 		} catch (IOException err) {
-			getLogger().warning("HTTP manager failed to start");
-			err.printStackTrace();
+			MMLog.severe("HTTP manager failed to start", err);
 		}
 
 		ServerProperties.load(this, null);
@@ -436,7 +435,7 @@ public class Plugin extends JavaPlugin {
 			obj = scoreboard.registerNewObjective("const", Criteria.DUMMY, Component.text("const"));
 		}
 		obj.getScore("$IsPlay").setScore(IS_PLAY_SERVER ? 1 : 0);
-		getLogger().info("Setting $IsPlay const = " + (IS_PLAY_SERVER ? 1 : 0) + " (" + (IS_PLAY_SERVER ? "play" : "build") + " server)");
+		MMLog.info("Setting $IsPlay const = " + (IS_PLAY_SERVER ? 1 : 0) + " (" + (IS_PLAY_SERVER ? "play" : "build") + " server)");
 
 		PluginManager manager = getServer().getPluginManager();
 
@@ -529,7 +528,7 @@ public class Plugin extends JavaPlugin {
 		}
 
 		if (ServerProperties.getAuditMessagesEnabled()) {
-			mAuditListener = new AuditListener(getLogger());
+			mAuditListener = new AuditListener();
 			manager.registerEvents(mAuditListener, this);
 		}
 		if (!IS_PLAY_SERVER) {
@@ -537,7 +536,7 @@ public class Plugin extends JavaPlugin {
 		}
 		Location spawn = Bukkit.getWorlds().get(0).getSpawnLocation();
 		manager.registerEvents(new AnimalLimits(), this);
-		manager.registerEvents(new ExceptionListener(this), this);
+		manager.registerEvents(new ExceptionListener(), this);
 		manager.registerEvents(mPlayerListener, this);
 		manager.registerEvents(new UsernameManager(), this);
 		manager.registerEvents(new SocialManager(), this);
@@ -670,21 +669,21 @@ public class Plugin extends JavaPlugin {
 					try {
 						mTimers.updateCooldowns(Constants.QUARTER_TICKS_PER_SECOND);
 					} catch (Exception e) {
-						e.printStackTrace();
+						MMLog.severe("Failed to update cooldowns", e);
 					}
 
 					for (Player player : mTrackingManager.mPlayers.getPlayers()) {
 						try {
 							mAbilityManager.periodicTrigger(player, twoHertz, oneHertz, mTicks);
 						} catch (Exception e) {
-							e.printStackTrace();
+							MMLog.severe("Failed to trigger ability tick for player", e);
 						}
 					}
 
 					try {
 						mTrackingManager.update(Constants.QUARTER_TICKS_PER_SECOND);
 					} catch (Exception e) {
-						e.printStackTrace();
+						MMLog.severe("Failed to update tracking manager", e);
 					}
 				}
 
@@ -692,35 +691,35 @@ public class Plugin extends JavaPlugin {
 				try {
 					mTrackingManager.mPlayers.update(1);
 				} catch (Exception e) {
-					e.printStackTrace();
+					MMLog.severe("Failed to update player list", e);
 				}
 
 				// Play particles at tracked projectiles
 				try {
 					mProjectileEffectTimers.update();
 				} catch (Exception e) {
-					e.printStackTrace();
+					MMLog.severe("Failed to update projectile effect timers", e);
 				}
 
 				// Show marker entities
 				try {
 					ShowMarkerTimer.update();
 				} catch (Exception e) {
-					e.printStackTrace();
+					MMLog.severe("Failed to update show marker timer", e);
 				}
 
 				// Update everything related to the PZero Minigame
 				try {
 					mPzeroManager.update(oneHertz, twoHertz, fourHertz);
 				} catch (Exception e) {
-					e.printStackTrace();
+					MMLog.severe("Failed to update PZero minigame", e);
 				}
 
 				// Updates related to discoveries
 				try {
 					DiscoveryManager.update();
 				} catch (Exception e) {
-					e.printStackTrace();
+					MMLog.severe("Failed to update discovery manager", e);
 				}
 
 				mTicks = (mTicks + 1) % Constants.TICKS_PER_SECOND;
@@ -739,7 +738,7 @@ public class Plugin extends JavaPlugin {
 
 		// Hook into Monumenta Network Relay for message brokering if available
 		if (Bukkit.getPluginManager().isPluginEnabled("MonumentaNetworkRelay")) {
-			manager.registerEvents(new MonumentaNetworkRelayIntegration(this.getLogger()), this);
+			manager.registerEvents(new MonumentaNetworkRelayIntegration(), this);
 
 			//relies on it, so only register if the plugin is available.
 			BroadcastedEvents.registerCommand(this);
@@ -750,12 +749,12 @@ public class Plugin extends JavaPlugin {
 		// Hook into Library of Souls for mob management if available
 		if (Bukkit.getPluginManager().isPluginEnabled("LibraryOfSouls")) {
 			BossTagCommand.register();
-			LibraryOfSoulsIntegration.enable(this.getLogger());
+			LibraryOfSoulsIntegration.enable();
 		}
 
 		// Enable Monumenta Network Chat integration
 		if (Bukkit.getPluginManager().isPluginEnabled("MonumentaNetworkChat")) {
-			MonumentaNetworkChatIntegration.onEnable(this.getLogger());
+			MonumentaNetworkChatIntegration.onEnable();
 		}
 
 		// Provide placeholder API replacements if it is present
@@ -765,7 +764,7 @@ public class Plugin extends JavaPlugin {
 
 		// Log things in CoreProtect if it is present
 		if (Bukkit.getPluginManager().isPluginEnabled("CoreProtect")) {
-			CoreProtectIntegration.enable(this.getLogger());
+			CoreProtectIntegration.enable();
 		}
 
 		// Register luckperms commands if LuckPerms is present
@@ -775,7 +774,7 @@ public class Plugin extends JavaPlugin {
 
 		// Hook into PremiumVanish if present
 		if (Bukkit.getPluginManager().isPluginEnabled("PremiumVanish")) {
-			PremiumVanishIntegration.enable(this.getLogger());
+			PremiumVanishIntegration.enable();
 		}
 
 		if (Bukkit.getPluginManager().isPluginEnabled("TAB")) {
@@ -805,16 +804,14 @@ public class Plugin extends JavaPlugin {
 			MonumentaClasses classes = new MonumentaClasses();
 			FileUtils.writeJson(skillExportPath, classes.toJson());
 		} catch (Exception e) {
-			// Failed to export skills to json, non-critical error.
-			getLogger().warning("Failed to export skills.");
+			MMLog.severe("Failed to export skills", e);
 		}
 
 		try {
 			String skillExportPath = exportedFolder + "zenith_charm_effects.json";
 			FileUtils.writeJson(skillExportPath, CharmEffects.dumpAsJson());
 		} catch (Exception e) {
-			// Failed to export skills to json, non-critical error.
-			getLogger().warning("Failed to export zenith charm effects.");
+			MMLog.severe("Failed to export zenith charm effects", e);
 		}
 
 		if (
@@ -825,10 +822,9 @@ public class Plugin extends JavaPlugin {
 			try {
 				String skillExportPath = exportedFolder + "depths_skills.json";
 				FileUtils.writeJson(skillExportPath, DepthsSkillsAPI.dumpFullJson());
-				getLogger().info("Depths skills API written successfully.");
+				MMLog.info("Depths skills API written successfully.");
 			} catch (Exception e) {
-				// Failed to export skills to json, non-critical error.
-				getLogger().warning("Failed to export depths skills.");
+				MMLog.severe("Failed to export depths skills.", e);
 			} finally {
 				// the API generator sets this override to generate descriptions for skills that differ between dd and cz
 				// regardless of whether it throws an exception, reset the override so it determines the type from shard name again
@@ -862,7 +858,7 @@ public class Plugin extends JavaPlugin {
 
 		/* If this is the depths shard, enable depths manager */
 		if (ServerProperties.getDepthsEnabled()) {
-			new DepthsManager(this, getLogger(), getDataFolder() + File.separator + "depths");
+			new DepthsManager(this, getDataFolder() + File.separator + "depths");
 			DepthsCommand.register(this);
 			DepthsGUICommands.register();
 		}

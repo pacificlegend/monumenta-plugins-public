@@ -118,11 +118,11 @@ public class ChestUtils {
 			luckAmount = 0;
 		} else if (!lootEntry.hasBonusRolls()) {
 			// This chest doesn't have bonus rolls, don't apply luck
-			MMLog.fine("Player '" + player.getName() + " opened loot chest '" + lootTable.getKey() + "' which did not have scaling enabled");
+			MMLog.debug("Player '" + player.getName() + " opened loot chest '" + lootTable.getKey() + "' which did not have scaling enabled");
 			luckAmount = 0;
 		} else {
 			// Loot scaling is enabled
-			MMLog.fine("Player '" + player.getName() + " opened loot chest '" + lootTable.getKey() + "' which was scaled & distributed");
+			MMLog.debug("Player '" + player.getName() + " opened loot chest '" + lootTable.getKey() + "' which was scaled & distributed");
 
 			// Get all players in range
 			nearbyPlayers = PlayerUtils.playersInLootScalingRange(player, false);
@@ -130,15 +130,15 @@ public class ChestUtils {
 			// This should at minimum be one since there should always be one player (the person who opened the chest)
 			int otherPlayersMultiplier = nearbyPlayers.size();
 
-			MMLog.fine("Lootable seed: " + lootable.getSeed());
+			MMLog.debug("Lootable seed: " + lootable.getSeed());
 			// Loot table seed set and use the seed for number of players
 			if (lootable.getSeed() > 0 && lootable.getSeed() < 50) {
 				otherPlayersMultiplier = (int) lootable.getSeed();
-				MMLog.fine("Chest loot was already generated due to a spawner being broken with seed " + otherPlayersMultiplier);
+				MMLog.debug("Chest loot was already generated due to a spawner being broken with seed " + otherPlayersMultiplier);
 			}
 
 			double bonusItems = BONUS_ITEMS[Math.min(BONUS_ITEMS.length - 1, otherPlayersMultiplier)];
-			MMLog.fine("Lootscaling for " + nearbyPlayers.size() + " players: " + bonusItems);
+			MMLog.debug("Lootscaling for " + nearbyPlayers.size() + " players: " + bonusItems);
 			luckAmount = (int) bonusItems;
 
 			// Account for fractions of extra items with random roll
@@ -319,13 +319,13 @@ public class ChestUtils {
 			Collections.shuffle(freeSlots);
 		}
 
-		MMLog.finer("generateLootInventory: Started with " + lootList.size() + " items and randomlyDistribute=" + randomlyDistribute);
+		MMLog.trace("generateLootInventory: Started with " + lootList.size() + " items and randomlyDistribute=" + randomlyDistribute);
 		ArrayDeque<Integer> slotsWithMultipleItems = new ArrayDeque<>();
 		boolean skrScrolls = false;
 		boolean winterItem = false;
 		for (ItemStack lootItem : lootList) {
 			if (freeSlots.isEmpty()) {
-				Plugin.getInstance().getLogger().severe("Tried to overfill container for player " + player.getName() + " at inventory " + inventory.getType() + " at location " + player.getLocation());
+				MMLog.severe(() -> "Tried to overfill container for player " + player.getName() + " at inventory " + inventory.getType() + " at location " + player.getLocation());
 				player.sendMessage("Tried to overfill this container! Please report this");
 				break;
 			}
@@ -338,11 +338,9 @@ public class ChestUtils {
 					winterItem = true; // Winter item found, alert the player later!
 				}
 			}
-			if (MMLog.isLevelEnabled(Level.TRACE)) { // Performance optimization to avoid calling lootItem.toString() when this log level is disabled
-				MMLog.finer("generateLootInventory: Putting item in slot " + slot + ": " + lootItem.toString());
-			}
+			MMLog.trace(() -> "generateLootInventory: Putting item in slot " + slot + ": " + lootItem.toString());
 			if (lootItem.getAmount() > 1) {
-				MMLog.finer("generateLootInventory: Adding slot " + slot + " to multiple items list");
+				MMLog.trace("generateLootInventory: Adding slot " + slot + " to multiple items list");
 				slotsWithMultipleItems.add(slot);
 			}
 		}
@@ -360,7 +358,7 @@ public class ChestUtils {
 			int amountRemaining = toSplitItem.getAmount() - amountToSplit;
 
 			if (MMLog.isLevelEnabled(Level.TRACE)) {
-				MMLog.finer("generateLootInventory: Splitting item type " + toSplitItem.getType() +
+				MMLog.trace(() -> "generateLootInventory: Splitting item type " + toSplitItem.getType() +
 					" with count " + toSplitItem.getAmount() + " in slot " + splitSlot +
 					" into count " + amountRemaining + " and " + amountToSplit + " in slot " + slot);
 			}
@@ -370,11 +368,11 @@ public class ChestUtils {
 			inventory.setItem(slot, splitItem);
 
 			if (amountToSplit > 1) {
-				MMLog.finer("generateLootInventory: Adding slot " + slot + " to multiple items list");
+				MMLog.trace("generateLootInventory: Adding slot " + slot + " to multiple items list");
 				slotsWithMultipleItems.add(slot);
 			}
 			if (amountRemaining > 1) {
-				MMLog.finer("generateLootInventory: Adding slot " + splitSlot + " to multiple items list");
+				MMLog.trace("generateLootInventory: Adding slot " + splitSlot + " to multiple items list");
 				slotsWithMultipleItems.add(splitSlot);
 			}
 		}

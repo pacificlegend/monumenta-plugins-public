@@ -44,7 +44,7 @@ public class MailCache {
 		mRelevantMailboxes = new ConcurrentSkipListSet<>(this::sortMailboxesWithSpeedDial);
 		mSentMailboxes = new ConcurrentSkipListMap<>(this::sortRecipientsWithSpeedDial);
 		mReceivedMailboxes = new ConcurrentSkipListMap<>(this::sortRecipientsWithSpeedDial);
-		MMLog.fine(() -> "[Mailbox] Created mail cache for " + recipient.friendlyStr(MailDirection.DEFAULT));
+		MMLog.debug(() -> "[Mailbox] Created mail cache for " + recipient.friendlyStr(MailDirection.DEFAULT));
 
 		Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
 			ConcurrentSkipListSet<Recipient> speedDialList = new ConcurrentSkipListSet<>(Recipient::mailboxCompareTo);
@@ -162,7 +162,7 @@ public class MailCache {
 				showGotMailMessage();
 			}
 
-			MMLog.fine(() -> "[Mailbox] Finished loading mail cache for " + recipient.friendlyStr(MailDirection.DEFAULT));
+			MMLog.debug(() -> "[Mailbox] Finished loading mail cache for " + recipient.friendlyStr(MailDirection.DEFAULT));
 			mInitializationFuture.complete(null);
 		});
 	}

@@ -1,6 +1,5 @@
 package com.playmonumenta.plugins.bosses.parameters;
 
-import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.particle.AbstractPartialParticle;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.MMLog;
@@ -63,7 +62,7 @@ public class ParticlesList {
 				return "(" + mParticle.name() + "," + mCount + "," + mDx + "," + mDy + "," + mDz + "," + mVelocity + "," + ((ItemStack) mExtra2).getType().name() + ")";
 			} else if (mExtra2 != null) {
 				String ret = "(" + mParticle.name() + "," + mCount + "," + mDx + "," + mDy + "," + mDz + "," + mVelocity + "," + mExtra2 + ")";
-				Plugin.getInstance().getLogger().warning("Got strange particle serialization to string of unknown type, likely plugin bug: " + ret);
+				MMLog.warning("Got strange particle serialization to string of unknown type, likely plugin bug: " + ret);
 				return ret;
 			}
 			return "(" + mParticle.name() + "," + mCount + "," + mDx + "," + mDy + "," + mDz + "," + mVelocity + ")";

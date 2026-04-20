@@ -2,7 +2,6 @@ package com.playmonumenta.plugins.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.adapters.VersionAdapter;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.structures.StructuresPlugin;
@@ -633,7 +632,7 @@ public class LocationUtils {
 	public static void fillBlocks(Location pos1, Location pos2, Material mat) {
 		if (!pos1.getWorld().equals(pos2.getWorld())) {
 			// Can't fill blocks between two different worlds
-			Plugin.getInstance().getLogger().severe("Attempted to fill blocks between " + pos1 + " and " + pos2 + " which are in different worlds");
+			MMLog.severe("Attempted to fill blocks between " + pos1 + " and " + pos2 + " which are in different worlds");
 			return;
 		}
 		World world = pos1.getWorld();

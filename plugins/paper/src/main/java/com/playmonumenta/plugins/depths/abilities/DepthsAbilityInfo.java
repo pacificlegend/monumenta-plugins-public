@@ -290,8 +290,7 @@ public class DepthsAbilityInfo<T extends DepthsAbility> extends AbilityInfo<T> {
 			String name = getDisplayName() == null ? "" : getDisplayName(); // It's never actually null
 			item = new DepthsAbilityItem(stack, name, rarity, oldRarity, preIncreaseRarity, useAbility, mDepthsTrigger, mDepthsTree);
 		} catch (Exception e) {
-			MMLog.warning("Invalid depths ability item: " + getDisplayName());
-			e.printStackTrace();
+			MMLog.severe("Invalid depths ability item: " + getDisplayName(), e);
 		}
 		return item;
 	}

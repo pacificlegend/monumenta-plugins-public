@@ -6,6 +6,7 @@ import com.playmonumenta.plugins.integrations.LibraryOfSoulsIntegration;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.BossUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import java.util.HashSet;
 import java.util.List;
@@ -130,8 +131,7 @@ public class SpellReaperOfLife extends Spell {
 				}
 			}.runTaskTimer(mPlugin, 0, 1);
 		} catch (Exception e) {
-			mPlugin.getLogger().warning("Failed to summon nuke for Reaper Of Life: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to summon nuke for Reaper Of Life", e);
 		}
 	}
 

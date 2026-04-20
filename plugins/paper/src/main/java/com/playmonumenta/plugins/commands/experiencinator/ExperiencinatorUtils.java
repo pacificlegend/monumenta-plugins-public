@@ -254,12 +254,12 @@ public abstract class ExperiencinatorUtils {
 			if (remainingValue != 0) {
 				// this should never happen, as a result with value 1 must exist (and this is checked when the config is loaded)
 				player.sendMessage(Component.text("Unable to give you " + remainingValue + " remaining items! Please contact a moderator.", NamedTextColor.RED));
-				Plugin.getInstance().getLogger().severe("Unable to give " + remainingValue + " remaining Experiencinator result items to " + player.getName() + ".");
+				MMLog.severe("Unable to give " + remainingValue + " remaining Experiencinator result items to " + player.getName() + ".");
 			}
 
 		} catch (Throwable t) {
 			player.sendMessage(Component.text("Error while giving you " + remainingValue + " remaining items from a total of " + totalValue + "! Please contact a moderator.", NamedTextColor.RED));
-			Plugin.getInstance().getLogger().severe("Error while giving Experiencinator result items to " + player.getName() + ". Initial sell value: " + sellValue + ", totalValue: " + totalValue + ", remainingValue: " + remainingValue);
+			MMLog.severe("Error while giving Experiencinator result items to " + player.getName() + ". Initial sell value: " + sellValue + ", totalValue: " + totalValue + ", remainingValue: " + remainingValue);
 			throw t;
 		}
 	}

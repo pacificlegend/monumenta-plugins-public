@@ -7,6 +7,7 @@ import com.playmonumenta.plugins.player.PlayerInventoryManager;
 import com.playmonumenta.plugins.point.Point;
 import com.playmonumenta.plugins.potion.PotionManager.PotionID;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils.ZoneProperty;
@@ -149,7 +150,7 @@ public class PlayerTracking implements EntityTracking {
 		try {
 			mPlugin.mPotionManager.updatePotionStatus(player, ticks);
 		} catch (Exception e) {
-			e.printStackTrace();
+			MMLog.severe("Failed to update potion status for player", e);
 		}
 
 		// Calculate and apply anti speed if the player is in (enters) an anti speed zone.

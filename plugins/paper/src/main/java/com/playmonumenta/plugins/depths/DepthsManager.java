@@ -190,7 +190,6 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -289,12 +288,12 @@ public class DepthsManager {
 		mPlugin = Plugin.getInstance();
 	}
 
-	public DepthsManager(Plugin p, Logger logger, String configPath) {
+	public DepthsManager(Plugin p, String configPath) {
 
 		//Try to load the manager from file, if it exists
 		mPlugin = p;
 		mRoomRepository = DepthsUtils.getDepthsContent().getRoomRepository();
-		if (!load(logger, configPath)) {
+		if (!load(configPath)) {
 			//Otherwise create a new instance
 			//Start the runnable for damaging players on bad glass
 			mDamageRunnable = new DepthsDamageRunnable();
@@ -323,18 +322,17 @@ public class DepthsManager {
 	/**
 	 * Loads a data file for previous plugin's instance on that shard, and generates the depths manager object with it if applicable
 	 *
-	 * @param logger     logs info
 	 * @param configPath path to look for the file data
 	 * @return whether a file with depths data exists (and was successfully loaded)
 	 */
-	public boolean load(Logger logger, String configPath) {
+	public boolean load(String configPath) {
 		mConfigPath = configPath;
 		//Attempt to load save data from the file
 		try {
 			String playerContent = Files.readString(Path.of(mConfigPath + "players.json"));
 			String partyContent = Files.readString(Path.of(mConfigPath + "parties.json"));
 			if (playerContent.isEmpty()) {
-				logger.warning("Depths" + mConfigPath + "' is empty - defaulting to new depths manager");
+				MMLog.warning("Depths" + mConfigPath + "' is empty - defaulting to new depths manager");
 			} else {
 				Gson gson = new Gson();
 				Type playerType = new TypeToken<Map<UUID, DepthsPlayer>>() {
@@ -379,10 +377,9 @@ public class DepthsManager {
 			}
 
 		} catch (FileNotFoundException e) {
-			logger.warning("Depths access file '" + mConfigPath + "' does not exist - defaulting to new depths manager");
+			MMLog.warning("Depths access file '" + mConfigPath + "' does not exist - defaulting to new depths manager");
 		} catch (Exception e) {
-			logger.severe("Caught depths exception: " + e);
-			e.printStackTrace();
+			MMLog.severe("Caught depths exception", e);
 		}
 		return false;
 	}
@@ -406,15 +403,13 @@ public class DepthsManager {
 			FileUtils.writeFile(tempParties, gson.toJson(mParties));
 
 		} catch (Exception e) {
-			MMLog.severe("Caught exception saving file '" + tempFilePath + "': " + e);
-			e.printStackTrace();
+			MMLog.severe("Caught exception saving file '" + tempFilePath + "'", e);
 		}
 		try {
 			Files.move(tempPlayers, Path.of(path + "players.json"), StandardCopyOption.REPLACE_EXISTING);
 			Files.move(tempParties, Path.of(path + "parties.json"), StandardCopyOption.REPLACE_EXISTING);
 		} catch (Exception e) {
-			MMLog.severe("Caught exception renaming file '" + tempFilePath + "' to '" + path + "': " + e);
-			e.printStackTrace();
+			MMLog.severe("Caught exception renaming file '" + tempFilePath + "' to '" + path + "'", e);
 		}
 	}
 
@@ -1780,7 +1775,7 @@ public class DepthsManager {
 		party.mPlayersInParty.forEach(dp -> {
 			dp.mNumDeaths = Math.max(0, dp.mNumDeaths - 1);
 		});
-		MMLog.finer(p.getName() + " went to next floor.");
+		MMLog.trace(p.getName() + " went to next floor.");
 		int partyFloor = party.getFloor();
 		party.incrementFloor();
 		int treasureScoreIncrease = TREASURE_PER_FLOOR * partyFloor + 2;

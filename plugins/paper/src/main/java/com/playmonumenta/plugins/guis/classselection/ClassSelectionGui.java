@@ -13,6 +13,7 @@ import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.DescriptionUtils;
 import com.playmonumenta.plugins.utils.GUIUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils;
@@ -220,7 +221,7 @@ public class ClassSelectionGui extends Gui {
 							.styles(ServerProperties.getAbilityEnhancementsEnabled(p) ? ENHANCEMENT_POINT_COLOR : DescriptionUtils.DISABLED);
 						case 4 -> result.addStat("Current Level: Level 2 *[Enhanced]*")
 							.styles(ServerProperties.getAbilityEnhancementsEnabled(p) ? ENHANCEMENT_POINT_COLOR : DescriptionUtils.DISABLED);
-						default -> new IllegalStateException("Unexpected " + ability.getDisplayName() + " ability level: " + currentLevel + " for player " + mPlayer.getName()).printStackTrace();
+						default -> MMLog.severe("", new IllegalStateException("Unexpected " + ability.getDisplayName() + " ability level: " + currentLevel + " for player " + mPlayer.getName()));
 					}
 				}
 				return result.get(p);

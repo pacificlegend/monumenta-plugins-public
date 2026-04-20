@@ -9,6 +9,7 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.utils.BossUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.NmsUtils;
 import java.util.Collections;
 import org.bukkit.entity.Creature;
@@ -67,7 +68,7 @@ public class FriendlyBoss extends BossAbilityGroup {
 					p.ATTACK_RANGE);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			MMLog.severe("Failed to construct FriendlyBoss", e);
 		}
 
 		super.constructBoss(SpellManager.EMPTY, Collections.emptyList(), -1, null);

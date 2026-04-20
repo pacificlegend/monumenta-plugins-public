@@ -14,6 +14,7 @@ import com.playmonumenta.plugins.utils.GUIUtils;
 import com.playmonumenta.plugins.utils.InventoryUtils;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MasterworkUtils;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.NamespacedKeyUtils;
@@ -442,7 +443,7 @@ public final class MasterworkCustomInventory extends CustomInventory {
 			}
 		} catch (Exception e) {
 			p.sendMessage(Component.text("If you see this message please contact a mod! (Error in upgrade)", NamedTextColor.RED));
-			e.printStackTrace();
+			MMLog.severe("Failed to process masterwork upgrade", e);
 		}
 
 		return null;

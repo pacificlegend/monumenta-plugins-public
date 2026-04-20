@@ -19,6 +19,7 @@ import com.playmonumenta.plugins.player.activity.ActivityManager;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.nbtapi.iface.ReadableNBT;
@@ -27,7 +28,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -127,9 +127,8 @@ public class DamageListener implements Listener {
 		}
 		if (event.getDamage() < 0 || event.getFinalDamage() < 0) {
 			// (Still) negative: log and fix
-			mPlugin.getLogger().log(Level.FINE,
-				"Negative damage dealt! finalDamage=" + event.getFinalDamage() + ", "
-					+ Arrays.stream(EntityDamageEvent.DamageModifier.values()).map(mod -> mod + "=" + event.getDamage(mod)).collect(Collectors.joining(", ")), new Exception());
+			MMLog.warning("Negative damage dealt! finalDamage=" + event.getFinalDamage() + ", "
+				+ Arrays.stream(EntityDamageEvent.DamageModifier.values()).map(mod -> mod + "=" + event.getDamage(mod)).collect(Collectors.joining(", ")));
 			if (!(event.getEntity() instanceof Player)) { // the negative damage bug doesn't apply to players, and can cause issues with absorption making players invulnerable
 				event.setDamage(0);
 			}
@@ -137,9 +136,8 @@ public class DamageListener implements Listener {
 
 		if (!Double.isFinite(event.getDamage()) || !Double.isFinite(event.getFinalDamage())) {
 			// NaN or infinite damage dealt: log and set damage to 0
-			mPlugin.getLogger().log(Level.WARNING,
-				"Non-finite damage dealt! finalDamage=" + event.getFinalDamage() + ", "
-					+ Arrays.stream(EntityDamageEvent.DamageModifier.values()).map(mod -> mod + "=" + event.getDamage(mod)).collect(Collectors.joining(", ")), new Exception());
+			MMLog.warning("Non-finite damage dealt! finalDamage=" + event.getFinalDamage() + ", "
+				+ Arrays.stream(EntityDamageEvent.DamageModifier.values()).map(mod -> mod + "=" + event.getDamage(mod)).collect(Collectors.joining(", ")));
 			event.setDamage(0);
 		}
 

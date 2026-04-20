@@ -11,6 +11,7 @@ import com.playmonumenta.plugins.bosses.spells.SpellBaseSummon;
 import com.playmonumenta.plugins.gallery.GalleryGame;
 import com.playmonumenta.plugins.gallery.GalleryUtils;
 import com.playmonumenta.plugins.particle.PartialParticle;
+import com.playmonumenta.plugins.utils.MMLog;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
@@ -95,7 +96,7 @@ public class GalleryMobRisingBoss extends BossAbilityGroup {
 
 			super.constructBoss(spell, p.DETECTION, null, p.DELAY);
 		} else {
-			Plugin.getInstance().getLogger().warning("[GalleryMobRisingBoss] tried to summon a boss with default LoSPool MOB_POOL = EMPTY");
+			MMLog.severe("[GalleryMobRisingBoss] tried to summon a boss with default LoSPool MOB_POOL = EMPTY");
 		}
 
 	}

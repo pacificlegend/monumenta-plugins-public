@@ -86,7 +86,7 @@ public class RefreshChat {
 		mGuildDataPreSync.clear();
 		mUserDataPreSync.clear();
 
-		MMLog.fine("[Chat Refresh Listener/PreSync] Loading current guild/user data");
+		MMLog.debug("[Chat Refresh Listener/PreSync] Loading current guild/user data");
 		for (Group guildMemberGroup : LuckPermsIntegration.getLoadedGuildLevelGroup(GuildAccessLevel.MEMBER)) {
 			Map<String, String> chatMetaNodes = new HashMap<>();
 			for (MetaNode node : guildMemberGroup.getNodes(NodeType.META)) {
@@ -118,7 +118,7 @@ public class RefreshChat {
 		mGuildDataPreSync.clear();
 		mUserDataPreSync.clear();
 
-		MMLog.fine("[Chat Refresh Listener/PreNetworkSync] Loading current guild/user data");
+		MMLog.debug("[Chat Refresh Listener/PreNetworkSync] Loading current guild/user data");
 		for (Group guildMemberGroup : LuckPermsIntegration.getLoadedGuildLevelGroup(GuildAccessLevel.MEMBER)) {
 			Map<String, String> chatMetaNodes = new HashMap<>();
 			for (MetaNode node : guildMemberGroup.getNodes(NodeType.META)) {
@@ -146,10 +146,10 @@ public class RefreshChat {
 	}
 
 	public static void anyPostSyncEvent(String eventLabel) {
-		MMLog.fine("[Chat Refresh Listener/" + eventLabel + "] Got event");
+		MMLog.debug("[Chat Refresh Listener/" + eventLabel + "] Got event");
 		if (mUserDataPreSync.isEmpty()) {
 			// No user data to compare against (devops have A permission group and should be included if nothing else)
-			MMLog.fine("[Chat Refresh Listener/" + eventLabel + "] No user data to compare against");
+			MMLog.debug("[Chat Refresh Listener/" + eventLabel + "] No user data to compare against");
 			return;
 		}
 
@@ -157,7 +157,7 @@ public class RefreshChat {
 		Set<Group> modifiedGuildGroups = new HashSet<>();
 		Set<Group> unmodifiedGuildGroups = new HashSet<>();
 
-		MMLog.fine("[Chat Refresh Listener/" + eventLabel + "] Checking recent update");
+		MMLog.debug("[Chat Refresh Listener/" + eventLabel + "] Checking recent update");
 		doneWithUser:
 		for (User user : getLoadedUsers()) {
 			Set<String> oldUserGroups = mUserDataPreSync.get(user.getUniqueId());
@@ -254,7 +254,7 @@ public class RefreshChat {
 			return; // Player is not loaded locally - they are most likely in the process of logging in
 		}
 
-		MMLog.fine("[Chat Refresh Listener] Refreshing chat state for " + player.getName());
+		MMLog.debug("[Chat Refresh Listener] Refreshing chat state for " + player.getName());
 		MonumentaNetworkRelayIntegration.refreshPlayer(player);
 		LuckPermsIntegration.updatePlayerGuildChat(player);
 	}

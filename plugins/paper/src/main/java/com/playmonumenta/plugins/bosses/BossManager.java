@@ -108,7 +108,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -843,7 +842,7 @@ public class BossManager implements Listener {
 						return;
 					}
 					event.setDamageCap(health - setHealth + 1); // Since we are on HIGHEST, hopefully this will affect nothing other than the actual damage done
-					MMLog.fine("Because of remaining BossHealthAction at " + nextHpPercent + "% health on entity " + MessagingUtils.plainText(damagee.name()) + ", reduced damage to " + (health - setHealth + 1) + ".");
+					MMLog.debug(() -> "Because of remaining BossHealthAction at " + nextHpPercent + "% health on entity " + MessagingUtils.plainText(damagee.name()) + ", reduced damage to " + (health - setHealth + 1) + ".");
 				});
 			}
 		}
@@ -1239,7 +1238,7 @@ public class BossManager implements Listener {
 	private void checkDisablePerformanceEvents(Boss boss) {
 		if (boss.hasNearbyEntityDeathTrigger()) {
 			if (!mNearbyEntityDeathEnabled) {
-				mPlugin.getLogger().log(Level.WARNING, "Unloaded Boss with hasNearbyEntityDeathTrigger but feature was not enabled. Definitely a bug!");
+				MMLog.warning("Unloaded Boss with hasNearbyEntityDeathTrigger but feature was not enabled. Definitely a bug!");
 			}
 
 			/*
@@ -1261,7 +1260,7 @@ public class BossManager implements Listener {
 
 		if (boss.hasNearbyBlockBreakTrigger()) {
 			if (!mNearbyBlockBreakEnabled) {
-				mPlugin.getLogger().log(Level.WARNING, "Unloaded Boss with hasNearbyBlockBreakTrigger but feature was not enabled. Definitely a bug!");
+				MMLog.warning("Unloaded Boss with hasNearbyBlockBreakTrigger but feature was not enabled. Definitely a bug!");
 			}
 
 			/*
@@ -1276,7 +1275,7 @@ public class BossManager implements Listener {
 
 		if (boss.hasNearbyBlockPlaceTrigger()) {
 			if (!mNearbyBlockPlaceEnabled) {
-				mPlugin.getLogger().log(Level.WARNING, "Unloaded Boss with hasNearbyBlockPlaceTrigger but feature was not enabled. Definitely a bug!");
+				MMLog.warning("Unloaded Boss with hasNearbyBlockPlaceTrigger but feature was not enabled. Definitely a bug!");
 			}
 
 			/*
@@ -1291,7 +1290,7 @@ public class BossManager implements Listener {
 
 		if (boss.hasNearbyPlayerDeathTrigger()) {
 			if (!mNearbyPlayerDeathEnabled) {
-				mPlugin.getLogger().log(Level.WARNING, "Unloaded Boss with hasNearbyPlayerDeathTrigger but feature was not enabled. Definitely a bug!");
+				MMLog.warning("Unloaded Boss with hasNearbyPlayerDeathTrigger but feature was not enabled. Definitely a bug!");
 			}
 
 			/*
@@ -1313,7 +1312,7 @@ public class BossManager implements Listener {
 
 		if (boss.hasNearbyEntityHurtTrigger()) {
 			if (!mNearbyEntityHurtEnabled) {
-				mPlugin.getLogger().log(Level.WARNING, "Unloaded Boss with hasNearbyEntityHurtTrigger but feature was not enabled. Definitely a bug!");
+				MMLog.warning("Unloaded Boss with hasNearbyEntityHurtTrigger but feature was not enabled. Definitely a bug!");
 			}
 
 			/*
@@ -1381,7 +1380,7 @@ public class BossManager implements Listener {
 							continue;
 						}
 					} catch (Exception ex) {
-						mPlugin.getLogger().log(Level.SEVERE, "Failed to load boss!", ex);
+						MMLog.severe("Failed to load boss!", ex);
 						continue;
 					}
 

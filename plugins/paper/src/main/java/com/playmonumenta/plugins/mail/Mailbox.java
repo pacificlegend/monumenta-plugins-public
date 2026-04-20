@@ -87,7 +87,7 @@ public class Mailbox implements Comparable<Mailbox> {
 				fromFuture = conn.hgetall(recipient.redisKey(MailDirection.FROM)).toCompletableFuture();
 			}
 			for (Map.Entry<String, String> entry : toFuture.join().entrySet()) {
-				MMLog.fine(() -> "[Mailbox] Caching "
+				MMLog.debug(() -> "[Mailbox] Caching "
 					+ recipient.friendlyStr(MailDirection.TO)
 					+ ": "
 					+ entry.getKey()
@@ -114,7 +114,7 @@ public class Mailbox implements Comparable<Mailbox> {
 			}
 
 			for (Map.Entry<String, String> entry : fromFuture.join().entrySet()) {
-				MMLog.fine(() -> "[Mailbox] Caching "
+				MMLog.debug(() -> "[Mailbox] Caching "
 					+ recipient.friendlyStr(MailDirection.FROM)
 					+ ": "
 					+ entry.getKey()

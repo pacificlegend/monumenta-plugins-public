@@ -8,6 +8,7 @@ import com.playmonumenta.plugins.bosses.parameters.ParticlesList;
 import com.playmonumenta.plugins.bosses.parameters.SoundsList;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.NmsUtils;
 import java.util.Collections;
 import org.bukkit.Location;
@@ -92,7 +93,7 @@ public class OnHitBoss extends BossAbilityGroup {
 				NmsUtils.getVersionAdapter().runConsoleCommandSilently(
 					"execute as " + mBoss.getUniqueId() + " at @s run " + mParams.COMMAND_AS_BOSS);
 			} catch (Exception e) {
-				e.printStackTrace();
+				MMLog.severe("Failed to run OnHitBoss command as boss", e);
 			}
 		}
 
@@ -101,7 +102,7 @@ public class OnHitBoss extends BossAbilityGroup {
 				NmsUtils.getVersionAdapter().runConsoleCommandSilently(
 					"execute as " + damagee.getUniqueId() + " at @s run " + mParams.COMMAND_AS_PLAYER);
 			} catch (Exception e) {
-				e.printStackTrace();
+				MMLog.severe("Failed to run OnHitBoss command as player", e);
 			}
 		}
 

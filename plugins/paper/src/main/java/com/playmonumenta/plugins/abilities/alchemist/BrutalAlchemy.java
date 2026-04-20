@@ -12,6 +12,7 @@ import com.playmonumenta.plugins.itemstats.ItemStatManager;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -234,7 +235,7 @@ public class BrutalAlchemy extends Ability implements PotionAbility {
 			case 1 -> base = DOT_FLAT_INCREASE_1;
 			case 2 -> base = DOT_FLAT_INCREASE_2;
 			case 3 -> base = DOT_FLAT_INCREASE_3;
-			default -> new IllegalStateException("Unexpected ability level: " + level + " for player " + mPlayer).printStackTrace();
+			default -> MMLog.severe("Unexpected ability level: " + level + " for player " + mPlayer, new IllegalStateException("Unexpected ability level: " + level + " for player " + mPlayer));
 		}
 		return base + CharmManager.getLevel(mPlayer, CHARM_DOT_INCREASE_DAMAGE_FLAT);
 	}
@@ -245,7 +246,7 @@ public class BrutalAlchemy extends Ability implements PotionAbility {
 			case 1 -> base = DOT_MULT_INCREASE_1;
 			case 2 -> base = DOT_MULT_INCREASE_2;
 			case 3 -> base = DOT_MULT_INCREASE_3;
-			default -> new IllegalStateException("Unexpected ability level: " + level + " for player " + mPlayer).printStackTrace();
+			default -> MMLog.severe("Unexpected ability level: " + level + " for player " + mPlayer, new IllegalStateException("Unexpected ability level: " + level + " for player " + mPlayer));
 		}
 		return base + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_DOT_INCREASE_DAMAGE_MULT);
 	}
@@ -256,7 +257,7 @@ public class BrutalAlchemy extends Ability implements PotionAbility {
 			case 1 -> base = DOT_EXPLOSION_MULT_1;
 			case 2 -> base = DOT_EXPLOSION_MULT_2;
 			case 3 -> base = DOT_EXPLOSION_MULT_3;
-			default -> new IllegalStateException("Unexpected ability level: " + level + " for player " + mPlayer).printStackTrace();
+			default -> MMLog.severe("Unexpected ability level: " + level + " for player " + mPlayer, new IllegalStateException("Unexpected ability level: " + level + " for player " + mPlayer));
 		}
 		return base + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_DOT_EXPLOSION_DAMAGE_MULT);
 	}

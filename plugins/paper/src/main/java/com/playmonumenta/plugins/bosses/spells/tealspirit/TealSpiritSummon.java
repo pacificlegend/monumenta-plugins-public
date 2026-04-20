@@ -44,7 +44,7 @@ public class TealSpiritSummon extends Spell {
 				Location loc = findSpawnLocation(0);
 
 				if (loc == null) {
-					MMLog.fine("Took too many attempts to find location to spawn mob in Teal Spirit Summon, aborting the spell.");
+					MMLog.debug("Took too many attempts to find location to spawn mob in Teal Spirit Summon, aborting the spell.");
 					break;
 				}
 

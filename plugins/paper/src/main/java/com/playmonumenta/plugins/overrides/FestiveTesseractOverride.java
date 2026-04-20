@@ -8,6 +8,7 @@ import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.InventoryUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import java.util.ArrayList;
@@ -139,7 +140,7 @@ public class FestiveTesseractOverride extends BaseOverride implements Listener {
 					try {
 						BossManager.createBoss(null, summon, FestiveTesseractSnowmanBoss.identityTag);
 					} catch (Exception ex) {
-						ex.printStackTrace();
+						MMLog.severe("Failed to create FestiveTesseractSnowmanBoss", ex);
 					}
 				}
 			}

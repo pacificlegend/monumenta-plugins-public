@@ -698,8 +698,8 @@ public class QuiverListener implements Listener {
 									}
 									player.sendMessage(Component.text("Failed final check. Report this to a moderator via ModMail on our discord!", NamedTextColor.DARK_RED));
 									MMLog.warning("Delve Arrow Refund mechanism failed final check. Potential dupe vector, panic and ping Ash...");
-								} catch (NullPointerException nullPointerException) {
-									MMLog.finer(nullPointerException + " thrown while trying to refund delve arrows.");
+								} catch (NullPointerException npe) {
+									MMLog.severe("NPE while trying to refund delve arrows", npe);
 								}
 							} else {
 								player.sendMessage(Component.text("No Delve Materials were refunded.", NamedTextColor.DARK_GRAY));

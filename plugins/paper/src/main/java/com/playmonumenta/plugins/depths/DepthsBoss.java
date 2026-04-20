@@ -38,8 +38,7 @@ public enum DepthsBoss {
 				MMLog.severe("Failed to summon depths boss " + mTag);
 			}
 		} catch (Exception e) {
-			MMLog.severe("Failed to set up depths boss '" + mTag + "': " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to set up depths boss '" + mTag + "'", e);
 		}
 	}
 }

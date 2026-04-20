@@ -1,10 +1,10 @@
 package com.playmonumenta.plugins.delves.abilities;
 
-import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.bosses.BossManager;
 import com.playmonumenta.plugins.bosses.bosses.ChestLockBoss;
 import com.playmonumenta.plugins.integrations.LibraryOfSoulsIntegration;
 import com.playmonumenta.plugins.utils.FastUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.NamespacedKeyUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import java.util.ArrayList;
@@ -78,8 +78,7 @@ public class Astral {
 				try {
 					BossManager.createBoss(null, boss, ChestLockBoss.identityTag);
 				} catch (Exception e) {
-					Plugin.getInstance().getLogger().warning("Failed to create boss ChestLockBoss: " + e.getMessage());
-					e.printStackTrace();
+					MMLog.severe("Failed to create boss ChestLockBoss", e);
 				}
 			}
 		}

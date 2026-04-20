@@ -188,8 +188,7 @@ public class LootTableManager implements Listener {
 						MMLog.warning("Found strange loot table missing 'pools': " + path);
 					}
 				} catch (Exception ex) {
-					MMLog.severe("Failed to load loot table '" + path + "' : " + ex.getMessage());
-					ex.printStackTrace();
+					MMLog.severe("Failed to load loot table '" + path + "'", ex);
 				}
 			}
 		}
@@ -238,16 +237,16 @@ public class LootTableManager implements Listener {
 		}
 
 		// Print out all the loot tables with and without bonus rolls:
-		MMLog.finer("Loot tables with bonus rolls:");
+		MMLog.trace("Loot tables with bonus rolls:");
 		for (LootTableEntry entry : mTables.values()) {
 			if (entry.hasBonusRolls()) {
-				MMLog.finer("  " + entry.getKey());
+				MMLog.trace("  " + entry.getKey());
 			}
 		}
-		MMLog.finer("Loot tables without bonus rolls:");
+		MMLog.trace("Loot tables without bonus rolls:");
 		for (LootTableEntry entry : mTables.values()) {
 			if (!entry.hasBonusRolls()) {
-				MMLog.finer("  " + entry.getKey());
+				MMLog.trace("  " + entry.getKey());
 			}
 		}
 	}

@@ -71,7 +71,7 @@ public class InviteNotification {
 		// Make sure these are empty.
 		mUserInvitesPreSync.clear();
 
-		MMLog.fine("[Guild Invite Listener/PreNetworkSync] Loading current user data");
+		MMLog.debug("[Guild Invite Listener/PreNetworkSync] Loading current user data");
 		for (User user : getLoadedUsers()) {
 			Set<String> userGroups = new ConcurrentSkipListSet<>();
 			for (Group group : user.getInheritedGroups(QueryOptions.nonContextual())) {
@@ -82,7 +82,7 @@ public class InviteNotification {
 	}
 
 	public static void userLoadEvent(UserLoadEvent event) {
-		MMLog.fine("[Guild Invite Listener/UserLoad] Got event");
+		MMLog.debug("[Guild Invite Listener/UserLoad] Got event");
 		if (mUserInvitesPreSync.isEmpty()) {
 			return;
 		}
@@ -98,11 +98,11 @@ public class InviteNotification {
 					continue;
 				}
 
-				MMLog.fine("[Guild Invite Listener/PostSync] - " + player.getName());
+				MMLog.debug("[Guild Invite Listener/PostSync] - " + player.getName());
 				for (Group group : user.getInheritedGroups(QueryOptions.nonContextual())) {
-					MMLog.fine("[Guild Invite Listener/PostSync]   - " + group.getName());
+					MMLog.debug("[Guild Invite Listener/PostSync]   - " + group.getName());
 					if (oldUserGroups.contains(group.getName())) {
-						MMLog.fine("[Guild Invite Listener/PostSync]     - old, skip");
+						MMLog.debug("[Guild Invite Listener/PostSync]     - old, skip");
 						continue;
 					}
 

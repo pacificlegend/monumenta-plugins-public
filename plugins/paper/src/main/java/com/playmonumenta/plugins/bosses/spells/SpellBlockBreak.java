@@ -230,7 +230,7 @@ public class SpellBlockBreak extends Spell {
 		/* If the threshold has been met, attempt to break blocks */
 		if (badScore >= requiredScore) {
 			final int finalBadScore = badScore;
-			MMLog.finest(() -> "[SpellBlockBreak] Launcher " + mLauncher.getName() + " has achieved " + finalBadScore +
+			MMLog.trace(() -> "[SpellBlockBreak] Launcher " + mLauncher.getName() + " has achieved " + finalBadScore +
 				" badScore and is attempting to break blocks");
 			return breakBlocks(loc, breakBlockList);
 		}
@@ -258,7 +258,7 @@ public class SpellBlockBreak extends Spell {
 		final EntityExplodeEvent event = new EntityExplodeEvent(mLauncher, loc, blockList, 0f);
 		Bukkit.getServer().getPluginManager().callEvent(event);
 		if (event.isCancelled() || blockList.isEmpty()) {
-			MMLog.finest(() -> "[SpellBlockBreak] Launcher " + mLauncher.getName() +
+			MMLog.trace(() -> "[SpellBlockBreak] Launcher " + mLauncher.getName() +
 				"'s EntityExplodeEvent was cancelled or the blockList is empty. Returning false");
 			return false;
 		}
@@ -288,7 +288,7 @@ public class SpellBlockBreak extends Spell {
 			loc.getWorld().playSound(loc, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.BLOCKS, 0.25f, FastUtils.randomFloatInRange(0.7f, 1.0f));
 			new PartialParticle(Particle.BLOCK_CRACK, loc, 15, mXRad / 2.0, mYRad / 4.0, mZRad / 2.0,
 				0.05, particleMat.createBlockData()).spawnAsEntityActive(mLauncher);
-			MMLog.finest(() -> "[SpellBlockBreak] Launcher " + mLauncher.getName() + " successfully broke blocks. Returning true");
+			MMLog.trace(() -> "[SpellBlockBreak] Launcher " + mLauncher.getName() + " successfully broke blocks. Returning true");
 			return true;
 		}
 

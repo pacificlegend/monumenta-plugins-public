@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.bosses.parameters.phases;
 
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.NmsUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -23,18 +24,18 @@ public class CommandAction implements Action {
 			cmdStr = "execute in " + (boss.getWorld() == Bukkit.getWorlds().get(0) ? "minecraft:overworld" : boss.getWorld().getName()) +
 				" positioned " + boss.getX() + " " + boss.getY() + " " + boss.getZ() +
 				" run " + mCommand;
-			Plugin.getInstance().getLogger().finer("Running command for dead boss as server '" + boss.getName() + "': " + cmdStr);
+			MMLog.trace("Running command for dead boss as server '" + boss.getName() + "': " + cmdStr);
 			NmsUtils.getVersionAdapter().runConsoleCommandSilently(cmdStr);
 		} else if (boss.getWorld().getEntity(boss.getUniqueId()) == null) {
 			// If a mob isn't dead but hasn't been added to the world yet, run the command as soon as possible, which should be after world addition is completed
 			cmdStr = "execute as " + boss.getUniqueId() + " at @s run " + mCommand;
-			Plugin.getInstance().getLogger().finer("Running command on next tick for mob '" + boss.getName() + "' being added to world: " + cmdStr);
+			MMLog.trace("Running command on next tick for mob '" + boss.getName() + "' being added to world: " + cmdStr);
 			Bukkit.getScheduler().runTask(Plugin.getInstance(), () -> {
 				NmsUtils.getVersionAdapter().runConsoleCommandSilently(cmdStr);
 			});
 		} else {
 			cmdStr = "execute as " + boss.getUniqueId() + " at @s run " + mCommand;
-			Plugin.getInstance().getLogger().finer("Running command as boss '" + boss.getName() + "': " + cmdStr);
+			MMLog.trace("Running command as boss '" + boss.getName() + "': " + cmdStr);
 			NmsUtils.getVersionAdapter().runConsoleCommandSilently(cmdStr);
 		}
 	}

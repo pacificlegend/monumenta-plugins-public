@@ -172,8 +172,7 @@ public class SpellThrowSummon extends Spell {
 			e.setVelocity(vect);
 
 		} catch (Exception e) {
-			mPlugin.getLogger().warning("Failed to summon entity for throw summon: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to summon entity for throw summon", e);
 		}
 	}
 

@@ -130,8 +130,7 @@ public class WormBoss extends BossAbilityGroup {
 		try {
 			BossManager.getInstance().manuallyRegisterBoss(part, new WormSegmentBoss(mPlugin, part, mBoss));
 		} catch (Exception e) {
-			MMLog.warning("Failed to create boss WormSegmentBoss: " + e.getMessage());
-			e.printStackTrace();
+			MMLog.severe("Failed to create boss WormSegmentBoss", e);
 		}
 		int size = tail ? params.TAIL_SIZE : params.BODY_SIZE;
 		if (size >= 0) {
@@ -151,8 +150,7 @@ public class WormBoss extends BossAbilityGroup {
 					BossManager.getInstance().manuallyRegisterBoss(livingEntity, new WormSegmentBoss(mPlugin, livingEntity, null));
 					// We still want the bosstag so that it doesn't proc Cloaked or UA or whatever, but we don't want damage transference, so set the head to null
 				} catch (Exception e) {
-					MMLog.warning("Failed to create boss WormSegmentBoss: " + e.getMessage());
-					e.printStackTrace();
+					MMLog.severe("Failed to create boss WormSegmentBoss", e);
 				}
 			}
 		});

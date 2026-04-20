@@ -208,11 +208,11 @@ public class MailboxGui extends MailGui {
 	@Override
 	public void refreshMailbox(Mailbox mailbox) {
 		if (!mMailCache.mailboxes(mSettings).contains(mailbox)) {
-			MMLog.fine(() -> "[Mailbox] refreshMailboxSlot: MailboxGui detected no matching mailbox; ignoring");
+			MMLog.debug("[Mailbox] refreshMailboxSlot: MailboxGui detected no matching mailbox; ignoring");
 			return;
 		}
 
-		MMLog.fine(() -> "[Mailbox] refreshMailboxSlot: MailboxGui (" + mPlayer.getName() + ") refreshing");
+		MMLog.debug(() -> "[Mailbox] refreshMailboxSlot: MailboxGui (" + mPlayer.getName() + ") refreshing");
 		refresh();
 	}
 

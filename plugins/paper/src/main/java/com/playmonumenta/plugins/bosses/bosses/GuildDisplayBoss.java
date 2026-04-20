@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.bosses.parameters.BossParam;
 import com.playmonumenta.plugins.integrations.luckperms.LuckPermsIntegration;
 import com.playmonumenta.plugins.utils.FastUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.logging.Level;
 import net.luckperms.api.model.group.Group;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -215,7 +215,7 @@ public class GuildDisplayBoss extends BossAbilityGroup {
 					Collections.shuffle(mAllGuilds);
 				});
 			} catch (Exception ex) {
-				Bukkit.getScheduler().runTask(mPlugin, () -> mPlugin.getLogger().log(Level.FINER, "An error occurred fetching all guilds:" + ex));
+				MMLog.trace("An error occurred fetching all guilds", ex);
 			}
 		});
 	}

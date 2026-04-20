@@ -16,6 +16,7 @@ import com.playmonumenta.plugins.infinitytower.guis.TowerGuiShowMobs;
 import com.playmonumenta.plugins.listeners.IchorListener;
 import com.playmonumenta.plugins.listeners.QuiverListener;
 import com.playmonumenta.plugins.utils.AbilityUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import dev.jorel.commandapi.CommandAPICommand;
@@ -175,7 +176,7 @@ public class CustomInventoryCommands {
 				} catch (Exception ex) {
 					String msg = "Failed to open Parrot GUI: " + ex.getMessage();
 					player.sendMessage(msg);
-					ex.printStackTrace();
+					MMLog.severe("Failed to open Parrot GUI for player", ex);
 				}
 			})
 			.register();
@@ -190,7 +191,7 @@ public class CustomInventoryCommands {
 					String msg = "Failed to open Parrot GUI: " + ex.getMessage();
 					sender.sendMessage(msg);
 					player.sendMessage(msg);
-					ex.printStackTrace();
+					MMLog.severe("Failed to open Parrot GUI for player", ex);
 				}
 			})
 			.register();

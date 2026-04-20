@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.network;
 
 import com.playmonumenta.plugins.server.properties.ServerProperties;
+import com.playmonumenta.plugins.utils.MMLog;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -30,7 +31,7 @@ public class HttpManager {
 		mServer.setExecutor(null);
 		mServer.start();
 
-		mPlugin.getLogger().info("HTTP server listening on port " + port + " for /alive and /ready");
+		MMLog.info("HTTP server listening on port " + port + " for /alive and /ready");
 	}
 
 	public void start() {

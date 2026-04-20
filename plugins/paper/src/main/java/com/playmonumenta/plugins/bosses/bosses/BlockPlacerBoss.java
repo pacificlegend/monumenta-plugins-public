@@ -247,7 +247,7 @@ public final class BlockPlacerBoss extends BossAbilityGroup {
 				}
 
 				private void pathfindToTarget(final Player target) {
-					MMLog.finest(() -> "[BlockPlacerBoss] Launcher " + mMob + " is attempting to pathfind to " + target);
+					MMLog.trace(() -> "[BlockPlacerBoss] Launcher " + mMob + " is attempting to pathfind to " + target);
 					final Location targetLoc = target.getLocation();
 					final Location bossLoc = mMob.getLocation();
 					final Pathfinder pathfinder = mMob.getPathfinder();
@@ -301,7 +301,7 @@ public final class BlockPlacerBoss extends BossAbilityGroup {
 
 					if (path == null) {
 						if (!blockBreakToTarget.tryToBreakBlocks(SpellBlockBreak.DEFAULT_REQUIRED_SCORE)) {
-							MMLog.finest(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " is attempting to " +
+							MMLog.trace(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " is attempting to " +
 								"bridge to " + mMob.getTarget() + " because its path is null and there are no " +
 								"available blocks to break");
 							bridge(pathfinder, bossLoc, targetLoc);
@@ -310,7 +310,7 @@ public final class BlockPlacerBoss extends BossAbilityGroup {
 						final double distanceToTarget = bossLoc.distance(targetLoc);
 						if (mBoss.hasLineOfSight(target) && distanceToTarget < BEELINE_DISTANCE
 							&& targetLoc.getY() - bossLoc.getY() < BEELINE_DISTANCE / 2.0) {
-							MMLog.finest(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " is attempting to " +
+							MMLog.trace(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " is attempting to " +
 								"bridge to " + mMob.getTarget() + " because its path is not null and the target is " +
 								"within beeline distance");
 							bridge(pathfinder, bossLoc, targetLoc);
@@ -325,7 +325,7 @@ public final class BlockPlacerBoss extends BossAbilityGroup {
 							&& (distanceToTarget < BEELINE_DISTANCE
 							|| path.getFinalPoint().distance(targetLoc) > BEELINE_DISTANCE))) {
 							if (!blockBreakToTarget.tryToBreakBlocks(SpellBlockBreak.DEFAULT_REQUIRED_SCORE)) {
-								MMLog.finest(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " is attempting " +
+								MMLog.trace(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " is attempting " +
 									"to bridge to " + mMob.getTarget() + " because there are no available blocks to " +
 									"break and the distance to target seems appropriate for bridging");
 								bridge(pathfinder, bossLoc, targetLoc);
@@ -336,7 +336,7 @@ public final class BlockPlacerBoss extends BossAbilityGroup {
 
 				private void bridge(final Pathfinder pathfinder, final Location bossLoc, final Location targetLoc) {
 					if (!PlayerUtils.playersInRange(bossLoc, PREVENT_PLACING_RADIUS, true).isEmpty()) {
-						MMLog.finest(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " attempted to place " +
+						MMLog.trace(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " attempted to place " +
 							"a block but was too close to one or more players");
 						return;
 					}
@@ -346,7 +346,7 @@ public final class BlockPlacerBoss extends BossAbilityGroup {
 						&& bossToPlayerVec.getY() > -PREVENT_PLACING_HEIGHT
 						&& Math.abs(bossToPlayerVec.getX()) < PREVENT_PLACING_RADIUS
 						&& Math.abs(bossToPlayerVec.getZ()) < PREVENT_PLACING_RADIUS) {
-						MMLog.finest(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " attempted to place " +
+						MMLog.trace(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " attempted to place " +
 							"a block but was too close above its target");
 						return;
 					}
@@ -442,7 +442,7 @@ public final class BlockPlacerBoss extends BossAbilityGroup {
 		final Block block = loc.getBlock();
 		final Material material = block.getType();
 		if (!PlayerUtils.playersInRange(mBoss.getLocation(), PREVENT_PLACING_RADIUS, true).isEmpty()) {
-			MMLog.finest(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " attempted to place " +
+			MMLog.trace(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " attempted to place " +
 				"a floor but was too close to one or more players");
 			return;
 		}
@@ -455,7 +455,7 @@ public final class BlockPlacerBoss extends BossAbilityGroup {
 			|| ZoneUtils.hasZoneProperty(loc, ZoneUtils.ZoneProperty.ADVENTURE_MODE)
 			|| LocationUtils.blocksIntersectEntity(loc.getWorld(), List.of(loc),
 			hitbox -> hitbox.getHitEntities(e -> e instanceof LivingEntity && !e.isInvulnerable()))) {
-			MMLog.finest(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " attempted to place " +
+			MMLog.trace(() -> "[BlockPlacerBoss] Launcher " + mMob.getName() + " attempted to place " +
 				"a block but failed the final placement check");
 			return;
 		}

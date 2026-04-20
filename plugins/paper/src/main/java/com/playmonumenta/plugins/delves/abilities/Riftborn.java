@@ -6,6 +6,7 @@ import com.playmonumenta.plugins.bosses.BossManager;
 import com.playmonumenta.plugins.bosses.bosses.BlockLockBoss;
 import com.playmonumenta.plugins.integrations.LibraryOfSoulsIntegration;
 import com.playmonumenta.plugins.utils.FastUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -70,8 +71,7 @@ public class Riftborn {
 			try {
 				BossManager.createBoss(null, boss, BlockLockBoss.identityTag);
 			} catch (Exception e) {
-				Plugin.getInstance().getLogger().warning("Failed to create boss BlockLockBoss: " + e.getMessage());
-				e.printStackTrace();
+				MMLog.severe("Failed to create boss BlockLockBoss", e);
 			}
 		}
 	}

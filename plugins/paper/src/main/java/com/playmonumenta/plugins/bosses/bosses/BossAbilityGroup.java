@@ -98,7 +98,7 @@ public abstract class BossAbilityGroup {
 		mActiveSpells.cancelAll(true);
 		mActiveSpells = activeSpells;
 		mPassiveSpells = passiveSpells;
-		MMLog.fine("Changed phase for " + mIdentityTag + ". Boss's health is currently at " +
+		MMLog.debug(() -> "Changed phase for " + mIdentityTag + ". Boss's health is currently at " +
 			100 * mBoss.getHealth() / EntityUtils.getMaxHealth(mBoss) + "%. " + mActiveSpells.toString());
 	}
 
@@ -281,7 +281,7 @@ public abstract class BossAbilityGroup {
 			SpellCastEvent event = new SpellCastEvent(mBoss, this, sp);
 			Bukkit.getPluginManager().callEvent(event);
 		} else {
-			MMLog.fine("Warning: Boss '" + mIdentityTag + "' attempted to force cast '" + spell.toString() +
+			MMLog.debug("Warning: Boss '" + mIdentityTag + "' attempted to force cast '" + spell.toString() +
 				"' but boss does not have this spell!");
 		}
 	}

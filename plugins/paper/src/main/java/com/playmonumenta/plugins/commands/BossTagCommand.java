@@ -518,6 +518,7 @@ public class BossTagCommand {
 				String fieldName = BossUtils.translateFieldNameToTag(field.getName());
 				BossParam annotations = field.getAnnotation(BossParam.class);
 				int spaces = 30 - fieldName.length();
+				Object def = field.get(parameters);
 
 				player.sendMessage(Component.empty()
 					.append(Component.text("- " + fieldName + " ".repeat(spaces), NamedTextColor.GOLD).decoration(TextDecoration.BOLD, true)
@@ -526,7 +527,7 @@ public class BossTagCommand {
 								.append(Component.text(fieldName + "\n", TextColor.fromHexString("#808080")).decoration(TextDecoration.BOLD, false)))
 							.append(Component.text("Desciption: ", TextColor.fromHexString("#ffd700")).decoration(TextDecoration.BOLD, true)
 								.append(Component.text(annotations != null ? annotations.help() + "\n" : "\n", TextColor.fromHexString("#808080")).decoration(TextDecoration.BOLD, false)))))
-					.append(Component.text(field.get(parameters).toString())));
+					.append(Component.text(def == null ? "null" : def.toString())));
 			}
 		}
 	}

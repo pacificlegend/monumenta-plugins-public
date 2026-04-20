@@ -902,7 +902,7 @@ public class ItemStatCommands {
 	}
 
 	private static @Nullable ItemStack getHeldItemAndSendErrors(Player player, boolean requireCreative) {
-		if (requireCreative && player.getGameMode() != GameMode.CREATIVE) {
+		if (requireCreative && player.getGameMode() != GameMode.CREATIVE && Plugin.IS_PLAY_SERVER) {
 			player.sendMessage(Component.text("Must be in creative mode to use this command!", NamedTextColor.RED));
 			return null;
 		}

@@ -24,7 +24,7 @@ public class SamwellBlackbloodDagger extends ZeroArgumentEffect {
 	@Override
 	public void entityLoseEffect(Entity entity) {
 		if (entity instanceof Player player) {
-			player.sendMessage(Component.text("You feel the effect of the dagger slowly fades away...", NamedTextColor.AQUA, TextDecoration.ITALIC));
+			player.sendMessage(Component.text("You feel the effect of the dagger slowly fade away...", NamedTextColor.AQUA, TextDecoration.ITALIC));
 		}
 	}
 

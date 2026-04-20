@@ -176,7 +176,7 @@ public class PassivePolarAura extends Spell {
 			freeze(player);
 		} else if (newAmount == -1) {
 			if (mAlocAcoc.spoil(player)) {
-				player.sendMessage(Component.text("Your heat got too high, singing Aloc Acoc's fur and spoiling your loot.", NamedTextColor.RED));
+				player.sendMessage(Component.text("Your heat got too high, singeing Aloc Acoc's fur and spoiling your loot.", NamedTextColor.RED));
 				player.playSound(player, Sound.BLOCK_FIRE_EXTINGUISH, SoundCategory.HOSTILE, 1, 1);
 			}
 		} else if (newAmount > 0) {

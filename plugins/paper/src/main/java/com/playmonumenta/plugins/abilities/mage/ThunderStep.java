@@ -243,7 +243,7 @@ public class ThunderStep extends Ability {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 3)
 			.addDashedLine()
 			.addLine("Recast *Thunder Step* within %t of casting").styles(UNDERLINED)
-				.statValues(stat(BACK_TELEPORT_MAX_DELAY))
+				.statValues(stat(a -> a.mBackTeleportMaxDelay, BACK_TELEPORT_MAX_DELAY))
 			.addLine("it to teleport back to your original")
 			.addLine("location and deal reduced damage.")
 			.addLine()

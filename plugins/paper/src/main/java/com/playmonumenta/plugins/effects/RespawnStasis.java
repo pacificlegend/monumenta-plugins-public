@@ -50,6 +50,7 @@ public class RespawnStasis extends Stasis {
 	private final @Nullable Location mDeathLocation;
 	private final @Nullable Location mRespawnLocation;
 	public boolean mCanStopSpectating = false;
+	public boolean mResettingSpectatorTarget = false;
 
 	public RespawnStasis(@Nullable Location deathLocation, @Nullable Location respawnLocation) {
 		super(DURATION, effectID);

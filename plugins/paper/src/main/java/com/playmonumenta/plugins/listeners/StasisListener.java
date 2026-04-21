@@ -241,9 +241,13 @@ public class StasisListener implements Listener {
 	public void playerStopSpectatingEntityEvent(PlayerStopSpectatingEntityEvent event) {
 		Player player = event.getPlayer();
 		RespawnStasis rs = Plugin.getInstance().mEffectManager.getActiveEffect(player, RespawnStasis.class);
-		if (rs != null && !rs.mCanStopSpectating) {
-			// For some reason cancelling the event softlocks you, but this works
+		if (rs != null && !rs.mCanStopSpectating && !rs.mResettingSpectatorTarget) {
+			// For some reason cancelling the event softlocks you, but this works.
+			// Guard against re-entry: setSpectatorTarget internally stops spectating
+			// the current target, which would re-fire this event and cause a StackOverflow.
+			rs.mResettingSpectatorTarget = true;
 			player.setSpectatorTarget(event.getSpectatorTarget());
+			rs.mResettingSpectatorTarget = false;
 		}
 	}
 

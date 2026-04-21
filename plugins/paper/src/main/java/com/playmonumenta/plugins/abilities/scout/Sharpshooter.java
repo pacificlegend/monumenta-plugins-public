@@ -173,6 +173,10 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 				}
 
 				double gearProjSpeed = map.get(AttributeType.PROJECTILE_SPEED);
+				// 0 is the default when no gear has this stat; treat as 1 since velocity was not pre-scaled by gear
+				if (gearProjSpeed == 0) {
+					gearProjSpeed = 1;
+				}
 				double projSpeed = 1;
 				projSpeed /= gearProjSpeed;
 				double mSharpshooterMultiplier = mStacks * mProjectileSpeed;

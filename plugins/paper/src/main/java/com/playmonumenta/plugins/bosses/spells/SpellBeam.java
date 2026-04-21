@@ -105,7 +105,8 @@ public class SpellBeam extends Spell {
 			targetLoc = target.getLocation();
 			targetLoc.setY(bossLoc.getY());
 		}
-		return targetLoc.subtract(bossLoc).toVector().normalize();
+		Vector dir = targetLoc.subtract(bossLoc).toVector();
+		return dir.lengthSquared() == 0 ? mBoss.getLocation().getDirection().normalize() : dir.normalize();
 	}
 
 	public void castTelegraphBeam(LivingEntity target) {

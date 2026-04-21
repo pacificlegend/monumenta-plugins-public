@@ -6,6 +6,7 @@ import com.playmonumenta.plugins.bosses.parameters.EntityTargets;
 import com.playmonumenta.plugins.bosses.spells.Spell;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import com.playmonumenta.plugins.utils.MMLog;
 import java.util.List;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Dolphin;
@@ -31,7 +32,10 @@ public class GenericTargetBoss extends BossAbilityGroup {
 	public GenericTargetBoss(Plugin plugin, LivingEntity boss) throws Exception {
 		super(plugin, identityTag, boss);
 		if (!(boss instanceof Mob mob)) {
-			throw new Exception(identityTag + " only works on mobs! Entity name='" + boss.getName() + "', tags=[" + String.join(",", boss.getScoreboardTags()) + "]");
+			// Don't throw an exception - there are too many of these and they're spamming the exception log
+			MMLog.warning(identityTag + " only works on mobs! Entity name='" + boss.getName() + "', tags=[" + String.join(",", boss.getScoreboardTags()) + "]");
+			// Instead, do nothing - just return, don't try to set the mob's target
+			return;
 		}
 
 		if (boss instanceof Wolf || boss instanceof Golem || boss instanceof Dolphin || boss instanceof Ocelot) {

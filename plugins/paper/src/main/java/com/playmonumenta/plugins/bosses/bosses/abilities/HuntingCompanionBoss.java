@@ -182,6 +182,10 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 
 			@Override
 			public void run() {
+				if (mFox.isDead() || !mFox.isValid() || !mFox.getWorld().equals(target.getWorld())) {
+					this.cancel();
+					return;
+				}
 				// If the companion doesn't attack in 5s, just do it
 				if (mT > 100 || (mFox.isOnGround() && !canAttack)) {
 					if (canAttack) {

@@ -212,6 +212,11 @@ public class RenascenceCS extends PrismaticShieldCS {
 
 				Location to = optLoc != null ? optLoc : LocationUtils.getHalfHeightLocation(player);
 
+				if (to.getWorld() != world) {
+					this.cancel();
+					return;
+				}
+
 				for (int j = 0; j < 2; j++) {
 					Color c = FastUtils.RANDOM.nextBoolean() ? RED.getColor() : ROSE.getColor();
 					double red = c.getRed() / 255D;

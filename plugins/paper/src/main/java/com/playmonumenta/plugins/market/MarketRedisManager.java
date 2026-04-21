@@ -239,7 +239,9 @@ public class MarketRedisManager {
 				if (listing != null && listing.isNotUsable()) {
 					listing = new MarketListing(Long.parseLong(entry.getKey()));
 				}
-				out.add(listing);
+				if (listing != null) {
+					out.add(listing);
+				}
 			}
 		}
 		return out;

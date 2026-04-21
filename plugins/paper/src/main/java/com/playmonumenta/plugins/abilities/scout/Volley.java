@@ -102,7 +102,7 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 		mFlatDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, isLevelOne() ? VOLLEY_1_DAMAGE_FLAT : VOLLEY_2_DAMAGE_FLAT);
 		mMaxCharges = 2 + (int) CharmManager.getLevel(mPlayer, CHARM_CHARGES);
 		mMultishotLevel = MULTISHOT_BUFF + (int) CharmManager.getLevel(mPlayer, CHARM_MULTISHOT_LEVEL);
-		mMultiShotDuration = (int) CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_MULTISHOT_DURATION, MULTISHOT_DURATION);
+		mMultiShotDuration = CharmManager.getDuration(mPlayer, CHARM_MULTISHOT_DURATION, MULTISHOT_DURATION);
 		mVolley = new HashSet<>();
 		mVolleyHitMap = new HashMap<>();
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new VolleyCS());
@@ -310,7 +310,7 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 			.addLine("(Works with any weapon type)")
 			.addLine()
 			.addStat("Duration: %t")
-			.statValues(stat(MULTISHOT_DURATION))
+			.statValues(stat(a -> a.mMultiShotDuration, MULTISHOT_DURATION))
 			.addIf((a, p) -> a != null && a.mMultishotLevel != 1,
 				desc -> desc.addStat("Multishot Level: %d")
 					.statValues(stat(a -> a.mMultishotLevel, 1)))

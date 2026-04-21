@@ -147,7 +147,7 @@ public class DaggerThrow extends Ability {
 					this.cancel();
 					return;
 				}
-				if (mTicks >= mRecastDuration || !isOnCooldown()) {
+				if (mTicks >= mRecastDuration || !isOnCooldown() || !mPlayer.getWorld().equals(world)) {
 					recallDaggers(world);
 					this.cancel();
 					return;

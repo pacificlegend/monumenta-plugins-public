@@ -47,6 +47,7 @@ public class Swiftness extends Ability {
 	private static final double SPEED_BONUS = 0.1;
 	private static final int JUMP_BOOST_POTENCY = 2; // Jump Boost 3, effect potency is 0 indexed
 	private static final String NO_JUMP_BOOST_TAG = "SwiftnessJumpBoostDisable";
+	private static final String NO_DEFAULT_TRIGGER_TAG = "SwiftnessDefaultTriggerDisable";
 	private static final int COOLDOWN = 60;
 	private static final int MAX_JUMP = 3;
 	private static final double DOUBLE_JUMP_STRENGTH = 0.4;
@@ -76,6 +77,14 @@ public class Swiftness extends Ability {
 				Swiftness::toggleJumpBoost, new AbilityTrigger(AbilityTrigger.Key.SWAP).enabled(false).sneaking(false)
 				.lookDirections(AbilityTrigger.LookDirection.UP)
 				.keyOptions(AbilityTrigger.KeyOptions.NO_PROJECTILE_WEAPON), null))
+			.addTrigger(new AbilityTriggerInfo<>("toggle_default_trigger", "toggle default trigger",
+				"Toggle the default behavior of double-tapping space to dash",
+				Swiftness::toggleDefaultTrigger, new AbilityTrigger(AbilityTrigger.Key.SWAP).enabled(false).sneaking(false)
+				.lookDirections(AbilityTrigger.LookDirection.DOWN)
+				.keyOptions(AbilityTrigger.KeyOptions.NO_PROJECTILE_WEAPON), null))
+			.addTrigger(new AbilityTriggerInfo<>("jump", "alternative jump trigger", null,
+				Swiftness::cast, new AbilityTrigger(AbilityTrigger.Key.DROP).enabled(false).sneaking(true)
+				.lookDirections(AbilityTrigger.LookDirection.LEVEL), null))
 			.remove(Swiftness::removeFlying)
 			.displayItem(Material.RABBIT_FOOT)
 			.ignoresSilence(true);
@@ -84,6 +93,7 @@ public class Swiftness extends Ability {
 	private final double mSpeed;
 	private boolean mWasInNoMobilityZone = false;
 	private boolean mJumpBoost;
+	private boolean mDefaultTriggerDisabled;
 	private final double mDashStrength;
 	private final double mVulnerabilityMultiplier;
 	private final int mVulnerabilityDuration;
@@ -97,6 +107,7 @@ public class Swiftness extends Ability {
 		super(plugin, player, INFO);
 		mJumpBoost = !mPlayer.getScoreboardTags().contains(NO_JUMP_BOOST_TAG);
 		mJumpBoostLevel = JUMP_BOOST_POTENCY + (int) CharmManager.getLevel(mPlayer, CHARM_JUMP_BOOST);
+		mDefaultTriggerDisabled = mPlayer.getScoreboardTags().contains(NO_DEFAULT_TRIGGER_TAG);
 		mSpeed = isLevelTwo() ? SPEED_BONUS : 0;
 		mDashStrength = (isLevelOne() ? 0 : DOUBLE_JUMP_STRENGTH_MULTIPLIER) + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_DOUBLE_JUMP_STRENGTH);
 		mVulnerabilityMultiplier = DASH_VULNERABILITY_MULTIPLIER + CharmManager.getLevelPercentDecimal(player, CHARM_DASH_VULNERABILITY_AMPLIFIER);
@@ -104,10 +115,12 @@ public class Swiftness extends Ability {
 		mResistanceDuration = CharmManager.getDuration(mPlayer, CHARM_DASH_RESISTANCE_DURATION, DASH_IMMUNITY_DURATION);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(mPlayer, new SwiftnessCS());
 
-		mPlayer.setAllowFlight(true);
-		if (!canToggleFlight(mPlayer)) {
-			mPlayer.setFlyingFallDamage(TRUE);
-			mPlayer.setFlySpeed(0f);
+		if (!mDefaultTriggerDisabled) {
+			mPlayer.setAllowFlight(true);
+			if (!canToggleFlight(mPlayer)) {
+				mPlayer.setFlyingFallDamage(TRUE);
+				mPlayer.setFlySpeed(0f);
+			}
 		}
 	}
 
@@ -141,9 +154,17 @@ public class Swiftness extends Ability {
 		mTotalJumps++;
 
 		double jumpStrength = DOUBLE_JUMP_STRENGTH * (1 + mDashStrength);
+		boolean backwards = false;
+		if (jumpStrength < 0) {
+			backwards = true;
+			jumpStrength *= -1;
+		}
 
 		Vector dir = mPlayer.getLocation().getDirection().normalize();
-		dir.multiply(CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DOUBLE_JUMP_STRENGTH, 1));
+		dir.multiply(1 + mDashStrength);
+		if (backwards && !isEnhanced()) {
+			dir.setY(dir.getY() * -1);
+		}
 
 		if (!isEnhanced()) {
 			mCosmetic.swiftnessDoubleJump(mPlayer, mPlayer.getLocation());
@@ -153,21 +174,19 @@ public class Swiftness extends Ability {
 			// Swiftness Enhancement
 			mCosmetic.swiftnessDash(mPlayer, mPlayer.getLocation());
 
-			dir.normalize().multiply(1 + jumpStrength);
-
 			if (mDashRunnable != null) {
 				mDashRunnable.cancel();
 			}
 
 			mIsActive = true;
+			int duration = (int) (jumpStrength * 5);
 			mDashRunnable = new BukkitRunnable() {
-				final int mDuration = (int) (jumpStrength * 5);
 				int mT = 0;
 				boolean mDash = true;
 
 				@Override
 				public void run() {
-					if (mT > mDuration * 2 || mPlayer.isDead() || !mPlayer.isOnline() || !mPlayer.isValid()) {
+					if (mT > duration * 2 || mPlayer.isDead() || !mPlayer.isOnline() || !mPlayer.isValid()) {
 						mDashRunnable = null;
 						mIsActive = false;
 						this.cancel();
@@ -184,7 +203,7 @@ public class Swiftness extends Ability {
 					hitbox.getHitMobs().forEach(e -> EntityUtils.applyVulnerability(mPlugin, mVulnerabilityDuration, mVulnerabilityMultiplier, e));
 
 					if (mDash) {
-						if (mT > mDuration) {
+						if (mT > duration) {
 							mPlayer.setVelocity(mPlayer.getVelocity().multiply(0.5));
 							mDash = false;
 						} else {
@@ -208,7 +227,7 @@ public class Swiftness extends Ability {
 
 		final boolean isInNoMobilityZone = ZoneUtils.hasZoneProperty(mPlayer, ZoneProperty.NO_MOBILITY_ABILITIES);
 
-		if (canCast() && !isInNoMobilityZone && !mWasInNoMobilityZone) {
+		if (canCast() && !isInNoMobilityZone && !mWasInNoMobilityZone && !mDefaultTriggerDisabled) {
 			setFlying(mPlayer);
 		} else {
 			removeFlying(mPlayer);
@@ -262,6 +281,25 @@ public class Swiftness extends Ability {
 			MessagingUtils.sendActionBarMessage(mPlayer, "Jump Boost has been turned on");
 		}
 		ClientModHandler.updateAbility(mPlayer, this);
+		return true;
+	}
+
+	public boolean toggleDefaultTrigger() {
+		if (EntityUtils.isSilenced(mPlayer)) {
+			return false;
+		}
+
+		if (mDefaultTriggerDisabled) {
+			mDefaultTriggerDisabled = false;
+			mPlayer.removeScoreboardTag(NO_DEFAULT_TRIGGER_TAG);
+			MessagingUtils.sendActionBarMessage(mPlayer, "Swiftness default trigger enabled");
+			setFlying(mPlayer);
+		} else {
+			mDefaultTriggerDisabled = true;
+			mPlayer.addScoreboardTag(NO_DEFAULT_TRIGGER_TAG);
+			MessagingUtils.sendActionBarMessage(mPlayer, "Swiftness default trigger disabled");
+			removeFlying(mPlayer);
+		}
 		return true;
 	}
 

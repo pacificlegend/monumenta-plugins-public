@@ -27,6 +27,7 @@ import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRiptideEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
@@ -423,6 +424,18 @@ public interface ItemStat {
 	 * @param event  associated event
 	 */
 	default void onSprintToggle(Plugin plugin, Player player, double value, PlayerToggleSprintEvent event) {
+
+	}
+
+	/**
+	 * Player moves
+	 *
+	 * @param plugin monumenta plugin
+	 * @param player the player that moved
+	 * @param value value of ItemStat possessed by the Player
+	 * @param event the associated PlayerMoveEvent
+	 */
+	default void onMovement(Plugin plugin, Player player, double value, PlayerMoveEvent event) {
 
 	}
 }

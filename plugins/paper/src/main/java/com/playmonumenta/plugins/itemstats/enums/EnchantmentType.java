@@ -38,6 +38,7 @@ public enum EnchantmentType {
 	AQUA_AFFINITY(Enchantment.WATER_WORKER, "Aqua Affinity", false, false, false, false),
 	RESPIRATION(Enchantment.OXYGEN, "Respiration", true, false, false, false),
 	DEPTH_STRIDER(Enchantment.DEPTH_STRIDER, "Depth Strider", true, false, false, false),
+	SWIFT_SNEAK(Enchantment.SWIFT_SNEAK, "Swift Sneak", true, false, false, false),
 
 	// Protections
 	MELEE_PROTECTION(new MeleeProtection(), true, false, false, true),
@@ -87,6 +88,7 @@ public enum EnchantmentType {
 	EARTH_ASPECT(new EarthAspect(), true, false, false, true),
 	FIRST_STRIKE(new FirstStrike(), true, false, false, true),
 	FRACTAL(new Fractal(), true, false, false, true),
+	FROST_WALKER(new FrostWalker(), true, false, false, false),
 	GILLS(new Gills(), false, false, false, false),
 	GRAPPLING(new Grappling(), true, false, false, false),
 	HARPOON(new Harpoon(), true, false, false, true),

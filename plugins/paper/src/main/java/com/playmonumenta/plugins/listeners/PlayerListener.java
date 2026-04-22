@@ -1764,6 +1764,12 @@ public class PlayerListener implements Listener {
 		mPlugin.mItemStatManager.onSprintToggle(mPlugin, player, event);
 	}
 
+	@EventHandler(ignoreCancelled = true)
+	public void movementEvent(PlayerMoveEvent event) {
+		Player player = event.getPlayer();
+		mPlugin.mItemStatManager.onMovement(mPlugin, player, event);
+	}
+
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
 	public void blockBreakEvent(BlockBreakEvent event) {
 		Player player = event.getPlayer();

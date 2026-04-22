@@ -370,6 +370,14 @@ public abstract class Ability {
 		return 0;
 	}
 
+	/**
+	 * Sets the ability's level directly, overriding the use of whatever scoreboard value the player has.
+	 * @param score score value to set
+	 */
+	public void setAbilityScore(int score) {
+		mScore = score;
+	}
+
 	public boolean isLevelOne() {
 		return getAbilityScore() % 2 == 1;
 	}

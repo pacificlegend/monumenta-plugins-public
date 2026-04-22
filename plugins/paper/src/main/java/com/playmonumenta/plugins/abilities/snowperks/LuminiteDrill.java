@@ -39,7 +39,7 @@ import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.St
 public class LuminiteDrill extends Ability {
 	private static final String SCOREBOARD = "LuminiteDrill";
 	private static final String ADVANCEMENT_REQ = "monumenta:challenges/r1/coalrupted/spawners";
-	private static final int POINT_COST = 5;
+	private static final int POINT_COST = 4;
 	private static final int MAX_USES = 3;
 	private static final int DURATION = 4 * 20;
 

@@ -63,6 +63,7 @@ public class SnowPerkGui extends Gui {
 	public static final Style COALRUPTED_COLOR = Style.style(Location.KOAL.getColor());
 	public static final Style ACHIEVEMENT_COLOR = Style.style(TextColor.color(0x0D5723)).decorate(TextDecoration.UNDERLINED);
 	public static final Style ACHIEVEMENT_ARROW_COLOR = Style.style(TextColor.color(0x33D14));
+	public static final Style SNIFFY_COLOR = Style.style(TextColor.color(0xAA1100)).decorate(TextDecoration.UNDERLINED);
 	public static final String REMAINING_POINTS = "SnowPoints";
 	public static final String TOTAL_POINTS = "TotalSnowPoints";
 	public static final String COAL_UNTIL_POINTS = "CoalUntilPoints";
@@ -318,14 +319,18 @@ public class SnowPerkGui extends Gui {
 			boolean isAchievementPerk = ACHIEVEMENT_PERKS.contains(perk);
 			boolean isSniffy = perk == SniffysBlessing.INFO;
 
-			Component name = Component.text(perk.getDisplayName(), isAchievementPerk ? ACHIEVEMENT_COLOR : SNOW_POINT_COLOR).decorate(TextDecoration.BOLD)
+			Style nameStyle;
+			if (isSniffy) {
+				nameStyle = SNIFFY_COLOR;
+			} else if (isAchievementPerk) {
+				nameStyle = ACHIEVEMENT_COLOR;
+			} else {
+				nameStyle = SNOW_POINT_COLOR;
+			}
+
+			Component name = Component.text(perk.getDisplayName(), nameStyle).decorate(TextDecoration.BOLD)
 				.append(Component.text(StringUtils.smallCaps(alreadySelected ? " [Active]" : " [Inactive]"), alreadySelected ? DescriptionUtils.GOLD : DescriptionUtils.DARK_GREY)
 					.decoration(TextDecoration.BOLD, false).decoration(TextDecoration.UNDERLINED, false));
-			if (isSniffy) {
-				name = Component.text(perk.getDisplayName(), TextColor.color(0xAA1100)).decorate(TextDecoration.BOLD).decorate(TextDecoration.UNDERLINED).decorate(TextDecoration.OBFUSCATED)
-					.append(Component.text(StringUtils.smallCaps(alreadySelected ? " [Granted]" : " [Unavailable]"), alreadySelected ? DescriptionUtils.GOLD : DescriptionUtils.DARK_GREY)
-						.decoration(TextDecoration.BOLD, false).decoration(TextDecoration.UNDERLINED, false).decoration(TextDecoration.OBFUSCATED, false));
-			}
 
 			Component instruction;
 			Material paneColor;
@@ -333,9 +338,6 @@ public class SnowPerkGui extends Gui {
 				instruction = DescriptionUtils.actionLine("Perk already selected.", DescriptionUtils.ACTION_COMPLETED).appendNewline()
 					.append(DescriptionUtils.actionLine("Click to deselect!", DescriptionUtils.ACTION_SELECT));
 				paneColor = isAchievementPerk ? Material.GREEN_STAINED_GLASS_PANE : Material.CYAN_STAINED_GLASS_PANE;
-			} else if (isSniffy) {
-				instruction = DescriptionUtils.actionLine("Perk will be implemented in a future update!", DescriptionUtils.ACTION_DENIED);
-				paneColor = Material.RED_STAINED_GLASS_PANE;
 			} else if (!unlockedPerk) {
 				instruction = DescriptionUtils.actionLine("Perk not unlocked!", DescriptionUtils.ACTION_DENIED);
 				paneColor = Material.RED_STAINED_GLASS_PANE;
@@ -357,6 +359,9 @@ public class SnowPerkGui extends Gui {
 					ScoreboardUtils.setScoreboardValue(mPlayer, scoreboard, 0);
 					ScoreboardUtils.setScoreboardValue(mPlayer, REMAINING_POINTS, currentPoints + pointCost);
 
+					if (isSniffy) {
+						mPlayer.playSound(mPlayer, Sound.ENTITY_SNIFFER_HURT, SoundCategory.PLAYERS, 0.9f, 1f);
+					}
 					mPlayer.playSound(mPlayer, Sound.BLOCK_TRIAL_SPAWNER_PLACE, SoundCategory.PLAYERS, 0.8f, 0.9f);
 				} else if (!enoughPoints || !unlockedPerk) {
 					// Action blocked due to something; error sound and return
@@ -368,6 +373,9 @@ public class SnowPerkGui extends Gui {
 					ScoreboardUtils.setScoreboardValue(mPlayer, scoreboard, 1);
 					ScoreboardUtils.setScoreboardValue(mPlayer, REMAINING_POINTS, currentPoints - pointCost);
 
+					if (isSniffy) {
+						mPlayer.playSound(mPlayer, Sound.ENTITY_SNIFFER_HAPPY, SoundCategory.PLAYERS, 0.9f, 1.25f);
+					}
 					if (isAchievementPerk) {
 						Bukkit.getScheduler().runTaskLater(mPlugin, () -> mPlayer.playSound(mPlayer, Sound.BLOCK_NOTE_BLOCK_CHIME, SoundCategory.PLAYERS, 0.9f, 1f), 0);
 						Bukkit.getScheduler().runTaskLater(mPlugin, () -> mPlayer.playSound(mPlayer, Sound.BLOCK_NOTE_BLOCK_CHIME, SoundCategory.PLAYERS, 0.9f, 5/4f), 2);

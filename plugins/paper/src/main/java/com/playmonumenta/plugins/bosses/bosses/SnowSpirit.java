@@ -148,7 +148,7 @@ public class SnowSpirit extends SerializedLocationBossAbilityGroup {
 				if (mMinibossesPresent) {
 					boolean minibossesAlive = false;
 					for (Entity miniboss : mActiveMinibosses) {
-						if (!miniboss.isDead() && miniboss.isValid()) {
+						if (miniboss != null && !miniboss.isDead() && miniboss.isValid()) {
 							minibossesAlive = true;
 							break;
 						}
@@ -274,7 +274,7 @@ public class SnowSpirit extends SerializedLocationBossAbilityGroup {
 			if (source instanceof Player player) {
 				player.playSound(mBoss.getLocation(), Sound.ITEM_SHIELD_BLOCK, SoundCategory.HOSTILE, 1, 1);
 				List<Entity> living = new ArrayList<>(mActiveMinibosses);
-				living.removeIf(miniboss -> miniboss.isDead() || !miniboss.isValid());
+				living.removeIf(miniboss -> miniboss == null || miniboss.isDead() || !miniboss.isValid());
 				String ghosts = living.size() <= 1 ? "is a ghost" : "are " + living.size() + " ghosts";
 				player.sendMessage(Component.text("Your weapon glides cleanly through the spirit, seemingly doing nothing. There " + ghosts + " alive.", NamedTextColor.AQUA));
 			}

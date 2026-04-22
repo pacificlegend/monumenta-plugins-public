@@ -17,6 +17,7 @@ import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
@@ -35,15 +36,14 @@ import org.joml.Vector3f;
 
 public class DisplayEntityUtils {
 
-	public static BukkitTask groundBlockQuake(Location center, double radius, List<Material> possibleMaterials, @Nullable Display.Brightness brightness) {
-		return groundBlockQuake(center, radius, possibleMaterials, brightness, 0.06);
+	public static BukkitTask groundBlockQuake(Location center, double radius, List<Material> possibleMaterials) {
+		return groundBlockQuake(center, radius, possibleMaterials, 0.06);
 	}
 
-	public static BukkitTask groundBlockQuake(Location center, double radius, List<Material> possibleMaterials, @Nullable Display.Brightness brightness, double blockDensity) {
+	public static BukkitTask groundBlockQuake(Location center, double radius, List<Material> possibleMaterials, double blockDensity) {
 		BukkitRunnable runnable = new BukkitRunnable() {
 			int mTicks = 0;
 			final Map<Integer, ArrayList<Location>> mLocationDelays = new HashMap<>();
-			final List<BlockDisplay> mAllDisplays = new ArrayList<>();
 
 			@Override
 			public void run() {
@@ -62,40 +62,16 @@ public class DisplayEntityUtils {
 
 				if (mLocationDelays.containsKey(mTicks)) {
 					mLocationDelays.get(mTicks).forEach(l -> {
-						BlockDisplay blockDisplay = center.getWorld().spawn(l.clone().add(-0.5, -0.3, 0.5), BlockDisplay.class);
-						blockDisplay.setBlock(possibleMaterials.get(FastUtils.randomIntInRange(0, possibleMaterials.size() - 1)).createBlockData());
-						if (brightness != null) {
-							blockDisplay.setBrightness(new Display.Brightness(15, 15));
-						}
-						blockDisplay.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(1.0f, 1.0f, 1.0f), new Quaternionf()));
-						blockDisplay.setInterpolationDuration(2);
-						EntityUtils.setRemoveEntityOnUnload(blockDisplay);
-						mAllDisplays.add(blockDisplay);
+						FallingBlock fallingBlock = center.getWorld().spawn(l, FallingBlock.class);
+						fallingBlock.setBlockData(FastUtils.getRandomElement(possibleMaterials).createBlockData());
+						fallingBlock.setCancelDrop(true);
+						EntityUtils.setRemoveEntityOnUnload(fallingBlock);
+						EntityUtils.disableBlockPlacement(fallingBlock);
 
-						BukkitRunnable runnable = new BukkitRunnable() {
-							int mTicks = 0;
-							final double mMaxHeight = FastUtils.randomDoubleInRange(0.5, 0.8);
+						double maxHeight = FastUtils.randomDoubleInRange(0.6, 0.9);
+						fallingBlock.setVelocity(new Vector(0, maxHeight / 5, 0));
 
-							@Override
-							public void run() {
-								double currentHeight = mMaxHeight * (-0.04 * ((mTicks - 5) * (mTicks - 5)) + 1);
-								blockDisplay.setTransformation(new Transformation(new Vector3f(0, (float) currentHeight, 0), blockDisplay.getTransformation().getLeftRotation(), blockDisplay.getTransformation().getScale(), blockDisplay.getTransformation().getRightRotation()));
-								blockDisplay.setInterpolationDelay(-1);
-
-								mTicks++;
-								if (mTicks > 10) {
-									this.cancel();
-								}
-							}
-
-							@Override
-							public synchronized void cancel() throws IllegalStateException {
-								super.cancel();
-
-								blockDisplay.remove();
-							}
-						};
-						runnable.runTaskTimer(Plugin.getInstance(), 0, 1);
+						Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), fallingBlock::remove, (long) (maxHeight * 12));
 					});
 				}
 
@@ -103,13 +79,6 @@ public class DisplayEntityUtils {
 				if (mTicks > (radius + 1) * 2 + 8) {
 					this.cancel();
 				}
-			}
-
-			@Override
-			public synchronized void cancel() throws IllegalStateException {
-				super.cancel();
-
-				mAllDisplays.forEach(Entity::remove);
 			}
 		};
 		return runnable.runTaskTimer(Plugin.getInstance(), 0, 1);

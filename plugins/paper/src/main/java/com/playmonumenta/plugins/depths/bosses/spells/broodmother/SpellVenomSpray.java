@@ -25,7 +25,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -83,7 +82,7 @@ public class SpellVenomSpray extends SpellBaseGrenadeLauncher {
 						.delta(0, 1, 0).spawnAsEntityActive(bosss);
 				}
 				bosss.getWorld().playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 1.5f, 1.5f);
-				DisplayEntityUtils.groundBlockQuake(loc, BLAST_RADIUS, GROUND_QUAKE_BLOCKS, new Display.Brightness(12, 12), 0.002);
+				DisplayEntityUtils.groundBlockQuake(loc, BLAST_RADIUS, GROUND_QUAKE_BLOCKS, 0.002);
 			},
 			(LivingEntity bosss, LivingEntity target, Location loc) -> {
 				// Hit Action on Explosion Targets

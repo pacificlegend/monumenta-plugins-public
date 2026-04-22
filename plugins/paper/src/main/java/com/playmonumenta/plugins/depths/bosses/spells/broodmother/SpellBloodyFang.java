@@ -26,7 +26,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -178,7 +177,7 @@ public class SpellBloodyFang extends Spell {
 						new PPCircle(Particle.REDSTONE, mCenter, DAMAGE_RADIUS).data(END_DUST_OPTIONS).countPerMeter(1).spawnAsBoss();
 						// Block quake, making sure it spawns at the correct height of the floor
 						mCenter.setY(Broodmother.GROUND_Y_LEVEL);
-						DisplayEntityUtils.groundBlockQuake(mCenter, DAMAGE_RADIUS, GROUND_QUAKE_BLOCKS, new Display.Brightness(8, 8), 0.02);
+						DisplayEntityUtils.groundBlockQuake(mCenter, DAMAGE_RADIUS, GROUND_QUAKE_BLOCKS, 0.02);
 						Hitbox hitbox = new Hitbox.UprightCylinderHitbox(mCenter, FALL_DISTANCE, DAMAGE_RADIUS);
 						List<Player> hitPlayers = hitbox.getHitPlayers(true);
 						for (Player hitPlayer : hitPlayers) {

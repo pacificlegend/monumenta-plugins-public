@@ -12,7 +12,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -29,7 +28,7 @@ public class EarthenTremorCS implements CosmeticSkill {
 	}
 
 	public void earthenTremorEffect(Player player, Location location, double radius) {
-		DisplayEntityUtils.groundBlockQuake(location.add(0, 0.1, 0), radius, List.of(Material.PODZOL, Material.DIRT, Material.MUD), new Display.Brightness(12, 12));
+		DisplayEntityUtils.groundBlockQuake(location.add(0, 0.1, 0), radius, List.of(Material.PODZOL, Material.DIRT, Material.MUD));
 		World world = player.getWorld();
 		world.playSound(location, Sound.ENTITY_IRON_GOLEM_DAMAGE, SoundCategory.PLAYERS, 0.7f, 0.4f);
 		world.playSound(location, Sound.ITEM_TOTEM_USE, SoundCategory.PLAYERS, 0.2f, 2f);

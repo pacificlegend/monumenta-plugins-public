@@ -18,7 +18,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -72,7 +71,7 @@ public class SpellEarthenRupture extends Spell {
 					new PartialParticle(Particle.LAVA, loc, 100, 3, 0.1f, 3, 0.25f).spawnAsEntityActive(mBoss);
 					new PartialParticle(Particle.EXPLOSION_NORMAL, loc, 75, 3, 0.1f, 3, 0.25f).spawnAsEntityActive(mBoss);
 
-					DisplayEntityUtils.groundBlockQuake(loc.clone().add(0, 0.2, 0), 6, List.of(Material.MAGMA_BLOCK, Material.DIRT, Material.MUD), new Display.Brightness(12, 12), 0.01);
+					DisplayEntityUtils.groundBlockQuake(loc.clone().add(0, 0.2, 0), 6, List.of(Material.MAGMA_BLOCK, Material.DIRT, Material.MUD), 0.01);
 
 					for (Player player : PlayerUtils.playersInRange(loc, 6, true)) {
 						DamageUtils.damage(mBoss, player, DamageType.BLAST, 20, null, false, true, SPELL_NAME);

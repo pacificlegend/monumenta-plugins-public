@@ -26,7 +26,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -182,7 +181,7 @@ public class SpellTantrum extends Spell {
 			private void travelAesthetics() {
 				mCurrentLoc.getWorld().playSound(mCurrentLoc, Sound.BLOCK_BASALT_BREAK, SoundCategory.HOSTILE, 2.0f, 1.0f);
 				mCurrentLoc.getWorld().playSound(mCurrentLoc, Sound.BLOCK_BASALT_BREAK, SoundCategory.HOSTILE, 2.0f, 1.0f);
-				DisplayEntityUtils.groundBlockQuake(mCurrentLoc, TRAVEL_QUAKE_RADIUS, GROUND_QUAKE_BLOCKS, new Display.Brightness(8, 8), 0.002);
+				DisplayEntityUtils.groundBlockQuake(mCurrentLoc, TRAVEL_QUAKE_RADIUS, GROUND_QUAKE_BLOCKS, 0.002);
 			}
 
 			private void hitAesthetics(Location loc) {
@@ -245,7 +244,7 @@ public class SpellTantrum extends Spell {
 			private void tryDamagePlayers(Location loc) {
 				List<Player> hitPlayers = PlayerUtils.playersInRange(loc, TRAVEL_QUAKE_RADIUS, true);
 				if (!hitPlayers.isEmpty()) {
-					DisplayEntityUtils.groundBlockQuake(loc, HIT_QUAKE_RADIUS, GROUND_QUAKE_BLOCKS, new Display.Brightness(8, 8), 0.03);
+					DisplayEntityUtils.groundBlockQuake(loc, HIT_QUAKE_RADIUS, GROUND_QUAKE_BLOCKS, 0.03);
 					hitPlayers.forEach(p -> {
 						DamageUtils.damage(mBoss, p, DamageEvent.DamageType.MELEE, DAMAGE, null, true, true, SPELL_NAME);
 						p.setVelocity(p.getVelocity().add(new Vector(0, KNOCKUP_VELOCITY, 0)));

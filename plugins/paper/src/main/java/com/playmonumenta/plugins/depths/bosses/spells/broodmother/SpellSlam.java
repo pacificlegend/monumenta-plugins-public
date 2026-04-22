@@ -23,7 +23,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -135,7 +134,7 @@ public class SpellSlam extends Spell {
 	}
 
 	private void doQuake() {
-		DisplayEntityUtils.groundBlockQuake(mSlam.getCenter(), mSlam.getRadius(), GROUND_QUAKE_BLOCKS, new Display.Brightness(8, 8), 0.015);
+		DisplayEntityUtils.groundBlockQuake(mSlam.getCenter(), mSlam.getRadius(), GROUND_QUAKE_BLOCKS, 0.015);
 		// Follow the quake and deal damage at its level.
 		// Seems to be travelling at ~0.67 blocks per tick, and takes 3 seconds (60 ticks) to reach the 40 block radius.
 		mQuakeRunnable = new BukkitRunnable() {

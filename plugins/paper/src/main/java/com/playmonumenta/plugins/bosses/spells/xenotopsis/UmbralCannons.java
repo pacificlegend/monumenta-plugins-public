@@ -24,7 +24,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -221,7 +220,7 @@ public class UmbralCannons extends Spell {
 						.spawnAsBoss();
 
 					// visual effect for the cannon shot
-					mActiveTasks.add(DisplayEntityUtils.groundBlockQuake(mLocation, SHOT_RADIUS, SHOT_BLOCK_OPTIONS, new Display.Brightness(15, 15)));
+					mActiveTasks.add(DisplayEntityUtils.groundBlockQuake(mLocation, SHOT_RADIUS, SHOT_BLOCK_OPTIONS));
 				}
 
 				mTicks++;

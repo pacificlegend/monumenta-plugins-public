@@ -95,7 +95,8 @@ public class CleansingTotem extends TotemAbility {
 		if (ticks % mInterval == 0) {
 			pulse(standLocation, stats, false);
 		}
-		if (isLevelTwo() && !isEnhanced() && ticks == mDuration / mCleanses - 1) {
+		int ticksPerCleanse = mDuration / mCleanses;
+		if (isLevelTwo() && !isEnhanced() && ticks % ticksPerCleanse == ticksPerCleanse - 1) {
 			List<Player> cleansePlayers = PlayerUtils.playersInRange(standLocation, getTotemRadius(), true);
 			cleanseTargets(cleansePlayers);
 			mCosmetic.cleansingTotemCleanse(mPlayer, standLocation, getTotemRadius());

@@ -36,6 +36,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.ThrowableProjectile;
+import org.bukkit.entity.Trident;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -185,7 +186,7 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 					ProjectileLaunchEvent event = new ProjectileLaunchEvent(proj);
 					Bukkit.getPluginManager().callEvent(event);
 
-					if (proj instanceof AbstractArrow arrow) {
+					if (proj instanceof AbstractArrow arrow && !(proj instanceof Trident)) {
 						arrow.setPickupStatus(PickupStatus.CREATIVE_ONLY);
 
 						arrow.setCritical(projectile instanceof AbstractArrow projectileArrow && projectileArrow.isCritical());
@@ -263,7 +264,7 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 			ProjectileLaunchEvent event = new ProjectileLaunchEvent(proj);
 			Bukkit.getPluginManager().callEvent(event);
 
-			if (proj instanceof AbstractArrow arrow) {
+			if (proj instanceof AbstractArrow arrow && !(proj instanceof Trident)) {
 				arrow.setPickupStatus(PickupStatus.CREATIVE_ONLY);
 				arrow.setCritical(projectile instanceof AbstractArrow projectileArrow && projectileArrow.isCritical());
 				arrow.setPierceLevel(piercing);

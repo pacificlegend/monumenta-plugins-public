@@ -57,6 +57,7 @@ public class GaleShotCS implements CosmeticSkill {
 
 		Location fireLoc = player.getEyeLocation();
 		proj.setVisibleByDefault(false);
+		player.hideEntity(Plugin.getInstance(), proj);
 
 		new BukkitRunnable() {
 			double mFlightDistance = 1;

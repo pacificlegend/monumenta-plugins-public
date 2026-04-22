@@ -249,7 +249,7 @@ public class RendingRazor extends Ability {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 1)
 			.addTrigger()
 			.addDashedLine()
-			.addLine("Throw a spinning razor that rend through mobs before returning.")
+			.addLine("Throw a spinning razor that rends through mobs before returning.")
 			.addLine("Each hit grants faster cooldown recharge rate.")
 			.addLine()
 			.addStat("Damage: %d0R (p)")
@@ -276,7 +276,7 @@ public class RendingRazor extends Ability {
 			.addStat("Cooldown: %t2")
 			.statValues(cooldown(COOLDOWN_L2))
 			.addLine()
-			.addLine("*Rending Razor* inflicts %d stack of *Bleed*.").styles(UNDERLINED, Bleed.BLEED_COLOR)
+			.addLine("*Rending Razor* inflicts %d stacks of *Bleed*.").styles(UNDERLINED, Bleed.BLEED_COLOR)
 			.statValues(stat(a -> a.mBleed, BLEED))
 			.addDashedLine();
 	}

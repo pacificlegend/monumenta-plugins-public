@@ -35,6 +35,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.ThrowableProjectile;
+import org.bukkit.entity.Trident;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -186,11 +188,21 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 
 	private void shootProjectile(final ItemStack inMainHand, ItemStatManager.PlayerItemStats stats) {
 		float projSpeed = ItemUtils.getVanillaProjectileSpeed(inMainHand);
-		AbstractArrow proj = (AbstractArrow) EntityUtils.spawnProjectile(mPlayer, 0, 0, new Vector(0, 0, 0), projSpeed, EntityType.ARROW);
+		EntityType projectileType;
+		if (inMainHand.getType() == Material.TRIDENT) {
+			projectileType = EntityType.TRIDENT;
+		} else if (inMainHand.getType() == Material.SNOWBALL) {
+			projectileType = EntityType.SNOWBALL;
+		} else {
+			projectileType = EntityType.ARROW;
+		}
+		Projectile proj = EntityUtils.spawnProjectile(mPlayer, 0, 0, new Vector(0, 0, 0), projSpeed, projectileType);
 
 		proj.setMetadata(ARROW_METADATA, new FixedMetadataValue(mPlugin, false));
 		proj.setShooter(mPlayer);
-		proj.setPierceLevel(mPierce);
+		if (proj instanceof AbstractArrow arrow && !(arrow instanceof Trident)) {
+			arrow.setPierceLevel(mPierce);
+		}
 
 		if (mSharpshooter != null) {
 			mSharpshooter.doNotTrack(proj);
@@ -205,14 +217,19 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		if (!event.isCancelled()) {
 			mCosmetic.arrowEffect(mPlugin, proj);
 		}
-
-		proj.setCritical(true);
-		proj.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
+		if (proj instanceof AbstractArrow arrow) {
+			arrow.setCritical(true);
+			arrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
+		} else if (proj instanceof ThrowableProjectile throwable) {
+			// Snowball only
+			ItemUtils.setSnowballItem(throwable, inMainHand);
+		}
 	}
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		if (event.getDamager() instanceof AbstractArrow proj
+		// QStorm native damage handling
+		if (event.getDamager() instanceof Projectile proj
 			&& proj.hasMetadata(ARROW_METADATA)
 			&& event.getType() == DamageEvent.DamageType.PROJECTILE) {
 			event.setCancelled(true);
@@ -225,8 +242,14 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 					DamageListener.getProjectileItemStats(proj)),
 				dmg, true, false, false);
 
+			if (proj instanceof Trident) {
+				proj.remove();
+			}
+
 			return false;
 		}
+
+		// QStorm arrow addition handling
 
 		ClassAbility ability = event.getAbility();
 
@@ -282,23 +305,23 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 	private static Description<QuiverStorm> getDescription1() {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 1)
 			.addDashedLine()
-			.addLine("Firing a projectile will fire extra arrows that")
+			.addLine("Firing a projectile will fire extra shots that")
 			.addLine("inherits %p of non-damage enchants.")
 			.statValues(stat(ENCHANT_RATIO))
 			.addLine()
-			.addStat("Damage: %p1 (of weapon damage) (p) (per arrow)")
+			.addStat("Damage: %p1 (of weapon damage) (p) (per shot)")
 			.statValues(stat(a -> a.mDamagePercent, DAMAGE_PERCENT_L1))
 			.addStat("Fire Rate: %t1")
 			.statValues(stat(a -> a.mDelay, DELAY_L1))
-			.addStat("Arrows: %d")
+			.addStat("Shots: %d")
 			.statValues(stat(a -> a.mPassive, PASSIVE_ARROW))
 			.addLine()
-			.addLine("Landing *Lockdown* adds %d arrows to your next").styles(UNDERLINED)
+			.addLine("Landing *Lockdown* adds %d shots to your next").styles(UNDERLINED)
 			.statValues(stat(a -> a.mLockdownRefund, LD_ARROW))
-			.addLine("shot, whereas landing *Predator Strike* adds %d arrows.").styles(UNDERLINED)
+			.addLine("shot, whereas landing *Predator Strike* adds %d shots.").styles(UNDERLINED)
 			.statValues(stat(a -> a.mPstrikeArrowRefund, PSTRIKE_ARROW))
 			.addLine()
-			.addStat("Max Arrows: %d1")
+			.addStat("Max Shots: %d1")
 			.statValues(stat(a -> a.mMaxCharges, MAX_ARROW_L1))
 			.addDashedLine();
 	}
@@ -307,13 +330,13 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 2)
 			.addDashedLine()
 			.addLine("Increase *Quiver Storm*'s damage,").styles(UNDERLINED)
-			.addLine("fire rate, and max arrow count.")
+			.addLine("fire rate, and max shot count.")
 			.addLine()
 			.addStatComparison("Damage: %p1 -> %p2")
 			.statValues(stat(DAMAGE_PERCENT_L1), stat(a -> a.mDamagePercent, DAMAGE_PERCENT_L2))
 			.addStatComparison("Fire Rate: %t1 -> %t2")
 			.statValues(stat(DELAY_L1), stat(a -> a.mDelay, DELAY_L2))
-			.addStatComparison("Max Arrows: %d1 -> %d2")
+			.addStatComparison("Max Shots: %d1 -> %d2")
 			.statValues(stat(MAX_ARROW_L1), stat(a -> a.mMaxCharges, MAX_ARROW_L2))
 			.addDashedLine();
 	}

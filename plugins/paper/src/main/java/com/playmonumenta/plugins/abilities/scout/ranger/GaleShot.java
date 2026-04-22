@@ -26,6 +26,7 @@ import com.playmonumenta.plugins.itemstats.enums.AttributeType;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.listeners.DamageListener;
 import com.playmonumenta.plugins.utils.AbilityUtils;
+import com.playmonumenta.plugins.utils.BlockUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.Hitbox;
@@ -40,7 +41,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -162,13 +162,21 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 		ItemStack mainHand = mPlayer.getInventory().getItemInMainHand();
 		double bowDraw = projectile instanceof AbstractArrow arrow ? PlayerUtils.calculateBowDraw(arrow) : 1;
 		double projSpeed = ItemUtils.getVanillaProjectileSpeed(mainHand) * bowDraw;
-		Arrow galeArrow = (Arrow) EntityUtils.spawnProjectile(mPlayer, 0, 0, new Vector(0, 0, 0), (float) projSpeed, EntityType.ARROW);
+		EntityType projectileType;
+		if (mPlayer.isUnderWater() || BlockUtils.containsWater(mPlayer.getLocation().getBlock())) {
+			projectileType = EntityType.TRIDENT;
+		} else if (mainHand.getType() == Material.SNOWBALL) {
+			projectileType = EntityType.SNOWBALL;
+		} else {
+			projectileType = EntityType.ARROW;
+		}
+		Projectile galeProjectile = EntityUtils.spawnProjectile(mPlayer, 0, 0, new Vector(0, 0, 0), (float) projSpeed, projectileType);
 
 		// Destroy the original projectile and use an arrow instead because it pierces
 
-		AbilityUtils.inheritProjectileStats(mPlayer, galeArrow, projectile); // Needed for Explosive aspect transfer!
+		AbilityUtils.inheritProjectileStats(mPlayer, galeProjectile, projectile); // Needed for Explosive aspect transfer!
 		@Nullable
-		ItemStatManager.PlayerItemStats stats = DamageListener.getProjectileItemStats(galeArrow);
+		ItemStatManager.PlayerItemStats stats = DamageListener.getProjectileItemStats(galeProjectile);
 		if (stats != null) {
 			ItemStatManager.PlayerItemStats.ItemStatsMap statsMap = stats.getItemStats();
 			double originalProjDamage = statsMap.get(AttributeType.PROJECTILE_DAMAGE_ADD);
@@ -182,47 +190,51 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 			}
 		}
 
-		ProjectileLaunchEvent event = new ProjectileLaunchEvent(galeArrow);
+		ProjectileLaunchEvent event = new ProjectileLaunchEvent(galeProjectile);
 		Bukkit.getPluginManager().callEvent(event);
 
-		galeArrow.setPierceLevel(67);
-		galeArrow.setCritical(true);
-		galeArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
-		galeArrow.setShooter(mPlayer);
+		if (galeProjectile instanceof AbstractArrow galeArrow) {
+			galeArrow.setPierceLevel(67);
+			galeArrow.setCritical(true);
+			galeArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
+		}
+		galeProjectile.setShooter(mPlayer);
 
 		AbilityUtils.removeProjectile(projectile);
 
-		galeArrow.setMetadata(GALE_SHOT_PROJECTILE_METAKEY, new FixedMetadataValue(mPlugin, 0));
+		galeProjectile.setMetadata(GALE_SHOT_PROJECTILE_METAKEY, new FixedMetadataValue(mPlugin, 0));
 
 		if (mSharpshooter != null) {
 			mSharpshooter.doNotTrack(projectile);
-			mSharpshooter.trackArrow(galeArrow);
+			mSharpshooter.trackArrow(galeProjectile);
 		}
 
 		updateAbility();
 		PlayerUtils.callAbilityCastEvent(mPlayer, this, ClassAbility.GALE_SHOT, 0);
-		mCosmetic.fire(mPlayer, galeArrow);
+		mCosmetic.fire(mPlayer, galeProjectile);
 
 		final int sharpStacks = Sharpshooter.checkSharpshooterType(projectile, mPlayer.getInventory().getItemInMainHand()) + 1;
 		ItemStatManager.PlayerItemStats playerItemStats = DamageListener.getProjectileItemStats(projectile);
 		final double punch = playerItemStats != null ? playerItemStats.getItemStats().get(EnchantmentType.PUNCH) : 0;
 
 		new BukkitRunnable() {
-			final Arrow mGaleArrow = galeArrow;
-			Location mPastLoc = mGaleArrow.getLocation();
-			Hitbox mCylHitbox = Hitbox.approximateCylinder(mPastLoc, mGaleArrow.getLocation(), 0, true); // Satisfy the null check
+			final Projectile mGaleProjectile = galeProjectile;
+			Location mPastLoc = mGaleProjectile.getLocation();
+			Hitbox mCylHitbox = Hitbox.approximateCylinder(mPastLoc, mGaleProjectile.getLocation(), 0, true); // Satisfy the null check
 
 			@Override
 			public void run() {
-				if (!mGaleArrow.isValid() || mGaleArrow.getTicksLived() > 200 || mGaleArrow.isInBlock()) {
+				if (!mGaleProjectile.isValid()
+					|| mGaleProjectile.getTicksLived() > 200
+					|| (mGaleProjectile instanceof AbstractArrow mGaleArrow && mGaleArrow.isInBlock())) {
 					this.cancel();
 				}
-				mCylHitbox = Hitbox.approximateCylinder(mPastLoc, mGaleArrow.getLocation(), mSize, true).accuracy(0.6);
+				mCylHitbox = Hitbox.approximateCylinder(mPastLoc, mGaleProjectile.getLocation(), mSize, true).accuracy(0.6);
 				List<Entity> hitMobs = mCylHitbox.getHitEntities(entity -> EntityUtils.isHostileMob(entity) || WindBomb.isWindBomb(entity));
 
-				if (!hitMobs.isEmpty() && mSharpshooter != null && mSharpshooter.isTracking(mGaleArrow)) {
+				if (!hitMobs.isEmpty() && mSharpshooter != null && mSharpshooter.isTracking(mGaleProjectile)) {
 					mSharpshooter.addStacks(sharpStacks);
-					mSharpshooter.doNotTrack(mGaleArrow);
+					mSharpshooter.doNotTrack(mGaleProjectile);
 				}
 
 				for (Entity entity : hitMobs) {
@@ -235,15 +247,15 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 					if (MetadataUtils.checkOnceInRecentTicks(mPlugin, enemy, GALE_SHOT_IFRAME_METAKEY + mPlayer.getUniqueId(), 5)) {
 						DamageEvent.Metadata metadata = new DamageEvent.Metadata(DamageEvent.DamageType.PROJECTILE, ClassAbility.GALE_SHOT, null, null);
 						// Damage handled by damage pipeline because it thinks this is an arrow
-						DamageUtils.damage(mPlayer, mGaleArrow, enemy, metadata, mDamageFlat, true, false, false);
+						DamageUtils.damage(mPlayer, mGaleProjectile, enemy, metadata, mDamageFlat, true, false, false);
 
 						Location enemyLoc = enemy.getLocation();
-						enemyLoc.setY(Math.clamp(galeArrow.getY(), enemy.getY(), enemy.getHeight() + enemy.getY()));
+						enemyLoc.setY(Math.clamp(galeProjectile.getY(), enemy.getY(), enemy.getHeight() + enemy.getY()));
 
 						mCosmetic.hit(mPlayer, enemyLoc);
 
 						double speed = KB_VEL_BASE + KB_VEL_PUNCH_LEVEL * punch;
-						Vector vector = mGaleArrow.getVelocity().normalize().multiply(speed);
+						Vector vector = mGaleProjectile.getVelocity().normalize().multiply(speed);
 						vector.setY(Math.max(vector.getY(), -VERTICAL_LAUNCH / 2));
 						vector.add(new Vector(0, VERTICAL_LAUNCH, 0));
 						MovementUtils.knockAwayDirection(vector, enemy, 0.5f);
@@ -268,7 +280,7 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 						}
 					}
 				}
-				mPastLoc = mGaleArrow.getLocation();
+				mPastLoc = mGaleProjectile.getLocation();
 			}
 		}.runTaskTimer(mPlugin, 0, 1);
 

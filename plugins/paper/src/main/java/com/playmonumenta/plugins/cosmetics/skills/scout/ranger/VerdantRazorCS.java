@@ -84,6 +84,11 @@ public class VerdantRazorCS extends RendingRazorCS implements HexfallCS {
 			.extra(0.1)
 			.spawnAsPlayerActive(player);
 
+		new PartialParticle(Particle.SPORE_BLOSSOM_AIR, loc)
+			.count(6)
+			.delta(0.4)
+			.spawnAsPlayerActive(player);
+
 		new PartialParticle(Particle.FALLING_DUST, loc, 1)
 			.delta(0.25)
 			.extra(0)

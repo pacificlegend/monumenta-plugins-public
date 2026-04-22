@@ -258,7 +258,6 @@ public class Plugin extends JavaPlugin {
 		CharmsCommand.register();
 		ClaimRaffle.register(this);
 		ClearPortals.register();
-		ClearSpecialLore.register();
 		CompareScoresCommand.register();
 		ConfirmationGUICommand.register();
 		CooldownsCommand.register(this);
@@ -329,6 +328,7 @@ public class Plugin extends JavaPlugin {
 		SendBlockCrackCommand.register();
 		SetActivity.register(this);
 		SetMasterwork.register();
+		SpecialLoreCommand.register();
 		ItemOwnershipCommand.register();
 		SkillDescription.register(this);
 		SkillSummary.register(this);

@@ -245,7 +245,7 @@ public class CosmeticSkillShopGUI extends Gui {
 			return new ItemStack(Material.BARRIER);
 		}
 		List<String> desc = new ArrayList<>();
-		desc.add("Cosmetic " + skill.getAbility().getName());
+		desc.add("Cosmetic " + skill.getAbilityName());
 		if (skill instanceof LockableCS lockable && !lockable.isUnlocked(mPlayer)) {
 			// Locked skin, show lock description to give info
 			return createBasicItem(LOCKED, skin, color, desc, NamedTextColor.RED, lockable.getLockDesc());

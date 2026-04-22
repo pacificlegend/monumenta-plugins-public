@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.cosmetics.skills.mage.elementalist;
 
+import com.playmonumenta.plugins.abilities.mage.elementalist.ElementalSpiritFire;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkill;
 import com.playmonumenta.plugins.particle.AbstractPartialParticle;
@@ -19,6 +20,11 @@ public class ElementalSpiritCS implements CosmeticSkill {
 	@Override
 	public ClassAbility getAbility() {
 		return ClassAbility.ELEMENTAL_SPIRIT_FIRE;
+	}
+
+	@Override
+	public String getAbilityName() {
+		return ElementalSpiritFire.NAME;
 	}
 
 	@Override

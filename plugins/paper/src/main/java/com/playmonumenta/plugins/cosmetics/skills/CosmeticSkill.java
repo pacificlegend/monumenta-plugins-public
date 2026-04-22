@@ -20,6 +20,10 @@ public interface CosmeticSkill {
 
 	ClassAbility getAbility();
 
+	default String getAbilityName() {
+		return getAbility().getName();
+	}
+
 	Material getDisplayItem();
 
 	default @Nullable String getName() {

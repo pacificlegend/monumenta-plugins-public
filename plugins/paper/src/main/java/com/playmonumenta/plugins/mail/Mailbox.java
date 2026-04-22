@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -249,7 +248,7 @@ public class Mailbox implements Comparable<Mailbox> {
 				}
 
 				Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
-					Map<Integer, ItemStack> result = new TreeMap<>();
+					Map<Integer, ItemStack> result = new ConcurrentSkipListMap<>();
 
 					for (Map.Entry<String, String> entry : rawMailboxItems.entrySet()) {
 						int slot;

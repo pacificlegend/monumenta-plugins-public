@@ -148,6 +148,7 @@ public enum Location {
 	EASTER("easter", "Easter Event", TextColor.fromHexString("#55FF55")),
 	EASTERSKIN("easterskin", "Easter Skin", TextColor.fromHexString("#55FF55")),
 	HALLOWEEN("halloween", "Halloween Event", TextColor.fromHexString("#FF6600")),
+	TENYEARS("tenyears", MessagingUtils.addGradient("Monumenta's 10th Anniversary", "3efbe7", "159aff").decoration(TextDecoration.ITALIC, false), true),
 	TRICKSTER("trickster", "Trickster Challenge", TextColor.fromHexString("#FF6600")),
 	WINTER("winter", "Winter Event", TextColor.fromHexString("#AFC2E3")),
 	KOAL("koal", "Coalrupted Sierhaven", TextColor.fromHexString("#A1C4E0")),

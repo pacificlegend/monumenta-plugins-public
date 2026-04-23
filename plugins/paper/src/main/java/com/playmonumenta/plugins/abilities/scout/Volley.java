@@ -264,12 +264,10 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 			ProjectileLaunchEvent event = new ProjectileLaunchEvent(proj);
 			Bukkit.getPluginManager().callEvent(event);
 
-			if (proj instanceof AbstractArrow arrow) {
+			if (proj instanceof AbstractArrow arrow && !(proj instanceof Trident)) {
 				arrow.setPickupStatus(PickupStatus.CREATIVE_ONLY);
 				arrow.setCritical(projectile instanceof AbstractArrow projectileArrow && projectileArrow.isCritical());
-				if (!(proj instanceof Trident)) {
-					arrow.setPierceLevel(piercing);
-				}
+				arrow.setPierceLevel(piercing);
 			} else if (proj instanceof ThrowableProjectile throwable && projectile instanceof ThrowableProjectile oldThrowable) {
 				ItemUtils.setSnowballItem(throwable, oldThrowable.getItem());
 			}

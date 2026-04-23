@@ -108,7 +108,7 @@ public class SanctifiedArmor extends Ability implements AbilityWithDuration {
 	public SanctifiedArmor(Plugin plugin, Player player) {
 		super(plugin, player, INFO);
 		mResistance = (isLevelOne() ? RESISTANCE_AMPLIFIER_1 : RESISTANCE_AMPLIFIER_2) + CharmManager.getLevelPercentDecimal(player, CHARM_RESISTANCE);
-		mKBR = CharmManager.calculateFlatAndPercentValue(player, CHARM_KBR, KBR);
+		mKBR = KBR + CharmManager.getLevelPercentDecimal(player, CHARM_KBR);
 		mDuration = CharmManager.getDuration(player, CHARM_DURATION, SANCTIFY_DURATION);
 		mSlowness = CharmManager.calculateFlatAndPercentValue(player, CHARM_SLOW, isLevelOne() ? SLOWNESS_AMPLIFIER_1 : SLOWNESS_AMPLIFIER_2);
 		mSlownessDuration = CharmManager.getDuration(player, CHARM_SLOW_DURATION, SLOWNESS_DURATION);

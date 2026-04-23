@@ -120,8 +120,7 @@ public class Taboo extends Ability {
 			CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_ABSORPTION_ON_DEACTIVATION_MAX, ABSORPTION_ON_DEACTIVATION_MAX);
 		mAbsorptionOnDeactivationDuration =
 			CharmManager.getDuration(mPlayer, CHARM_ABSORPTION_ON_DEACTIVATION_DURATION, ABSORPTION_ON_DEACTIVATION_DURATION);
-		mKBR = PERCENT_KNOCKBACK_RESIST
-			+ CharmManager.getLevel(mPlayer, CHARM_KNOCKBACK_RESISTANCE) / 10;
+		mKBR = PERCENT_KNOCKBACK_RESIST + CharmManager.getLevelPercentDecimal(player, CHARM_KNOCKBACK_RESISTANCE);
 		mRechargeRateBonus = BASE_RECHARGE_RATE_BONUS
 			+ CharmManager.getLevelPercentDecimal(mPlayer, CHARM_RECHARGE_RATE);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new TabooCS());

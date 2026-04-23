@@ -79,7 +79,7 @@ public class PhlegmaticResolve extends Ability {
 	public PhlegmaticResolve(Plugin plugin, Player player) {
 		super(plugin, player, INFO);
 		mPercentDamageResist = (isLevelOne() ? PERCENT_DAMAGE_RESIST_1 : PERCENT_DAMAGE_RESIST_2) + CharmManager.getLevelPercentDecimal(player, CHARM_RESIST);
-		mKBR = CharmManager.getLevel(player, CHARM_KBR) / 10 + PERCENT_KNOCKBACK_RESIST;
+		mKBR = PERCENT_KNOCKBACK_RESIST + CharmManager.getLevelPercentDecimal(player, CHARM_KBR);
 		mAbilityCap = ABILITY_CAP + (int) CharmManager.getLevel(player, CHARM_ABILITY_CAP);
 		mAllyModifier = ALLY_MODIFIER + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_ALLY);
 		mRadius = CharmManager.getRadius(player, CHARM_RANGE, RADIUS);

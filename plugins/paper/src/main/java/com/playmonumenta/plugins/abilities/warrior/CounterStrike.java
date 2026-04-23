@@ -75,7 +75,7 @@ public class CounterStrike extends Ability {
 		mAbsorptionMobs = new ArrayList<>();
 		mDuration = CharmManager.getDuration(mPlayer, CHARM_DURATION, DURATION);
 		mDamage = (isLevelOne() ? DAMAGE_1 : DAMAGE_2) + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_DAMAGE);
-		mKBR = KBR + CharmManager.getLevel(mPlayer, CHARM_KBR) / 10;
+		mKBR = KBR + CharmManager.getLevelPercentDecimal(player, CHARM_KBR);
 		mResistance = RESISTANCE + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_DAMAGE_REDUCTION);
 		mAbsorptionResistance = ABSORPTION_RESISTANCE + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_DAMAGE_REDUCTION) + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_ABSORPTION_DAMAGE_REDUCTION);
 

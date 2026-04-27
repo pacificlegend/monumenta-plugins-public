@@ -100,6 +100,7 @@ public class StatMultiplier {
 		STAT_COMPENSATION_MAPPINGS_RING_POI.put("The Tolumaeus", STAR_POINT);
 		STAT_COMPENSATION_MAPPINGS_RING_POI.put("Chittering Gutters", STAR_POINT);
 		STAT_COMPENSATION_MAPPINGS_RING_POI.put("The Nadir", STAR_POINT);
+		STAT_COMPENSATION_MAPPINGS_RING_POI.put("Temple of the Skylords", STAR_POINT);
 
 		// Overworld
 		final double OVERWORLD = 1.1;

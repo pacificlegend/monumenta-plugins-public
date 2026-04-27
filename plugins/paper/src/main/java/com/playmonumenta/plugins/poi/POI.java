@@ -24,6 +24,7 @@ public enum POI {
 	SILVIC_QUARRY("silvic_quarry", "Silvic Quarry", "epic:r3/world/poi/terracotta_mine/endweekly_v2", "#C4BBA5", "keep"),
 	STARBOUND_SANCTUARY("starbound_sanctuary", "Starbound Sanctuary", "epic:r3/world/poi/starbound_sanctuary/endweekly_v2", "#342768", "starpoint"),
 	SUBMERGED_CITADEL("submerged_citadel", "Submerged Citadel", "epic:r3/world/poi/waterfall_village/endweekly_v2", "#C4BBA5", "keep"),
+	TEMPLE_OF_THE_SKYLORDS("temple_of_the_skylords", "Temple of the Skylords", "epic:r3/world/poi/temple_of_the_skylords/endweekly_v2", "#342768", "starpoint"),
 	THE_NADIR("the_nadir", "The Nadir", "epic:r3/world/poi/the_nadir/endweekly_v2", "#342768", "starpoint"),
 	THE_TOLUMAEUS("the_tolumaeus", "The Tolumaeus", "epic:r3/world/poi/the_tolumaeus/endweekly_v2", "#342768", "starpoint"),
 	THE_WEREHOUSE("the_werehouse", "The Werehouse", "epic:r3/world/poi/crepuscular_stronghold/endweekly_v2", "#C4BBA5", "keep"),

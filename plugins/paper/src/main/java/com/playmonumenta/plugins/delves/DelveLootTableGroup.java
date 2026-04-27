@@ -158,6 +158,9 @@ public class DelveLootTableGroup {
 		// the nadir
 		new DelveLootTableGroup("r3/world/poi/the_nadir/delves/base_chest", "r3/world/poi/the_nadir/delves/dmat_chest", "r3/world/poi/the_nadir/delves/cmat_chest", "r3/world/poi/the_nadir/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		new DelveLootTableGroup("r3/world/poi/the_nadir/delves/base_final", "r3/world/poi/the_nadir/delves/dmat_final", "r3/world/poi/the_nadir/delves/cmat_final", "r3/world/poi/the_nadir/endchest", "r3/world/poi/the_nadir/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
+		// temple of the skylords
+		new DelveLootTableGroup("r3/world/poi/temple_of_the_skylords/delves/base_chest", "r3/world/poi/temple_of_the_skylords/delves/dmat_chest", "r3/world/poi/temple_of_the_skylords/delves/cmat_chest", "r3/world/poi/temple_of_the_skylords/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
+		new DelveLootTableGroup("r3/world/poi/temple_of_the_skylords/delves/base_final", "r3/world/poi/temple_of_the_skylords/delves/dmat_final", "r3/world/poi/temple_of_the_skylords/delves/cmat_final", "r3/world/poi/temple_of_the_skylords/endchest", "r3/world/poi/temple_of_the_skylords/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		// fathom's reach
 		new DelveLootTableGroup("r3/world/poi/coral_tower/delves/base_chest", "r3/world/poi/coral_tower/delves/dmat_chest", "r3/world/poi/coral_tower/delves/cmat_chest", "r3/world/poi/coral_tower/normalchest").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);
 		new DelveLootTableGroup("r3/world/poi/coral_tower/delves/base_final", "r3/world/poi/coral_tower/delves/dmat_final", "r3/world/poi/coral_tower/delves/cmat_final", "r3/world/poi/coral_tower/endchest", "r3/world/poi/coral_tower/endchest2").mapDelveLootTables(DELVE_LOOT_TABLE_REPLACEMENT_MAPPINGS);

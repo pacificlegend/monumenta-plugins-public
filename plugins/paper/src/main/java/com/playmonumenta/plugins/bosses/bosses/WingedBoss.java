@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.bosses.bosses;
 
 import com.google.common.collect.Lists;
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.bosses.SpellManager;
 import com.playmonumenta.plugins.bosses.parameters.BossParam;
@@ -264,7 +265,7 @@ public final class WingedBoss extends BossAbilityGroup {
 			e.setGravity(false);
 			e.setHeadPose(headPose);
 			e.setSilent(true);
-			e.setPersistent(false);
+			e.addScoreboardTag(Constants.Tags.REMOVE_ON_UNLOAD);
 			for (String tag : tags) {
 				e.addScoreboardTag(tag);
 			}

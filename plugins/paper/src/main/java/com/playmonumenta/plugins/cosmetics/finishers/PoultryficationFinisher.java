@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.cosmetics.finishers;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Constants.Note;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.cosmetics.CosmeticsManager;
@@ -68,7 +69,7 @@ public class PoultryficationFinisher implements EliteFinisher {
 		public void registerKill(Entity killedMob, Location loc) {
 			new PartialParticle(Particle.REDSTONE, loc, 50, 0.5, 1, 0.5, WHITE).spawnAsPlayerActive(mPlayer);
 			Chicken chicken = (Chicken) LibraryOfSoulsIntegration.summon(loc, "Poultry");
-			Objects.requireNonNull(chicken).setPersistent(false);
+			Objects.requireNonNull(chicken).addScoreboardTag(Constants.Tags.REMOVE_ON_UNLOAD);
 			hurtChicken(chicken);
 			mChickens.add(chicken);
 		}

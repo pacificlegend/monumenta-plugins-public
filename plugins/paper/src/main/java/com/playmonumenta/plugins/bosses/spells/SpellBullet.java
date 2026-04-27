@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.bosses.spells;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.particle.PPLine;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.FastUtils;
@@ -536,7 +537,7 @@ public class SpellBullet extends Spell {
 
 	public BlockDisplay spawnBullet(Location loc, float width, float height) {
 		BlockDisplay display = EntityUtils.spawnBlockDisplay(loc.getWorld(), loc, mBulletMaterial, width, height, true);
-		display.setPersistent(false);
+		display.addScoreboardTag(Constants.Tags.REMOVE_ON_UNLOAD);
 		return display;
 	}
 

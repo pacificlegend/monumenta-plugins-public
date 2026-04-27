@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.cosmetics.finishers;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.utils.DisplayEntityUtils;
 import com.playmonumenta.plugins.utils.FastUtils;
@@ -63,7 +64,7 @@ public class CookiefyFinisher implements EliteFinisher {
 				}
 			}
 			Item cookieItem = loc.getWorld().dropItem(loc, cookie);
-			cookieItem.setPersistent(false);
+			cookieItem.addScoreboardTag(Constants.Tags.REMOVE_ON_UNLOAD);
 			cookieItem.setPickupDelay(Integer.MAX_VALUE);
 			cookieItem.addScoreboardTag(NAME);
 			int degrees = offset + (i * 90);

@@ -353,7 +353,7 @@ public class ExcaliburFinisher implements EliteFinisher {
 		excalibur.setMarker(true);
 		excalibur.setCollidable(false);
 		excalibur.setRotation(0, 0);
-		excalibur.setPersistent(false);
+		excalibur.addScoreboardTag(Constants.Tags.REMOVE_ON_UNLOAD);
 		return excalibur;
 	}
 

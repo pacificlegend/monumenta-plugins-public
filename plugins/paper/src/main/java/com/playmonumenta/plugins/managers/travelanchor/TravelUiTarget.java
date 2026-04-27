@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.managers.travelanchor;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -59,7 +60,7 @@ public class TravelUiTarget {
 				transformation.getRightRotation()
 			));
 			groupIconEntity.addScoreboardTag("TravelAnchorUiLabel");
-			groupIconEntity.setPersistent(false);
+			groupIconEntity.addScoreboardTag(Constants.Tags.REMOVE_ON_UNLOAD);
 			groupIconEntity.setVisibleByDefault(false);
 		});
 		mLabelEntity = world.spawn(loc, TextDisplay.class, textDisplay -> {
@@ -74,7 +75,7 @@ public class TravelUiTarget {
 				transformation.getRightRotation()
 			));
 			textDisplay.addScoreboardTag("TravelAnchorUiLabel");
-			textDisplay.setPersistent(false);
+			textDisplay.addScoreboardTag(Constants.Tags.REMOVE_ON_UNLOAD);
 			textDisplay.setVisibleByDefault(false);
 		});
 		ui.mPlayer.showEntity(Plugin.getInstance(), mGroupIconEntity);

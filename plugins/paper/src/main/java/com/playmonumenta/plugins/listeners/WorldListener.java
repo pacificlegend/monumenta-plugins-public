@@ -149,13 +149,7 @@ public class WorldListener implements Listener {
 		}
 
 		for (Entity entity : event.getEntities()) {
-			// REMOVE_ON_UNLOAD is deprecated in favor of setPersistent(false) but only so that it throws warnings
-			// in new plugin code that tries to use it - all plugin code should use setPersistent(false).
-			// However, entities still in the world, mechs, and nearly 100 LoS mobs still use this feature!
-			// DO NOT REMOVE THIS until verifying that all these places no longer use this functionality!
-			@SuppressWarnings("deprecation")
-			boolean hasRemoveOnUnloadTag = entity.getScoreboardTags().contains(Constants.Tags.REMOVE_ON_UNLOAD);
-			if (hasRemoveOnUnloadTag) {
+			if (entity.getScoreboardTags().contains(Constants.Tags.REMOVE_ON_UNLOAD)) {
 				Bukkit.getScheduler().runTask(mPlugin, entity::remove);
 				continue;
 			}

@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.listeners;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.chunk.ChunkFullLoadEvent;
 import com.playmonumenta.plugins.integrations.CoreProtectIntegration;
@@ -811,7 +812,7 @@ public class PotionBarrelListener implements Listener {
 				Set<String> tags = display.getScoreboardTags();
 				tags.add(DISPLAY_TAG);
 				tags.add(POTION_DISPLAY_TAG);
-				display.setPersistent(false);
+				tags.add(Constants.Tags.REMOVE_ON_UNLOAD);
 			});
 			updateDisplay(blockState);
 		}

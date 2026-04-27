@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.managers.travelanchor;
 
+import com.playmonumenta.plugins.Constants.Tags;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
@@ -38,7 +39,7 @@ public class TravelUi extends BukkitRunnable {
 		mSeat = world.spawn(loc, Interaction.class, interaction -> {
 			interaction.customName(Component.text("TravelAnchorUiSeat"));
 			interaction.addScoreboardTag(TRAVEL_ANCHOR_UI_SEAT_TAG);
-			interaction.setPersistent(false);
+			interaction.addScoreboardTag(Tags.REMOVE_ON_UNLOAD);
 			interaction.setInteractionWidth(0.0f);
 			interaction.setInteractionHeight(0.0f);
 			interaction.addPassenger(mPlayer);

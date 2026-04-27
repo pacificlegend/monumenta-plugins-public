@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.cosmetics.finishers;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.particle.PPLine;
 import com.playmonumenta.plugins.particle.PartialParticle;
@@ -238,7 +239,7 @@ public class ChainedFinisher implements EliteFinisher {
 		sword.setMarker(true);
 		sword.setCollidable(false);
 		sword.setRotation(0, 0);
-		sword.setPersistent(false);
+		sword.addScoreboardTag(Constants.Tags.REMOVE_ON_UNLOAD);
 		sword.getEquipment().setItemInMainHand(mainhand);
 		return sword;
 	}

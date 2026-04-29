@@ -56,8 +56,6 @@ public class GaleShotCS implements CosmeticSkill {
 		new PartialParticle(Particle.DAMAGE_INDICATOR, loc).count(5).delta(0.3).extra(0.1).spawnAsPlayerActive(player);
 
 		Location fireLoc = player.getEyeLocation();
-		proj.setVisibleByDefault(false);
-		player.hideEntity(Plugin.getInstance(), proj);
 
 		new BukkitRunnable() {
 			double mFlightDistance = 1;

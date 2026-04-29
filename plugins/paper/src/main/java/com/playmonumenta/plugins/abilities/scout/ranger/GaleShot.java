@@ -190,13 +190,14 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 			}
 		}
 
+		galeProjectile.setVisibleByDefault(false); // BEFORE the launch event
 		ProjectileLaunchEvent event = new ProjectileLaunchEvent(galeProjectile);
 		Bukkit.getPluginManager().callEvent(event);
 
 		if (galeProjectile instanceof AbstractArrow galeArrow) {
 			galeArrow.setPierceLevel(67);
 			galeArrow.setCritical(true);
-			galeArrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
+			galeArrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
 		}
 		galeProjectile.setShooter(mPlayer);
 
@@ -342,6 +343,7 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 			event.setCancelled(true);
 		} else if (event.getHitBlock() != null) {
 			mCosmetic.hitBlock(mPlayer, proj.getLocation());
+			proj.remove();
 		}
 	}
 

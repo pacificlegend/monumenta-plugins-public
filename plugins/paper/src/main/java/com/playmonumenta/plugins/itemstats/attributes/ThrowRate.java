@@ -100,6 +100,7 @@ public class ThrowRate implements Attribute {
 
 				newProj.setPickupStatus(PickupStatus.CREATIVE_ONLY);
 				trident.setPickupStatus(PickupStatus.CREATIVE_ONLY);
+				newProj.setVisibleByDefault(trident.isVisibleByDefault());
 
 				ItemUtils.damageItemWithUnbreaking(plugin, player, player.getInventory().getItemInMainHand(), 1, true);
 
@@ -120,6 +121,7 @@ public class ThrowRate implements Attribute {
 				Snowball snowball = (Snowball) player.getWorld().spawnEntity(proj.getLocation(), EntityType.SNOWBALL);
 				snowball.setShooter(player);
 				snowball.setVelocity(proj.getVelocity());
+				snowball.setVisibleByDefault(proj.isVisibleByDefault());
 				DamageListener.addProjectileItemStats(snowball, player);
 				ItemUtils.setSnowballItem(snowball, oldSnowball.getItem());
 

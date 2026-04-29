@@ -28,6 +28,7 @@ import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -39,7 +40,7 @@ public class WalletGui extends Gui {
 	private final String mPlainName;
 	private int mPage;
 	private String mFilterTerm;
-	private boolean mFilterSelected;
+	private String mFilterLocation;
 
 	public WalletGui(Player player, BaseWallet wallet, WalletManager.WalletSettings settings, Component displayName, boolean openedAsModerator) {
 		super(player, 6 * 9, displayName);
@@ -48,6 +49,7 @@ public class WalletGui extends Gui {
 		mSettings = settings;
 		mPlainName = MessagingUtils.plainText(displayName);
 		mFilterTerm = "";
+		mFilterLocation = "";
 	}
 
 	@Override
@@ -87,8 +89,9 @@ public class WalletGui extends Gui {
 		// Items grouped by region, and sorted within each region
 		Map<Region, List<BaseWallet.WalletItem>> items =
 			walletItemsCopy.stream()
-				.filter(walletItem -> !mFilterSelected || ItemUtils.getPlainName(walletItem.mItem).toLowerCase(Locale.ROOT).contains(mFilterTerm.toLowerCase(Locale.ROOT)))
-				.sorted(
+				.filter(walletItem -> (mFilterTerm.isEmpty() || ItemUtils.getPlainName(walletItem.mItem).toLowerCase(Locale.ROOT).contains(mFilterTerm)) &&
+						(mFilterLocation.isEmpty() || ItemStatUtils.getLocation(walletItem.mItem).getDisplayName().toLowerCase(Locale.ROOT).contains(mFilterLocation))
+				).sorted(
 					// sort main currencies to the very front
 					Comparator.comparing((BaseWallet.WalletItem item) -> {
 							int index = WalletManager.MAIN_CURRENCIES.indexOf(item.mItem);
@@ -355,15 +358,19 @@ public class WalletGui extends Gui {
 			setItem(3, new GuiItem(GUIUtils.createBasicItem(
 				Material.SPYGLASS,
 				Component.text("Search By Name", NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, false),
-				List.of("Click to filter items by name", "Shift-click to reset"), NamedTextColor.GRAY
+				List.of("Click to filter items by name", "Swap to filter items by location", "Shift-click to reset"), NamedTextColor.GRAY
 			)).onClick(evt -> {
 				if (evt.isShiftClick()) {
 					mFilterTerm = "";
-					mFilterSelected = false;
+					mFilterLocation = "";
+				} else if (evt.getAction() == InventoryAction.HOTBAR_SWAP) {
+					openSignMenu(filterLocation -> {
+						mFilterLocation = filterLocation.toLowerCase(Locale.ROOT);
+						open();
+					});
 				} else {
-					openSignMenu((filterTerm) -> {
-						mFilterSelected = true;
-						mFilterTerm = filterTerm;
+					openSignMenu(filterTerm -> {
+						mFilterTerm = filterTerm.toLowerCase(Locale.ROOT);
 						open();
 					});
 				}

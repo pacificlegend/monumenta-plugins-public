@@ -8,6 +8,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -69,5 +70,11 @@ public class RipplingBeamCS extends HolyJavelinCS {
 		world.playSound(loc, Sound.ITEM_TRIDENT_RIPTIDE_2, SoundCategory.PLAYERS, 1.1f, 1.4f);
 		world.playSound(loc, Sound.ENTITY_ALLAY_ITEM_TAKEN, SoundCategory.PLAYERS, 2.0f, 1.0f);
 		world.playSound(loc, Sound.ENTITY_WITHER_SHOOT, SoundCategory.PLAYERS, 0.25f, 1.0f);
+	}
+
+	@Override
+	public void artifactStun(LivingEntity entity, World world, Location loc) {
+		world.playSound(loc, Sound.ITEM_TRIDENT_THUNDER, SoundCategory.PLAYERS, 0.8f, 1.45f);
+		world.playSound(loc, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, SoundCategory.PLAYERS, 1.0f, 1.65f);
 	}
 }

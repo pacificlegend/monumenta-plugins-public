@@ -66,7 +66,7 @@ public class DescriptionBuilder<T extends Ability> implements Description<T> {
 			if (Math.abs(diff) >= 0.01 || getHighestDigit(diff) >= getHighestDigit(baseValue) - 1) {
 				boolean positive = diff >= 0;
 				String sign = positive ? "+" : "";
-				TextColor color = CharmManager.getCharmEffectColor(positive, invertColor);
+				TextColor color = CharmManager.getCharmEffectColor(positive, invertColor, false);
 				output = output.append(Component.text(" (" + sign + f.apply(diff) + ")", color));
 			}
 			return output;

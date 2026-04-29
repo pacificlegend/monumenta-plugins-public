@@ -15,12 +15,16 @@ import com.playmonumenta.plugins.effects.Aesthetics;
 import com.playmonumenta.plugins.effects.Effect;
 import com.playmonumenta.plugins.effects.PercentDamageDealt;
 import com.playmonumenta.plugins.effects.PercentHeal;
+import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.AbsorptionUtils;
+import com.playmonumenta.plugins.utils.DamageUtils;
+import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import java.util.List;
 import java.util.NavigableSet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -30,6 +34,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.jetbrains.annotations.Nullable;
@@ -59,10 +64,13 @@ public class DarkPact extends Ability {
 	public static final String CHARM_COOLDOWN = "Dark Pact Cooldown";
 	public static final String CHARM_DAMAGE = "Dark Pact Melee Damage";
 	public static final String CHARM_REFRESH = "Dark Pact Refresh";
-	public static final String CHARM_ATTACK_SPEED = "Dark Pact Attack Speed Amplifier";
 	public static final String CHARM_CAP = "Dark Pact Absorption Health Cap";
 	public static final String CHARM_DURATION = "Dark Pact Buff Duration";
 	public static final String CHARM_ABSORPTION = "Dark Pact Absorption Health Per Kill";
+	public static final String CHARM_RETRIGGER_TIMER = "Dark Pact Deactivation Restriction Duration";
+
+	public static final String CHARM_ARTIFACT_DPACT_DAMAGE_ON_END = "Dark Pact Damage Per Absorption On Deactivation";
+	public static final String CHARM_ARTIFACT_DPACT_AOE_RADIUS = "Dark Pact Deactivation Damage Radius";
 
 	public static final Style PACT_COLOR = Style.style(TextColor.color(0x8C1C67));
 
@@ -85,9 +93,13 @@ public class DarkPact extends Ability {
 	private final int mDurationIncreaseOnKill;
 	private final double mAbsorption;
 	private final double mMaxAbsorption;
+	private final double mDamageOnDeactivation;
+	private final int mRestrictionDuration;
+	private final double mDeactivationDamageRadius;
 
 	private boolean mActive = false;
 	private int mStartingTick = 0;
+	private double mAddedAbsorption = 0;
 
 	private final DarkPactCS mCosmetic;
 
@@ -98,12 +110,15 @@ public class DarkPact extends Ability {
 		mDurationIncreaseOnKill = CharmManager.getDuration(mPlayer, CHARM_REFRESH, DURATION_INCREASE_ON_KILL);
 		mAbsorption = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_ABSORPTION, ABSORPTION_ON_KILL);
 		mMaxAbsorption = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_CAP, MAX_ABSORPTION);
+		mRestrictionDuration = CharmManager.getDuration(mPlayer, CHARM_RETRIGGER_TIMER, CANCEL_WINDOW);
+		mDamageOnDeactivation = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_ARTIFACT_DPACT_DAMAGE_ON_END, 0);
+		mDeactivationDamageRadius = CharmManager.getRadius(mPlayer, CHARM_ARTIFACT_DPACT_AOE_RADIUS, 0);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new DarkPactCS());
 	}
 
 	public boolean cast() {
 		if (isOnCooldown()) {
-			if (mPlugin.mEffectManager.hasEffect(mPlayer, PERCENT_DAMAGE_DEALT_EFFECT_NAME) && Bukkit.getServer().getCurrentTick() - mStartingTick >= CANCEL_WINDOW) {
+			if (mPlugin.mEffectManager.hasEffect(mPlayer, PERCENT_DAMAGE_DEALT_EFFECT_NAME) && Bukkit.getServer().getCurrentTick() - mStartingTick >= mRestrictionDuration) {
 				mActive = false;
 				ClientModHandler.updateAbility(mPlayer, this);
 
@@ -111,11 +126,22 @@ public class DarkPact extends Ability {
 				mPlugin.mEffectManager.clearEffects(mPlayer, PERCENT_HEAL_EFFECT_NAME);
 				mPlugin.mEffectManager.clearEffects(mPlayer, AESTHETICS_EFFECT_NAME);
 
+				if (mDamageOnDeactivation > 0) {
+					mCosmetic.deactivationDamageApplied(mPlayer, mPlayer.getWorld(), mPlayer.getLocation(), mDeactivationDamageRadius);
+					List<LivingEntity> mobs = EntityUtils.getNearbyMobs(mPlayer.getLocation(), mDeactivationDamageRadius);
+					for (LivingEntity le : mobs) {
+						DamageUtils.damage(mPlayer, le, DamageEvent.DamageType.MAGIC, mDamageOnDeactivation * mAddedAbsorption, ClassAbility.DARK_PACT, true, false);
+						mCosmetic.deactivationDamageAppliedPerMob(mPlayer, le);
+					}
+				}
+
 				return true;
 			}
 
 			return false;
 		}
+
+		mAddedAbsorption = 0;
 
 		World world = mPlayer.getWorld();
 		mCosmetic.onCast(mPlayer, world, mPlayer.getLocation());
@@ -148,7 +174,8 @@ public class DarkPact extends Ability {
 
 		Effect aestheticsEffect = mPlugin.mEffectManager.getActiveEffect(mPlayer, AESTHETICS_EFFECT_NAME);
 		if (aestheticsEffect != null) {
-			AbsorptionUtils.addAbsorption(mPlayer, mAbsorption, mMaxAbsorption, aestheticsEffect.getDuration());
+			double absorptionAdded = AbsorptionUtils.addAbsorption(mPlayer, mAbsorption, mMaxAbsorption, aestheticsEffect.getDuration());
+			mAddedAbsorption += absorptionAdded;
 			aestheticsEffect.setDuration(aestheticsEffect.getDuration() + mDurationIncreaseOnKill);
 			mCosmetic.onKill(mPlayer, event.getEntity());
 		}
@@ -204,7 +231,7 @@ public class DarkPact extends Ability {
 				.statValues(stat(a -> a.mDurationIncreaseOnKill, DURATION_INCREASE_ON_KILL))
 			.addLine()
 			.addLine("You may recast *Dark Pact* after %t to").styles(UNDERLINED)
-				.statValues(stat(CANCEL_WINDOW))
+				.statValues(stat(a -> a.mRestrictionDuration, CANCEL_WINDOW))
 			.addLine("cancel the pact early.")
 			.addDashedLine();
 	}
@@ -241,8 +268,11 @@ public class DarkPact extends Ability {
 
 		output = output.append(Component.text(": ", NamedTextColor.WHITE));
 
-		if (mActive && (CANCEL_WINDOW - (Bukkit.getServer().getCurrentTick() - mStartingTick)) > 0) {
-			output = output.append(Component.text(((int) Math.ceil(Math.max(0, 20 + CANCEL_WINDOW - (Bukkit.getServer().getCurrentTick() - mStartingTick))) / TICKS_PER_SECOND) + "s", NamedTextColor.DARK_RED));
+		int elapsedTicks = (Bukkit.getServer().getCurrentTick() - mStartingTick);
+		int ticksRemaining = mRestrictionDuration - elapsedTicks;
+		if (mActive && ticksRemaining > 0) {
+			int secondsRoundedUp = (int) Math.ceil(ticksRemaining / 20.0);
+			output = output.append(Component.text("\uD83D\uDD12 " + secondsRoundedUp + "s", NamedTextColor.DARK_RED));
 		} else if (remainingCooldown > 0) {
 			output = output.append(Component.text(((int) Math.ceil(remainingCooldown / 20.0)) + "s", NamedTextColor.GRAY));
 		} else {

@@ -12,6 +12,7 @@ import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.classes.Mage;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.mage.elementalist.BlizzardCS;
+import com.playmonumenta.plugins.effects.PercentDamageReceived;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
@@ -22,6 +23,7 @@ import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
+import java.util.EnumSet;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -56,6 +58,8 @@ public class Blizzard extends Ability {
 	public static final String CHARM_SLOW = "Blizzard Slowness Amplifier";
 	public static final String CHARM_DELAY = "Blizzard Tick Delay";
 
+	public static final String CHARM_ARTIFACT_BLIZZARD_MAGIC_RES = "Blizzard Group Magic Resistance";
+
 	public static final AbilityInfo<Blizzard> INFO =
 		new AbilityInfo<>(Blizzard.class, NAME, Blizzard::new)
 			.linkedSpell(ClassAbility.BLIZZARD)
@@ -73,6 +77,7 @@ public class Blizzard extends Ability {
 	private final double mLevelSlowMultiplier;
 	private final int mDuration;
 	private final int mTickDelay;
+	private final double mMagicResistanceModifier;
 
 	private final BlizzardCS mCosmetic;
 
@@ -83,6 +88,7 @@ public class Blizzard extends Ability {
 		mLevelSlowMultiplier = (isLevelOne() ? SLOW_MULTIPLIER_1 : SLOW_MULTIPLIER_2) + CharmManager.getLevelPercentDecimal(player, CHARM_SLOW);
 		mDuration = CharmManager.getDuration(mPlayer, CHARM_DURATION, DURATION_TICKS);
 		mTickDelay = CharmManager.getDuration(mPlayer, CHARM_DELAY, DAMAGE_INTERVAL);
+		mMagicResistanceModifier = CharmManager.getLevelPercentDecimal(mPlayer, CHARM_ARTIFACT_BLIZZARD_MAGIC_RES);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new BlizzardCS());
 	}
 
@@ -112,6 +118,10 @@ public class Blizzard extends Ability {
 						if (p.getFireTicks() > 1) {
 							p.setFireTicks(1);
 						}
+
+						// Artifact Charm code for magic res
+						mPlugin.mEffectManager.addEffect(p, CHARM_ARTIFACT_BLIZZARD_MAGIC_RES,
+							new PercentDamageReceived(SLOW_INTERVAL * 2, -mMagicResistanceModifier, EnumSet.of(DamageEvent.DamageType.MAGIC)).deleteOnAbilityUpdate(true));
 					}
 
 					for (LivingEntity mob : mobs) {

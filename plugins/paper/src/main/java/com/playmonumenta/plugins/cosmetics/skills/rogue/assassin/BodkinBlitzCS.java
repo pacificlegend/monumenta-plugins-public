@@ -55,9 +55,14 @@ public class BodkinBlitzCS implements StealthCosmeticSkill {
 		new PartialParticle(Particle.FALLING_DUST, mPlayer.getLocation().clone().add(0, 0.5, 0), 1, 0.35, 0.25, 0.35, Bukkit.createBlockData("gray_concrete")).spawnAsPlayerActive(mPlayer);
 	}
 
-	public void blitzOnDamage(World world, Player mPlayer, Location entityLoc) {
-		world.playSound(entityLoc, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.PLAYERS, 0.5f, 2f);
-		world.playSound(entityLoc, Sound.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.8f, 2f);
+	public void blitzOnDamage(World world, Player mPlayer, Location entityLoc, boolean artifactPassthrough) {
+		float vol = artifactPassthrough ? 0.8f : 1; // volume multiplier, quieter for passthrough since it can hit multiple targets
+		world.playSound(entityLoc, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.PLAYERS, 0.5f * vol, 2f);
+		world.playSound(entityLoc, Sound.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.8f * vol, artifactPassthrough ? 1.7f : 2f);
+		if (artifactPassthrough) {
+			world.playSound(entityLoc, Sound.ENTITY_GLOW_SQUID_SQUIRT, 0.5f, 2f);
+			world.playSound(entityLoc, Sound.ENTITY_GLOW_SQUID_SQUIRT, 0.5f, 1.7f);
+		}
 		new PartialParticle(Particle.FALLING_DUST, entityLoc, 35, 0.35, 0.5, 0.35, Bukkit.createBlockData("gray_concrete")).spawnAsPlayerActive(mPlayer);
 		new PartialParticle(Particle.BLOCK_CRACK, entityLoc, 20, 0.25, 0.25, 0.25, 1, Bukkit.createBlockData("redstone_block")).spawnAsPlayerActive(mPlayer);
 	}

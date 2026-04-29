@@ -90,7 +90,8 @@ public class SolarEruptionCS extends BodkinBlitzCS {
 	}
 
 	@Override
-	public void blitzOnDamage(World world, Player player, Location entityLoc) {
+	public void blitzOnDamage(World world, Player player, Location entityLoc, boolean artifactPassthrough) {
+		float vol = artifactPassthrough ? 0.6f : 1; // volume multiplier, quieter for passthrough since it can hit multiple targets
 		new PartialParticle(Particle.SMOKE_LARGE, entityLoc.clone().add(0, -1, 0), 100, 2.5, 0.8, 2.5, 0.05).spawnAsPlayerActive(player);
 		new PartialParticle(Particle.SMOKE_LARGE, entityLoc.clone().add(0, 10, 0), 100, 2.5, 0.8, 2.5, 0.05).spawnAsPlayerActive(player);
 		double angleVariance = FastUtils.randomDoubleInRange(0, 2 * Math.PI / 5.0);
@@ -101,7 +102,11 @@ public class SolarEruptionCS extends BodkinBlitzCS {
 			angleVariance += Math.PI / 40;
 		}
 
-		player.getWorld().playSound(entityLoc, Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS, 1, 0.8f);
+		world.playSound(entityLoc, Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS, vol, 0.8f);
+		if (artifactPassthrough) {
+			world.playSound(entityLoc, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, SoundCategory.PLAYERS, 1f, 1.4f);
+			world.playSound(entityLoc, Sound.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 1f, 1.4f);
+		}
 	}
 
 	@Override

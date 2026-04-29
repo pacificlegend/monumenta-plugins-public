@@ -228,12 +228,18 @@ public class CharmManager {
 	public static final String KEY_CHARMS = "charms";
 	public static final String KEY_ITEM = "item";
 	public static final int MAX_CHARM_COUNT = 7;
+	public static final TextColor COLOR_POSITIVE = TextColor.color(0x4AC2E5);
+	public static final TextColor COLOR_NEGATIVE = TextColor.color(0xD02E28);
+	public static final TextColor COLOR_POSITIVE_ARTIFACT = TextColor.color(0xFF9CF0);
+	public static final TextColor COLOR_NEGATIVE_ARTIFACT = TextColor.color(0x5D2D87);
 
 	public static final CharmManager INSTANCE = new CharmManager();
 
 	public List<String> mCharmEffectList;
 
 	public List<String> mFlippedColorEffectSubstrings;
+
+	public List<String> mArtifactCharmSubstrings;
 
 	public Map<UUID, Map<String, Double>> mPlayerCharmEffectMap;
 
@@ -249,6 +255,7 @@ public class CharmManager {
 		}
 		loadCharmEffects();
 		loadFlippedColorEffects();
+		loadArtifactCharmEffects();
 	}
 
 	public static CharmManager getInstance() {
@@ -293,6 +300,8 @@ public class CharmManager {
 			ThunderStep.CHARM_DISTANCE,
 			ThunderStep.CHARM_RADIUS,
 			ThunderStep.CHARM_ENHANCEMENT_DURATION,
+			ThunderStep.CHARM_ARTIFACT_REWIND_TRAIL_DAMAGE,
+			ThunderStep.CHARM_ARTIFACT_REWIND_MIN_DISTANCE,
 			PrismaticShield.CHARM_DURATION,
 			PrismaticShield.CHARM_KNOCKBACK,
 			PrismaticShield.CHARM_STUN,
@@ -370,6 +379,7 @@ public class CharmManager {
 			Blizzard.CHARM_RANGE,
 			Blizzard.CHARM_DAMAGE,
 			Blizzard.CHARM_DELAY,
+			Blizzard.CHARM_ARTIFACT_BLIZZARD_MAGIC_RES,
 			Starfall.CHARM_COOLDOWN,
 			Starfall.CHARM_DAMAGE,
 			Starfall.CHARM_RANGE,
@@ -455,6 +465,7 @@ public class CharmManager {
 			HolyJavelin.CHARM_VELOCITY,
 			HolyJavelin.CHARM_DJ_DAMAGE,
 			HolyJavelin.CHARM_DJ_PRIME,
+			HolyJavelin.CHARM_ARTIFACT_STUN_DURATION,
 			ChoirBells.CHARM_COOLDOWN,
 			ChoirBells.CHARM_RANGE,
 			ChoirBells.CHARM_SLOW,
@@ -581,6 +592,7 @@ public class CharmManager {
 			Smokescreen.CHARM_ENHANCEMENT_DURATION,
 			Smokescreen.CHARM_EFFECT_DURATION,
 			Smokescreen.CHARM_DAMAGE,
+			Smokescreen.CHARM_ARTIFACT_STUN,
 			ViciousCombos.CHARM_CDR,
 			ViciousCombos.CHARM_RADIUS,
 			ViciousCombos.CHARM_VULN,
@@ -606,11 +618,13 @@ public class CharmManager {
 			WindWalk.CHARM_COOLDOWN,
 			WindWalk.CHARM_COOLDOWN_REDUCTION,
 			WindWalk.CHARM_DURATION,
+			WindWalk.CHARM_ARTIFACT_VULNERABILITY,
 			BodkinBlitz.CHARM_CHARGE,
 			BodkinBlitz.CHARM_COOLDOWN,
 			BodkinBlitz.CHARM_DAMAGE,
 			BodkinBlitz.CHARM_DISTANCE,
 			BodkinBlitz.CHARM_STEALTH,
+			BodkinBlitz.CHARM_ARTIFACT_PASSTHROUGH,
 			CloakAndDagger.CHARM_DAMAGE,
 			CloakAndDagger.CHARM_STACKS,
 			CloakAndDagger.CHARM_STACKS_GAIN,
@@ -645,6 +659,8 @@ public class CharmManager {
 			Frenzy.CHARM_SPEED,
 			Frenzy.CHARM_DURATION,
 			Frenzy.CHARM_BONUS_DAMAGE,
+			Frenzy.CHARM_ARTIFACT_MELEE_STRIKE_BUFF,
+			Frenzy.CHARM_ARTIFACT_ANEMIA,
 			Riposte.CHARM_COOLDOWN,
 			Riposte.CHARM_KNOCKBACK,
 			Riposte.CHARM_BONUS_DAMAGE,
@@ -677,6 +693,8 @@ public class CharmManager {
 			GloriousBattle.CHARM_DURATION,
 			GloriousBattle.CHARM_BLOODLUST_COST,
 			GloriousBattle.CHARM_CRITICAL_DAMAGE,
+			GloriousBattle.CHARM_ARTIFACT_COLLISION_KNOCKBACK,
+			GloriousBattle.CHARM_ARTIFACT_IMPACT_DAMAGE,
 			Rampage.CHARM_DAMAGE,
 			Rampage.CHARM_DAMAGE_BUFF,
 			Rampage.CHARM_MELEE_RESISTANCE,
@@ -817,6 +835,9 @@ public class CharmManager {
 			UnstableAmalgam.CHARM_RANGE,
 			UnstableAmalgam.CHARM_INSTABILITY_DURATION,
 			UnstableAmalgam.CHARM_POTION_DAMAGE,
+			UnstableAmalgam.CHARM_SIZE,
+			UnstableAmalgam.CHARM_ARTIFACT_TAUNT_RADIUS,
+			UnstableAmalgam.CHARM_ARTIFACT_HEALTH,
 			Panacea.CHARM_DAMAGE,
 			Panacea.CHARM_COOLDOWN,
 			Panacea.CHARM_RADIUS,
@@ -914,6 +935,7 @@ public class CharmManager {
 			GraspingClaws.CHARM_CAGE_RADIUS,
 			GraspingClaws.CHARM_CAGE_HEALING,
 			GraspingClaws.CHARM_CAGE_DURATION,
+			GraspingClaws.CHARM_ARTIFACT_MELEE_DAMAGE_MULTIPLIER,
 			MelancholicLament.CHARM_COOLDOWN,
 			MelancholicLament.CHARM_RADIUS,
 			MelancholicLament.CHARM_RECOVERY,
@@ -970,12 +992,14 @@ public class CharmManager {
 			WitheringGaze.CHARM_RANGE,
 			WitheringGaze.CHARM_CONE,
 			DarkPact.CHARM_ABSORPTION,
-			DarkPact.CHARM_ATTACK_SPEED,
 			DarkPact.CHARM_CAP,
 			DarkPact.CHARM_DAMAGE,
 			DarkPact.CHARM_DURATION,
 			DarkPact.CHARM_REFRESH,
 			DarkPact.CHARM_COOLDOWN,
+			DarkPact.CHARM_RETRIGGER_TIMER,
+			DarkPact.CHARM_ARTIFACT_DPACT_AOE_RADIUS,
+			DarkPact.CHARM_ARTIFACT_DPACT_DAMAGE_ON_END,
 			JudgementChain.CHARM_COOLDOWN,
 			JudgementChain.CHARM_CHARGES,
 			JudgementChain.CHARM_RANGE,
@@ -1071,6 +1095,7 @@ public class CharmManager {
 			WindBomb.CHARM_VORTEX_DURATION,
 			WindBomb.CHARM_VORTEX_RADIUS,
 			WindBomb.CHARM_VORTEX_HEIGHT,
+			WindBomb.CHARM_ARTIFACT_EXPLOSIONS,
 			ShrapnelBomb.CHARM_BOMB_DAMAGE,
 			ShrapnelBomb.CHARM_BOMB_ENHANCEMENT_DAMAGE,
 			ShrapnelBomb.CHARM_SHRAPNEL_DAMAGE,
@@ -1162,6 +1187,8 @@ public class CharmManager {
 			ChainLightning.CHARM_INITIAL_RANGE,
 			ChainLightning.CHARM_SUPPORT_TOTEM_EFFICIENCY,
 			ChainLightning.CHARM_OFFENSIVE_TOTEM_EFFICIENCY,
+			ChainLightning.CHARM_ARTIFACT_CHAIN_LIGHTNING_MELEE_VULN,
+			ChainLightning.CHARM_ARTIFACT_CHAIN_LIGHTNING_MELEE_VULN_DURATION,
 			EarthenTremor.CHARM_DAMAGE,
 			EarthenTremor.CHARM_COOLDOWN,
 			EarthenTremor.CHARM_KNOCKUP,
@@ -1262,6 +1289,8 @@ public class CharmManager {
 			TotemicConsecration.CHARM_RADIUS_AMPLIFIER,
 			TotemicConsecration.CHARM_RESISTANCE,
 			TotemicConsecration.CHARM_SILENCE_DURATION,
+			TotemicConsecration.CHARM_ARTIFACT_STRENGTH_AMPLIFIER,
+			TotemicConsecration.CHARM_ARTIFACT_SPEED_AMPLIFIER,
 			SpiritualCombos.CHARM_CRYSTAL_DAMAGE,
 			SpiritualCombos.CHARM_CRYSTAL_RANGE,
 			SpiritualCombos.CHARM_SHOT_COUNT,
@@ -1290,6 +1319,7 @@ public class CharmManager {
 			ElementalArrows.CHARM_THUNDER_COOLDOWN,
 			ManaLance.CHARM_COOLDOWN,
 			ThunderStep.CHARM_COOLDOWN,
+			ThunderStep.CHARM_ARTIFACT_REWIND_MIN_DISTANCE,
 			PrismaticShield.CHARM_COOLDOWN,
 			FrostNova.CHARM_COOLDOWN,
 			MagmaShield.CHARM_COOLDOWN,
@@ -1333,6 +1363,7 @@ public class CharmManager {
 			BruteForce.CHARM_WAVE_DELAY,
 			DefensiveLine.CHARM_COOLDOWN,
 			Riposte.CHARM_COOLDOWN,
+			Frenzy.CHARM_ARTIFACT_ANEMIA,
 			ShieldBash.CHARM_COOLDOWN,
 			Bodyguard.CHARM_COOLDOWN,
 			Challenge.CHARM_COOLDOWN,
@@ -1373,6 +1404,7 @@ public class CharmManager {
 			HauntingShades.CHARM_COOLDOWN,
 			WitheringGaze.CHARM_COOLDOWN,
 			DarkPact.CHARM_COOLDOWN,
+			DarkPact.CHARM_RETRIGGER_TIMER,
 			JudgementChain.CHARM_COOLDOWN,
 			VoodooBonds.CHARM_COOLDOWN,
 			VoodooBonds.CHARM_RECEIVED_DAMAGE,
@@ -1420,6 +1452,32 @@ public class CharmManager {
 			ElementalSpiritIce.CHARM_COOLDOWN2,
 			ElementalSpiritFire.CHARM_COOLDOWN2
 		)).toList();
+	}
+
+	private void loadArtifactCharmEffects() {
+		mArtifactCharmSubstrings = Stream.of(
+			Blizzard.CHARM_ARTIFACT_BLIZZARD_MAGIC_RES,
+			HolyJavelin.CHARM_ARTIFACT_STUN_DURATION,
+			Smokescreen.CHARM_ARTIFACT_STUN,
+			BodkinBlitz.CHARM_ARTIFACT_PASSTHROUGH,
+			Frenzy.CHARM_ARTIFACT_ANEMIA,
+			UnstableAmalgam.CHARM_ARTIFACT_TAUNT_RADIUS,
+			UnstableAmalgam.CHARM_ARTIFACT_HEALTH,
+			GraspingClaws.CHARM_ARTIFACT_MELEE_DAMAGE_MULTIPLIER,
+			DarkPact.CHARM_ARTIFACT_DPACT_DAMAGE_ON_END,
+			DarkPact.CHARM_ARTIFACT_DPACT_AOE_RADIUS,
+			ChainLightning.CHARM_ARTIFACT_CHAIN_LIGHTNING_MELEE_VULN,
+			ChainLightning.CHARM_ARTIFACT_CHAIN_LIGHTNING_MELEE_VULN_DURATION,
+			WindWalk.CHARM_ARTIFACT_VULNERABILITY,
+			WindWalk.CHARM_ARTIFACT_VULNERABILITY_DURATION,
+			ThunderStep.CHARM_ARTIFACT_REWIND_TRAIL_DAMAGE,
+			ThunderStep.CHARM_ARTIFACT_REWIND_MIN_DISTANCE,
+			WindBomb.CHARM_ARTIFACT_EXPLOSIONS,
+			TotemicConsecration.CHARM_ARTIFACT_STRENGTH_AMPLIFIER,
+			TotemicConsecration.CHARM_ARTIFACT_SPEED_AMPLIFIER,
+			GloriousBattle.CHARM_ARTIFACT_COLLISION_KNOCKBACK,
+			GloriousBattle.CHARM_ARTIFACT_IMPACT_DAMAGE
+		).toList();
 	}
 
 	/**
@@ -1598,7 +1656,7 @@ public class CharmManager {
 	//Helper method to parse item for charm effects
 	private List<CharmParsedInfo> readCharm(ItemStack itemStack) {
 		List<CharmParsedInfo> effects = new ArrayList<>();
-		List<String> plainLoreLines = NBT.get(itemStack, (ReadableItemNBT nbt) -> ItemStatUtils.getPlainCharmLore(nbt));
+		List<String> plainLoreLines = NBT.get(itemStack, ItemStatUtils::getPlainCharmLore);
 		for (String plainLore : plainLoreLines) {
 			if (plainLore.isEmpty()) {
 				continue;
@@ -1921,11 +1979,15 @@ public class CharmManager {
 	}
 
 	public static TextColor getCharmEffectColor(boolean isPositive, String charmEffectName) {
-		return getCharmEffectColor(isPositive, INSTANCE.mFlippedColorEffectSubstrings.contains(charmEffectName));
+		return getCharmEffectColor(isPositive, INSTANCE.mFlippedColorEffectSubstrings.contains(charmEffectName), INSTANCE.mArtifactCharmSubstrings.contains(charmEffectName));
 	}
 
-	public static TextColor getCharmEffectColor(boolean isPositive, boolean invertColor) {
-		return TextColor.fromHexString(isPositive != invertColor ? "#4AC2E5" : "#D02E28");
+	public static TextColor getCharmEffectColor(boolean isPositive, boolean invertColor, boolean isArtifactStat) {
+		if (isArtifactStat) {
+			return isPositive != invertColor ? COLOR_POSITIVE_ARTIFACT : COLOR_NEGATIVE_ARTIFACT;
+		} else {
+			return isPositive != invertColor ? COLOR_POSITIVE : COLOR_NEGATIVE;
+		}
 	}
 
 	public static String getPlainEffectName(String effect) {

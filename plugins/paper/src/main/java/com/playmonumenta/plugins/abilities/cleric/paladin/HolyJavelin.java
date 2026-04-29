@@ -66,6 +66,8 @@ public class HolyJavelin extends Ability implements AbilityWithDuration {
 	public static final String CHARM_DJ_PRIME = "Holy Javelin Divine Justice Prime Duration";
 	public static final String CHARM_VELOCITY = "Holy Javelin Velocity";
 
+	public static final String CHARM_ARTIFACT_STUN_DURATION = "Holy Javelin Stun Duration";
+
 	public static final AbilityInfo<HolyJavelin> INFO =
 		new AbilityInfo<>(HolyJavelin.class, "Holy Javelin", HolyJavelin::new)
 			.linkedSpell(ClassAbility.HOLY_JAVELIN)
@@ -87,6 +89,7 @@ public class HolyJavelin extends Ability implements AbilityWithDuration {
 	private final float mVelocity;
 	private final double mDJDamageBonus;
 	private final int mInitialPrimeDuration;
+	private final int mStunDuration;
 
 	private int mRemainingPrimeDuration = 0;
 	private @Nullable BukkitRunnable mPrimeRunnable = null;
@@ -104,6 +107,7 @@ public class HolyJavelin extends Ability implements AbilityWithDuration {
 		mVelocity = (float) CharmManager.calculateFlatAndPercentValue(player, CHARM_VELOCITY, VELOCITY_MULTIPLIER);
 		mDJDamageBonus = DIVINE_JUSTICE_BONUS_DAMAGE + CharmManager.getLevelPercentDecimal(player, CHARM_DJ_DAMAGE);
 		mInitialPrimeDuration = CharmManager.getDuration(player, CHARM_DJ_PRIME, DIVINE_JUSTICE_BONUS_PRIME_DURATION);
+		mStunDuration = CharmManager.getDuration(player, CHARM_ARTIFACT_STUN_DURATION, 0);
 
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new HolyJavelinCS());
 		Bukkit.getScheduler().runTask(plugin, () ->
@@ -194,6 +198,12 @@ public class HolyJavelin extends Ability implements AbilityWithDuration {
 			}
 			EntityUtils.applyFire(mPlugin, FIRE_DURATION, enemy, mPlayer);
 			DamageUtils.damage(mPlayer, enemy, DamageType.MAGIC, damage, mInfo.getLinkedSpell(), true);
+
+			// Artifact Charm stat
+			if (mStunDuration > 0) {
+				EntityUtils.applyStun(mPlugin, mStunDuration, enemy);
+				mCosmetic.artifactStun(enemy, world, enemy.getLocation());
+			}
 		}
 		return true;
 	}

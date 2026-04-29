@@ -2,8 +2,11 @@ package com.playmonumenta.plugins.cosmetics.skills.rogue.swordsage;
 
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkill;
+import com.playmonumenta.plugins.effects.Aesthetics;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PartialParticle;
+import com.playmonumenta.plugins.utils.LocationUtils;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -53,5 +56,21 @@ public class WindWalkCS implements CosmeticSkill {
 
 	public void nonEliteStunEffect(Player mPlayer, LivingEntity mob) {
 		new PartialParticle(Particle.CLOUD, mob.getLocation().add(0, 1, 0), 20, 0.25, 0.45, 0.25, 0.1).spawnAsPlayerActive(mPlayer);
+	}
+
+	public Aesthetics getArtifactVulnAesthetics(int duration) {
+		return new Aesthetics(duration,
+			(entity, fourHertz, twoHertz, oneHertz) -> {
+				double heightDelta = PartialParticle.getHeightDelta(entity) * 1.5;
+				double widthDelta = PartialParticle.getWidthDelta(entity) * 1.5;
+				new PartialParticle(Particle.REDSTONE, LocationUtils.getHalfHeightLocation(entity), 5,
+					widthDelta, heightDelta, widthDelta,
+					new Particle.DustOptions(Color.fromRGB(0xC0C0C0), 1.5f) // silver for silverwind distortion
+				).spawnAsEnemy();
+			},
+			entity -> {
+
+			}
+		);
 	}
 }

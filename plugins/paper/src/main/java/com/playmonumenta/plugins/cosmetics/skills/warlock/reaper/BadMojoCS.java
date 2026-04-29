@@ -171,6 +171,31 @@ public class BadMojoCS extends DarkPactCS {
 		reset();
 	}
 
+	@Override
+	public void deactivationDamageApplied(Player player, World world, Location loc, double radius) {
+		world.playSound(loc, Sound.ENTITY_ALLAY_HURT, SoundCategory.PLAYERS, 1.2f, 0.66f);
+		world.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, SoundCategory.PLAYERS, 1.8f, 1.0f);
+
+		Location floor = LocationUtils.fallToGround(loc, loc.getY() - 1);
+		new BukkitRunnable() {
+			int mRadius = 1;
+			@Override
+			public void run() {
+				drawTriangle(player, floor, mRadius);
+
+				mRadius++;
+				if (mRadius >= radius) {
+					this.cancel();
+				}
+			}
+		}.runTaskTimer(Plugin.getInstance(), 0, 1);
+	}
+
+	@Override
+	public void deactivationDamageAppliedPerMob(Player player, LivingEntity mob) {
+		drawTriangle(player, mob.getLocation(), mob.getWidth() * 1.3);
+	}
+
 	public void reset() {
 		mKills = 0;
 	}

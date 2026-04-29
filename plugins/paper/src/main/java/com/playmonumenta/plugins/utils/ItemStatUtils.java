@@ -1608,7 +1608,7 @@ public class ItemStatUtils {
 	}
 
 	public static boolean isNormalCharm(Tier tier) {
-		return tier == Tier.CHARM || tier == Tier.RARE_CHARM || tier == Tier.EPIC_CHARM || tier == Tier.LEGACY_CHARM;
+		return tier == Tier.CHARM || tier == Tier.RARE_CHARM || tier == Tier.ARTIFACT_CHARM || tier == Tier.EPIC_CHARM || tier == Tier.LEGACY_CHARM;
 	}
 
 	public static boolean isNormalCharm(@Nullable ItemStack item) {

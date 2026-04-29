@@ -65,25 +65,25 @@ public class AbsorptionUtils {
 	private static final int TRACKER_PERIOD = 20;
 
 	// Doesn't work for subtracting absorption because newAbsorption makes sure it never drops (in case absorption is higher than maxAmount)
-	public static void addAbsorption(LivingEntity entity, double amount, double maxAmount, int duration) {
-		addAbsorption(entity, (UUID) null, amount, maxAmount, duration);
+	public static double addAbsorption(LivingEntity entity, double amount, double maxAmount, int duration) {
+		return addAbsorption(entity, (UUID) null, amount, maxAmount, duration);
 	}
 
-	public static void addAbsorption(LivingEntity entity, @Nullable LivingEntity source, double amount, double maxAmount, int duration) {
+	public static double addAbsorption(LivingEntity entity, @Nullable LivingEntity source, double amount, double maxAmount, int duration) {
 		if (source == null) {
-			addAbsorption(entity, (UUID) null, amount, maxAmount, duration);
-			return;
+			return addAbsorption(entity, (UUID) null, amount, maxAmount, duration);
 		}
-		addAbsorption(entity, source.getUniqueId(), amount, maxAmount, duration);
+		return addAbsorption(entity, source.getUniqueId(), amount, maxAmount, duration);
 	}
 
-	public static void addAbsorption(LivingEntity entity, @Nullable UUID source, double amount, double maxAmount, int duration) {
+	// Returns the amount of absorption that was added.
+	public static double addAbsorption(LivingEntity entity, @Nullable UUID source, double amount, double maxAmount, int duration) {
 		double absorption = getAbsorption(entity);
 		EntityGainAbsorptionEvent event = new EntityGainAbsorptionEvent(entity, source, amount, maxAmount, duration);
 		Bukkit.getPluginManager().callEvent(event);
 
 		if (event.isCancelled()) {
-			return;
+			return 0;
 		}
 
 		double finalAbsorption = event.getAmount();
@@ -92,9 +92,11 @@ public class AbsorptionUtils {
 
 		if (newAbsorption >= absorption) {
 			setAbsorption(entity, newAbsorption, duration);
+			return newAbsorption - absorption;
 		} else {
 			// Even if we don't set absorption, update the tracker to get proper amount/duration stacking
 			addAbsorptionInstance(entity, finalMaxAmount, duration);
+			return 0;
 		}
 	}
 

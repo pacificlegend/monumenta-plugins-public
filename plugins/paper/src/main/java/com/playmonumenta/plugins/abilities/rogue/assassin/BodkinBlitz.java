@@ -16,6 +16,7 @@ import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.potion.PotionManager.PotionID;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
+import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils;
@@ -60,6 +61,8 @@ public class BodkinBlitz extends MultipleChargeAbility {
 	public static final String CHARM_STEALTH = "Bodkin Blitz Stealth Duration";
 	public static final String CHARM_DISTANCE = "Bodkin Blitz Distance";
 
+	public static final String CHARM_ARTIFACT_PASSTHROUGH = "Bodkin Blitz Damage On Passthrough";
+
 	public static final AbilityInfo<BodkinBlitz> INFO =
 		new AbilityInfo<>(BodkinBlitz.class, "Bodkin Blitz", BodkinBlitz::new)
 			.linkedSpell(ClassAbility.BODKIN_BLITZ)
@@ -75,6 +78,7 @@ public class BodkinBlitz extends MultipleChargeAbility {
 	private final int mStealthDuration;
 	private final double mBonusDmg;
 	private final double mDistance;
+	private final double mPassthroughDamage;
 
 	private @Nullable BukkitRunnable mRunnable = null;
 	private boolean mTeleporting = false;
@@ -93,6 +97,7 @@ public class BodkinBlitz extends MultipleChargeAbility {
 		mBonusDmg = CharmManager.calculateFlatAndPercentValue(player, CHARM_DAMAGE, isLevelOne() ? BONUS_DMG_1 : BONUS_DMG_2);
 		mDistance = CharmManager.getRadius(mPlayer, CHARM_DISTANCE, isLevelOne() ? DISTANCE_1 : DISTANCE_2);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new BodkinBlitzCS());
+		mPassthroughDamage = CharmManager.calculateFlatAndPercentValue(player, CHARM_ARTIFACT_PASSTHROUGH, 0);
 	}
 
 	public boolean cast() {
@@ -153,6 +158,15 @@ public class BodkinBlitz extends MultipleChargeAbility {
 				// Attempt to teleport player
 				mTick++;
 				if (mTick >= TELEPORT_TICKS) {
+					// passthrough damage (ARTIFACT CHARM STAT)
+					if (mPassthroughDamage > 0) {
+						for (LivingEntity mob : Hitbox.approximateCylinder(loc, tpLoc, 0.7, true).accuracy(0.5).getHitMobs()) {
+							DamageUtils.damage(mPlayer, mob, DamageType.MELEE_SKILL, mPassthroughDamage, mInfo.getLinkedSpell(), true);
+							Location entityLoc = mob.getLocation().clone().add(0, 1, 0);
+							mCosmetic.blitzOnDamage(mob.getWorld(), mPlayer, entityLoc, true);
+						}
+					}
+
 					tpLoc.setDirection(mPlayer.getLocation().getDirection());
 					if (mPlayer.getWorld() == tpLoc.getWorld()
 						&& !mInterruptedTeleport) {
@@ -214,12 +228,12 @@ public class BodkinBlitz extends MultipleChargeAbility {
 			mTicks = 0;
 			mRunnable.cancel();
 			mRunnable = null;
-			if (enemy instanceof Mob m) {
+			if (enemy instanceof Mob m && mBonusDmg > 0) {
 				if (m.getTarget() == null || !m.getTarget().getUniqueId().equals(mPlayer.getUniqueId())) {
 					Location entityLoc = m.getLocation().clone().add(0, 1, 0);
 
 					World world = entityLoc.getWorld();
-					mCosmetic.blitzOnDamage(world, mPlayer, entityLoc);
+					mCosmetic.blitzOnDamage(world, mPlayer, entityLoc, false);
 
 					DamageUtils.damage(mPlayer, m, DamageType.MELEE_SKILL, mBonusDmg, mInfo.getLinkedSpell(), true);
 				}

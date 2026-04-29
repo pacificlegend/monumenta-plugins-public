@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkill;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PartialParticle;
+import java.util.List;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -61,4 +62,20 @@ public class UnstableAmalgamCS implements CosmeticSkill {
 		new GruesomeAlchemyCS().effectsOnSplash(caster, loc, false, radius, false);
 	}
 
+	public void amalgamTaunt(List<LivingEntity> entities, LivingEntity amalgam, Player player) {
+		if (entities.isEmpty()) {
+			return;
+		}
+
+		amalgam.getWorld().playSound(amalgam.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.5f, 1.7f);
+
+		// same as default taunt particles, just doesn't get applied by EntityUtils.applyTaunt() because this way we can spawn it
+		// as player_active attached to the player instead of the amalgam
+		for (LivingEntity entity : entities) {
+			new PartialParticle(Particle.REDSTONE, entity.getEyeLocation().add(0, 0.5, 0), 12,
+				0.4, 0.5, 0.4,
+				new Particle.DustOptions(Color.fromRGB(200, 0, 0), 1.0f)
+			).spawnAsPlayerActive(player);
+		}
+	}
 }

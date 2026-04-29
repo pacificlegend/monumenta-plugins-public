@@ -281,7 +281,7 @@ public class FormattedDescriptionBuilder<T extends Ability> extends DescriptionB
 				if (Math.abs(diff) > 0.001) {
 					boolean positive = diff >= 0;
 					String sign = positive ? "+" : "";
-					TextColor color = CharmManager.getCharmEffectColor(positive, mInvertColor);
+					TextColor color = CharmManager.getCharmEffectColor(positive, mInvertColor, false); // Don't use pink in the skill descriptions
 
 					if (formatOption.equals("r")) {
 						output = Component.text((hasSign ? "+" : "") + StringUtils.to2DP(mBaseValue.apply(ability, player).doubleValue()))

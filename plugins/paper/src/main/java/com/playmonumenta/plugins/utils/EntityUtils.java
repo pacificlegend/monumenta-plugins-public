@@ -10,6 +10,7 @@ import com.playmonumenta.plugins.bosses.bosses.GenericTargetBoss;
 import com.playmonumenta.plugins.bosses.bosses.HostileBoss;
 import com.playmonumenta.plugins.bosses.bosses.ImmortalMountBoss;
 import com.playmonumenta.plugins.bosses.bosses.ImmortalPassengerBoss;
+import com.playmonumenta.plugins.bosses.bosses.PlayerDamageOnlyBoss;
 import com.playmonumenta.plugins.bosses.bosses.PlayerTargetBoss;
 import com.playmonumenta.plugins.bosses.bosses.TrainingDummyBoss;
 import com.playmonumenta.plugins.bosses.bosses.WormSegmentBoss;
@@ -1095,35 +1096,40 @@ public class EntityUtils {
 		setFireTicksIfLower(fireTicks, target, player);
 	}
 
-	public static void applyTaunt(LivingEntity tauntedEntity, Player targetedPlayer) {
-		applyTaunt(tauntedEntity, targetedPlayer, true);
+	public static void applyTaunt(LivingEntity tauntedEntity, LivingEntity targetedEntity) {
+		applyTaunt(tauntedEntity, targetedEntity, true);
 	}
 
-	public static void applyTaunt(LivingEntity tauntedEntity, Player targetedPlayer, boolean particles) {
+	public static void applyTaunt(LivingEntity tauntedEntity, LivingEntity targetedEntity, boolean particles) {
 		if (!tauntedEntity.getScoreboardTags().contains(IGNORE_TAUNT_TAG)) {
 			//TODO - when all the mobs in game use only generic target remove these lines
 			PlayerTargetBoss playerTargetBoss = BossManager.getInstance().getBoss(tauntedEntity, PlayerTargetBoss.class);
-			if (playerTargetBoss != null) {
-				playerTargetBoss.setTarget(targetedPlayer);
+			if (playerTargetBoss != null && targetedEntity instanceof Player player) {
+				playerTargetBoss.setTarget(player);
 			}
 			//todo end
 
+			PlayerDamageOnlyBoss playerDamageOnlyBoss = BossManager.getInstance().getBoss(tauntedEntity, PlayerDamageOnlyBoss.class);
+			if (playerDamageOnlyBoss != null && !(targetedEntity instanceof Player)) {
+				return;
+			}
+
 			GenericTargetBoss boss = BossManager.getInstance().getBoss(tauntedEntity, GenericTargetBoss.class);
 			if (boss != null) {
-				boss.setTarget(targetedPlayer);
+				boss.setTarget(targetedEntity);
 			}
 
 			//vanilla taunt
 			Mob tauntedMob = (Mob) tauntedEntity;
-			tauntedMob.setTarget(targetedPlayer);
+			tauntedMob.setTarget(targetedEntity);
 
-			if (particles) {
-				new PartialParticle(Particle.REDSTONE, tauntedEntity.getEyeLocation().add(0, 0.5, 0), 12, 0.4, 0.5, 0.4, TAUNT_COLOR).spawnAsPlayerActive(targetedPlayer);
+			if (particles && targetedEntity instanceof Player player) {
+				new PartialParticle(Particle.REDSTONE, tauntedEntity.getEyeLocation().add(0, 0.5, 0), 12, 0.4, 0.5, 0.4, TAUNT_COLOR).spawnAsPlayerActive(player);
 			}
 
 			// Damage the taunted enemy to keep focus on the player who casted the taunt.
 			// Damage bypasses iframes & doesn't affect velocity
-			DamageUtils.damage(targetedPlayer, tauntedMob, DamageType.OTHER, 0.001, null, true, false);
+			DamageUtils.damage(targetedEntity, tauntedMob, DamageType.OTHER, 0.001, null, true, false);
 
 		}
 	}

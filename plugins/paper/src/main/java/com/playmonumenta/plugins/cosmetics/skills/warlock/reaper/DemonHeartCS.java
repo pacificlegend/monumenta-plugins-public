@@ -115,6 +115,39 @@ public class DemonHeartCS extends DarkPactCS implements IntruderCS {
 		AbilityUtils.playPassiveAbilitySound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.5f, 0.6f);
 	}
 
+	@Override
+	public void deactivationDamageApplied(Player player, World world, Location loc, double radius) {
+		world.playSound(loc, Sound.ENTITY_WARDEN_HEARTBEAT, SoundCategory.PLAYERS, 1.5f, 0.8f);
+		world.playSound(loc, Sound.ENTITY_WITHER_SKELETON_DEATH, SoundCategory.PLAYERS, 1.2f, 0.5f);
+		world.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS, 1.0f, 0.75f);
+		world.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, SoundCategory.PLAYERS, 1.8f, 0.75f);
+
+		spawnTendril(loc, 1.2f, player);
+
+		new BukkitRunnable() {
+			double mRadius = 1;
+
+			@Override
+			public void run() {
+				for (int i = 0; i < mRadius; i++) {
+					spawnTendril(LocationUtils.randomLocationInCircle(loc, mRadius), (float) (1.2 - 0.8 * mRadius / radius), player);
+				}
+
+				mRadius += 1;
+				if (mRadius >= radius) {
+					this.cancel();
+				}
+			}
+		}.runTaskTimer(Plugin.getInstance(), 0, 2);
+
+	}
+
+	@Override
+	public void deactivationDamageAppliedPerMob(Player player, LivingEntity mob) {
+		spawnTendril(mob.getLocation(), FastUtils.randomFloatInRange(0.6f, 1.2f), player);
+
+	}
+
 	private void spawnTendril(Location loc, float heightMult, Player player) {
 		Location to = loc.clone().add(0, 8, 0);
 

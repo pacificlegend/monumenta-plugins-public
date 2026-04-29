@@ -8,7 +8,9 @@ import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.warrior.FrenzyCS;
 import com.playmonumenta.plugins.effects.PercentAttackSpeed;
+import com.playmonumenta.plugins.effects.PercentDamageDealt;
 import com.playmonumenta.plugins.effects.PercentDamageDealtSingleTick;
+import com.playmonumenta.plugins.effects.PercentHeal;
 import com.playmonumenta.plugins.effects.PercentSpeed;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
@@ -37,11 +39,13 @@ public class Frenzy extends Ability {
 		DamageEvent.DamageType.MELEE_ENCH
 	);
 
-
 	public static final String CHARM_DURATION = "Frenzy Duration";
 	public static final String CHARM_ATTACK_SPEED = "Frenzy Attack Speed";
 	public static final String CHARM_SPEED = "Frenzy Speed";
 	public static final String CHARM_BONUS_DAMAGE = "Frenzy Bonus Damage";
+
+	public static final String CHARM_ARTIFACT_ANEMIA = "Frenzy Anemia";
+	public static final String CHARM_ARTIFACT_MELEE_STRIKE_BUFF = "Frenzy Melee Strike Damage Buff";
 
 	public static final AbilityInfo<Frenzy> INFO =
 		new AbilityInfo<>(Frenzy.class, "Frenzy", Frenzy::new)
@@ -56,12 +60,16 @@ public class Frenzy extends Ability {
 	private final double mSpeedPotency;
 	private final int mDuration;
 	private final double mEnhanceDamageMult;
+	private final double mAnemia;
+	private final double mStrikeDamageBuff;
 	private final FrenzyCS mCosmetic;
 
 	public Frenzy(Plugin plugin, Player player) {
 		super(plugin, player, INFO);
 		mPercentAttackSpeedEffect = (isLevelOne() ? PERCENT_ATTACK_SPEED_EFFECT_1 : PERCENT_ATTACK_SPEED_EFFECT_2) + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_ATTACK_SPEED);
 		mSpeedPotency = PERCENT_SPEED + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_SPEED);
+		mAnemia = CharmManager.getLevelPercentDecimal(mPlayer, CHARM_ARTIFACT_ANEMIA);
+		mStrikeDamageBuff = CharmManager.getLevelPercentDecimal(mPlayer, CHARM_ARTIFACT_MELEE_STRIKE_BUFF);
 		mDuration = CharmManager.getDuration(mPlayer, CHARM_DURATION, DURATION);
 		mEnhanceDamageMult = DAMAGE_BONUS + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_BONUS_DAMAGE);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(mPlayer, new FrenzyCS());
@@ -72,6 +80,17 @@ public class Frenzy extends Ability {
 		mPlugin.mEffectManager.addEffect(mPlayer, PERCENT_ATTACK_SPEED_EFFECT_NAME,
 			new PercentAttackSpeed(mDuration, mPercentAttackSpeedEffect, PERCENT_ATTACK_SPEED_EFFECT_NAME)
 				.deleteOnAbilityUpdate(true));
+
+		if (mAnemia > 0) {
+			mPlugin.mEffectManager.addEffect(mPlayer, CHARM_ARTIFACT_ANEMIA,
+				new PercentHeal(mDuration, -mAnemia)
+					.deleteOnAbilityUpdate(true));
+		}
+		if (mStrikeDamageBuff > 0) {
+			mPlugin.mEffectManager.addEffect(mPlayer, CHARM_ARTIFACT_MELEE_STRIKE_BUFF,
+				new PercentDamageDealt(mDuration, mStrikeDamageBuff).damageTypes(EnumSet.of(DamageEvent.DamageType.MELEE))
+					.deleteOnAbilityUpdate(true));
+		}
 
 		if (isLevelTwo()) {
 			mPlugin.mEffectManager.addEffect(mPlayer, PERCENT_SPEED_EFFECT_NAME,

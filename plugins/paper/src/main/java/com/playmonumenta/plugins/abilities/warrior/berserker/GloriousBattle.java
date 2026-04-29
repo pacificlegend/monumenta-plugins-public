@@ -11,6 +11,8 @@ import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.warrior.berserker.GloriousBattleCS;
+import com.playmonumenta.plugins.effects.Effect;
+import com.playmonumenta.plugins.effects.GloriousBattleImpact;
 import com.playmonumenta.plugins.effects.PercentKnockbackResist;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
@@ -64,6 +66,8 @@ public class GloriousBattle extends Ability {
 	private static final int DURATION = 30;
 	private static final float KNOCK_AWAY_SPEED = 0.4f;
 	private static final String KBR_EFFECT = "GloriousBattleKnockbackResistanceEffect";
+	private static final int ARTIFACT_IMPACT_DURATION = 4 * TICKS_PER_SECOND;
+	private static final String IMPACT_EFFECT_SOURCE = "GloriousBattleImpact";
 
 	public static final String CHARM_DAMAGE = "Glorious Battle Damage";
 	public static final String CHARM_PIERCE_DAMAGE = "Glorious Battle Pierce Damage";
@@ -73,6 +77,8 @@ public class GloriousBattle extends Ability {
 	public static final String CHARM_BLOODLUST_COST = "Glorious Battle Bloodlust Cost";
 	public static final String CHARM_DURATION = "Glorious Battle Duration";
 	public static final String CHARM_CRITICAL_DAMAGE = "Glorious Battle Critical Damage Multiplier";
+	public static final String CHARM_ARTIFACT_COLLISION_KNOCKBACK = "Glorious Battle Collision Knockback";
+	public static final String CHARM_ARTIFACT_IMPACT_DAMAGE = "Glorious Battle Collision Impact Damage Multiplier";
 
 	public static final AbilityInfo<GloriousBattle> INFO =
 		new AbilityInfo<>(GloriousBattle.class, "Glorious Battle", GloriousBattle::new)
@@ -94,6 +100,8 @@ public class GloriousBattle extends Ability {
 	private final double mKnockback;
 	private final double mCriticalDamage;
 	private final double mCriticalMultiplier;
+	private final double mCollisionKnockback;
+	private final double mImpactDamageMultiplier;
 
 	private boolean mCanCritAttack = false;
 	private @Nullable Bloodlust mBloodlust;
@@ -112,6 +120,8 @@ public class GloriousBattle extends Ability {
 		mBloodlustCost = BLOODLUST_COST + (int) CharmManager.getLevel(mPlayer, CHARM_BLOODLUST_COST);
 		mKnockback = CharmManager.getExtraPercent(mPlayer, CHARM_KNOCKBACK, KNOCK_AWAY_SPEED);
 		mDuration = CharmManager.getDuration(mPlayer, CHARM_DURATION, DURATION);
+		mCollisionKnockback = CharmManager.getLevel(player, CHARM_ARTIFACT_COLLISION_KNOCKBACK);
+		mImpactDamageMultiplier = CharmManager.getLevelPercentDecimal(mPlayer, CHARM_ARTIFACT_IMPACT_DAMAGE);
 
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new GloriousBattleCS());
 
@@ -171,7 +181,23 @@ public class GloriousBattle extends Ability {
 					for (LivingEntity mob : mobs) {
 						if (mob.getBoundingBox().overlaps(mBox)) {
 							mCharged.add(mob);
+							// yes this method of getting damage dealt is awful, its also a rush job, sue me. regular impact is also awful
+							double oldHealth = mob.getHealth();
 							DamageUtils.damage(mPlayer, mob, DamageType.MELEE_SKILL, mPierceDamage, ClassAbility.GLORIOUS_BATTLE, true);
+							double damageDealt = oldHealth - mob.getHealth();
+							if (mCollisionKnockback > 0 && !EntityUtils.isCCImmuneMob(mob)) {
+								Vector knockbackDirection = getLungeVector().clone();
+								knockbackDirection.setY(0).normalize().multiply(mCollisionKnockback).setY(0.2);
+								MovementUtils.knockAwayDirection(knockbackDirection, mob, 0);
+								if (mImpactDamageMultiplier > 0 && damageDealt > 0) {
+									Plugin.getInstance().mEffectManager.clearEffects(mob, IMPACT_EFFECT_SOURCE);
+									Effect effect = new GloriousBattleImpact(
+										ARTIFACT_IMPACT_DURATION, mPlayer.getUniqueId(),
+										damageDealt * mImpactDamageMultiplier, knockbackDirection
+									);
+									Plugin.getInstance().mEffectManager.addEffect(mob, IMPACT_EFFECT_SOURCE, effect);
+								}
+							}
 							mCosmetic.gloryOnDamage(world, mPlayer, mob);
 						}
 					}

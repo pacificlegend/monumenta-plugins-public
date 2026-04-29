@@ -12,6 +12,7 @@ import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.classes.Shaman;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.shaman.ChainLightningCS;
+import com.playmonumenta.plugins.effects.PercentDamageReceived;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.utils.AbilityUtils;
@@ -62,6 +63,9 @@ public class ChainLightning extends MultipleChargeAbility {
 	public static final String CHARM_SUPPORT_TOTEM_EFFICIENCY = "Chain Lightning Non-Damaging Totem Efficiency";
 	public static final String CHARM_OFFENSIVE_TOTEM_EFFICIENCY = "Chain Lightning Damaging Totem Efficiency";
 
+	public static final String CHARM_ARTIFACT_CHAIN_LIGHTNING_MELEE_VULN = "Chain Lightning Melee Vulnerability";
+	public static final String CHARM_ARTIFACT_CHAIN_LIGHTNING_MELEE_VULN_DURATION = "Chain Lightning Melee Vulnerability Duration";
+
 	public static final AbilityInfo<ChainLightning> INFO =
 		new AbilityInfo<>(ChainLightning.class, "Chain Lightning", ChainLightning::new)
 			.linkedSpell(ClassAbility.CHAIN_LIGHTNING)
@@ -88,6 +92,8 @@ public class ChainLightning extends MultipleChargeAbility {
 	private final double mPositiveEfficiency;
 	private final double mNegativeEfficiency;
 	private final float mKnockback;
+	private final double mMeleeVuln;
+	private final int mMeleeVulnDuration;
 	private final ChainLightningCS mCosmetic;
 
 	private final List<LivingEntity> mHitTargets = new ArrayList<>();
@@ -108,6 +114,8 @@ public class ChainLightning extends MultipleChargeAbility {
 		mPositiveEfficiency = ENHANCE_SUPPORT_EFFICIENCY + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_SUPPORT_TOTEM_EFFICIENCY);
 		mNegativeEfficiency = ENHANCE_OFFENSIVE_EFFICIENCY + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_OFFENSIVE_TOTEM_EFFICIENCY);
 		mKnockback = (float) CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_KNOCKBACK, KNOCKBACK);
+		mMeleeVuln = CharmManager.getLevelPercentDecimal(mPlayer, CHARM_ARTIFACT_CHAIN_LIGHTNING_MELEE_VULN);
+		mMeleeVulnDuration = CharmManager.getDuration(mPlayer, CHARM_ARTIFACT_CHAIN_LIGHTNING_MELEE_VULN_DURATION, 0);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new ChainLightningCS());
 	}
 
@@ -193,6 +201,11 @@ public class ChainLightning extends MultipleChargeAbility {
 			LivingEntity target = mHitTargets.get(i + 1);
 			if (target != null) {
 				DamageUtils.damage(mPlayer, target, DamageEvent.DamageType.MAGIC, mFinalDamage, ClassAbility.CHAIN_LIGHTNING, true, false);
+
+				// Artifact charm code
+				if (mMeleeVulnDuration > 0) {
+					mPlugin.mEffectManager.addEffect(target, CHARM_ARTIFACT_CHAIN_LIGHTNING_MELEE_VULN, new PercentDamageReceived(mMeleeVulnDuration, mMeleeVuln, DamageEvent.DamageType.getAllMeleeTypes()));
+				}
 
 				if (!(target instanceof ArmorStand)) {
 					MovementUtils.knockAway(mPlayer.getLocation(), target, mKnockback, 0.6f * mKnockback, true);

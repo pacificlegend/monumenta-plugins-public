@@ -91,13 +91,15 @@ public class WindBomb extends Ability {
 	public static final String CHARM_VORTEX_RADIUS = "Wind Bomb Vortex Radius";
 	public static final String CHARM_VORTEX_HEIGHT = "Wind Bomb Vortex Height";
 
+	public static final String CHARM_ARTIFACT_EXPLOSIONS = "Wind Bomb Explosions";
+
 	public static final AbilityInfo<WindBomb> INFO =
 		new AbilityInfo<>(WindBomb.class, "Wind Bomb", WindBomb::new)
 			.linkedSpell(ClassAbility.WIND_BOMB)
 			.scoreboardId("WindBomb")
 			.shorthandName("WB")
 			.descriptions(getDescription1(), getDescription2(), getDescriptionEnhancement())
-			.simpleDescription("Throw a bomb that upon being damaged explodes.")
+			.simpleDescription("Throw a bomb that explodes upon being damaged.")
 			.cooldown(COOLDOWN_1, COOLDOWN_2, CHARM_COOLDOWN)
 			.addTrigger(new AbilityTriggerInfo<>("cast", "cast", WindBomb::cast, new AbilityTrigger(AbilityTrigger.Key.SWAP).sneaking(true)
 				.keyOptions(AbilityTrigger.KeyOptions.REQUIRE_PROJECTILE_WEAPON)))
@@ -110,6 +112,8 @@ public class WindBomb extends Ability {
 	private final double mBombDamageFlat;
 	private final double mBombDamagePercent;
 	private final int mSize;
+	private final int mExplosionsMax;
+	private int mExplosionsRemaining = 0;
 
 	private final double mEnhancePullRadius;
 	private final int mEnhancePullDuration;
@@ -129,6 +133,7 @@ public class WindBomb extends Ability {
 		mBombDamageFlat = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, isLevelOne() ? DAMAGE_FLAT_L1 : DAMAGE_FLAT_L2);
 		mBombDamagePercent = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, isLevelOne() ? DAMAGE_PERCENT_L1 : DAMAGE_PERCENT_L2);
 		mSize = (int) Math.max(1, SIZE + CharmManager.getLevel(mPlayer, CHARM_SIZE));
+		mExplosionsMax = (int) Math.max(0, CharmManager.getLevel(mPlayer, CHARM_ARTIFACT_EXPLOSIONS)); // Number of times you can detonate the bomb without it dying
 
 		mEnhancePullRadius = CharmManager.getRadius(mPlayer, CHARM_VORTEX_RADIUS, PULL_RADIUS);
 		mEnhancePullDuration = CharmManager.getDuration(mPlayer, CHARM_VORTEX_DURATION, PULL_DURATION);
@@ -154,6 +159,7 @@ public class WindBomb extends Ability {
 			if (mRunnable != null) {
 				mRunnable.cancel();
 			}
+			mExplosionsRemaining = 0;
 			doExplosion(mBomb.getLocation());
 		}
 
@@ -161,27 +167,28 @@ public class WindBomb extends Ability {
 
 		World world = mPlayer.getWorld();
 		Location loc = mPlayer.getLocation();
-
-		mBomb = launchBomb(NmsUtils.getVersionAdapter().getActualDirection(mPlayer).multiply(0.75));
-
-		if (mBomb == null) {
-			return false;
-		}
-		EntityUtils.setSize(mBomb, mSize);
-
-		mCosmetic.onThrow(mPlugin, world, loc);
-		mCosmetic.modify(mBomb, mPlugin, mSize);
-
-		return true;
-	}
-
-	private @Nullable LivingEntity launchBomb(Vector direction) {
 		Vector dir = mPlayer.getEyeLocation().getDirection();
 
 		Location summonLoc = LocationUtils.getHalfHeightLocation(mPlayer).add(dir);
 		if (LocationUtils.collidesWithSolid(summonLoc)) {
 			summonLoc = mPlayer.getEyeLocation().subtract(dir.multiply(0.5));
 		}
+
+		mBomb = launchBomb(NmsUtils.getVersionAdapter().getActualDirection(mPlayer).multiply(0.75), summonLoc);
+
+		if (mBomb == null) {
+			return false;
+		}
+		mExplosionsRemaining = mExplosionsMax;
+		EntityUtils.setSize(mBomb, mSize + mExplosionsRemaining);
+
+		mCosmetic.onThrow(mPlugin, world, loc);
+		mCosmetic.modify(mBomb, mPlugin, mSize + mExplosionsRemaining);
+
+		return true;
+	}
+
+	private @Nullable LivingEntity launchBomb(Vector direction, Location summonLoc) {
 		LivingEntity bomb = (LivingEntity) LibraryOfSoulsIntegration.summon(summonLoc, BOMB_NAME);
 		if (bomb == null) {
 			return null;
@@ -193,8 +200,11 @@ public class WindBomb extends Ability {
 		EnumSet<DamageEvent.DamageType> allButProj = DamageEvent.DamageType.getEnumSet();
 		allButProj.remove(DamageEvent.DamageType.PROJECTILE);
 		mPlugin.mEffectManager.addEffect(bomb, "WindBombOnlyProjectile", new PercentDamageReceived(9999 * 20, -1, allButProj));
-		// 0.5s invulnerability so it doesn't get triggered immediately
-		mPlugin.mEffectManager.addEffect(bomb, "WindBombImmunity", new PercentDamageReceived(10, -1));
+
+		int invulnerabilityDuration = (mExplosionsRemaining == mExplosionsMax) ? 10 : 2;
+		// 0.5s invulnerability so it doesn't get triggered immediately.
+		// If respawning, give 0.1s invuln so that edge-case Gale Shot doesn't proc both explosions at once.
+		mPlugin.mEffectManager.addEffect(bomb, "WindBombImmunity", new PercentDamageReceived(invulnerabilityDuration, -1));
 
 		mRunnable = new BukkitRunnable() {
 			final LivingEntity mRunnableBomb = bomb;
@@ -203,12 +213,14 @@ public class WindBomb extends Ability {
 			@Override
 			public void run() {
 				if (!mPlayer.isOnline()) {
+					mExplosionsRemaining = 0;
 					removeWindBomb();
 					this.cancel();
 					return;
 				}
 
 				if (mTicks >= mBombDuration) {
+					mExplosionsRemaining = 0;
 					removeWindBomb();
 					this.cancel();
 					return;
@@ -239,9 +251,13 @@ public class WindBomb extends Ability {
 			return;
 		}
 
+		World world = loc.getWorld();
+		Vector direction = mBomb.getVelocity();
+		Location sourceLoc = mBomb.getLocation();
+
 		projectileHitAudio(mBomb);
 		removeWindBomb();
-		World world = loc.getWorld();
+
 		mCosmetic.onExplode(mPlayer, world, loc, mRadius);
 
 		List<LivingEntity> mobs = new Hitbox.SphereHitbox(loc, mRadius).getHitMobs();
@@ -255,30 +271,41 @@ public class WindBomb extends Ability {
 			MovementUtils.pullTowards(loc, mob, mPull);
 		}
 
-		if (isEnhanced()) {
-			enhancementVortex(loc);
-		} else {
-			new BukkitRunnable() { // continue pulling for a bit
-				int mTicks = 0;
-				final Location mLoc = loc.clone();
+		if (mExplosionsRemaining <= 0) {
+			if (isEnhanced()) {
+				enhancementVortex(loc);
+			} else {
+				new BukkitRunnable() { // continue pulling for a bit
+					int mTicks = 0;
+					final Location mLoc = loc.clone();
 
-				@Override
-				public void run() {
-					if (mTicks > 5) {
-						List<LivingEntity> mobs = new Hitbox.SphereHitbox(mLoc, mRadius).getHitMobs();
-						mobs.removeIf(mob -> ScoreboardUtils.checkTag(mob, AbilityUtils.IGNORE_TAG));
+					@Override
+					public void run() {
+						if (mTicks > 5) {
+							List<LivingEntity> mobs = new Hitbox.SphereHitbox(mLoc, mRadius).getHitMobs();
+							mobs.removeIf(mob -> ScoreboardUtils.checkTag(mob, AbilityUtils.IGNORE_TAG));
 
-						for (LivingEntity mob : mobs) {
-							MovementUtils.pullTowardsNormalized(mLoc, mob, mPull);
+							for (LivingEntity mob : mobs) {
+								MovementUtils.pullTowardsNormalized(mLoc, mob, mPull);
+							}
 						}
-					}
 
-					if (mTicks > 8) {
-						this.cancel();
+						if (mTicks > 8) {
+							this.cancel();
+						}
+						mTicks++;
 					}
-					mTicks++;
-				}
-			}.runTaskTimer(mPlugin, 0, 1);
+				}.runTaskTimer(mPlugin, 0, 1);
+			}
+		} else {
+			mBomb = launchBomb(direction.normalize().multiply(0.5), sourceLoc);
+			if (mBomb == null) {
+				return;
+			}
+			mExplosionsRemaining--;
+			EntityUtils.setSize(mBomb, mSize + mExplosionsRemaining);
+
+			mCosmetic.modify(mBomb, mPlugin, mSize + mExplosionsRemaining);
 		}
 	}
 

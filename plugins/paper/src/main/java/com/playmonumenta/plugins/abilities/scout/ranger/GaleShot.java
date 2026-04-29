@@ -255,6 +255,10 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 
 						mCosmetic.hit(mPlayer, enemyLoc);
 
+						if (WindBomb.isWindBomb(enemy)) {
+							break; // Don't deal KB to wind bombs
+						}
+
 						double speed = KB_VEL_BASE + KB_VEL_PUNCH_LEVEL * punch;
 						Vector vector = mGaleProjectile.getVelocity().normalize().multiply(speed);
 						vector.setY(Math.max(vector.getY(), -VERTICAL_LAUNCH / 2));

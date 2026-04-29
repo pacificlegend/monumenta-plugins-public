@@ -13,7 +13,9 @@ import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.classes.Shaman;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.shaman.soothsayer.TotemicConsecrationCS;
+import com.playmonumenta.plugins.effects.PercentDamageDealt;
 import com.playmonumenta.plugins.effects.PercentDamageReceived;
+import com.playmonumenta.plugins.effects.PercentSpeed;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.utils.AbsorptionUtils;
@@ -54,6 +56,8 @@ public class TotemicConsecration extends MultipleChargeAbility {
 	private static final int RES_BUFF_DURATION = 20;
 	private static final int SILENCE_DURATION = 5 * 20;
 	private static final String CONSECRATION_RESISTANCE_SOURCE = "Totemic Consecration Resistance";
+	private static final String CONSECRATION_STRENGTH_SOURCE = "Totemic Consecration Strength";
+	private static final String CONSECRATION_SPEED_SOURCE = "Totemic Consecration Strength";
 
 	public static final String CHARM_CHARGES = "Totemic Consecration Charges";
 	public static final String CHARM_COOLDOWN = "Totemic Consecration Cooldown";
@@ -65,6 +69,8 @@ public class TotemicConsecration extends MultipleChargeAbility {
 	public static final String CHARM_RADIUS_AMPLIFIER = "Totemic Consecration Totem Radius Amplifier";
 	public static final String CHARM_RESISTANCE = "Totemic Consecration Resistance Amplifier";
 	public static final String CHARM_SILENCE_DURATION = "Totemic Consecration Silence Duration";
+	public static final String CHARM_ARTIFACT_STRENGTH_AMPLIFIER = "Totemic Consecration Strength Amplifier";
+	public static final String CHARM_ARTIFACT_SPEED_AMPLIFIER = "Totemic Consecration Speed Amplifier";
 
 	public static final Style SACRED_COLOR = Style.style(TextColor.color(0xDED3B1));
 
@@ -92,6 +98,8 @@ public class TotemicConsecration extends MultipleChargeAbility {
 	private final double mRadiusAmplifier;
 	private final double mResistance;
 	private final int mSilenceDuration;
+	private final double mStrengthAmplifier;
+	private final double mSpeedAmplifier;
 	private final TotemicConsecrationCS mCosmetic;
 
 	private final List<TotemAbility> mBlessedTotems = new ArrayList<>();
@@ -109,6 +117,8 @@ public class TotemicConsecration extends MultipleChargeAbility {
 		mRadiusAmplifier = isLevelOne() ? 0 : (TOTEM_RADIUS_AMPLIFIER + CharmManager.getLevelPercentDecimal(player, CHARM_RADIUS_AMPLIFIER));
 		mResistance = RESISTANCE + CharmManager.getLevelPercentDecimal(player, CHARM_RESISTANCE);
 		mSilenceDuration = CharmManager.getDuration(player, CHARM_SILENCE_DURATION, SILENCE_DURATION);
+		mStrengthAmplifier = CharmManager.getLevelPercentDecimal(player, CHARM_ARTIFACT_STRENGTH_AMPLIFIER);
+		mSpeedAmplifier = CharmManager.getLevelPercentDecimal(player, CHARM_ARTIFACT_SPEED_AMPLIFIER);
 
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new TotemicConsecrationCS());
 	}
@@ -197,6 +207,12 @@ public class TotemicConsecration extends MultipleChargeAbility {
 			for (TotemAbility blessedTotem : mBlessedTotems) {
 				for (Player player : blessedTotem.getPlayersInRange()) {
 					mPlugin.mEffectManager.addEffect(player, CONSECRATION_RESISTANCE_SOURCE, new PercentDamageReceived(RES_BUFF_DURATION, -mResistance).displaysTime(false).deleteOnAbilityUpdate(true));
+					if (mStrengthAmplifier > 0) {
+						mPlugin.mEffectManager.addEffect(player, CONSECRATION_STRENGTH_SOURCE, new PercentDamageDealt(RES_BUFF_DURATION, mStrengthAmplifier).displaysTime(false).deleteOnAbilityUpdate(true));
+					}
+					if (mSpeedAmplifier > 0) {
+						mPlugin.mEffectManager.addEffect(player, CONSECRATION_SPEED_SOURCE, new PercentSpeed(RES_BUFF_DURATION, mSpeedAmplifier, CONSECRATION_SPEED_SOURCE).displaysTime(false).deleteOnAbilityUpdate(true));
+					}
 				}
 			}
 		}

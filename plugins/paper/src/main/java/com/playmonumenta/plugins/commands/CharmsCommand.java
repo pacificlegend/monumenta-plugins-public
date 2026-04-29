@@ -294,7 +294,6 @@ public class CharmsCommand extends GenericCommand {
 					results.forEach(effect -> player.sendMessage(Component.text(effect, TextColor.fromHexString("#4AC2E5"))));
 				}
 			}).register();
-
 	}
 
 	public static boolean checkZone(Player player) {

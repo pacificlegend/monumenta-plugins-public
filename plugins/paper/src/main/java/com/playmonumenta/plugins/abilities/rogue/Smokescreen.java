@@ -17,6 +17,7 @@ import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import java.util.List;
 import org.bukkit.Location;
@@ -52,6 +53,8 @@ public class Smokescreen extends Ability implements AbilityWithDuration {
 	public static final String CHARM_EFFECT_DURATION = "Smokescreen Effect Duration";
 	public static final String CHARM_DAMAGE = "Smokescreen Enhancement Damage";
 
+	public static final String CHARM_ARTIFACT_STUN = "Smokescreen Stun Duration";
+
 	public static final AbilityInfo<Smokescreen> INFO =
 		new AbilityInfo<>(Smokescreen.class, "Smokescreen", Smokescreen::new)
 			.linkedSpell(ClassAbility.SMOKESCREEN)
@@ -70,6 +73,7 @@ public class Smokescreen extends Ability implements AbilityWithDuration {
 	private final int mEffectDuration;
 	private final double mRadius;
 	private final double mDamage;
+	private final int mStunDuration;
 
 	private final SmokescreenCS mCosmetic;
 
@@ -83,6 +87,7 @@ public class Smokescreen extends Ability implements AbilityWithDuration {
 		mEffectDuration = CharmManager.getDuration(mPlayer, CHARM_EFFECT_DURATION, SMOKESCREEN_EFFECT_DURATION);
 		mRadius = CharmManager.getRadius(mPlayer, CHARM_RANGE, isLevelOne() ? SMOKESCREEN_RANGE : SMOKESCREEN_RANGE_2);
 		mDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, ENHANCEMENT_DAMAGE);
+		mStunDuration = CharmManager.getDuration(mPlayer, CHARM_ARTIFACT_STUN, 0);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new SmokescreenCS());
 	}
 
@@ -109,11 +114,15 @@ public class Smokescreen extends Ability implements AbilityWithDuration {
 					applyEffects(loc);
 					mCosmetic.smokescreenEffects(mPlayer, world, loc, mRadius);
 
+					List<LivingEntity> mobs = new Hitbox.SphereHitbox(loc, mRadius).getHitMobs();
 					if (isEnhanced()) {
 						residualDebuffs(loc);
-
-						List<LivingEntity> mobs = EntityUtils.getNearbyMobs(loc, mRadius);
 						mobs.forEach(mob -> DamageUtils.damage(mPlayer, mob, DamageEvent.DamageType.MELEE_SKILL, mDamage, mInfo.getLinkedSpell(), true));
+					}
+
+					// Artifact Charm code for stun from smokescreen
+					if (mStunDuration > 0) {
+						mobs.forEach(mob -> EntityUtils.applyStun(mPlugin, mStunDuration, mob));
 					}
 
 					this.cancel();

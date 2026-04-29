@@ -11,6 +11,7 @@ import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.warlock.GraspingClawsCS;
+import com.playmonumenta.plugins.effects.PercentDamageDealt;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
@@ -77,6 +78,8 @@ public class GraspingClaws extends Ability implements AbilityWithDuration {
 	public static final String CHARM_CAGE_HEALING = "Grasping Claws Cage Healing";
 	public static final String CHARM_CAGE_DURATION = "Grasping Claws Cage Duration";
 
+	public static final String CHARM_ARTIFACT_MELEE_DAMAGE_MULTIPLIER = "Grasping Claws Cage Melee Damage Multiplier";
+
 	public static final AbilityInfo<GraspingClaws> INFO =
 		new AbilityInfo<>(GraspingClaws.class, "Grasping Claws", GraspingClaws::new)
 			.linkedSpell(ClassAbility.GRASPING_CLAWS)
@@ -99,6 +102,7 @@ public class GraspingClaws extends Ability implements AbilityWithDuration {
 	private final double mCageRadius;
 	private final double mCageHeal;
 	private final int mCageDuration;
+	private final double mCageDamageModifier;
 
 	private final Map<Projectile, ItemStatManager.PlayerItemStats> mPlayerItemStatsMap = new WeakHashMap<>();
 	private @Nullable BukkitRunnable mCleaveRunnable;
@@ -117,6 +121,7 @@ public class GraspingClaws extends Ability implements AbilityWithDuration {
 		mCleaveRadius = CharmManager.getRadius(player, CHARM_CLEAVE_RADIUS, CLEAVE_RADIUS);
 		mCageRadius = CharmManager.getRadius(player, CHARM_CAGE_RADIUS, CAGE_RADIUS);
 		mCageHeal = CharmManager.calculateFlatAndPercentValue(player, CHARM_CAGE_HEALING, HEAL_AMOUNT);
+		mCageDamageModifier = CharmManager.getLevelPercentDecimal(player, CHARM_ARTIFACT_MELEE_DAMAGE_MULTIPLIER); // 0 by default as is a charm artifact stat
 		mCageDuration = CharmManager.getDuration(player, CHARM_CAGE_DURATION, CAGE_DURATION);
 		mCleaveRunnable = null;
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new GraspingClawsCS());
@@ -248,12 +253,18 @@ public class GraspingClaws extends Ability implements AbilityWithDuration {
 				}
 
 				// Player Effect
-				if (mT % 5 == 0) {
-					if (mT % 20 == 0) {
-						List<Player> affectedPlayers = new Hitbox.UprightCylinderHitbox(loc, 5, mCageRadius).getHitPlayers(true);
-						for (Player p : affectedPlayers) {
-							PlayerUtils.healPlayer(mPlugin, p, EntityUtils.getMaxHealth(p) * mCageHeal, mPlayer);
+				if (mT % 20 == 0) {
+					List<Player> affectedPlayers = new Hitbox.UprightCylinderHitbox(loc, 5, mCageRadius).getHitPlayers(true);
+					for (Player p : affectedPlayers) {
+						PlayerUtils.healPlayer(mPlugin, p, EntityUtils.getMaxHealth(p) * mCageHeal, mPlayer);
+
+						// Artifact Charm action, usually 0
+						if (mCageDamageModifier == 0) {
+							continue;
 						}
+						mPlugin.mEffectManager.addEffect(p, CHARM_ARTIFACT_MELEE_DAMAGE_MULTIPLIER,
+							new PercentDamageDealt(30, mCageDamageModifier).damageTypes(DamageEvent.DamageType.getAllMeleeTypes())
+								.displaysTime(false).deleteOnAbilityUpdate(true));
 					}
 				}
 			}

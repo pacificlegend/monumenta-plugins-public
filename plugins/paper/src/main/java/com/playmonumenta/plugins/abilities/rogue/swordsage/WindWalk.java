@@ -46,11 +46,14 @@ public class WindWalk extends MultipleChargeAbility {
 	private static final double WIND_WALK_Y_VELOCITY_MULTIPLIER = 0.16;
 	private static final double WIND_WALK_VELOCITY_BONUS = 1.4;
 	private static final int WIND_WALK_CDR = 20 * 4;
+	private static final String WIND_WALK_VULN_AESTHETICS_SOURCE = "WindWalkVulnAesthetics";
 
 	public static final String CHARM_COOLDOWN = "Wind Walk Cooldown";
 	public static final String CHARM_CHARGE = "Wind Walk Charge";
 	public static final String CHARM_COOLDOWN_REDUCTION = "Wind Walk Cooldown Reduction";
 	public static final String CHARM_DURATION = "Wind Walk Debuff Duration";
+	public static final String CHARM_ARTIFACT_VULNERABILITY = "Wind Walk Vulnerability Amplifier";
+	public static final String CHARM_ARTIFACT_VULNERABILITY_DURATION = "Wind Walk Vulnerability Duration";
 
 	public static final AbilityInfo<WindWalk> INFO =
 		new AbilityInfo<>(WindWalk.class, "Wind Walk", WindWalk::new)
@@ -66,6 +69,8 @@ public class WindWalk extends MultipleChargeAbility {
 
 	private final int mDuration;
 	private final int mCDR;
+	private final double mVulnerability;
+	private final int mVulnerabilityDuration;
 	private final WindWalkCS mCosmetic;
 
 	private int mLastCastTicks = 0;
@@ -76,6 +81,8 @@ public class WindWalk extends MultipleChargeAbility {
 		mCDR = CharmManager.getDuration(mPlayer, CHARM_COOLDOWN_REDUCTION, WIND_WALK_CDR);
 		mMaxCharges = WIND_WALK_MAX_CHARGES + (int) CharmManager.getLevel(player, CHARM_CHARGE);
 		mCharges = getChargesOffCooldown();
+		mVulnerability = CharmManager.getLevelPercentDecimal(mPlayer, CHARM_ARTIFACT_VULNERABILITY);
+		mVulnerabilityDuration = CharmManager.getDuration(mPlayer, CHARM_ARTIFACT_VULNERABILITY_DURATION, 0);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new WindWalkCS());
 	}
 
@@ -140,6 +147,10 @@ public class WindWalk extends MultipleChargeAbility {
 							}
 						}
 
+						if (mVulnerability > 0) {
+							EntityUtils.applyVulnerability(mPlugin, mVulnerabilityDuration, mVulnerability, mob);
+							mPlugin.mEffectManager.addEffect(mob, WIND_WALK_VULN_AESTHETICS_SOURCE, mCosmetic.getArtifactVulnAesthetics(mVulnerabilityDuration));
+						}
 						iter.remove();
 					}
 				}

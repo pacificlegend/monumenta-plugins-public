@@ -83,6 +83,10 @@ public class UnstableAmalgam extends Ability implements AbilityWithDuration {
 	public static final String CHARM_KNOCKBACK_PLAYERS = "Unstable Amalgam Player Knockback Speed";
 	public static final String CHARM_INSTABILITY_DURATION = "Unstable Amalgam Instability Duration";
 	public static final String CHARM_POTION_DAMAGE = "Unstable Amalgam Dropped Potion Damage Modifier";
+	public static final String CHARM_SIZE = "Unstable Amalgam Size";
+
+	public static final String CHARM_ARTIFACT_TAUNT_RADIUS = "Unstable Amalgam Taunt Range";
+	public static final String CHARM_ARTIFACT_HEALTH = "Unstable Amalgam Health";
 
 	public static final Style AMALGAM_COLOR = Style.style(TextColor.color(0xE68EE6));
 	public static final Style UNSTABLE_COLOR = Style.style(TextColor.color(0x9043BF));
@@ -115,6 +119,9 @@ public class UnstableAmalgam extends Ability implements AbilityWithDuration {
 	private final float mMobVerticalKnockback;
 	private final float mPlayerHorizontalKnockback;
 	private final float mPlayerVerticalKnockback;
+	private final int mSize;
+	private final double mTauntRadius;
+	private final double mHealth;
 	private final int mInstabilityDuration;
 	private final double mPotionDamageMult;
 	private final Map<ThrownPotion, ItemStatManager.PlayerItemStats> mEnhancementPotionPlayerStat = new HashMap<>();
@@ -143,6 +150,9 @@ public class UnstableAmalgam extends Ability implements AbilityWithDuration {
 			CHARM_KNOCKBACK_PLAYERS, UNSTABLE_AMALGAM_KNOCKBACK_SPEED_HORIZONTAL * 1.25);
 		mPlayerVerticalKnockback = (float) CharmManager.calculateFlatAndPercentValue(mPlayer,
 			CHARM_KNOCKBACK_PLAYERS, UNSTABLE_AMALGAM_KNOCKBACK_SPEED_VERTICAL * 2.5);
+		mSize = (int) CharmManager.getLevel(mPlayer, CHARM_SIZE); // default 0
+		mTauntRadius = CharmManager.getRadius(mPlayer, CHARM_ARTIFACT_TAUNT_RADIUS, 0);
+		mHealth = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_ARTIFACT_HEALTH, 1);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new UnstableAmalgamCS());
 
 		Bukkit.getScheduler().runTask(
@@ -204,6 +214,20 @@ public class UnstableAmalgam extends Ability implements AbilityWithDuration {
 
 		if (e instanceof Slime amalgam) {
 			mAmalgam = amalgam;
+			EntityUtils.setSize(amalgam, mSize);
+			if (mHealth > 1) {
+				EntityUtils.setMaxHealthAndHealth(amalgam, mHealth);
+			}
+
+			// Artifact Charm code, taunts on spawn
+			if (mTauntRadius > 0) {
+				List<LivingEntity> mobs = EntityUtils.getNearbyMobs(loc, mTauntRadius)
+					.stream().filter(entity -> !EntityUtils.isBoss(entity)).toList();
+				for (LivingEntity le : mobs) {
+					EntityUtils.applyTaunt(le, amalgam);
+				}
+				mCosmetic.amalgamTaunt(mobs, amalgam, mPlayer);
+			}
 
 			new BukkitRunnable() {
 				int mTicks = 0;

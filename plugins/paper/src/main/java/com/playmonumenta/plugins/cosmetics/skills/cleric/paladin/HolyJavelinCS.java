@@ -11,6 +11,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -63,5 +64,10 @@ public class HolyJavelinCS implements CosmeticSkill {
 		world.playSound(loc, Sound.BLOCK_BELL_USE, SoundCategory.PLAYERS, 1.3f, 1.4f);
 		world.playSound(loc, Sound.ENTITY_ILLUSIONER_CAST_SPELL, SoundCategory.PLAYERS, 0.7f, 2.0f);
 		world.playSound(loc, Sound.ITEM_TRIDENT_RIPTIDE_1, SoundCategory.PLAYERS, 0.6f, 2.0f);
+	}
+
+	public void artifactStun(LivingEntity entity, World world, Location loc) {
+		world.playSound(loc, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, SoundCategory.PLAYERS, 1f, 1.65f);
+		world.playSound(loc, Sound.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 1f, 1.65f);
 	}
 }

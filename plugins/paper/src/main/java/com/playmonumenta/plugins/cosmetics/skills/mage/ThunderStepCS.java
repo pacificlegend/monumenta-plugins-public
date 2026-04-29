@@ -136,4 +136,9 @@ public class ThunderStepCS implements CosmeticSkill {
 			mRunnable = null;
 		}
 	}
+
+	public void tpSoundFail(Player player) {
+		// used for "minimum distance" charm stat, copied from ashadows
+		player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, SoundCategory.PLAYERS, 1.0f, 1.8f);
+	}
 }

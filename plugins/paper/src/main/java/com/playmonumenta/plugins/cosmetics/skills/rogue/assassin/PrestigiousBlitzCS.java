@@ -111,12 +111,17 @@ public class PrestigiousBlitzCS extends BodkinBlitzCS implements PrestigeCS {
 	}
 
 	@Override
-	public void blitzOnDamage(World world, Player mPlayer, Location entityLoc) {
-		world.playSound(entityLoc, Sound.ENTITY_BLAZE_HURT, SoundCategory.PLAYERS, 0.8f, 0.6f);
-		world.playSound(entityLoc, Sound.BLOCK_ANVIL_PLACE, SoundCategory.PLAYERS, 1.25f, 1.75f);
-		world.playSound(entityLoc, Sound.ITEM_TRIDENT_RETURN, SoundCategory.PLAYERS, 3f, 1.6f);
-		world.playSound(entityLoc, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.PLAYERS, 1.5f, 0.5f);
-		world.playSound(entityLoc, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.PLAYERS, 1f, 0.6f);
+	public void blitzOnDamage(World world, Player mPlayer, Location entityLoc, boolean artifactPassthrough) {
+		float vol = artifactPassthrough ? 0.4f : 1; // volume multiplier, quieter for passthrough since it can hit multiple targets
+		world.playSound(entityLoc, Sound.ENTITY_BLAZE_HURT, SoundCategory.PLAYERS, 0.8f * vol, 0.6f);
+		world.playSound(entityLoc, Sound.BLOCK_ANVIL_PLACE, SoundCategory.PLAYERS, 1.25f * vol, artifactPassthrough ? 1.4f : 1.75f);
+		world.playSound(entityLoc, Sound.ITEM_TRIDENT_RETURN, SoundCategory.PLAYERS, 3f * vol, artifactPassthrough ? 1.2f : 1.6f);
+		world.playSound(entityLoc, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.PLAYERS, 1.5f * vol, 0.5f);
+		world.playSound(entityLoc, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.PLAYERS, vol, 0.6f);
+		if (artifactPassthrough) {
+			world.playSound(entityLoc, Sound.ENTITY_GLOW_SQUID_SQUIRT, 0.5f, 2f);
+			world.playSound(entityLoc, Sound.ENTITY_GLOW_SQUID_SQUIRT, 0.5f, 1.7f);
+		}
 		new PartialParticle(Particle.BLOCK_CRACK, entityLoc, 15, 0.35, 0.25, 0.35, 1, Bukkit.createBlockData(Material.IRON_BLOCK)).spawnAsPlayerActive(mPlayer);
 		new PartialParticle(Particle.BLOCK_CRACK, entityLoc, 15, 0.35, 0.25, 0.35, 1, Bukkit.createBlockData(Material.GOLD_BLOCK)).spawnAsPlayerActive(mPlayer);
 		new BukkitRunnable() {
@@ -130,6 +135,9 @@ public class PrestigiousBlitzCS extends BodkinBlitzCS implements PrestigeCS {
 				do {
 					Location mCenter = entityLoc.clone().add(0, mT > THRESH ? (mT - THRESH) * mDHeight - 0.9 : -0.9, 0);
 					double radius = mT > THRESH ? FastUtils.RANDOM.nextDouble() * 0.3 + 0.15 : (THRESH - mT) * mDRadius;
+					if (artifactPassthrough) {
+						radius *= 0.5;
+					}
 					ParticleUtils.drawRing(mCenter, (int) Math.ceil(radius * 16), new Vector(0, 1, 0), radius,
 						(l, t) -> new PartialParticle(Particle.FALLING_DUST, l, 1, 0, 0, 0, 0,
 							Bukkit.createBlockData(Material.COPPER_BLOCK)).spawnAsPlayerActive(mPlayer)

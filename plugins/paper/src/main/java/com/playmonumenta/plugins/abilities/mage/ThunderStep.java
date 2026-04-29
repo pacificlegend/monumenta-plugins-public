@@ -72,6 +72,8 @@ public class ThunderStep extends Ability {
 	public static final String CHARM_RADIUS = "Thunder Step Radius";
 	public static final String CHARM_DISTANCE = "Thunder Step Distance";
 	public static final String CHARM_ENHANCEMENT_DURATION = "Thunder Step Enhancement Duration";
+	public static final String CHARM_ARTIFACT_REWIND_TRAIL_DAMAGE = "Thunder Step Rewind Trail Damage";
+	public static final String CHARM_ARTIFACT_REWIND_MIN_DISTANCE = "Thunder Step Rewind Minimum Distance";
 
 	public static final AbilityInfo<ThunderStep> INFO =
 		new AbilityInfo<>(ThunderStep.class, NAME, ThunderStep::new)
@@ -89,6 +91,8 @@ public class ThunderStep extends Ability {
 	private final double mLevelDistance;
 	private final double mRadius;
 	private final int mBackTeleportMaxDelay;
+	private final double mRewindTrailDamage;
+	private final double mRewindMinDistance;
 
 	private final ThunderStepCS mCosmetic;
 
@@ -102,6 +106,8 @@ public class ThunderStep extends Ability {
 		mLevelDistance = CharmManager.calculateFlatAndPercentValue(player, CHARM_DISTANCE, isLevelOne() ? DISTANCE_1 : DISTANCE_2);
 		mRadius = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_RADIUS, SIZE);
 		mBackTeleportMaxDelay = (int) CharmManager.calculateFlatAndPercentValue(player, CHARM_ENHANCEMENT_DURATION, BACK_TELEPORT_MAX_DELAY);
+		mRewindTrailDamage = CharmManager.calculateFlatAndPercentValue(player, CHARM_ARTIFACT_REWIND_TRAIL_DAMAGE, 0);
+		mRewindMinDistance = CharmManager.calculateFlatAndPercentValue(player, CHARM_ARTIFACT_REWIND_MIN_DISTANCE, 0);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new ThunderStepCS());
 	}
 
@@ -119,11 +125,27 @@ public class ThunderStep extends Ability {
 			&& mLastCastLocation.getWorld() == mPlayer.getWorld()
 			&& mLastCastLocation.distance(mPlayer.getLocation()) < BACK_TELEPORT_MAX_DISTANCE) {
 
+			if (mRewindMinDistance > 0
+				&& mLastCastLocation.distance(mPlayer.getLocation()) < mRewindMinDistance) {
+				mCosmetic.tpSoundFail(mPlayer);
+				return true;
+			}
 			Location recastStartLocation = mPlayer.getLocation();
 			doDamage(recastStartLocation, spellDamage * ENHANCEMENT_DAMAGE_RATIO, false);
 			mLastCastLocation.setDirection(mPlayer.getLocation().getDirection());
 			PlayerUtils.playerTeleport(mPlayer, mLastCastLocation);
 			doDamage(mLastCastLocation, spellDamage * ENHANCEMENT_DAMAGE_RATIO, false);
+			if (mRewindTrailDamage > 0) {
+				Hitbox trail = Hitbox.approximateCylinder(recastStartLocation, mLastCastLocation, 2, true);
+				float trailDamage = SpellPower.getSpellDamage(mPlugin, mPlayer, (float) mRewindTrailDamage);
+				int mobParticles = Math.max(
+					1, 20 / Math.max(1, trail.getHitMobs().size()) // Never divide by 0. Always maximum 20 particles for <= 1 enemy
+				);
+				for (LivingEntity le : trail.getHitMobs()) {
+					DamageUtils.damage(mPlayer, le, DamageType.MAGIC, trailDamage, ABILITY, true);
+					mCosmetic.onDamage(mPlayer, le, mobParticles);
+				}
+			}
 			mCosmetic.trailEffect(mPlayer, recastStartLocation, mLastCastLocation);
 
 			// prevent further back teleports as well as paralyze of any further casts

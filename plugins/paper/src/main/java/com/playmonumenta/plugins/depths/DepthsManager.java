@@ -2132,7 +2132,11 @@ public class DepthsManager {
 				validateOfferings(dp);
 				break;
 			case 2:
-				DepthsTree chosenTree = dp.mEligibleTrees.get(mRandom.nextInt(dp.mEligibleTrees.size()));
+				if (dp.mEligibleTrees.isEmpty()) {
+					dp.sendMessage("You would have lost all of your abilities from a given tree... but you have no trees! Instead, you get to reconsider your life choices and how you ended up in this situation.");
+					break;
+				}
+				DepthsTree chosenTree = FastUtils.getRandomElement(dp.mEligibleTrees);
 				boolean removed = false;
 				for (DepthsAbilityInfo<?> da : getAbilities()) {
 					String name = da.getDisplayName();

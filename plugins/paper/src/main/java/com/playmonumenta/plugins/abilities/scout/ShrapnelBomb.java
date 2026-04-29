@@ -131,7 +131,7 @@ public class ShrapnelBomb extends Ability {
 		mVelocity = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_BOMB_VELOCITY, VELOCITY);
 		mShrapnelDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_SHRAPNEL_DAMAGE, shrapnelDmg);
 		mBombRadius = CharmManager.getRadius(mPlayer, CHARM_BOMB_RADIUS, BOMB_RADIUS);
-		mBombEnhancementRadius = CharmManager.getRadius(mPlayer, CHARM_BOMB_ENHANCEMENT_DAMAGE, BOMB_RADIUS_ENHANCEMENT);
+		mBombEnhancementRadius = CharmManager.getRadius(mPlayer, CHARM_BOMB_ENHANCEMENT_RADIUS, BOMB_RADIUS_ENHANCEMENT);
 		mShrapnelCount = SHRAP_COUNT + (int) CharmManager.getLevel(mPlayer, CHARM_SHRAPNEL_COUNT);
 		mShrapnelDistance = CharmManager.getRadius(mPlayer, CHARM_SHRAPNEL_DISTANCE, SHRAP_DISTANCE);
 		mStaggerDuration = CharmManager.getDuration(mPlayer, CHARM_STAGGER_DURATION, STAGGER_DURATION);

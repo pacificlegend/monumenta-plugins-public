@@ -123,4 +123,19 @@ public class FastUtils {
 	public static <U> U getRandomElement(List<U> list) {
 		return list.get(randomIntInRange(0, list.size() - 1));
 	}
+
+	public static int randomSign() {
+		return RANDOM.nextBoolean() ? 1 : -1;
+	}
+
+	/**
+	 * Like {@code Math.floorMod()} but for doubles
+	 * @param value number
+	 * @param stop  modulo this
+	 * @return number modulo stop
+	 */
+	public static double wrapMod(double value, double stop) {
+		double result = (value - Math.floor(value / stop) * stop);
+		return result == stop ? 0 : result;
+	}
 }

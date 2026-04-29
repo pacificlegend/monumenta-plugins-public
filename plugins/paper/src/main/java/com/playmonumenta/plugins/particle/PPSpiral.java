@@ -24,8 +24,8 @@ public class PPSpiral extends AbstractPartialParticle<PPSpiral> {
 	protected int mTicks = Constants.TICKS_PER_SECOND;
 	protected boolean mReversed = false;
 	protected int mCurves = 3;
-
 	protected int mCountPerBlockPerCurve = -1;
+	protected double mAngleOffset;
 
 	/*-------------------------------------------------------------------------------
 	 * Constructors
@@ -54,6 +54,7 @@ public class PPSpiral extends AbstractPartialParticle<PPSpiral> {
 		copy.mReversed = mReversed;
 		copy.mCurves = mCurves;
 		copy.mCountPerBlockPerCurve = mCountPerBlockPerCurve;
+		copy.mAngleOffset = mAngleOffset;
 		return copy;
 	}
 
@@ -67,6 +68,15 @@ public class PPSpiral extends AbstractPartialParticle<PPSpiral> {
 
 	public double curveAngle() {
 		return mCurveAngle;
+	}
+
+	public PPSpiral angleOffset(double angleOffset) {
+		mAngleOffset = angleOffset;
+		return this;
+	}
+
+	public double angleOffset() {
+		return mAngleOffset;
 	}
 
 	public PPSpiral countPerBlockPerCurve(int countPerBlockPerCurve) {
@@ -153,7 +163,7 @@ public class PPSpiral extends AbstractPartialParticle<PPSpiral> {
 			final double mDegPerCurve = 360.0 / mCurves;
 			final double mDegreeOffset = mCurveAngle * mCurves / partialCount;
 			double mCurrentRadius = mReversed ? mRadius : 0;
-			double mCurrentDegree = 0;
+			double mCurrentDegree = mAngleOffset;
 			int mSafety = 0;
 
 			@Override
@@ -169,8 +179,8 @@ public class PPSpiral extends AbstractPartialParticle<PPSpiral> {
 						if (mParticlesPerCurvePerTick >= 1) {
 							for (int i = 0; i < mParticlesPerCurvePerTick; i++) {
 								final double mRadiusOffset = i * mRadiusIncrementPerTick / mParticlesPerCurvePerTick + mCurrentRadius;
-								double x = FastUtils.cos((mCurrentDegree + i * mDegreeOffset + (s * mDegPerCurve)) * (Math.PI / 180)) * mRadiusOffset;
-								double z = FastUtils.sin((mCurrentDegree + i * mDegreeOffset + (s * mDegPerCurve)) * (Math.PI / 180)) * mRadiusOffset;
+								double x = FastUtils.cosDeg(mCurrentDegree + i * mDegreeOffset + s * mDegPerCurve) * mRadiusOffset;
+								double z = FastUtils.sinDeg(mCurrentDegree + i * mDegreeOffset + s * mDegPerCurve) * mRadiusOffset;
 								loc.add(x, 0, z);
 								packagedValues.location(loc);
 
@@ -183,8 +193,8 @@ public class PPSpiral extends AbstractPartialParticle<PPSpiral> {
 						} else {
 							if (FastUtils.RANDOM.nextDouble() < mParticlesPerCurvePerTick) {
 								final double mRadiusOffset = mRadiusIncrementPerTick + mCurrentRadius;
-								double x = FastUtils.cos((mCurrentDegree + mDegreeOffset + (s * mDegPerCurve)) * (Math.PI / 180)) * mRadiusOffset;
-								double z = FastUtils.sin((mCurrentDegree + mDegreeOffset + (s * mDegPerCurve)) * (Math.PI / 180)) * mRadiusOffset;
+								double x = FastUtils.cosDeg(mCurrentDegree + mDegreeOffset + s * mDegPerCurve) * mRadiusOffset;
+								double z = FastUtils.sinDeg(mCurrentDegree + mDegreeOffset + s * mDegPerCurve) * mRadiusOffset;
 								loc.add(x, 0, z);
 								packagedValues.location(loc);
 
@@ -193,7 +203,7 @@ public class PPSpiral extends AbstractPartialParticle<PPSpiral> {
 							}
 						}
 					}
-					mCurrentDegree += (mParticlesPerCurvePerTick * mDegreeOffset);
+					mCurrentDegree += mParticlesPerCurvePerTick * mDegreeOffset;
 					mCurrentRadius += mRadiusIncrementPerTick;
 					if ((!mReversed && mCurrentRadius > mRadius) || (mReversed && mCurrentRadius <= 0)) {
 						this.cancel();

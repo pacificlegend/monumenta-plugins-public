@@ -89,11 +89,6 @@ public abstract class BossAbilityGroup {
 		}
 		if (spellDelay > 0) {
 			mNextActiveTimer = Math.max(spellDelay, mNextActiveTimer);
-			if (mTaskPassive != null) {
-				mTaskPassive.cancel();
-				mTaskPassive = getPassiveSpellCastRunnable();
-				mTaskPassive.runTaskTimer(mPlugin, 0, mPassiveIntervalTicks);
-			}
 		}
 		mActiveSpells.cancelAll(true);
 		mActiveSpells = activeSpells;
@@ -197,6 +192,14 @@ public abstract class BossAbilityGroup {
 				}
 			}
 		};
+	}
+
+	protected void reduceActiveCooldown(int reduction) {
+		mNextActiveTimer -= reduction;
+	}
+
+	protected void setActiveCooldown(int newCooldown) {
+		mNextActiveTimer = newCooldown;
 	}
 
 	private BukkitRunnable getSpellCastRunnable() {

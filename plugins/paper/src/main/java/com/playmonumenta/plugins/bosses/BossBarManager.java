@@ -32,6 +32,8 @@ public class BossBarManager {
 	private final boolean mCapDamage;
 	private final Function<LivingEntity, Location> mLocationFunction;
 
+	private boolean mVisible = true;
+
 	public BossBarManager(LivingEntity boss, int range, BossBar.Color color, BossBar.Overlay style, @Nullable Map<Integer, BossHealthAction> events) {
 		this(boss, range, color, style, events, true);
 	}
@@ -89,7 +91,7 @@ public class BossBarManager {
 
 		Location loc = mLocationFunction.apply(mBoss);
 		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-			if (player.getWorld().equals(loc.getWorld()) && player.getLocation().distanceSquared(loc) < mRange * mRange) {
+			if (mVisible && player.getWorld().equals(loc.getWorld()) && player.getLocation().distanceSquared(loc) < mRange * mRange) {
 				mBar.addViewer(player);
 			} else {
 				mBar.removeViewer(player);
@@ -146,6 +148,10 @@ public class BossBarManager {
 
 	public Optional<Integer> getNextHealthThreshold() {
 		return Optional.ofNullable(mEvents.peek()).map(Map.Entry::getKey);
+	}
+
+	public void setVisible(boolean visible) {
+		mVisible = visible;
 	}
 
 	public boolean removeHealthEvent(int percent) {

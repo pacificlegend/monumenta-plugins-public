@@ -38,6 +38,7 @@ public abstract class Effect implements Comparable<Effect>, DisplayableEffect {
 	private boolean mDisplay = true;
 	private boolean mDisplayTime = true;
 	private boolean mDeleteOnLogout = false;
+	private boolean mDeleteOnDeath = false;
 	boolean mUsed = false;
 
 	public Effect(final int duration, final String effectID) {
@@ -309,6 +310,15 @@ public abstract class Effect implements Comparable<Effect>, DisplayableEffect {
 
 	public boolean shouldDeleteOnLogout() {
 		return mDeleteOnLogout;
+	}
+
+	public Effect deleteOnDeath(boolean deleteOnDeath) {
+		mDeleteOnDeath = deleteOnDeath;
+		return this;
+	}
+
+	public boolean shouldDeleteOnDeath() {
+		return mDeleteOnDeath;
 	}
 
 	public boolean pauseInSpectatorMode() {

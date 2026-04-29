@@ -87,6 +87,8 @@ public class MasterworkUtils {
 
 	private static final String INTRUDER_MAT = "epic:r3/items/currency/fractured_psyche";
 
+	private static final String AURORA_MAT = "epic:r3/aurora/essence_of_the_above";
+
 	// Exalted Dungeons
 	private static final String WHITE_MAT = "epic:r1/delves/white/auxiliary/delve_material";
 	private static final String ORANGE_MAT = "epic:r1/delves/orange/auxiliary/delve_material";
@@ -385,6 +387,7 @@ public class MasterworkUtils {
 		MASTERWORK_COSTS.put(Location.SKR, new SilverKnightRemnants());
 
 		MASTERWORK_COSTS.put(Location.TWISTED_INTRUDER, new Boss(INTRUDER_MAT));
+		MASTERWORK_COSTS.put(Location.AURORA, new Boss(AURORA_MAT));
 
 		MASTERWORK_COSTS.put(Location.WHITE, new Exalted(WHITE_MAT, Masterwork.II));
 		MASTERWORK_COSTS.put(Location.ORANGE, new Exalted(ORANGE_MAT, Masterwork.II));

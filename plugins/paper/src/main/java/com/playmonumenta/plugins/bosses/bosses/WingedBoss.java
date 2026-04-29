@@ -78,6 +78,9 @@ public final class WingedBoss extends BossAbilityGroup {
 		@BossParam(help = "Should the boss bob up and down")
 		public boolean OSCILLATE = true;
 
+		@BossParam(help = "Distance above the ground until the boss descends, -1 to disable")
+		public double GROUND_DISTANCE = -1;
+
 	}
 
 	public WingedBoss(Plugin plugin, LivingEntity boss) {
@@ -154,7 +157,9 @@ public final class WingedBoss extends BossAbilityGroup {
 
 				// Is oscillate enabled?
 				double movementY = mParams.OSCILLATE ? FastUtils.sinDeg(mVerticalOscillation * 6) * 0.1 : 0;
-				oscillateY(loc, movementY, mParams.VERTICAL, mParams.IGNORE_BLOCKS);
+				double floorY = LocationUtils.fallToGround(loc, -1).getY();
+				boolean shouldDescend = floorY != -1 && mParams.GROUND_DISTANCE != -1 && loc.getY() - floorY > mParams.GROUND_DISTANCE;
+				oscillateY(loc, shouldDescend ? -0.1 : movementY, mParams.VERTICAL, mParams.IGNORE_BLOCKS);
 
 				LivingEntity target = ((Mob) mBoss).getTarget();
 				double mobSpeed = EntityUtils.getAttributeOrDefault(mBoss, Attribute.GENERIC_MOVEMENT_SPEED, 0.2);

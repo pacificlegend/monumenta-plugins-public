@@ -1788,4 +1788,12 @@ public class EntityUtils {
 
 		return 0;
 	}
+
+	public static void setDirection(Vector direction, Entity entity) {
+		double[] yawPitch = VectorUtils.vectorToRotation(direction);
+		if (!Double.isFinite(yawPitch[0]) || !Double.isFinite(yawPitch[1])) {
+			return;
+		}
+		entity.setRotation((float) yawPitch[0], (float) yawPitch[1]);
+	}
 }

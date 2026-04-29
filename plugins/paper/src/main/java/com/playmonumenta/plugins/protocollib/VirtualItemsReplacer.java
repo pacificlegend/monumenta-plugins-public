@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.alchemist.AlchemistPotions;
+import com.playmonumenta.plugins.bosses.bosses.aurora.Aurora;
 import com.playmonumenta.plugins.commands.VirtualFirmament;
 import com.playmonumenta.plugins.cosmetics.VanityManager;
 import com.playmonumenta.plugins.depths.DepthsManager;
@@ -356,6 +357,22 @@ public class VirtualItemsReplacer extends PacketAdapter {
 				markVirtual(nbt);
 			});
 			return itemStack;
+		}
+
+		// Aurora Loamskattar Catalyst
+		if (Aurora.isAuroraLoom(itemStack)) {
+			int matterCount = Aurora.getStoredCharges(player);
+			itemStack.setAmount(Math.max(1, matterCount));
+			boolean empty = matterCount <= 0;
+			if (empty) {
+				itemStack = itemStack.withType(Material.MAGENTA_STAINED_GLASS);
+			}
+			ItemStatUtils.addLore(itemStack, 0, Component.text("Charges: ", NamedTextColor.WHITE).append(Component.text(matterCount, empty ? NamedTextColor.RED : NamedTextColor.GREEN)));
+			ItemUpdateHelper.generateItemStats(itemStack);
+
+			NBT.modify(itemStack, nbt -> {
+				markVirtual(nbt);
+			});
 		}
 
 		return itemStack;

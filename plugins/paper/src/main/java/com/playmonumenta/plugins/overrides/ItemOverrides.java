@@ -233,6 +233,8 @@ public final class ItemOverrides {
 			mItems.put(plate, interactableBlockOverride);
 		}
 		mItems.put(Material.LEVER, interactableBlockOverride);
+
+		mItems.put(Material.PEARLESCENT_FROGLIGHT, new LoamskattarCatalystOverride());
 	}
 
 	public void rightClickInteraction(Plugin plugin, Player player, Action action, @Nullable ItemStack item, @Nullable Block block, PlayerInteractEvent event) {

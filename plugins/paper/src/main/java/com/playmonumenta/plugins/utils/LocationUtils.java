@@ -49,6 +49,18 @@ public class LocationUtils {
 		return normalized;
 	}
 
+	public static Vector getHorizontalDirectionTo(Location to, Location from) {
+		Vector vFrom = from.toVector();
+		Vector vTo = to.toVector();
+		Vector diff = vTo.subtract(vFrom);
+		diff.setY(0);
+		Vector normalized = diff.normalize();
+		if (!Double.isFinite(normalized.getX())) {
+			return new Vector(1, 0, 0);
+		}
+		return normalized;
+	}
+
 	public static Location getEntityCenter(Entity e) {
 		return e.getLocation().add(0, e.getHeight() / 2, 0);
 	}
@@ -946,5 +958,37 @@ public class LocationUtils {
 		double r = Math.sqrt(FastUtils.RANDOM.nextDouble());
 		double theta = FastUtils.randomDoubleInRange(0, 360);
 		return loc.clone().add(new Vector(radius * r * FastUtils.cosDeg(theta), 0, radius * r * FastUtils.sinDeg(theta)));
+	}
+
+	/**
+	 * Calculate the length of a ray from point `point` to the surface of sphere (`center` : `radius`).
+	 * NOTE: point's direction is taken as the direction vector
+	 * @param center The center of the circle
+	 * @param point The point from which the ray will emerge
+	 * @param radius The radius of the circle
+	 * @return The length of the ray
+	 */
+	public static double rayLengthToSphereSurface(Location center, Location point, double radius) {
+		return rayLengthToSphereSurface(center.toVector(), point.toVector(), point.getDirection(), radius);
+	}
+
+	/**
+	 * Calculate the length of a ray from point `point` to the surface of sphere (`center` : `radius`).
+	 * NOTE: point's direction is taken as the direction vector
+	 *
+	 * @param center    The center of the circle
+	 * @param point     The point from which the ray will emerge
+	 * @param direction The direction from {@code point}
+	 * @param radius    The radius of the circle
+	 * @return The length of the ray
+	 */
+	public static double rayLengthToSphereSurface(Vector center, Vector point, Vector direction, double radius) {
+		Vector p = point.clone().subtract(center);
+		double x = p.getX();
+		double y = p.getY();
+		double z = p.getZ();
+		var b = 2 * (x * direction.getX() + y * direction.getY() + z * direction.getZ());
+
+		return (-b + Math.sqrt(Math.pow(b, 2) - 4 * (Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2) - Math.pow(radius, 2)))) / 2;
 	}
 }

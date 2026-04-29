@@ -282,6 +282,7 @@ public final class EffectManager implements Listener {
 						serializedEffect.addProperty("displaysTime", effect.doesDisplayTime());
 						serializedEffect.addProperty("displays", effect.doesDisplay());
 						serializedEffect.addProperty("deleteOnLogout", effect.shouldDeleteOnLogout());
+						serializedEffect.addProperty("deleteOnDeath", effect.shouldDeleteOnDeath());
 						if (serializedEffect.has("effectID")) {
 							inner.add(serializedEffect);
 						} else {
@@ -820,6 +821,10 @@ public final class EffectManager implements Listener {
 				Bukkit.getScheduler().runTaskLater(plugin, deserializedEffect::clearEffect, 5);
 			}
 		}
+		if (deserializedEffect != null && object.has("deleteOnDeath")) {
+			boolean delete = object.get("deleteOnDeath").getAsBoolean();
+			deserializedEffect.deleteOnDeath(delete);
+		}
 
 		return deserializedEffect;
 	}
@@ -900,6 +905,15 @@ public final class EffectManager implements Listener {
 		LivingEntity killed = event.getEntity();
 		Effects killedEffects = mEntities.get(killed.getUniqueId());
 		if (killedEffects != null) {
+			for (Map<String, NavigableSet<Effect>> priorityEffects : killedEffects.mPriorityMap.values()) {
+				for (NavigableSet<Effect> effectGroup : priorityEffects.values()) {
+					for (Effect e : effectGroup) {
+						if (e.shouldDeleteOnDeath()) {
+							e.setDuration(0);
+						}
+					}
+				}
+			}
 			for (Map<String, NavigableSet<Effect>> priorityEffects : killedEffects.mPriorityMap.values()) {
 				for (NavigableSet<Effect> effectGroup : priorityEffects.values()) {
 					effectGroup.last().onDeath(event);

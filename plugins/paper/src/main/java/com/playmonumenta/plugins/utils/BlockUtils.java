@@ -777,12 +777,28 @@ public class BlockUtils {
 		double bz = loc.getZ();
 		List<Block> blocks = new ArrayList<>();
 		for (double x = bx - radius; x <= bx + radius; x++) {
-			for (double z = bz - height; z <= bz + radius; z++) {
+			for (double z = bz - radius; z <= bz + radius; z++) {
 				Vector check = new Vector(x, by, z);
 				if (check.distance(loc.toVector()) <= radius) {
 					for (double y = by - height / 2; y <= by + height / 2; y++) {
 						blocks.add(new Location(world, x, y, z).getBlock());
 					}
+				}
+			}
+		}
+		return blocks;
+	}
+
+	public static List<Block> getBlocksInPillar(Location loc, double size, double height) {
+		World world = loc.getWorld();
+		double bx = loc.getX();
+		double by = loc.getY();
+		double bz = loc.getZ();
+		List<Block> blocks = new ArrayList<>();
+		for (double x = bx - size; x <= bx + size; x++) {
+			for (double z = bz - size; z <= bz + size; z++) {
+				for (double y = by; y <= by + height; y++) {
+					blocks.add(new Location(world, x, y, z).getBlock());
 				}
 			}
 		}

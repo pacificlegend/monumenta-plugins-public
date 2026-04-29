@@ -72,4 +72,8 @@ public class SpellCooldownManager {
 	public void setOnCooldown(int cooldown) {
 		mCurrentCooldown = cooldown;
 	}
+
+	public void reduceCooldown(int reduction) {
+		mCurrentCooldown -= reduction;
+	}
 }

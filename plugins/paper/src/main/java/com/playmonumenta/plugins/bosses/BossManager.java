@@ -13,6 +13,7 @@ import com.playmonumenta.plugins.bosses.bosses.abilities.HuntingCompanionBoss;
 import com.playmonumenta.plugins.bosses.bosses.abilities.PartingShotDummyBoss;
 import com.playmonumenta.plugins.bosses.bosses.abilities.PhantomForceBoss;
 import com.playmonumenta.plugins.bosses.bosses.abilities.RestlessSoulsBoss;
+import com.playmonumenta.plugins.bosses.bosses.aurora.Aurora;
 import com.playmonumenta.plugins.bosses.bosses.bluestrike.BlueStrikeDaggerCraftingBoss;
 import com.playmonumenta.plugins.bosses.bosses.bluestrike.BlueStrikeTargetNPCBoss;
 import com.playmonumenta.plugins.bosses.bosses.bluestrike.BlueStrikeTurretBoss;
@@ -496,6 +497,7 @@ public class BossManager implements Listener {
 		registerStatefulBoss(SporousAmalgam.identityTag, SporousAmalgam::new);
 		registerStatefulBoss(ExperimentSeventyOne.identityTag, ExperimentSeventyOne::new);
 		registerStatefulBoss(IntruderBoss.identityTag, IntruderBoss::new);
+		registerStatefulBoss(Aurora.identityTag, Aurora::new);
 	}
 
 	private static void registerStatelessBoss(String identityTag, StatelessBossConstructor constructor) {

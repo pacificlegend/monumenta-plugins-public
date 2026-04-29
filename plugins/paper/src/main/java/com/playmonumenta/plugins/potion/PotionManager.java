@@ -26,7 +26,9 @@ public class PotionManager {
 		ABILITY_SELF(1, "ABILITY_SELF"),
 		ABILITY_OTHER(2, "ABILITY_OTHER"),
 		SAFE_ZONE(3, "SAFE_ZONE"),
-		ITEM(4, "ITEM");
+		ITEM(4, "ITEM"),
+		BOSS(5, "BOSS")
+		;
 
 		private final int mValue;
 		private final String mName;

@@ -175,6 +175,7 @@ public class DamageListener implements Listener {
 		if (damagee instanceof Player player) {
 			mPlugin.mItemStatManager.onHurt(mPlugin, player, event, damager, source);
 			mPlugin.mAbilityManager.onHurt(player, event, damager, source);
+			mPlugin.mDoubleJumpManager.onHurt(player, event);
 			if (event.isBlockedByShield()) {
 				Bukkit.getPluginManager().callEvent(new DamageShieldedEvent(player, source, event.getCause(), -1));
 			}

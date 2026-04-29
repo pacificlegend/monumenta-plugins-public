@@ -136,6 +136,7 @@ public class Sidearm extends DepthsAbility implements AbilityWithChargesOrStacks
 				if (!isOnCooldown()) {
 					mCharges = mMaxCharges; // we aren't using normal ability cooldowns, so check it right away
 					showOffCooldownMessage();
+					offCooldownTrigger();
 					ClientModHandler.updateAbility(mPlayer, this);
 				}
 
@@ -162,6 +163,7 @@ public class Sidearm extends DepthsAbility implements AbilityWithChargesOrStacks
 		if (mWasOnCooldown && !isOnCooldown()) {
 			mCharges = mMaxCharges;
 			AbilityManager.getManager().trackCharges(mPlayer, ClassAbility.SIDEARM, mCharges);
+			offCooldownTrigger();
 
 			Location loc = mPlayer.getLocation();
 			mPlayer.playSound(loc, Sound.BLOCK_IRON_DOOR_OPEN, SoundCategory.PLAYERS, 0.8f, 1.5f);

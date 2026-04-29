@@ -14,6 +14,7 @@ import com.playmonumenta.plugins.effects.RespawnStasis;
 import com.playmonumenta.plugins.events.AbilityCastEvent;
 import com.playmonumenta.plugins.events.ArrowConsumeEvent;
 import com.playmonumenta.plugins.events.CustomEffectApplyEvent;
+import com.playmonumenta.plugins.events.DoubleJumpEvent;
 import com.playmonumenta.plugins.events.EffectTypeApplyFromPotionEvent;
 import com.playmonumenta.plugins.events.EntityGainAbsorptionEvent;
 import com.playmonumenta.plugins.events.HemorrhageEvent;
@@ -1563,6 +1564,12 @@ public class PlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
 	public void playerToggleFlightEvent(PlayerToggleFlightEvent event) {
 		mPlugin.mAbilityManager.playerToggleFlightEvent(event.getPlayer(), event);
+		mPlugin.mDoubleJumpManager.playerToggleFlightEvent(event.getPlayer(), event);
+	}
+
+	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+	public void doubleJumpEvent(DoubleJumpEvent event) {
+		mPlugin.mAbilityManager.doubleJumpEvent(event.getPlayer(), event);
 	}
 
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)

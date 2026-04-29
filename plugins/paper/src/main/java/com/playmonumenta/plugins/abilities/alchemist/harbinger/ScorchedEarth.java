@@ -288,6 +288,7 @@ public class ScorchedEarth extends Ability implements PotionAbility, AbilityWith
 		if (mWasOnCooldown && !isOnCooldown()) {
 			mCharges = mMaxCharges;
 			showOffCooldownMessage();
+			offCooldownTrigger();
 			ClientModHandler.updateAbility(mPlayer, this);
 			AbilityManager.getManager().trackCharges(mPlayer, ClassAbility.SCORCHED_EARTH, mCharges);
 		}

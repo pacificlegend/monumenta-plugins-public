@@ -232,6 +232,7 @@ public class IronTincture extends Ability implements AbilityWithChargesOrStacks 
 						if (mMaxCharges > 1) {
 							showChargesMessage();
 						} else {
+							offCooldownTrigger();
 							showOffCooldownMessage();
 						}
 						ClientModHandler.updateAbility(mPlayer, IronTincture.this);
@@ -254,6 +255,7 @@ public class IronTincture extends Ability implements AbilityWithChargesOrStacks 
 		if (mWasOnCooldown && !isOnCooldown()) {
 			mCharges = mMaxCharges;
 			showOffCooldownMessage();
+			offCooldownTrigger();
 			ClientModHandler.updateAbility(mPlayer, this);
 			AbilityManager.getManager().trackCharges(mPlayer, ClassAbility.IRON_TINCTURE, mCharges);
 		}

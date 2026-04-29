@@ -231,6 +231,7 @@ public class LuminousInfusion extends Ability implements AbilityWithChargesOrSta
 			mCosmetic.gainMaxCharge(mPlayer, loc);
 
 			showOffCooldownMessage();
+			offCooldownTrigger();
 			ClientModHandler.updateAbility(mPlayer, this);
 		}
 

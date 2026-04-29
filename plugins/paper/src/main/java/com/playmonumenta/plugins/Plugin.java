@@ -70,6 +70,7 @@ import com.playmonumenta.plugins.itemupdater.ItemUpdateManager;
 import com.playmonumenta.plugins.listeners.*;
 import com.playmonumenta.plugins.mail.MailMan;
 import com.playmonumenta.plugins.managers.DataCollectionManager;
+import com.playmonumenta.plugins.managers.DoubleJumpManager;
 import com.playmonumenta.plugins.managers.LoadoutManager;
 import com.playmonumenta.plugins.managers.LootboxManager;
 import com.playmonumenta.plugins.managers.PlayerSkinManager;
@@ -208,6 +209,7 @@ public class Plugin extends JavaPlugin {
 	public CosmeticsManager mCosmeticsManager;
 	public VanityManager mVanityManager;
 	public LoadoutManager mLoadoutManager;
+	public DoubleJumpManager mDoubleJumpManager;
 	public PlaylistManager mPlaylistManager;
 	public DataCollectionManager mDataCollectionManager;
 	public PzeroManager mPzeroManager;
@@ -466,6 +468,7 @@ public class Plugin extends JavaPlugin {
 		mActivityManager = new ActivityManager(this);
 		mVanityManager = new VanityManager();
 		mLoadoutManager = new LoadoutManager();
+		mDoubleJumpManager = new DoubleJumpManager();
 		mPlaylistManager = new PlaylistManager();
 		mDataCollectionManager = new DataCollectionManager();
 		mPzeroManager = new PzeroManager();

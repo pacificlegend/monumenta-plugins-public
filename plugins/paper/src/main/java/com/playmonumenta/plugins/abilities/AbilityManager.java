@@ -151,6 +151,7 @@ import com.playmonumenta.plugins.effects.Stasis;
 import com.playmonumenta.plugins.events.AbilityCastEvent;
 import com.playmonumenta.plugins.events.CustomEffectApplyEvent;
 import com.playmonumenta.plugins.events.DamageEvent;
+import com.playmonumenta.plugins.events.DoubleJumpEvent;
 import com.playmonumenta.plugins.events.EffectTypeApplyFromPotionEvent;
 import com.playmonumenta.plugins.events.EntityGainAbsorptionEvent;
 import com.playmonumenta.plugins.events.PotionEffectApplyEvent;
@@ -771,6 +772,14 @@ public class AbilityManager {
 		conditionalCast(player, (ability) -> ability.periodicTriggerFinal(twoHertz, oneSecond, ticks));
 	}
 
+	public void offCooldownTrigger(Player player, ClassAbility spell) {
+		conditionalCast(player, (ability) -> {
+			if (spell.getName().equals(ability.getLinkedSpellName())) {
+				ability.offCooldownTrigger();
+			}
+		});
+	}
+
 	public void entityTargetLivingEntityEvent(Player player, EntityTargetLivingEntityEvent event) {
 		conditionalCast(player, (ability) -> ability.entityTargetLivingEntityEvent(event));
 	}
@@ -821,6 +830,10 @@ public class AbilityManager {
 
 	public void playerToggleFlightEvent(Player player, PlayerToggleFlightEvent event) {
 		conditionalCast(player, ability -> ability.playerToggleFlightEvent(event));
+	}
+
+	public void doubleJumpEvent(Player player, DoubleJumpEvent event) {
+		conditionalCast(player, ability -> ability.doubleJumpEvent(event));
 	}
 
 	public void playerItemHeldEvent(Player player, PlayerItemHeldEvent event) {

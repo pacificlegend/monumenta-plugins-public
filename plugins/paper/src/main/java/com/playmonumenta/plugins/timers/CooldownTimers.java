@@ -176,6 +176,7 @@ public class CooldownTimers {
 					abilityIter.remove();
 					if (ability != null) {
 						showOffCooldownMessage(player, spell);
+						mPlugin.mAbilityManager.offCooldownTrigger(player, spell);
 					}
 				}
 

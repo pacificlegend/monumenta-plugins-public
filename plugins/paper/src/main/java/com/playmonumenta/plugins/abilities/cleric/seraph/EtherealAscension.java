@@ -15,6 +15,7 @@ import com.playmonumenta.plugins.effects.PercentDamageDealt;
 import com.playmonumenta.plugins.effects.PercentKnockbackResist;
 import com.playmonumenta.plugins.effects.PercentThrowRate;
 import com.playmonumenta.plugins.events.DamageEvent;
+import com.playmonumenta.plugins.events.DoubleJumpEvent;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.itemstats.enchantments.Chaotic;
@@ -28,6 +29,7 @@ import com.playmonumenta.plugins.itemstats.enchantments.ThrowingKnife;
 import com.playmonumenta.plugins.itemstats.enums.AttributeType;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.listeners.DamageListener;
+import com.playmonumenta.plugins.managers.DoubleJumpManager;
 import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.potion.PotionManager;
 import com.playmonumenta.plugins.utils.AbilityUtils;
@@ -43,7 +45,6 @@ import com.playmonumenta.plugins.utils.ZoneUtils;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -67,6 +68,7 @@ import static com.playmonumenta.plugins.utils.DescriptionUtils.WHITE;
 
 public class EtherealAscension extends Ability implements AbilityWithDuration {
 
+	private static final DoubleJumpManager.FlightSource FLIGHT_SOURCE = new DoubleJumpManager.FlightSource("EtherealAscension", 10);
 	private static final double ASCENSION_ORB_DAMAGE_FLAT = 4;
 	private static final double[] ASCENSION_ORB_DAMAGE_PERCENT = {0.85, 0.95};
 	private static final double ASCENSION_ORB_RADIUS = 2;
@@ -117,7 +119,8 @@ public class EtherealAscension extends Ability implements AbilityWithDuration {
 			.actionBarColor(ASCENDED_COLOR.color())
 			.simpleDescription("Take flight temporarily and convert your projectiles into magical orbs that damage mobs and buff players.")
 			.addTrigger(new AbilityTriggerInfo<>("cast", "cast", EtherealAscension::cast, new AbilityTrigger(AbilityTrigger.Key.SWAP)))
-			.addTrigger(new AbilityTriggerInfo<>("dash", "alternative dash trigger", EtherealAscension::dash, new AbilityTrigger(AbilityTrigger.Key.SWAP).sneaking(true).enabled(false)))
+			.addTrigger(new AbilityTriggerInfo<>("dash", "alternative dash trigger", EtherealAscension::castDash, new AbilityTrigger(AbilityTrigger.Key.SWAP).sneaking(true).enabled(false)))
+			.remove(p -> DoubleJumpManager.removeFlightSource(p, FLIGHT_SOURCE))
 			.cooldown(ASCENSION_COOLDOWN, CHARM_COOLDOWN)
 			.displayItem(Material.TOTEM_OF_UNDYING)
 			// Allow other abilities to modify or remove projectiles before shooting orb
@@ -170,23 +173,35 @@ public class EtherealAscension extends Ability implements AbilityWithDuration {
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new EtherealAscensionCS());
 	}
 
-	public boolean dash() {
+	public boolean castDash() {
 		if (mCurrentDuration <= 0 || Bukkit.getCurrentTick() - mLastDashTick < ASCENSION_DASH_COOLDOWN) {
 			return false;
 		}
+		dash(false);
+		return false;
+	}
+
+	@Override
+	public void doubleJumpEvent(DoubleJumpEvent event) {
+		if (event.getSource() != FLIGHT_SOURCE) {
+			return;
+		}
+		dash(true);
+	}
+
+	private void dash(boolean isDoubleJump) {
 		mLastDashTick = Bukkit.getCurrentTick();
-		mPlayer.setAllowFlight(false);
-		mPlayer.setFlying(false);
+		DoubleJumpManager.removeFlightSource(mPlayer, FLIGHT_SOURCE);
+
 		mCosmetic.dash(mPlayer, mPlayer.getWorld(), mPlayer.getLocation());
 		Vector dir = mPlayer.getLocation().getDirection();
-		dir.setY((Math.pow(dir.getY(), 5) + 0.3) / 1.3).multiply(mAscensionDashVelocity);
+		dir.setY((Math.pow(dir.getY(), isDoubleJump ? 3 : 5) + 0.3) / 1.3).multiply(mAscensionDashVelocity);
 		if (dir.getY() < 0) {
 			// Clear levitation briefly as it messes with the downward movement, we want it
 			// as consistent as possible
 			mPlugin.mPotionManager.clearPotionEffectType(mPlayer, PotionEffectType.LEVITATION);
 		}
 		mPlayer.setVelocity(dir);
-		return false;
 	}
 
 	public boolean cast() {
@@ -214,7 +229,6 @@ public class EtherealAscension extends Ability implements AbilityWithDuration {
 		mDurationExtension = 0;
 		mCurrentDuration = 1;
 		ClientModHandler.updateAbility(mPlayer, this);
-		mPlayer.setFlySpeed(0);
 		mLastDashTick = 0;
 		mAscendRunnable = new BukkitRunnable() {
 			@Override
@@ -249,21 +263,8 @@ public class EtherealAscension extends Ability implements AbilityWithDuration {
 					mPlugin.mEffectManager.addEffect(mPlayer, "EtherealAscensionThrowRate", new PercentThrowRate(10, mAscensionThrowRate).displaysTime(false));
 				}
 				if (Bukkit.getCurrentTick() - mLastDashTick >= ASCENSION_DASH_COOLDOWN) {
-					mPlayer.setAllowFlight(true);
-				}
-				if (mPlayer.isFlying()) {
-					mLastDashTick = Bukkit.getCurrentTick();
-					mPlayer.setAllowFlight(false);
-					mPlayer.setFlying(false);
-					mCosmetic.dash(mPlayer, mPlayer.getWorld(), mPlayer.getLocation());
-					Vector dir = mPlayer.getLocation().getDirection();
-					dir.setY((Math.pow(dir.getY(), 3) + 0.3) / 1.3).multiply(mAscensionDashVelocity);
-					if (dir.getY() < 0) {
-						// Clear levitation briefly as it messes with the downward movement, we want it
-						// as consistent as possible
-						mPlugin.mPotionManager.clearPotionEffectType(mPlayer, PotionEffectType.LEVITATION);
-					}
-					mPlayer.setVelocity(dir);
+					DoubleJumpManager.addFlightSource(mPlayer, FLIGHT_SOURCE);
+					mPlayer.setFlySpeed(0);
 				}
 				if (mCurrentDuration >= 0) {
 					mCosmetic.tickEffect(mPlayer, mPlayer.getLocation(), mAscensionHoverHeight);
@@ -289,13 +290,7 @@ public class EtherealAscension extends Ability implements AbilityWithDuration {
 				mPlugin.mPotionManager.clearPotionEffectType(mPlayer, PotionEffectType.SLOW_FALLING);
 				mPlugin.mPotionManager.clearPotionEffectType(mPlayer, PotionEffectType.LEVITATION);
 				ClientModHandler.updateAbility(mPlayer, EtherealAscension.this);
-				if (mPlayer.getGameMode() == GameMode.SPECTATOR || mPlayer.getGameMode() == GameMode.CREATIVE) {
-					mPlayer.setAllowFlight(true);
-				} else {
-					mPlayer.setAllowFlight(false);
-					mPlayer.setFlying(false);
-				}
-				mPlayer.setFlySpeed(0.1f);
+				DoubleJumpManager.removeFlightSource(mPlayer, FLIGHT_SOURCE);
 			}
 		};
 		cancelOnDeath(mAscendRunnable.runTaskTimer(mPlugin, 0, 1));

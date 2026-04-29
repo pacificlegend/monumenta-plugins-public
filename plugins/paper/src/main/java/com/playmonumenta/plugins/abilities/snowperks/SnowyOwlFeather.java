@@ -7,7 +7,9 @@ import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.events.DamageEvent;
+import com.playmonumenta.plugins.events.DoubleJumpEvent;
 import com.playmonumenta.plugins.guis.SnowPerkGui;
+import com.playmonumenta.plugins.managers.DoubleJumpManager;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.AbilityUtils;
@@ -16,7 +18,6 @@ import com.playmonumenta.plugins.utils.NmsUtils;
 import com.playmonumenta.plugins.utils.ParticleUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -34,9 +35,12 @@ import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.St
 
 public class SnowyOwlFeather extends Ability {
 	private static final String SCOREBOARD = "SnowyOwlFeather";
+	public static final DoubleJumpManager.FlightSource FLIGHT_SOURCE = new DoubleJumpManager.FlightSource("SnowyOwlFeather", 20);
 	private static final int POINT_COST = 4;
 	private static final int COOLDOWN = 2 * 20;
 	private static final double JUMP_STRENGTH = 1f;
+
+	private boolean mOnGround = true;
 
 	public static final AbilityInfo<SnowyOwlFeather> INFO =
 		new SnowPerkGui.SnowPerkInfo<>(SnowyOwlFeather.class, "Snowy Owl Feather", SnowyOwlFeather::new)
@@ -47,6 +51,7 @@ public class SnowyOwlFeather extends Ability {
 			.description(getDescription())
 			.shorthandName("\uD83D\uDC26")
 			.actionBarColor(TextColor.color(0x74D2D2))
+			.remove(p -> DoubleJumpManager.removeFlightSource(p, FLIGHT_SOURCE))
 			.cooldown(COOLDOWN);
 
 	private final BukkitRunnable mDoubleJumpRunnable;
@@ -55,16 +60,9 @@ public class SnowyOwlFeather extends Ability {
 		super(plugin, player, INFO);
 
 		mDoubleJumpRunnable = new BukkitRunnable() {
-			boolean mOnGround = true;
 
 			@Override
 			public void run() {
-				if (mPlayer.getGameMode() == GameMode.CREATIVE || mPlayer.getGameMode() == GameMode.SPECTATOR) {
-					mPlayer.setAllowFlight(true);
-					mPlayer.setFlySpeed(0.1f);
-				} else {
-					mPlayer.setFlySpeed(0);
-				}
 				if (!mOnGround) {
 					new PartialParticle(Particle.SNOWFLAKE, mPlayer.getLocation(), 1)
 						.directionalMode(true).delta(0.2).deltaVariance(true).spawnAsPlayerPassive(mPlayer);
@@ -75,41 +73,42 @@ public class SnowyOwlFeather extends Ability {
 					ParticleUtils.drawParticleCircleExplosion(mPlayer, particleLoc, 0, 0.3, 0, 0, 12, 0.16f, true, 0, 0.25, Particle.SNOWFLAKE);
 					mOnGround = true;
 				}
-				if (!isOnCooldown() && mOnGround && !mPlayer.getAllowFlight()) {
+				if (!isOnCooldown() && mOnGround && !DoubleJumpManager.hasFlightSource(mPlayer, FLIGHT_SOURCE)) {
 					new PPCircle(Particle.CLOUD, LocationUtils.getEntityCenter(mPlayer), 0.5).count(6).spawnAsPlayerPassive(mPlayer);
-					mPlayer.setAllowFlight(true);
-				}
-				if (mPlayer.isFlying() && !AbilityUtils.isSilenced(mPlayer) && !(mPlayer.getGameMode() == GameMode.CREATIVE || mPlayer.getGameMode() == GameMode.SPECTATOR)) {
-					putOnCooldown(false);
-
-					mPlayer.setAllowFlight(false);
-					mPlayer.setFlying(false);
-
-					Vector dir = NmsUtils.getVersionAdapter().getActualDirection(mPlayer);
-					Vector velocity = dir.clone().setY(Math.max(0.35, Math.min(1.1, dir.getY() + 0.55))).multiply(JUMP_STRENGTH);
-					mPlayer.setVelocity(velocity);
-					mPlayer.setFallDistance(0);
-					mOnGround = false;
-
-					Location particleLoc = mPlayer.getLocation().setDirection(velocity);
-					ParticleUtils.drawParticleCircleExplosion(mPlayer, particleLoc, 0, 0.3, 0, -90, 30, 0.3f, true, 0, 0, Particle.SNOWFLAKE);
-					particleLoc.getWorld().playSound(particleLoc, Sound.ENTITY_ZOMBIE_INFECT, SoundCategory.PLAYERS, 1f, 1.2f);
+					DoubleJumpManager.addFlightSource(mPlayer, FLIGHT_SOURCE);
 				}
 			}
 
 			@Override
 			public synchronized void cancel() {
 				super.cancel();
-				if (mPlayer.getGameMode() == GameMode.CREATIVE || mPlayer.getGameMode() == GameMode.SPECTATOR) {
-					mPlayer.setAllowFlight(true);
-				} else {
-					mPlayer.setAllowFlight(false);
-					mPlayer.setFlying(false);
-				}
-				mPlayer.setFlySpeed(0.1f);
+				DoubleJumpManager.removeFlightSource(mPlayer, FLIGHT_SOURCE);
 			}
 		};
 		cancelOnDeath(mDoubleJumpRunnable.runTaskTimer(plugin, 0, 1));
+	}
+
+	@Override
+	public void doubleJumpEvent(DoubleJumpEvent event) {
+		if (event.getSource() != FLIGHT_SOURCE || !canCast()) {
+			return;
+		}
+		DoubleJumpManager.removeFlightSource(mPlayer, FLIGHT_SOURCE);
+		cast();
+	}
+
+	private void cast() {
+		putOnCooldown(false);
+
+		Vector dir = NmsUtils.getVersionAdapter().getActualDirection(mPlayer);
+		Vector velocity = dir.clone().setY(Math.max(0.35, Math.min(1.1, dir.getY() + 0.55))).multiply(JUMP_STRENGTH);
+		mPlayer.setVelocity(velocity);
+		mPlayer.setFallDistance(0);
+		mOnGround = false;
+
+		Location particleLoc = mPlayer.getLocation().setDirection(velocity);
+		ParticleUtils.drawParticleCircleExplosion(mPlayer, particleLoc, 0, 0.3, 0, -90, 30, 0.3f, true, 0, 0, Particle.SNOWFLAKE);
+		particleLoc.getWorld().playSound(particleLoc, Sound.ENTITY_ZOMBIE_INFECT, SoundCategory.PLAYERS, 1f, 1.2f);
 	}
 
 	@Override
@@ -119,16 +118,21 @@ public class SnowyOwlFeather extends Ability {
 		}
 	}
 
+	private boolean canCast() {
+		return !isOnCooldown() && !AbilityUtils.isSilenced(mPlayer);
+	}
+
 	@Override
 	public void invalidate() {
 		if (mDoubleJumpRunnable != null) {
 			mDoubleJumpRunnable.cancel();
 		}
+		DoubleJumpManager.removeFlightSource(mPlayer, FLIGHT_SOURCE);
 	}
 
 	@Override
 	public void playerQuitEvent(PlayerQuitEvent event) {
-		event.getPlayer().setFlySpeed(0.1f);
+		DoubleJumpManager.removeFlightSource(mPlayer, FLIGHT_SOURCE);
 	}
 
 	@Override

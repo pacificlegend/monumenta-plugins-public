@@ -7,6 +7,7 @@ import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.events.AbilityCastEvent;
 import com.playmonumenta.plugins.events.CustomEffectApplyEvent;
 import com.playmonumenta.plugins.events.DamageEvent;
+import com.playmonumenta.plugins.events.DoubleJumpEvent;
 import com.playmonumenta.plugins.events.EffectTypeApplyFromPotionEvent;
 import com.playmonumenta.plugins.events.EntityGainAbsorptionEvent;
 import com.playmonumenta.plugins.events.PotionEffectApplyEvent;
@@ -320,6 +321,10 @@ public abstract class Ability {
 
 	}
 
+	public void doubleJumpEvent(DoubleJumpEvent event) {
+
+	}
+
 	public void playerItemHeldEvent(PlayerItemHeldEvent event) {
 
 	}
@@ -351,6 +356,11 @@ public abstract class Ability {
 
 	// Every 5 ticks - 4 times a second.
 	public void periodicTrigger(boolean twoHertz, boolean oneSecond, int ticks) {
+
+	}
+
+	// Whenever the ability goes off cooldown
+	public void offCooldownTrigger() {
 
 	}
 

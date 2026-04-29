@@ -12,7 +12,9 @@ import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.scout.SwiftnessCS;
 import com.playmonumenta.plugins.events.DamageEvent;
+import com.playmonumenta.plugins.events.DoubleJumpEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
+import com.playmonumenta.plugins.managers.DoubleJumpManager;
 import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.potion.PotionManager.PotionID;
 import com.playmonumenta.plugins.utils.AbilityUtils;
@@ -22,14 +24,12 @@ import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils.ZoneProperty;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -40,13 +40,12 @@ import org.jetbrains.annotations.Nullable;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.cooldown;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.stat;
 import static com.playmonumenta.plugins.utils.DescriptionUtils.UNDERLINED;
-import static net.kyori.adventure.util.TriState.FALSE;
-import static net.kyori.adventure.util.TriState.TRUE;
 
 public class Swiftness extends Ability {
 	private static final double SPEED_BONUS = 0.1;
 	private static final int JUMP_BOOST_POTENCY = 2; // Jump Boost 3, effect potency is 0 indexed
 	private static final String NO_JUMP_BOOST_TAG = "SwiftnessJumpBoostDisable";
+	private static final DoubleJumpManager.FlightSource FLIGHT_SOURCE = new DoubleJumpManager.FlightSource("SwiftnessDoubleJump", 10);
 	private static final String NO_DEFAULT_TRIGGER_TAG = "SwiftnessDefaultTriggerDisable";
 	private static final int COOLDOWN = 60;
 	private static final int MAX_JUMP = 3;
@@ -85,7 +84,7 @@ public class Swiftness extends Ability {
 			.addTrigger(new AbilityTriggerInfo<>("jump", "alternative jump trigger", null,
 				Swiftness::cast, new AbilityTrigger(AbilityTrigger.Key.DROP).enabled(false).sneaking(true)
 				.lookDirections(AbilityTrigger.LookDirection.LEVEL), null))
-			.remove(Swiftness::removeFlying)
+			.remove(p -> DoubleJumpManager.removeFlightSource(p, FLIGHT_SOURCE))
 			.displayItem(Material.RABBIT_FOOT)
 			.ignoresSilence(true);
 
@@ -116,11 +115,7 @@ public class Swiftness extends Ability {
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(mPlayer, new SwiftnessCS());
 
 		if (!mDefaultTriggerDisabled) {
-			mPlayer.setAllowFlight(true);
-			if (!canToggleFlight(mPlayer)) {
-				mPlayer.setFlyingFallDamage(TRUE);
-				mPlayer.setFlySpeed(0f);
-			}
+			DoubleJumpManager.addFlightSource(mPlayer, FLIGHT_SOURCE);
 		}
 	}
 
@@ -129,27 +124,25 @@ public class Swiftness extends Ability {
 		if (mDashRunnable != null) {
 			mDashRunnable.cancel();
 		}
-
-		mPlayer.setFlySpeed(0.1f);
-		mPlayer.setFlyingFallDamage(FALSE);
+		DoubleJumpManager.removeFlightSource(mPlayer, FLIGHT_SOURCE);
 	}
 
 	@Override
-	public void playerToggleFlightEvent(PlayerToggleFlightEvent event) {
-		if (canToggleFlight(mPlayer)) {
-			mPlayer.setFlySpeed(0.1f);
+	public void doubleJumpEvent(DoubleJumpEvent event) {
+		if (event.getSource() != FLIGHT_SOURCE) {
+			return;
+		}
+		if (!canCast() || ZoneUtils.hasZoneProperty(mPlayer, ZoneProperty.NO_MOBILITY_ABILITIES)) {
 			return;
 		}
 
-		event.setCancelled(true);
-		mPlayer.setFlying(false);
+		mPlayer.setFlySpeed(0);
+		DoubleJumpManager.removeFlightSource(mPlayer, FLIGHT_SOURCE);
 		cast();
+
 	}
 
 	public boolean cast() {
-		if (!canCast() || ZoneUtils.hasZoneProperty(mPlayer, ZoneProperty.NO_MOBILITY_ABILITIES)) {
-			return false;
-		}
 		putOnCooldown();
 		mTotalJumps++;
 
@@ -220,26 +213,27 @@ public class Swiftness extends Ability {
 	}
 
 	@Override
-	public void periodicTrigger(final boolean twoHertz, final boolean oneSecond, final int ticks) {
+	public void periodicTrigger(boolean twoHertz, boolean oneSecond, int ticks) {
 		if (mTotalJumps != 0 && PlayerUtils.isOnGround(mPlayer)) {
 			mTotalJumps = 0;
 		}
 
-		final boolean isInNoMobilityZone = ZoneUtils.hasZoneProperty(mPlayer, ZoneProperty.NO_MOBILITY_ABILITIES);
+		boolean isInNoMobilityZone = ZoneUtils.hasZoneProperty(mPlayer, ZoneProperty.NO_MOBILITY_ABILITIES);
 
 		if (canCast() && !isInNoMobilityZone && !mWasInNoMobilityZone && !mDefaultTriggerDisabled) {
-			setFlying(mPlayer);
+			DoubleJumpManager.addFlightSource(mPlayer, FLIGHT_SOURCE);
 		} else {
-			removeFlying(mPlayer);
+			DoubleJumpManager.removeFlightSource(mPlayer, FLIGHT_SOURCE);
 		}
 
-		mWasInNoMobilityZone = isInNoMobilityZone;
-
-		if (oneSecond && !mWasInNoMobilityZone && mJumpBoost) {
+		if (oneSecond && !isInNoMobilityZone && mJumpBoost) {
 			mPlugin.mPotionManager.addPotion(mPlayer, PotionID.ABILITY_SELF, new PotionEffect(PotionEffectType.JUMP, 21,
 				mJumpBoostLevel, true, false));
 		}
+
+		mWasInNoMobilityZone = isInNoMobilityZone;
 	}
+
 
 	@Override
 	public void onHurt(DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
@@ -248,16 +242,6 @@ public class Swiftness extends Ability {
 			event.setCancelled(true);
 
 			mPlayer.playSound(mPlayer, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.PLAYERS, 1f, 1.3f);
-			return;
-		}
-
-		// setFlyingFallDamage does not play audio when taking damage via fall
-		if (event.getType() == DamageEvent.DamageType.FALL) {
-			if (mPlayer.getFallDistance() > 7) {
-				mPlayer.getWorld().playSound(mPlayer.getLocation(), Sound.ENTITY_PLAYER_BIG_FALL, 1f, 1f);
-			} else {
-				mPlayer.getWorld().playSound(mPlayer.getLocation(), Sound.ENTITY_PLAYER_SMALL_FALL, 1f, 1f);
-			}
 		}
 	}
 
@@ -293,28 +277,14 @@ public class Swiftness extends Ability {
 			mDefaultTriggerDisabled = false;
 			mPlayer.removeScoreboardTag(NO_DEFAULT_TRIGGER_TAG);
 			MessagingUtils.sendActionBarMessage(mPlayer, "Swiftness default trigger enabled");
-			setFlying(mPlayer);
+			DoubleJumpManager.addFlightSource(mPlayer, FLIGHT_SOURCE);
 		} else {
 			mDefaultTriggerDisabled = true;
 			mPlayer.addScoreboardTag(NO_DEFAULT_TRIGGER_TAG);
 			MessagingUtils.sendActionBarMessage(mPlayer, "Swiftness default trigger disabled");
-			removeFlying(mPlayer);
+			DoubleJumpManager.removeFlightSource(mPlayer, FLIGHT_SOURCE);
 		}
 		return true;
-	}
-
-	private static void setFlying(final Player player) {
-		player.setAllowFlight(true);
-	}
-
-	private static void removeFlying(final Player player) {
-		if (!canToggleFlight(player)) {
-			player.setAllowFlight(false);
-		}
-	}
-
-	private static boolean canToggleFlight(Player player) {
-		return player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR;
 	}
 
 	public double getFleetfootedBonus() {

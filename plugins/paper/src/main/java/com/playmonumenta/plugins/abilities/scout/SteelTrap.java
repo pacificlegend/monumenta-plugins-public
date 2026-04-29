@@ -414,6 +414,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 		if (mWasOnCooldown && !isOnCooldown()) {
 			mCharges = mMaxCharges;
 			AbilityManager.getManager().trackCharges(mPlayer, ClassAbility.STEEL_TRAP, mCharges);
+			offCooldownTrigger();
 
 			showOffCooldownMessage();
 			ClientModHandler.updateAbility(mPlayer, this);

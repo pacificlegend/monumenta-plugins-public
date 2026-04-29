@@ -51,7 +51,6 @@ import com.playmonumenta.plugins.bosses.bosses.lich.LichShieldBoss;
 import com.playmonumenta.plugins.bosses.bosses.lich.LichStrifeBoss;
 import com.playmonumenta.plugins.bosses.bosses.lich.LichWarlockBoss;
 import com.playmonumenta.plugins.bosses.bosses.lich.LichWarriorBoss;
-import com.playmonumenta.plugins.bosses.bosses.sirius.CopyBlightArena;
 import com.playmonumenta.plugins.bosses.bosses.sirius.Sirius;
 import com.playmonumenta.plugins.bosses.bosses.sirius.SiriusGhostBoss;
 import com.playmonumenta.plugins.bosses.bosses.sirius.SiriusJumpBoss;
@@ -393,7 +392,6 @@ public class BossManager implements Listener {
 		registerStatelessBoss(FlamingHavocBoss.identityTag, FlamingHavocBoss::new);
 		registerStatelessBoss(FacingBoss.identityTag, FacingBoss::new, new FacingBoss.Parameters());
 		registerStatelessBoss(SpawnerMimicBoss.identityTag, SpawnerMimicBoss::new, new SpawnerMimicBoss.Parameters());
-		registerStatelessBoss(CopyBlightArena.identityTag, CopyBlightArena::new);
 		registerStatelessBoss(SiriusGhostBoss.identityTag, SiriusGhostBoss::new);
 		registerStatelessBoss(SiriusJumpBoss.identityTag, SiriusJumpBoss::new);
 		registerStatelessBoss(SiriusMeleeBoss.identityTag, SiriusMeleeBoss::new);

@@ -263,6 +263,7 @@ public class Plugin extends JavaPlugin {
 		CompareScoresCommand.register();
 		ConfirmationGUICommand.register();
 		CooldownsCommand.register(this);
+		CopyBlightArenaCommand.register();
 		CoreProtectLogCommand.register();
 		CosmeticsCommand.register(this);
 		CustomEffect.register();

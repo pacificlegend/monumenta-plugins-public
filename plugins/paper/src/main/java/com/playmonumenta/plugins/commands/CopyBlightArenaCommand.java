@@ -1,30 +1,28 @@
-package com.playmonumenta.plugins.bosses.bosses.sirius;
+package com.playmonumenta.plugins.commands;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.playmonumenta.plugins.Plugin;
-import com.playmonumenta.plugins.bosses.bosses.BossAbilityGroup;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.plugins.utils.FileUtils;
 import com.playmonumenta.plugins.utils.MMLog;
-import com.playmonumenta.plugins.utils.PlayerUtils;
+import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.CommandPermission;
+import dev.jorel.commandapi.arguments.Argument;
+import dev.jorel.commandapi.arguments.LocationArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
+import org.bukkit.command.CommandSender;
 
-public class CopyBlightArena extends BossAbilityGroup {
-	public static final String identityTag = "boss_copysiriusarena";
-	private @Nullable Location mCornerOne;
-	private @Nullable Location mCornerTwo;
+public class CopyBlightArenaCommand {
+	static final String COMMAND = "siriuscopyarena";
 	private static final EnumSet<Material> IGNORED_MATS = EnumSet.of(
 		Material.COMMAND_BLOCK,
 		Material.CHAIN_COMMAND_BLOCK,
@@ -32,25 +30,33 @@ public class CopyBlightArena extends BossAbilityGroup {
 		Material.BEDROCK
 	);
 
+	public static void register() {
+		CommandPermission perms = CommandPermission.fromString("monumenta.siriuscopyarena");
 
-	public CopyBlightArena(Plugin plugin, LivingEntity boss) {
-		super(plugin, identityTag, boss);
-		mCornerOne = null;
-		mCornerTwo = null;
+		List<Argument<?>> arguments = new ArrayList<>();
+		arguments.add(new LocationArgument("middle"));
+		new CommandAPICommand(COMMAND)
+			.withPermission(perms)
+			.withArguments(arguments)
+			.executes(CopyBlightArenaCommand::execute)
+			.register();
+	}
+
+	private static void execute(CommandSender sender, CommandArguments args) {
 		//stops build sharders swapping the arena and makes sure it only works on build.
 		//could remove shard check but want to be safe
 		if (!Plugin.IS_PLAY_SERVER && !ServerProperties.getShardName().equals("build")) {
-			mCornerOne = mBoss.getLocation().add(43, 49, 58);
-			mCornerTwo = mBoss.getLocation().subtract(75, 7, 60);
+			MMLog.debug("Copying Arena");
+			Location middle = args.getUnchecked("middle");
+			Location mCornerOne = middle.clone().add(43, 49, 58);
+			Location mCornerTwo = middle.clone().subtract(75, 7, 60);
 			Map<String, List<BlockData>> mStates = new HashMap<>();
 			for (double x = mCornerTwo.getX(); x < mCornerOne.getX(); x++) {
 				for (double z = mCornerTwo.getZ(); z < mCornerOne.getZ(); z++) {
 					List<BlockData> blockData = new ArrayList<>();
 					for (double y = mCornerTwo.getY(); y < mCornerOne.getY(); y++) {
-						Location loc = new Location(mBoss.getWorld(), x, y, z);
-						if (loc.getBlock().getType().equals(Material.ORANGE_WOOL)) {
-							blockData.add(Bukkit.createBlockData(Material.AIR));
-						} else if (!IGNORED_MATS.contains(loc.getBlock().getType())) {
+						Location loc = new Location(middle.getWorld(), x, y, z);
+						if (!IGNORED_MATS.contains(loc.getBlock().getType())) {
 							blockData.add(loc.getBlock().getBlockData());
 						}
 					}
@@ -77,15 +83,13 @@ public class CopyBlightArena extends BossAbilityGroup {
 				}
 			}
 			try {
-				FileUtils.writeJson(mPlugin.getDataFolder() + "/SiriusBlightArena.json", blight);
+				MMLog.debug("Wrote arena JSON");
+				FileUtils.writeJson(Plugin.getInstance().getDataFolder() + "/SiriusBlightArena.json", blight);
 			} catch (Exception e) {
 				MMLog.severe("Failed to write Sirius blight arena JSON", e);
 			}
 		} else {
-			for (Player p : PlayerUtils.playersInRange(boss.getLocation(), 10, true, true)) {
-				p.sendMessage("You do not have permission to use this bosstag");
-			}
+			sender.sendMessage("You do not have permission to use this bosstag");
 		}
 	}
-
 }

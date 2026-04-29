@@ -246,4 +246,9 @@ public class VersionAdapter_unsupported implements VersionAdapter {
 	@Override
 	public void setSelectionHint(InventoryView view, int index) {
 	}
+
+	@Override
+	public float getEntityHeadRotation(Entity entity) {
+		return 0.0f;
+	}
 }

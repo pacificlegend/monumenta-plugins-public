@@ -445,6 +445,7 @@ public class BossManager implements Listener {
 		registerStatelessBoss(NoSlownessArrowsBoss.identityTag, NoSlownessArrowsBoss::new);
 		registerStatelessBoss(PartingShotDummyBoss.identityTag, PartingShotDummyBoss::new);
 		registerStatelessBoss(HuntingCompanionBoss.identityTag, HuntingCompanionBoss::new);
+		registerStatelessBoss(FakePlayerBoss.identityTag, FakePlayerBoss::new, new FakePlayerBoss.Parameters());
 		registerStatelessBoss(ZoneBoss.identityTag, ZoneBoss::new, new ZoneBoss.Parameters());
 		registerStatelessBoss(SwingHandBoss.identityTag, SwingHandBoss::new, new SwingHandBoss.Parameters());
 		registerStatelessBoss(SurgeBoss.identityTag, SurgeBoss::new, new SurgeBoss.Parameters());

@@ -150,6 +150,18 @@ public class GlowingManager {
 		}
 	}
 
+	public static boolean isCustomGlowingForPlayer(Entity entity, Player player) {
+		GlowingEntityData glowingData = getEntityData(entity);
+		if (glowingData == null) {
+			return false;
+		}
+		GlowingInstance activeInstance = glowingData.getActiveInstance(player);
+		if (activeInstance == null) {
+			return false;
+		}
+		return activeInstance.mGlowing;
+	}
+
 	public static boolean isGlowingForPlayer(Entity entity, Player player) {
 		GlowingEntityData glowingData = getEntityData(entity);
 		if (glowingData == null) {

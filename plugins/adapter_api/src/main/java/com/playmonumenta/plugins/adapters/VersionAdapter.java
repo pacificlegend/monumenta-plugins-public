@@ -219,4 +219,6 @@ public interface VersionAdapter {
 	void setNotOnGround(Entity entity);
 
 	void setSelectionHint(InventoryView view, int index);
+
+	float getEntityHeadRotation(Entity entity);
 }

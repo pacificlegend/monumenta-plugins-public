@@ -1082,4 +1082,9 @@ public class VersionAdapter_v1_20_R3 implements VersionAdapter {
 			merchantMenu.setSelectionHint(index);
 		}
 	}
+
+	@Override
+	public float getEntityHeadRotation(Entity entity) {
+		return ((CraftEntity) entity).getHandle().getYRot();
+	}
 }

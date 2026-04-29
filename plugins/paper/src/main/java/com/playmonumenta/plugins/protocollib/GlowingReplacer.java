@@ -14,6 +14,7 @@ import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.bosses.bosses.FakePlayerBoss;
 import com.playmonumenta.plugins.commands.GlowingCommand;
 import com.playmonumenta.plugins.managers.GlowingManager;
 import com.playmonumenta.plugins.utils.MMLog;
@@ -103,6 +104,9 @@ public class GlowingReplacer extends PacketAdapter implements Listener {
 
 			// On vanilla team updates, remove any entities with virtual glowing colors from the packet
 			PacketPlayOutScoreboardTeamHandle handle = PacketPlayOutScoreboardTeamHandle.createHandle(packet.getHandle());
+			if (handle.getName().startsWith("_glowing_color")) {
+				return;
+			}
 			List<String> toRemove = new ArrayList<>();
 			for (String entry : handle.getPlayers()) {
 				if (GlowingManager.getTeamForPlayer(entry, player) != null) {
@@ -123,7 +127,8 @@ public class GlowingReplacer extends PacketAdapter implements Listener {
 	}
 
 	public static void sendTeamUpdate(Entity entity, Player player, @Nullable String oldTeam, @Nullable NamedTextColor newTeam) {
-		Team realTeam = Bukkit.getScoreboardManager().getMainScoreboard().getEntityTeam(entity);
+		@Nullable
+		Team realTeam = ScoreboardUtils.getEntityTeam(entity);
 
 		if (oldTeam != null || realTeam != null) {
 			// remove from old team first
@@ -135,13 +140,13 @@ public class GlowingReplacer extends PacketAdapter implements Listener {
 		}
 
 		if (newTeam != null || realTeam != null) {
-			String newTeamName = newTeam != null ? getColoredGlowingTeamName(newTeam, entity) : realTeam.getName();
+			String newTeamName = realTeam == null ? getColoredGlowingTeamName(newTeam, entity) : realTeam.getName();
 			if (newTeam != null && SENT_TEAMS.computeIfAbsent(player.getUniqueId(), k -> new HashSet<>()).add(newTeamName)) {
 				// new team not yet sent to player, so send the creation packet
 				PacketPlayOutScoreboardTeamHandle handle = PacketPlayOutScoreboardTeamHandle.createNew();
 				handle.setName(newTeamName);
 				handle.setMethod(PacketPlayOutScoreboardTeamHandle.METHOD_ADD);
-				handle.setVisibility(entity instanceof Player ? "never" : "always");
+				handle.setVisibility(entity instanceof Player || FakePlayerBoss.is(entity) ? "never" : "always");
 				handle.setCollisionRule(isUnpushable(entity) ? "never" : "always");
 				handle.setColor(namedTextColorToChatColor(newTeam));
 				handle.setDisplayName(ChatText.fromMessage(newTeam.toString()));
@@ -181,13 +186,13 @@ public class GlowingReplacer extends PacketAdapter implements Listener {
 		SENT_TEAMS.remove(e.getPlayer().getUniqueId());
 	}
 
-	private static boolean isUnpushable(Entity entity) {
+	public static boolean isUnpushable(Entity entity) {
 		Team team = ScoreboardUtils.getEntityTeam(entity);
 		return team != null && team.getOption(Team.Option.COLLISION_RULE) == Team.OptionStatus.NEVER;
 	}
 
 	public static String getColoredGlowingTeamName(NamedTextColor color, Entity entity) {
-		return getColoredGlowingTeamName(color, entity instanceof Player, isUnpushable(entity));
+		return getColoredGlowingTeamName(color, entity instanceof Player || FakePlayerBoss.is(entity), isUnpushable(entity));
 	}
 
 	public static String getColoredGlowingTeamName(NamedTextColor color, boolean forPlayers, boolean unpushable) {

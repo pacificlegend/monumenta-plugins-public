@@ -37,7 +37,7 @@ public class ProtocolLibIntegration {
 		syncManager.addPacketListener(new FishingParticleListener(plugin));
 		syncManager.addPacketListener(new NBTBanFix(plugin));
 		syncManager.addPacketListener(new PingListener(plugin));
-		// syncManager.addPacketListener(new CursedListener(plugin));
+		syncManager.addPacketListener(new CursedListener(plugin));
 
 		/*
 		TODO: figure out why this broke

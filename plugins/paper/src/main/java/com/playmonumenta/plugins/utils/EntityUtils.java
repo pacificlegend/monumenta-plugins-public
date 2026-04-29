@@ -6,6 +6,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.scout.PartingShot;
 import com.playmonumenta.plugins.bosses.BossManager;
 import com.playmonumenta.plugins.bosses.bosses.CrowdControlImmunityBoss;
+import com.playmonumenta.plugins.bosses.bosses.FakePlayerBoss;
 import com.playmonumenta.plugins.bosses.bosses.GenericTargetBoss;
 import com.playmonumenta.plugins.bosses.bosses.HostileBoss;
 import com.playmonumenta.plugins.bosses.bosses.ImmortalMountBoss;
@@ -337,16 +338,28 @@ public class EntityUtils {
 
 	// Affected by Smite
 	public static boolean isUndead(Entity mob) {
+		// Fake Players are "human-like"
+		if (FakePlayerBoss.is(mob)) {
+			return false;
+		}
 		return UNDEAD_MOBS.contains(mob.getType());
 	}
 
 	// Affected by Slayer
 	public static boolean isBeast(Entity mob) {
+		// Fake Players are "human-like"
+		if (FakePlayerBoss.is(mob)) {
+			return false;
+		}
 		return BEAST_MOBS.contains(mob.getType());
 	}
 
 	// Affected by Duelist
 	public static boolean isHumanlike(Entity mob) {
+		// Fake Players are "human-like"
+		if (FakePlayerBoss.is(mob)) {
+			return true;
+		}
 		return HUMANLIKE_MOBS.contains(mob.getType());
 	}
 

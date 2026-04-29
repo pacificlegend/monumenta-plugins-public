@@ -442,6 +442,7 @@ public class Plugin extends JavaPlugin {
 		MMLog.info("Setting $IsPlay const = " + (IS_PLAY_SERVER ? 1 : 0) + " (" + (IS_PLAY_SERVER ? "play" : "build") + " server)");
 
 		PluginManager manager = getServer().getPluginManager();
+		PlayerSkinManager playerSkinManager = new PlayerSkinManager();
 
 		if (mHttpManager != null) {
 			mHttpManager.start();
@@ -626,6 +627,7 @@ public class Plugin extends JavaPlugin {
 		manager.registerEvents(new GuiListener(), this);
 		manager.registerEvents(mHuntsManager, this);
 		PlayerTitleManager.getInstance().onEnable(this, manager);
+		manager.registerEvents(playerSkinManager, this);
 
 		if (ServerProperties.getDepthsEnabled()) {
 			manager.registerEvents(new DepthsListener(), this);
@@ -789,7 +791,7 @@ public class Plugin extends JavaPlugin {
 		// Hook into ProtocolLib if present
 		if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
 			// load skins before this
-			new PlayerSkinManager();
+			// new PlayerSkinManager();
 			mProtocolLibIntegration = new ProtocolLibIntegration(this);
 			if (Bukkit.getPluginManager().isPluginEnabled("PrometheusExporter")) {
 				PacketMonitoringCommand.register(this);

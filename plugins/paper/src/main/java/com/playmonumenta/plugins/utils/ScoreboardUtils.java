@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.utils;
 
+import com.playmonumenta.plugins.bosses.bosses.FakePlayerBoss;
 import java.util.HashSet;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -45,6 +46,8 @@ public class ScoreboardUtils {
 	public static String getScoreHolderName(Entity entity) {
 		if (entity instanceof Player) {
 			return entity.getName();
+		} else if (FakePlayerBoss.is(entity)) {
+			return FakePlayerBoss.convertIdToFakeName(entity.getEntityId());
 		} else {
 			return entity.getUniqueId().toString();
 		}

@@ -33,6 +33,7 @@ import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.commands.BossTagCommand;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.integrations.LibraryOfSoulsIntegration;
+import com.playmonumenta.plugins.managers.PlayerSkinManager;
 import com.playmonumenta.plugins.utils.BossUtils;
 import com.playmonumenta.plugins.utils.MMLog;
 import dev.jorel.commandapi.Tooltip;
@@ -113,10 +114,11 @@ public class Parser {
 		.put(PotionEffectType.class, tokens -> parseRegistryKey(tokens, Registry.POTION_EFFECT_TYPE, "Effect Type"))
 		.put(Color.class, Parser::parseColor)
 		.put(String.class, Parser::parseString)
+		.put(PlayerSkinManager.SkinData.class, tokens -> parseAnyOf(tokens, PlayerSkinManager.textureMap.keySet(), "Skin Name").map(PlayerSkinManager.textureMap::get))
 		.put(LoSPool.class, Parser::parseLosPool)
-		.put(ParticlesList.class, tokens -> Result.of(new ParticlesList(parseList(tokens, t -> parseObject(t, ParticlesList.CParticle.class, false)).data)))
-		.put(SoundsList.class, tokens -> Result.of(new SoundsList(parseList(tokens, t -> parseObject(t, SoundsList.CSound.class, false)).data)))
-		.put(EffectsList.class, tokens -> Result.of(new EffectsList(parseList(tokens, t -> parsePredicatedObject(t, t1 -> {
+		.put(ParticlesList.class, tokens -> parseList(tokens, t -> parseObject(t, ParticlesList.CParticle.class, false)).map(ParticlesList::new))
+		.put(SoundsList.class, tokens -> parseList(tokens, t -> parseObject(t, SoundsList.CSound.class, false)).map(SoundsList::new))
+		.put(EffectsList.class, tokens -> parseList(tokens, t -> parsePredicatedObject(t, t1 -> {
 			String value = t1.peek().getValue();
 			if (EffectsList.Effect.EFFECT_RUNNER.containsKey(value)) {
 				return EffectsList.CustomEffect.class;
@@ -127,7 +129,7 @@ public class Parser {
 			}
 			throw new ParseError(String.format("Invalid Effect Type: %s", value), t1.getIndex() + 1, t1)
 				.suggests(EffectsList.Effect.EFFECT_IDENTIFIERS, "Effect Identifiers");
-		}, false)).data)))
+		}, false)).map(EffectsList::new))
 		.put(EntityTargets.class, tokens -> parseObject(tokens, EntityTargets.class, true))
 		.put(BossPhasesList.class, tokens -> Result.of(new BossPhasesList(parseList(tokens, t -> parseObject(t, Phase.class, false)).data)))
 		.build();

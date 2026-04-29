@@ -36,6 +36,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.ThrowableProjectile;
+import org.bukkit.entity.Trident;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -189,7 +190,9 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 						arrow.setPickupStatus(PickupStatus.CREATIVE_ONLY);
 
 						arrow.setCritical(projectile instanceof AbstractArrow projectileArrow && projectileArrow.isCritical());
-						arrow.setPierceLevel(piercing);
+						if (!(proj instanceof Trident)) {
+							arrow.setPierceLevel(piercing);
+						}
 					} else if (proj instanceof ThrowableProjectile throwable && projectile instanceof ThrowableProjectile oldThrowable) {
 						ItemUtils.setSnowballItem(throwable, oldThrowable.getItem());
 					}
@@ -266,7 +269,9 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 			if (proj instanceof AbstractArrow arrow) {
 				arrow.setPickupStatus(PickupStatus.CREATIVE_ONLY);
 				arrow.setCritical(projectile instanceof AbstractArrow projectileArrow && projectileArrow.isCritical());
-				arrow.setPierceLevel(piercing);
+				if (!(proj instanceof Trident)) {
+					arrow.setPierceLevel(piercing);
+				}
 			} else if (proj instanceof ThrowableProjectile throwable && projectile instanceof ThrowableProjectile oldThrowable) {
 				ItemUtils.setSnowballItem(throwable, oldThrowable.getItem());
 			}

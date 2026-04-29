@@ -216,4 +216,14 @@ public class VectorUtils {
 		return normalized;
 	}
 
+	public static Vector[] getAxesFromNormal(Vector normal) {
+		Vector horizontal = new Vector(0, 1, 0).crossProduct(normal);
+		if (horizontal.length() <= 0.000001) {
+			// normal is a vertical vector
+			horizontal = new Vector(normal.getY(), 0, 0);
+		}
+		horizontal = horizontal.normalize();
+		Vector vertical = normal.getCrossProduct(horizontal);
+		return new Vector[]{horizontal, vertical};
+	}
 }

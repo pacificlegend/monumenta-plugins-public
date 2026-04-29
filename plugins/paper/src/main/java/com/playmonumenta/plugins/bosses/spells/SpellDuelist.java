@@ -1,13 +1,18 @@
 package com.playmonumenta.plugins.bosses.spells;
 
+import com.playmonumenta.plugins.Plugin;
+import com.playmonumenta.plugins.effects.PercentSpeed;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
-import com.playmonumenta.plugins.particle.PartialParticle;
-import com.playmonumenta.plugins.utils.BossUtils;
+import com.playmonumenta.plugins.particle.PPCircle;
+import com.playmonumenta.plugins.particle.PPLine;
+import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.FastUtils;
+import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
-import java.util.Iterator;
+import com.playmonumenta.plugins.utils.VectorUtils;
 import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -17,15 +22,13 @@ import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 public class SpellDuelist extends Spell {
 
 	private static final Particle.DustOptions SWORD_COLOR = new Particle.DustOptions(Color.fromRGB(225, 225, 225), 1.5f);
-
+	private static final String SLOW_SOURCE = "DuelistSweepChargeup";
 	private static final int RANGE = 5;
 
 	private final Plugin mPlugin;
@@ -63,179 +66,86 @@ public class SpellDuelist extends Spell {
 		if (target == null) {
 			return;
 		}
+		Location center = LocationUtils.getHalfHeightLocation(mBoss);
+		Vector dir = center.getY() <= target.getLocation().getY() ?
+			LocationUtils.getDirectionTo(LocationUtils.getHalfHeightLocation(target), center) :
+			center.getDirection();
+		Vector[] axisVectors = VectorUtils.getAxesFromNormal(dir);
+		Vector[] axes;
+		Vector normal;
+		int telegraphDuration;
+		if (FastUtils.randomBoolean()) {
+			//high sweep
+			axes = new Vector[]{axisVectors[1], dir};
+			normal = axisVectors[0];
+			telegraphDuration = 15;
+		} else {
+			axes = new Vector[]{axisVectors[0], dir};
+			normal = axisVectors[1];
+			telegraphDuration = 25;
+		}
 
+		mPlugin.mEffectManager.addEffect(mBoss, SLOW_SOURCE, new PercentSpeed(telegraphDuration, -0.6, SLOW_SOURCE));
 		((Mob) mBoss).setTarget(target);
 
-		mWorld.playSound(loc, Sound.ITEM_TRIDENT_RETURN, SoundCategory.HOSTILE, 1f, 1.5f);
-		mWorld.playSound(loc, Sound.ENTITY_DROWNED_SHOOT, SoundCategory.HOSTILE, 1f, 1.7f);
+		mWorld.playSound(loc, Sound.ITEM_TRIDENT_RETURN, SoundCategory.HOSTILE, 1f, 22.5f / telegraphDuration);
+		mWorld.playSound(loc, Sound.ITEM_TRIDENT_THROW, SoundCategory.HOSTILE, 1f, 20f / telegraphDuration);
 		mWorld.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_NODAMAGE, SoundCategory.HOSTILE, 1f, 1.3f);
 		mWorld.playSound(loc, Sound.ITEM_AXE_SCRAPE, SoundCategory.HOSTILE, 1f, 1.4f);
-		int random = FastUtils.randomIntInRange(0, 2);
-		if (mBoss.getLocation().getY() > target.getLocation().getY()) {
-			random = FastUtils.randomIntInRange(0, 1);
-		} else if (mBoss.getLocation().getY() < target.getLocation().getY()) {
-			random = FastUtils.randomIntInRange(1, 2);
-		}
 
-		//high sweep
-		if (random == 0) {
-			Vector direction = mBoss.getLocation().getDirection().setY(0).normalize();
-			Vector sideways = new Vector(direction.getZ() / 2, 0, -direction.getX() / 2);
-			Location locParticle = mBoss.getLocation().add(0, 1.75, 0).subtract(sideways.clone().multiply(10));
-			for (int i = 0; i <= 20; i++) {
-				new PartialParticle(Particle.WAX_OFF, locParticle, 5, 0.2, 0.2, 0.2, 0).spawnAsEntityActive(mBoss);
-				new PartialParticle(Particle.REDSTONE, locParticle, 5, 0.2, 0.2, 0.2, 0, SWORD_COLOR).spawnAsEntityActive(mBoss);
-				locParticle.add(sideways);
+
+		new PPCircle(Particle.CRIT, center, RANGE)
+			.countPerMeter(10)
+			.ringMode(false)
+			.axes(axes[0], axes[1])
+			.arcDegree(0, 180)
+			.ticks(5)
+			.spawnAsBoss();
+
+		new PPLine(Particle.REDSTONE, center, axes[0], RANGE)
+			.countPerMeter(5)
+			.data(SWORD_COLOR)
+			.spawnAsBoss();
+
+		new PPLine(Particle.WAX_OFF, center, axes[0], RANGE)
+			.countPerMeter(4)
+			.delta(0.25)
+			.spawnAsBoss();
+
+		Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
+			Location newCenter = LocationUtils.getHalfHeightLocation(mBoss);
+			Vector newCenterVec = newCenter.toVector();
+
+			mWorld.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.HOSTILE, 0.8f, 1f);
+			mWorld.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.HOSTILE, 1.0f, 0.75f);
+			mWorld.playSound(loc, Sound.ITEM_TRIDENT_THROW, SoundCategory.HOSTILE, 0.8f, 0.8f);
+			mWorld.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, SoundCategory.HOSTILE, 1.0f, 0.6f);
+
+			new PPCircle(Particle.SWEEP_ATTACK, newCenter, RANGE)
+				.countPerMeter(5)
+				.ringMode(false)
+				.axes(axes[0], axes[1])
+				.arcDegree(0, 180)
+				.ticks(5)
+				.spawnAsBoss();
+
+			new PPCircle(Particle.CRIT_MAGIC, newCenter, RANGE)
+				.countPerMeter(5)
+				.ringMode(false)
+				.axes(axes[0], axes[1])
+				.arcDegree(0, 180)
+				.extra(0.4)
+				.ticks(5)
+				.spawnAsBoss();
+
+			Hitbox.ApproximateFreeformHitbox hitbox = new Hitbox.ApproximateFreeformHitbox(mWorld, BoundingBox.of(newCenter, RANGE, RANGE, RANGE), vec ->
+				Math.abs(vec.clone().subtract(newCenterVec).dot(normal)) <= 0.5 && vec.distanceSquared(newCenterVec) <= RANGE * RANGE
+			);
+			mBoss.swingMainHand();
+			for (Player player : hitbox.getHitPlayers(true)) {
+				DamageUtils.damage(mBoss, player, DamageType.MELEE, mDamage);
 			}
-
-			BukkitRunnable attack = new BukkitRunnable() {
-				final List<Player> mPlayers = PlayerUtils.playersInRange(mBoss.getLocation(), RANGE * 4, true);
-				int mTime = 0;
-
-				@Override
-				public void run() {
-					Vector forwards = mBoss.getLocation().getDirection().setY(0).normalize();
-					Vector sideways = new Vector(forwards.getZ(), 0, -forwards.getX());
-
-					Vector shift1 = new Vector(0, 0, 0).add(forwards.clone().multiply(Math.sin(Math.PI * mTime / 8))).add(sideways.clone().multiply(Math.cos(Math.PI * mTime / 8)));
-					Location loc1 = mBoss.getLocation().add(0, 2, 0);
-					Vector shift2 = new Vector(0, 0, 0).add(forwards.clone().multiply(Math.sin(Math.PI * mTime / 8))).add(sideways.clone().multiply(-Math.cos(Math.PI * mTime / 8)));
-					Location loc2 = mBoss.getLocation().add(0, 2, 0);
-					BoundingBox hitbox1 = new BoundingBox().shift(loc1).expand(1, 0.25, 1);
-					BoundingBox hitbox2 = new BoundingBox().shift(loc2).expand(1, 0.25, 1);
-					mWorld.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.HOSTILE, 0.3f, 1f);
-
-					for (int i = 0; i < RANGE; i++) {
-						loc1.add(shift1);
-						hitbox1.shift(shift1);
-						loc2.add(shift2);
-						hitbox2.shift(shift2);
-						new PartialParticle(Particle.SWEEP_ATTACK, loc1, 1, 0, 0, 0, 0).spawnAsEntityActive(mBoss);
-						new PartialParticle(Particle.SWEEP_ATTACK, loc2, 1, 0, 0, 0, 0).spawnAsEntityActive(mBoss);
-
-						Iterator<Player> iter = mPlayers.iterator();
-						while (iter.hasNext()) {
-							Player player = iter.next();
-							BoundingBox box = player.getBoundingBox();
-							if (box.overlaps(hitbox1) || box.overlaps(hitbox2)) {
-								BossUtils.blockableDamage(mBoss, player, DamageType.MELEE, mDamage);
-								iter.remove();
-							}
-						}
-					}
-
-					mTime++;
-					if (mTime >= 5) {
-						this.cancel();
-					}
-				}
-			};
-
-			attack.runTaskTimer(mPlugin, 15, 1);
-			mActiveRunnables.add(attack);
-			//vertical
-		} else if (random == 1) {
-			Vector direction = target.getLocation().subtract(mBoss.getLocation()).toVector().setY(0).normalize();
-			Location locParticle = mBoss.getEyeLocation();
-			for (int i = 0; i < 10; i++) {
-				new PartialParticle(Particle.WAX_OFF, locParticle, 5, 0.2, 0.2, 0.2, 0).spawnAsEntityActive(mBoss);
-				new PartialParticle(Particle.REDSTONE, locParticle, 5, 0.2, 0.2, 0.2, 0, SWORD_COLOR).spawnAsEntityActive(mBoss);
-				locParticle.add(0, 0.5, 0);
-			}
-
-			BukkitRunnable attack = new BukkitRunnable() {
-				final List<Player> mPlayers = PlayerUtils.playersInRange(mBoss.getLocation(), RANGE * 4, true);
-				int mTime = 0;
-				final Vector mDirection = direction;
-
-				@Override
-				public void run() {
-					Vector upwards = new Vector(0, 1, 0);
-					Vector shift = new Vector(0, 0, 0).add(mDirection.clone().multiply(Math.sin(Math.PI * mTime / 8))).add(upwards.clone().multiply(Math.cos(Math.PI * mTime / 8)));
-					Location loc = mBoss.getLocation();
-					BoundingBox hitbox = new BoundingBox().shift(loc).expand(1);
-					mWorld.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.HOSTILE, 0.3f, 1f);
-					for (int i = 0; i < RANGE; i++) {
-						loc.add(shift);
-						hitbox.shift(shift);
-						new PartialParticle(Particle.SWEEP_ATTACK, loc, 1, 0, 0, 0, 0).spawnAsEntityActive(mBoss);
-
-						Iterator<Player> iter = mPlayers.iterator();
-						while (iter.hasNext()) {
-							Player player = iter.next();
-							if (player.getBoundingBox().overlaps(hitbox)) {
-								BossUtils.blockableDamage(mBoss, player, DamageType.MELEE, mDamage);
-								iter.remove();
-							}
-						}
-					}
-
-					mTime++;
-					if (mTime >= 5) {
-						this.cancel();
-					}
-				}
-			};
-
-			attack.runTaskTimer(mPlugin, 15, 1);
-			mActiveRunnables.add(attack);
-			//lower
-		} else {
-			Vector direction = mBoss.getLocation().getDirection().setY(0).normalize();
-			Vector sideways = new Vector(direction.getZ() / 2, 0, -direction.getX() / 2);
-			Location locParticle = mBoss.getLocation().subtract(sideways.clone().multiply(10));
-			for (int i = 0; i <= 20; i++) {
-				new PartialParticle(Particle.WAX_OFF, locParticle, 5, 0.2, 0.2, 0.2, 0).spawnAsEntityActive(mBoss);
-				new PartialParticle(Particle.REDSTONE, locParticle, 5, 0.2, 0.2, 0.2, 0, SWORD_COLOR).spawnAsEntityActive(mBoss);
-				locParticle.add(sideways);
-			}
-
-			BukkitRunnable attack = new BukkitRunnable() {
-				final List<Player> mPlayers = PlayerUtils.playersInRange(mBoss.getLocation(), RANGE * 4, true);
-				int mTime = 0;
-
-				@Override
-				public void run() {
-					Vector forwards = mBoss.getLocation().getDirection().setY(0).normalize();
-					Vector sideways = new Vector(forwards.getZ(), 0, -forwards.getX());
-
-					Vector shift1 = new Vector(0, 0, 0).add(forwards.clone().multiply(Math.sin(Math.PI * mTime / 8))).add(sideways.clone().multiply(Math.cos(Math.PI * mTime / 8)));
-					Location loc1 = mBoss.getLocation();
-					Vector shift2 = new Vector(0, 0, 0).add(forwards.clone().multiply(Math.sin(Math.PI * mTime / 8))).add(sideways.clone().multiply(-Math.cos(Math.PI * mTime / 8)));
-					Location loc2 = mBoss.getLocation();
-					BoundingBox hitbox1 = new BoundingBox().shift(loc1).expand(1, 0.25, 1);
-					BoundingBox hitbox2 = new BoundingBox().shift(loc2).expand(1, 0.25, 1);
-					mWorld.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.HOSTILE, 0.3f, 1f);
-
-					for (int i = 0; i < RANGE; i++) {
-						loc1.add(shift1);
-						hitbox1.shift(shift1);
-						loc2.add(shift2);
-						hitbox2.shift(shift2);
-						new PartialParticle(Particle.SWEEP_ATTACK, loc1, 1, 0, 0, 0, 0).spawnAsEntityActive(mBoss);
-						new PartialParticle(Particle.SWEEP_ATTACK, loc2, 1, 0, 0, 0, 0).spawnAsEntityActive(mBoss);
-
-						Iterator<Player> iter = mPlayers.iterator();
-						while (iter.hasNext()) {
-							Player player = iter.next();
-							BoundingBox box = player.getBoundingBox();
-							if (box.overlaps(hitbox1) || box.overlaps(hitbox2)) {
-								BossUtils.blockableDamage(mBoss, player, DamageType.MELEE, mDamage);
-								iter.remove();
-							}
-						}
-					}
-
-					mTime++;
-					if (mTime >= 5) {
-						this.cancel();
-					}
-				}
-			};
-
-			attack.runTaskTimer(mPlugin, 15, 1);
-			mActiveRunnables.add(attack);
-		}
+		}, telegraphDuration);
 	}
 
 	@Override

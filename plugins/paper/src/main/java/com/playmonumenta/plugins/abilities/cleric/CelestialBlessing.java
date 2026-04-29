@@ -13,6 +13,7 @@ import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.cleric.CelestialBlessingCS;
 import com.playmonumenta.plugins.effects.Aesthetics;
 import com.playmonumenta.plugins.effects.CelestialBlessingDamageBuff;
+import com.playmonumenta.plugins.effects.Effect;
 import com.playmonumenta.plugins.effects.PercentSpeed;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
@@ -92,18 +93,26 @@ public class CelestialBlessing extends Ability {
 		affectedPlayers.removeIf(p -> p.getScoreboardTags().contains("disable_class"));
 
 		for (final Player p : affectedPlayers) {
-			mPlugin.mEffectManager.addEffect(p, DAMAGE_EFFECT_NAME,
-				new CelestialBlessingDamageBuff(mDuration, mExtraDamage, isEnhanced(), mCosmetic, p, null)
-					.deleteOnAbilityUpdate(true));
-			mPlugin.mEffectManager.addEffect(p, SPEED_EFFECT_NAME, new PercentSpeed(mDuration, mSpeedPotency, ATTR_NAME)
-				.deleteOnAbilityUpdate(true));
-			mPlugin.mEffectManager.addEffect(p, PARTICLE_EFFECT_NAME, new Aesthetics(mDuration,
+			Effect speed = new PercentSpeed(mDuration, mSpeedPotency, ATTR_NAME).deleteOnAbilityUpdate(true);
+			mPlugin.mEffectManager.addEffect(p, SPEED_EFFECT_NAME, speed);
+
+			Effect aesthetics = new Aesthetics(mDuration,
 				(entity, fourHertz, twoHertz, oneHertz) ->
 					mCosmetic.tickEffect(mPlayer, p, fourHertz, twoHertz, oneHertz),
 				(entity) -> mCosmetic.loseEffect(mPlayer, p))
-				.deleteOnAbilityUpdate(true)
-			);
+				.deleteOnAbilityUpdate(true);
+			mPlugin.mEffectManager.addEffect(p, PARTICLE_EFFECT_NAME, aesthetics);
+
+			mPlugin.mEffectManager.addEffect(p, DAMAGE_EFFECT_NAME,
+				new CelestialBlessingDamageBuff(mDuration, mExtraDamage, isEnhanced(), mCosmetic, p, null, speed, aesthetics)
+					.deleteOnAbilityUpdate(true));
 			mCosmetic.startEffectTargets(p);
+
+			// If we are replacing an effect with the same magnitude, we need to reset its ability to be extended
+			CelestialBlessingDamageBuff e = mPlugin.mEffectManager.getActiveEffect(p, CelestialBlessingDamageBuff.class);
+			if (e != null && e.getMagnitude() == mExtraDamage && e.getDuration() == mDuration) {
+				e.resetExtension();
+			}
 		}
 		mCosmetic.startEffectCaster(mPlayer, mRadius);
 

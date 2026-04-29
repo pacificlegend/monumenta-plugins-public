@@ -41,7 +41,7 @@ final class MainPage extends PebPage {
 			Material.ACACIA_BOAT,
 			"Dailies",
 			"Click to see what daily content you have and haven't done today."
-		).command("clickable peb_dailies").set(2, 6);
+		).command("dailies").set(2, 6);
 
 		entry(
 			Material.WHITE_WOOL,

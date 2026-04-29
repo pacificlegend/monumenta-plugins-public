@@ -25,7 +25,7 @@ final class PlayerInfoPage extends PebPage {
 			Material.ACACIA_BOAT,
 			"Dailies",
 			"Click to see what daily content you have and haven't done today."
-		).command("clickable peb_dailies").set(2, 4);
+		).command("dailies").set(2, 4);
 
 		entry(
 			Material.WHITE_WOOL,

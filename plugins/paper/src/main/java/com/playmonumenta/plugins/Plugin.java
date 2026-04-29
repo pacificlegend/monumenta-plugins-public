@@ -268,6 +268,7 @@ public class Plugin extends JavaPlugin {
 		CosmeticsCommand.register(this);
 		CustomEffect.register();
 		CustomInventoryCommands.register(this);
+		DailiesGuiCommand.register();
 		DateVersionCommand.register();
 		DeathMsg.register();
 		DebugInfo.register(this);

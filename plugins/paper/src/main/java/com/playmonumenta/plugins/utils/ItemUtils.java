@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.utils;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import com.google.common.collect.ImmutableMap;
 import com.playmonumenta.plugins.Constants.Materials;
 import com.playmonumenta.plugins.Plugin;
@@ -1615,6 +1616,16 @@ public class ItemUtils {
 			}
 			skullMeta.setPlayerProfile(playerProfile);
 		}
+		item.setItemMeta(meta);
+		return item;
+	}
+
+	public static ItemStack createPlayerHeadFromBase64(String base64) {
+		SkullMeta meta = (SkullMeta) Bukkit.getItemFactory().getItemMeta(Material.PLAYER_HEAD);
+		PlayerProfile headProfile = Bukkit.createProfile(UUID.fromString("4caebc47-f172-4e32-af6a-01bd00b61b5f"));
+		headProfile.setProperty(new ProfileProperty("textures", base64));
+		meta.setPlayerProfile(headProfile);
+		ItemStack item = new ItemStack(Material.PLAYER_HEAD);
 		item.setItemMeta(meta);
 		return item;
 	}

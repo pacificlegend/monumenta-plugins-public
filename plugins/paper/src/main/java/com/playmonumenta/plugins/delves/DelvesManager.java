@@ -366,9 +366,13 @@ public class DelvesManager implements Listener {
 			return;
 		}
 
-		if (EntityUtils.isHostileMob(entity, true)) {
-			List<Player> playerParty = getParty(entity.getLocation());
+		Bukkit.getScheduler().runTask(Plugin.getInstance(), () -> setForcedReferenceToSpawner(null));
 
+		List<Player> playerParty = getParty(entity.getLocation());
+		if (playerParty.isEmpty()) {
+			return;
+		}
+		if (EntityUtils.isHostileMob(entity, true)) {
 			if (!playerParty.isEmpty()) {
 				Map<DelvesModifier, Integer> delvesApplied = DelvesUtils.getPartyDelvePointsMap(playerParty);
 				//check if this mob is summoned by command or by spawners
@@ -409,9 +413,15 @@ public class DelvesManager implements Listener {
 				//Mob stats should ALWAYS work on any mobs even if spawned by command plugin or spawners
 				StatMultiplier.applyModifiers(livingEntity, DelvesUtils.getTotalPoints(delvesApplied));
 			}
-		}
+		} else if (entity instanceof ArmorStand stand) {
+			// delve scale armor stands but do not apply modifiers other to them (useful for Tormented spawns)
+			Map<DelvesModifier, Integer> delvesApplied = DelvesUtils.getPartyDelvePointsMap(playerParty);
+			//Giving tag so this function doesn't run twice on the same mob
+			livingEntity.addScoreboardTag(HAS_DELVE_MODIFIER_TAG);
 
-		Bukkit.getScheduler().runTask(Plugin.getInstance(), () -> setForcedReferenceToSpawner(null));
+			//Mob stats should ALWAYS work on any mobs even if spawned by command plugin or spawners
+			StatMultiplier.applyModifiers(stand, DelvesUtils.getTotalPoints(delvesApplied));
+		}
 	}
 
 	public void onEntityRegainHealthEvent(EntityRegainHealthEvent event) {

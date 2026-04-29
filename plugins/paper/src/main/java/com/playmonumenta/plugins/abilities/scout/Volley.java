@@ -238,6 +238,7 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 
 	@Override
 	public void periodicTrigger(boolean twoHertz, boolean oneSecond, int ticks) {
+		super.manageChargeCooldowns();
 		// Garbage Collector at home
 		if (oneSecond) {
 			mVolley.removeIf(t -> !t.isValid());

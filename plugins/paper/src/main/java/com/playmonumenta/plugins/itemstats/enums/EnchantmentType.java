@@ -153,6 +153,7 @@ public enum EnchantmentType {
 	POULTRIFICATION(new Poultrification(), true, false, false, false),
 	BREEZING(new Breezing(), true, false, false, false),
 	FROGGING(new Frogging(), true, false, false, false),
+	ABSORBING_BARRIER(new AbsorbingBarrier(), true, false, false, false),
 
 	// Curses
 	CURSE_OF_ANEMIA(new CurseOfAnemia(), true, true, false, false),

@@ -50,9 +50,9 @@ public class PlayerCommand {
 			.withSubcommand(new CommandAPICommand("status")
 				.withPermission("monumenta.command.player.status")
 				.withSubcommand(new CommandAPICommand("dailies")
-					.withPermission("monumenta.command.player.status.dailies")
+					.withPermission("monumenta.command.dailies")
 					.executesPlayer((PlayerCommandExecutor) (player, args) ->
-						player.performCommand("clickable peb_dailies")
+						player.performCommand("dailies")
 					)
 				)
 				.withSubcommand(new CommandAPICommand("dungeons")

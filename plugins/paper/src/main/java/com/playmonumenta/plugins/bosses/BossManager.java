@@ -158,17 +158,20 @@ public class BossManager implements Listener {
 
 	@FunctionalInterface
 	public interface StatelessBossConstructor {
-		@Nullable BossAbilityGroup construct(Plugin plugin, LivingEntity entity) throws Exception;
+		@Nullable
+		BossAbilityGroup construct(Plugin plugin, LivingEntity entity) throws Exception;
 	}
 
 	@FunctionalInterface
 	public interface StatefulBossConstructor {
-		@Nullable BossAbilityGroup construct(Plugin plugin, LivingEntity entity, Location spawnLoc, Location endLoc);
+		@Nullable
+		BossAbilityGroup construct(Plugin plugin, LivingEntity entity, Location spawnLoc, Location endLoc);
 	}
 
 	@FunctionalInterface
 	public interface BossDeserializer {
-		@Nullable BossAbilityGroup deserialize(Plugin plugin, LivingEntity entity) throws Exception;
+		@Nullable
+		BossAbilityGroup deserialize(Plugin plugin, LivingEntity entity) throws Exception;
 	}
 
 	/********************************************************************************
@@ -442,6 +445,8 @@ public class BossManager implements Listener {
 		registerStatelessBoss(NoSlownessArrowsBoss.identityTag, NoSlownessArrowsBoss::new);
 		registerStatelessBoss(PartingShotDummyBoss.identityTag, PartingShotDummyBoss::new);
 		registerStatelessBoss(HuntingCompanionBoss.identityTag, HuntingCompanionBoss::new);
+		registerStatelessBoss(ZoneBoss.identityTag, ZoneBoss::new, new ZoneBoss.Parameters());
+		registerStatelessBoss(SwingHandBoss.identityTag, SwingHandBoss::new, new SwingHandBoss.Parameters());
 		registerStatelessBoss(SurgeBoss.identityTag, SurgeBoss::new, new SurgeBoss.Parameters());
 
 		/* Stateful bosses have a remembered spawn location and end location where a redstone block is set when they die */

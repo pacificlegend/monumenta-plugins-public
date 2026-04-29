@@ -18,11 +18,15 @@ public class DamageShieldedEvent extends Event implements Cancellable {
 	private final Player mPlayer;
 	private final @Nullable LivingEntity mSource;
 	private final EntityDamageEvent.DamageCause mCause;
+	private final int mStunTicks;
+	// mStunTicks can be -1; in this case we can't process the
+	// stun ticks yet because the damage needs to go through first
 
-	public DamageShieldedEvent(Player player, @Nullable LivingEntity source, EntityDamageEvent.DamageCause cause) {
+	public DamageShieldedEvent(Player player, @Nullable LivingEntity source, EntityDamageEvent.DamageCause cause, int stunTicks) {
 		mPlayer = player;
 		mSource = source;
 		mCause = cause;
+		mStunTicks = stunTicks;
 	}
 
 	public Player getPlayer() {
@@ -35,6 +39,10 @@ public class DamageShieldedEvent extends Event implements Cancellable {
 
 	public EntityDamageEvent.DamageCause getCause() {
 		return mCause;
+	}
+
+	public int getStunTicks() {
+		return mStunTicks;
 	}
 
 	@Override

@@ -176,7 +176,7 @@ public class DamageListener implements Listener {
 			mPlugin.mItemStatManager.onHurt(mPlugin, player, event, damager, source);
 			mPlugin.mAbilityManager.onHurt(player, event, damager, source);
 			if (event.isBlockedByShield()) {
-				Bukkit.getPluginManager().callEvent(new DamageShieldedEvent(player, source, event.getCause()));
+				Bukkit.getPluginManager().callEvent(new DamageShieldedEvent(player, source, event.getCause(), -1));
 			}
 			if (event.getFinalDamage(true) >= player.getHealth() && !event.isCancelled()) {
 				mPlugin.mAbilityManager.onHurtFatal(player, event);

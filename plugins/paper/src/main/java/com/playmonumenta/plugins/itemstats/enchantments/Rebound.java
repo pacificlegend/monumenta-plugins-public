@@ -2,6 +2,7 @@ package com.playmonumenta.plugins.itemstats.enchantments;
 
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.events.DamageEvent;
+import com.playmonumenta.plugins.events.DamageShieldedEvent;
 import com.playmonumenta.plugins.itemstats.Enchantment;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.itemstats.enums.Slot;
@@ -39,28 +40,41 @@ public class Rebound implements Enchantment {
 
 	@Override
 	public void onHurt(Plugin plugin, Player player, double value, DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
-		if (event.isBlockedByShield() && source != null) {
-			if (player.getCooldown(Material.SHIELD) > 0) {
-				float speed = KB_VEL_PER_LEVEL * (float) value;
+		if (event.isBlockedByShield() && player.getCooldown(Material.SHIELD) > 0) {
+			activate(player, value, source);
+		}
+	}
 
-				List<LivingEntity> nearbyMobs = EntityUtils.getNearbyMobs(source.getLocation(), RADIUS * 2);
-				BoundingBox box = BoundingBox.of(source.getLocation(), RADIUS, RADIUS, RADIUS);
+	@Override
+	public void onDamageShielded(Plugin plugin, Player player, double value, DamageShieldedEvent event) {
+		if (event.getStunTicks() > 0) {
+			activate(player, value, event.getSource());
+		}
+	}
 
-				for (LivingEntity enemy : nearbyMobs) {
-					BoundingBox enemyBox = enemy.getBoundingBox();
-					if (box.overlaps(enemyBox)) {
-						Vector vector = enemy.getLocation().toVector().subtract(player.getLocation().toVector());
-						vector.setY(0);
-						if (vector.length() < 0.001) {
-							vector = new Vector(0, VERTICAL_LAUNCH, 0);
-						} else {
-							vector.normalize()
-								.multiply(speed)
-								.setY(VERTICAL_LAUNCH);
-						}
-						MovementUtils.knockAwayDirection(vector, enemy, 0.5f);
-					}
+	private void activate(Player player, double value, @Nullable LivingEntity source) {
+		if (source == null) {
+			return;
+		}
+
+		float speed = KB_VEL_PER_LEVEL * (float) value;
+
+		List<LivingEntity> nearbyMobs = EntityUtils.getNearbyMobs(source.getLocation(), RADIUS * 2);
+		BoundingBox box = BoundingBox.of(source.getLocation(), RADIUS, RADIUS, RADIUS);
+
+		for (LivingEntity enemy : nearbyMobs) {
+			BoundingBox enemyBox = enemy.getBoundingBox();
+			if (box.overlaps(enemyBox)) {
+				Vector vector = enemy.getLocation().toVector().subtract(player.getLocation().toVector());
+				vector.setY(0);
+				if (vector.length() < 0.001) {
+					vector = new Vector(0, VERTICAL_LAUNCH, 0);
+				} else {
+					vector.normalize()
+						.multiply(speed)
+						.setY(VERTICAL_LAUNCH);
 				}
+				MovementUtils.knockAwayDirection(vector, enemy, 0.5f);
 			}
 		}
 	}

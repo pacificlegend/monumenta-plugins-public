@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.effects.Effect;
 import com.playmonumenta.plugins.effects.OnHitTimerEffect;
 import com.playmonumenta.plugins.events.DamageEvent;
+import com.playmonumenta.plugins.events.DamageShieldedEvent;
 import com.playmonumenta.plugins.itemstats.Enchantment;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.particle.PartialParticle;
@@ -38,14 +39,18 @@ public class Guard implements Enchantment {
 
 	@Override
 	public void onHurt(Plugin plugin, Player player, double value, DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
-		if (event.isBlockedByShield()) {
-			plugin.mEffectManager.addEffect(player, GUARD_EFFECT_NAME, new OnHitTimerEffect(player.getInventory().getItemInMainHand().getType() == Material.SHIELD ? PAST_HIT_DURATION_TIME_MAINHAND : PAST_HIT_DURATION_TIME_OFFHAND));
-		} else if (event.getFinalDamage(true) / EntityUtils.getMaxHealth(player) >= HEALTH_RATIO) {
-			plugin.mEffectManager.addEffect(player, GUARD_EFFECT_NAME, new OnHitTimerEffect(PAST_HIT_DURATION_TIME_HEALTH));
-		} else {
-			return;
+		if (event.getFinalDamage(true) / EntityUtils.getMaxHealth(player) >= HEALTH_RATIO) {
+			addEffect(plugin, player, PAST_HIT_DURATION_TIME_HEALTH);
 		}
+	}
 
+	@Override
+	public void onDamageShielded(Plugin plugin, Player player, double value, DamageShieldedEvent event) {
+		addEffect(plugin, player, player.getInventory().getItemInMainHand().getType() == Material.SHIELD ? PAST_HIT_DURATION_TIME_MAINHAND : PAST_HIT_DURATION_TIME_OFFHAND);
+	}
+
+	public static void addEffect(Plugin plugin, Player player, int duration) {
+		plugin.mEffectManager.addEffect(player, GUARD_EFFECT_NAME, new OnHitTimerEffect(duration));
 		new PartialParticle(Particle.REDSTONE, player.getLocation().add(0, 1, 0), 24, 0.4, 0.5, 0.4, new Particle.DustOptions(Color.fromRGB(200, 0, 0), 1.0f)).spawnAsPlayerBuff(player);
 		player.sendActionBar(Component.text("Guard", NamedTextColor.RED));
 	}

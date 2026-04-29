@@ -124,7 +124,7 @@ public class BossUtils {
 				damagee.getWorld().playSound(damagee.getLocation(), Sound.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f);
 			}
 			ItemUtils.damageShield(player, durability);
-			Bukkit.getPluginManager().callEvent(new DamageShieldedEvent(player, damager, EntityDamageEvent.DamageCause.CUSTOM));
+			Bukkit.getPluginManager().callEvent(new DamageShieldedEvent(player, damager, EntityDamageEvent.DamageCause.CUSTOM, stunTicks));
 			return false;
 		} else {
 			DamageUtils.damage(damager, damagee, new DamageEvent.Metadata(type, null, null, cause), damage, bypassIFrames, causeKnockback, false);
@@ -171,17 +171,26 @@ public class BossUtils {
 			 * One second of cooldown for every 2 points of damage
 			 * Since this is % based, compute cooldown based on "Normal" health
 			 */
+			int stunTicks;
+			int durability;
 			if (raw) {
 				if (toTake > 1) {
-					NmsUtils.getVersionAdapter().stunShield(player, (int) Math.ceil(toTake * 0.5));
+					stunTicks = (int) Math.ceil(toTake * 0.5);
+				} else {
+					stunTicks = 0;
 				}
-				ItemUtils.damageShield(player, (int) Math.ceil(toTake / 2.5));
+				durability = (int) Math.ceil(toTake / 2.5);
 			} else {
-				NmsUtils.getVersionAdapter().stunShield(player, (int) (20 * percentHealth * 20));
-				ItemUtils.damageShield(player, (int) (percentHealth * 20 / 2.5));
+				stunTicks = (int) (20 * percentHealth * 20);
+				durability = (int) (percentHealth * 20 / 2.5);
 			}
-			target.getWorld().playSound(target.getLocation(), Sound.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f);
-			Bukkit.getPluginManager().callEvent(new DamageShieldedEvent(player, boss, EntityDamageEvent.DamageCause.CUSTOM));
+
+			ItemUtils.damageShield(player, durability);
+			if (stunTicks > 0) {
+				NmsUtils.getVersionAdapter().stunShield(player, stunTicks);
+				target.getWorld().playSound(target.getLocation(), Sound.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 1.0f, 1.0f);
+			}
+			Bukkit.getPluginManager().callEvent(new DamageShieldedEvent(player, boss, EntityDamageEvent.DamageCause.CUSTOM, stunTicks));
 		} else {
 			double absorp = AbsorptionUtils.getAbsorption(target);
 			double adjustedHealth = (target.getHealth() + absorp) - toTake;

@@ -143,6 +143,9 @@ public class Swiftness extends Ability {
 	}
 
 	public boolean cast() {
+		if (!canCast() || ZoneUtils.hasZoneProperty(mPlayer, ZoneProperty.NO_MOBILITY_ABILITIES)) {
+			return false;
+		}
 		putOnCooldown();
 		mTotalJumps++;
 

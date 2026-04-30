@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.listeners;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.itemstats.enums.Tier;
 import com.playmonumenta.plugins.utils.InventoryUtils;
@@ -154,13 +155,14 @@ public final class ItemDropListener implements Listener {
 		}
 	}
 
-	// Handles every drop event, but badly - items don't get put back in the proper slots when this event is cancelled.
-	// Events already handled & cancelled by other handlers won't reach this code, so those will be handled nicely.
+	// Handles every drop event, but badly - items don't get put back in the proper slots when this event is canceled.
+	// Events already handled & canceled by other handlers won't reach this code, so those will be handled nicely.
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
 	public void playerDropItemEvent(PlayerDropItemEvent event) {
 		Player player = event.getPlayer();
 		Item itemEntity = event.getItemDrop();
 		if (player.getGameMode() == GameMode.CREATIVE) {
+			itemEntity.addScoreboardTag(Constants.Tags.REMOVE_ON_UNLOAD);
 			return;
 		}
 

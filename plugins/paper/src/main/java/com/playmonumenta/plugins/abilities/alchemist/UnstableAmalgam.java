@@ -220,7 +220,7 @@ public class UnstableAmalgam extends Ability implements AbilityWithDuration {
 			}
 
 			// Artifact Charm code, taunts on spawn
-			if (mTauntRadius > 0) {
+			if (mTauntRadius > 0.1) {
 				List<LivingEntity> mobs = EntityUtils.getNearbyMobs(loc, mTauntRadius)
 					.stream().filter(entity -> !EntityUtils.isBoss(entity)).toList();
 				for (LivingEntity le : mobs) {

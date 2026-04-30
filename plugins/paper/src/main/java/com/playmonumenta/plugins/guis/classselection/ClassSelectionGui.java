@@ -47,16 +47,25 @@ public class ClassSelectionGui extends Gui {
 	protected final boolean mGuiTextures;
 	protected Page mPage;
 
+	protected final Player mPlayerToView;
+	protected final boolean mReadOnly;
+
 	public static final Style SKILL_POINT_COLOR = Style.style(TextColor.color(0xD99F00));
 	public static final Style SPEC_POINT_COLOR = Style.style(TextColor.color(0x4CC8D4));
 	public static final Style ENHANCEMENT_POINT_COLOR = Style.style(TextColor.color(0xD934A2));
 
 	public ClassSelectionGui(Player player, boolean fromYellowTess) {
+		this(player, fromYellowTess, player, false);
+	}
+
+	public ClassSelectionGui(Player player, boolean fromYellowTess, Player playerToView, boolean readOnly) {
 		super(player, 54, "Class Selection GUI");
 		mFromYellowTess = fromYellowTess;
 		mWasYellowTessOnCooldown = fromYellowTess && YellowTesseractOverride.getCooldown(player) > 0;
 		mGuiTextures = GUIUtils.getGuiTextureObjective(player);
 		mPage = new ClassPage(this);
+		mPlayerToView = playerToView;
+		mReadOnly = readOnly;
 	}
 
 	@Override
@@ -67,36 +76,36 @@ public class ClassSelectionGui extends Gui {
 
 	protected boolean isClassLocked(PlayerClass testClass) {
 		return testClass.mQuestReq != null
-			&& !AbilityUtils.getEffectiveSpecs(mPlayer)
-			&& ScoreboardUtils.getScoreboardValue(mPlayer, testClass.mQuestReq).orElse(0) < testClass.mQuestReqMin;
+			&& !AbilityUtils.getEffectiveSpecs(mPlayerToView)
+			&& ScoreboardUtils.getScoreboardValue(mPlayerToView, testClass.mQuestReq).orElse(0) < testClass.mQuestReqMin;
 	}
 
 	protected int remainingSkillPoints() {
-		return ScoreboardUtils.getScoreboardValue(mPlayer, AbilityUtils.REMAINING_SKILL).orElse(0);
+		return ScoreboardUtils.getScoreboardValue(mPlayerToView, AbilityUtils.REMAINING_SKILL).orElse(0);
 	}
 
 	protected boolean hasSpecsUnlocked() {
-		return ScoreboardUtils.getScoreboardValue(mPlayer, UNLOCK_SPECS).orElse(0) >= UNLOCK_SPECS_MIN;
+		return ScoreboardUtils.getScoreboardValue(mPlayerToView, UNLOCK_SPECS).orElse(0) >= UNLOCK_SPECS_MIN;
 	}
 
 	protected boolean hasEffectiveSpecsUnlocked() {
-		return hasSpecsUnlocked() || AbilityUtils.getEffectiveSpecs(mPlayer);
+		return hasSpecsUnlocked() || AbilityUtils.getEffectiveSpecs(mPlayerToView);
 	}
 
 	protected boolean hasSpecUnlocked(PlayerSpec spec) {
-		return ScoreboardUtils.getScoreboardValue(mPlayer, spec.mSpecQuestScoreboard).orElse(0) >= 100;
+		return ScoreboardUtils.getScoreboardValue(mPlayerToView, spec.mSpecQuestScoreboard).orElse(0) >= 100;
 	}
 
 	protected int remainingSpecPoints() {
-		return ScoreboardUtils.getScoreboardValue(mPlayer, AbilityUtils.REMAINING_SPEC).orElse(0);
+		return ScoreboardUtils.getScoreboardValue(mPlayerToView, AbilityUtils.REMAINING_SPEC).orElse(0);
 	}
 
 	protected int remainingEnhanceCount() {
-		return ScoreboardUtils.getScoreboardValue(mPlayer, AbilityUtils.REMAINING_ENHANCE).orElse(0);
+		return ScoreboardUtils.getScoreboardValue(mPlayerToView, AbilityUtils.REMAINING_ENHANCE).orElse(0);
 	}
 
 	private void setRemainingCountIcons() {
-		if (PlayerUtils.hasUnlockedRing(mPlayer)) {
+		if (PlayerUtils.hasUnlockedRing(mPlayerToView)) {
 			int currentEnhanceCount = remainingEnhanceCount();
 
 			Material material = currentEnhanceCount == 0 ? Material.BARRIER : Material.ENCHANTING_TABLE;
@@ -115,7 +124,7 @@ public class ClassSelectionGui extends Gui {
 					desc -> desc.addLine("Enhancements are currently *disabled*").styles(DescriptionUtils.RED))
 				.addLine("in this region.")
 				.addDashedLine()
-				.get(mPlayer);
+				.get(mPlayerToView);
 
 			Component name = DescriptionUtils.centeredComponent(description, "Enhancement Points", ENHANCEMENT_POINT_COLOR, true);
 
@@ -148,7 +157,7 @@ public class ClassSelectionGui extends Gui {
 					desc -> desc.addLine("Specializations are currently *disabled*").styles(DescriptionUtils.RED))
 				.addLine("in this region.")
 				.addDashedLine()
-				.get(mPlayer);
+				.get(mPlayerToView);
 
 			Component name = DescriptionUtils.centeredComponent(description, "Specialization Points", SPEC_POINT_COLOR, true);
 
@@ -176,7 +185,7 @@ public class ClassSelectionGui extends Gui {
 			.addLine("*Skill Points* are used to unlock new").styles(SKILL_POINT_COLOR)
 			.addLine("abilities or upgrade existing ones.")
 			.addDashedLine()
-			.get(mPlayer);
+			.get(mPlayerToView);
 
 		Component name = DescriptionUtils.centeredComponent(description, "Skill Points", SKILL_POINT_COLOR, true);
 
@@ -200,7 +209,7 @@ public class ClassSelectionGui extends Gui {
 	) {
 		int currentLevel;
 		if (ability.getScoreboard() != null) {
-			currentLevel = ScoreboardUtils.getScoreboardValue(mPlayer, ability.getScoreboard()).orElse(0);
+			currentLevel = ScoreboardUtils.getScoreboardValue(mPlayerToView, ability.getScoreboard()).orElse(0);
 		} else {
 			currentLevel = 0;
 		}
@@ -229,7 +238,7 @@ public class ClassSelectionGui extends Gui {
 			.addCharmEffects()
 			.addDashedLine()
 			.addIf((a, p) -> currentLevel != 0, desc -> desc.addAction("Click to remove this ability.", DescriptionUtils.ACTION_SELECT))
-			.get(mPlayer);
+			.get(mPlayerToView);
 
 		String quest216Message = ability.getQuest216Message();
 		Component quest216Component;
@@ -280,7 +289,7 @@ public class ClassSelectionGui extends Gui {
 		if (objective == null) {
 			currentLevel = 0;
 		} else {
-			currentLevel = ScoreboardUtils.getScoreboardValue(mPlayer, objective).orElse(0);
+			currentLevel = ScoreboardUtils.getScoreboardValue(mPlayerToView, objective).orElse(0);
 			if (currentLevel > 2) {
 				currentLevel -= 2;
 			}
@@ -288,10 +297,10 @@ public class ClassSelectionGui extends Gui {
 
 		boolean canSelect;
 		if (displayedSpec == null) {
-			int remainingSkill = ScoreboardUtils.getScoreboardValue(mPlayer, AbilityUtils.REMAINING_SKILL).orElse(0);
+			int remainingSkill = ScoreboardUtils.getScoreboardValue(mPlayerToView, AbilityUtils.REMAINING_SKILL).orElse(0);
 			canSelect = level - currentLevel <= remainingSkill;
 		} else {
-			int remainingSpec = ScoreboardUtils.getScoreboardValue(mPlayer, AbilityUtils.REMAINING_SPEC).orElse(0);
+			int remainingSpec = ScoreboardUtils.getScoreboardValue(mPlayerToView, AbilityUtils.REMAINING_SPEC).orElse(0);
 			canSelect = level - currentLevel <= remainingSpec;
 		}
 
@@ -307,7 +316,7 @@ public class ClassSelectionGui extends Gui {
 			instruction = DescriptionUtils.actionLine("Ability already selected.", DescriptionUtils.ACTION_COMPLETED);
 		}
 
-		Component lore = ability.getDescription(level, mPlayer, true);
+		Component lore = ability.getDescription(level, mPlayerToView, true);
 		lore = lore.appendNewline().append(instruction);
 
 		Component name = Component.text(Objects.requireNonNull(ability.getDisplayName()), displayedClass.mClassColor)
@@ -349,7 +358,7 @@ public class ClassSelectionGui extends Gui {
 		Material newMat;
 		String guiTexture;
 		String scoreboard = ability.getScoreboard();
-		switch (scoreboard == null ? 0 : ScoreboardUtils.getScoreboardValue(mPlayer, scoreboard).orElse(0)) {
+		switch (scoreboard == null ? 0 : ScoreboardUtils.getScoreboardValue(mPlayerToView, scoreboard).orElse(0)) {
 			case 0 -> {
 				isDisabled = true;
 				hasEnhancement = false;
@@ -383,7 +392,7 @@ public class ClassSelectionGui extends Gui {
 		} else if (hasEnhancement) {
 			instruction = DescriptionUtils.actionLine("Enhancement already selected.", DescriptionUtils.ACTION_COMPLETED).appendNewline().appendSpace()
 				.append(DescriptionUtils.actionLine("Click to deselect!", DescriptionUtils.ACTION_SELECT));
-		} else if (ScoreboardUtils.getScoreboardValue(mPlayer, AbilityUtils.REMAINING_ENHANCE).orElse(0) == 0) {
+		} else if (ScoreboardUtils.getScoreboardValue(mPlayerToView, AbilityUtils.REMAINING_ENHANCE).orElse(0) == 0) {
 			instruction = DescriptionUtils.actionLine("Cannot select enhancement!", DescriptionUtils.ACTION_DENIED).appendNewline().appendSpace()
 				.append(DescriptionUtils.actionLine("Not enough points!", DescriptionUtils.ACTION_DENIED));
 		} else if (isDisabled) {
@@ -393,7 +402,7 @@ public class ClassSelectionGui extends Gui {
 			instruction = DescriptionUtils.actionLine("Click to select!", DescriptionUtils.ACTION_SELECT);
 		}
 
-		Component description = ability.getDescription(3, mPlayer, true).appendNewline().appendSpace();
+		Component description = ability.getDescription(3, mPlayerToView, true).appendNewline().appendSpace();
 		description = description.append(instruction);
 
 		Component name = Component.text(Objects.requireNonNull(ability.getDisplayName()), displayedClass.mClassColor)
@@ -411,7 +420,7 @@ public class ClassSelectionGui extends Gui {
 
 		setItem(row, column, newItem)
 			.onClick(event -> {
-				if (event.isShiftClick()) {
+				if (event.isShiftClick() || mReadOnly) {
 					return;
 				}
 				if (isDisabled) {
@@ -430,6 +439,10 @@ public class ClassSelectionGui extends Gui {
 		AbilityInfo<?> selectedAbility,
 		int level
 	) {
+		if (mReadOnly) {
+			return;
+		}
+
 		if (!isClass(displayedClass, displayedSpec)) {
 			return;
 		}
@@ -494,6 +507,10 @@ public class ClassSelectionGui extends Gui {
 		AbilityInfo<?> selectedAbility,
 		boolean add
 	) {
+		if (mReadOnly) {
+			return;
+		}
+
 		if (!isClass(displayedClass, null)) {
 			return;
 		}

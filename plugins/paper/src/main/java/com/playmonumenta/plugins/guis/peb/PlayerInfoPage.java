@@ -1,6 +1,6 @@
 package com.playmonumenta.plugins.guis.peb;
 
-import com.playmonumenta.plugins.custominventories.ClassDisplayCustomInventory;
+import com.playmonumenta.plugins.guis.classselection.ClassSelectionGui;
 import org.bukkit.Material;
 
 final class PlayerInfoPage extends PebPage {
@@ -18,7 +18,7 @@ final class PlayerInfoPage extends PebPage {
 			"Click to view your class and skills."
 		).onMouseClick(() -> {
 			mGui.close();
-			new ClassDisplayCustomInventory(getPlayer()).open();
+			new ClassSelectionGui(getPlayer(), false, getPlayer(), true).open();
 		}).set(2, 2);
 
 		entry(

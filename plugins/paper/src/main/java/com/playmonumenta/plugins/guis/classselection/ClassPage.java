@@ -26,8 +26,11 @@ public class ClassPage extends Page {
 
 	@Override
 	protected void setup() {
+		// Set gui identifier
+		setGuiIdentifier("gui_class_1");
+
 		// Get the current class, if they have one.
-		int currentClass = AbilityUtils.getClassNum(mGui.mPlayer);
+		int currentClass = AbilityUtils.getClassNum(mGui.mPlayerToView);
 		PlayerClass playerClass = null;
 		for (PlayerClass oneClass : mClasses.mClasses) {
 			if (currentClass == oneClass.mClass) {
@@ -65,6 +68,11 @@ public class ClassPage extends Page {
 
 		GUIUtils.setGuiNbtTag(mainMenuItem, "texture", "class_select_main_menu", mGui.mGuiTextures);
 		setHeaderIcon(mainMenuItem);
+
+		// If read-only, stop here, you can't reset class/spec or change triggers
+		if (mGui.mReadOnly) {
+			return;
+		}
 
 		if (mGui.hasClass()) {
 			Component resetDescription = new FormattedDescriptionBuilder<>()
@@ -150,8 +158,6 @@ public class ClassPage extends Page {
 					new AbilityTriggersGui(mGui.mPlayer, true).open();
 				});
 		}
-		// Set gui identifier
-		setGuiIdentifier("gui_class_1");
 	}
 
 	private void setClassIcon(
@@ -177,12 +183,12 @@ public class ClassPage extends Page {
 			return;
 		}
 
-		Component description = classToItemize.getDescription(mGui.mPlayer).appendNewline().appendSpace();
+		Component description = classToItemize.getDescription(mGui.mPlayerToView).appendNewline().appendSpace();
 
 		Component instruction;
 		if (chosen) {
 			instruction = DescriptionUtils.centeredComponent(description, "Click to view your skills!", ACTION_COMPLETED);
-		} else if (otherChosen) {
+		} else if (otherChosen || mGui.mReadOnly) {
 			instruction = DescriptionUtils.centeredComponent(description, "Click to view %s's skills!".formatted(classToItemize.mClassName), ACTION_SELECT);
 		} else {
 			instruction = DescriptionUtils.centeredComponent(description, "Click to choose %s!".formatted(classToItemize.mClassName), ACTION_SELECT);
@@ -208,7 +214,7 @@ public class ClassPage extends Page {
 					mGui.update();
 					return;
 				}
-				if (!mGui.hasClass()) {
+				if (!mGui.hasClass() && !mGui.mReadOnly) {
 					ScoreboardUtils.setScoreboardValue(
 						mGui.mPlayer,
 						AbilityUtils.SCOREBOARD_CLASS_NAME,

@@ -41,7 +41,7 @@ public class SpecPage extends Page {
 		}
 
 		// Summary
-		Component description = (mSpec == mClass.mSpecOne ? mClass.getSpecOneDescription(mGui.mPlayer) : mClass.getSpecTwoDescription(mGui.mPlayer));
+		Component description = (mSpec == mClass.mSpecOne ? mClass.getSpecOneDescription(mGui.mPlayerToView) : mClass.getSpecTwoDescription(mGui.mPlayerToView));
 		Component name = DescriptionUtils.centeredComponent(description, mSpec.mSpecName, mClass.mClassColor, true);
 
 		setHeaderIcon(GUIUtils.createBasicItem(mSpec.mDisplayItem, 1, name, description, 99, true));

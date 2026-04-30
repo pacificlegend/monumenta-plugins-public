@@ -32,7 +32,7 @@ public class SkillPage extends Page {
 
 	@Override
 	protected void setup() {
-		boolean hasRingAccess = PlayerUtils.hasUnlockedRing(mGui.mPlayer);
+		boolean hasRingAccess = PlayerUtils.hasUnlockedRing(mGui.mPlayerToView);
 
 		// Make abilities
 		int skillIndex = 0;
@@ -62,7 +62,7 @@ public class SkillPage extends Page {
 		}
 
 		// Summary
-		Component description = mClass.getDescription(mGui.mPlayer).appendNewline().appendSpace();
+		Component description = mClass.getDescription(mGui.mPlayerToView).appendNewline().appendSpace();
 
 		Component name = DescriptionUtils.centeredComponent(description, mClass.mClassName, mClass.mClassColor, true);
 
@@ -86,7 +86,13 @@ public class SkillPage extends Page {
 			mGui.mPlayer.playSound(mGui.mPlayer, Sound.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_ON, SoundCategory.PLAYERS, 1f, 1f);
 		});
 
+		// Set gui identifier
+		setGuiIdentifier(hasRingAccess ? "gui_class_2_2" : "gui_class_2_1");
+
 		// Possibly create reset spec item
+		if (mGui.mReadOnly) {
+			return;
+		}
 		boolean isSpecOne = mGui.isClass(mClass, mClass.mSpecOne);
 		boolean isSpecTwo = mGui.isClass(mClass, mClass.mSpecTwo);
 		if (isSpecOne || isSpecTwo) {
@@ -116,9 +122,6 @@ public class SkillPage extends Page {
 					mGui.update();
 				});
 		}
-
-		// Set gui identifier
-		setGuiIdentifier(hasRingAccess ? "gui_class_2_2" : "gui_class_2_1");
 	}
 
 	protected void addSpecItem(
@@ -144,14 +147,14 @@ public class SkillPage extends Page {
 		boolean isSpec = mGui.isClass(mClass, spec);
 		boolean otherSpec = hasSpec && !isSpec;
 
-		Component description = (spec == mClass.mSpecOne ? mClass.getSpecOneDescription(mGui.mPlayer) : mClass.getSpecTwoDescription(mGui.mPlayer))
+		Component description = (spec == mClass.mSpecOne ? mClass.getSpecOneDescription(mGui.mPlayerToView) : mClass.getSpecTwoDescription(mGui.mPlayerToView))
 				.appendNewline().appendSpace();
 
 		// Unlocked and possibly using this spec
 		Component instruction;
 		if (isSpec) {
 			instruction = DescriptionUtils.centeredComponent(description, "Click to view your skills!", ACTION_COMPLETED);
-		} else if (isClass && !hasSpec) {
+		} else if (isClass && !hasSpec && !mGui.mReadOnly) {
 			instruction = DescriptionUtils.centeredComponent(description, "Click to choose %s!".formatted(spec.mSpecName), ACTION_SELECT);
 		} else {
 			instruction = DescriptionUtils.centeredComponent(description, "Click to view %s's skills!".formatted(spec.mSpecName), ACTION_SELECT);
@@ -174,7 +177,7 @@ public class SkillPage extends Page {
 					mGui.update();
 					return;
 				}
-				if (mGui.isClass(mClass, null) && !mGui.hasSpec()) {
+				if (mGui.isClass(mClass, null) && !mGui.hasSpec() && !mGui.mReadOnly) {
 					ScoreboardUtils.setScoreboardValue(
 						mGui.mPlayer,
 						AbilityUtils.SCOREBOARD_SPEC_NAME,

@@ -15,7 +15,6 @@ import com.playmonumenta.plugins.guis.peb.PebGui;
 import com.playmonumenta.plugins.infinitytower.guis.TowerGuiShowMobs;
 import com.playmonumenta.plugins.listeners.IchorListener;
 import com.playmonumenta.plugins.listeners.QuiverListener;
-import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import com.playmonumenta.plugins.utils.ScoreboardUtils;
@@ -256,47 +255,23 @@ public class CustomInventoryCommands {
 			.withArguments(new EntitySelectorArgument.OnePlayer("player"))
 			.executes((sender, args) -> {
 				Player player = args.getUnchecked("player");
-				Player viewer = player;
-				if (sender instanceof Player playerSender) {
-					viewer = playerSender;
-				}
-				new ClassSelectionGui(viewer, false).open();
-			})
-			.register();
-		new CommandAPICommand("openclassdisplaygui")
-			.withPermission("monumenta.command.openclassdisplaygui")
-			.executesPlayer((player, args) -> {
-				if (!AbilityUtils.getClass(player).equals("No Class")) {
-					new ClassDisplayCustomInventory(player).open();
-				}
-			})
-			.register();
-		new CommandAPICommand("openclassdisplaygui")
-			.withPermission("monumenta.command.openclassdisplaygui")
-			.withArguments(new EntitySelectorArgument.OnePlayer("player"))
-			.executes((sender, args) -> {
-				Player player = args.getUnchecked("player");
-				if (!AbilityUtils.getClass(player).equals("No Class")) {
-					new ClassDisplayCustomInventory(player).open();
-				}
-			})
-			.register();
-		new CommandAPICommand("playerdetails")
-			.withPermission("monumenta.command.playerdetails")
-			.executesPlayer((player, args) -> {
 				new ClassSelectionGui(player, false).open();
 			})
 			.register();
-		new CommandAPICommand("playerdetails")
-			.withPermission("monumenta.command.playerdetails")
+		new CommandAPICommand("playerabilities")
+			.withAliases("pa")
+			.withPermission("monumenta.command.playerabilities")
+			.executesPlayer((player, args) -> {
+				new ClassSelectionGui(player, false, player, true).open();
+			})
+			.register();
+		new CommandAPICommand("playerabilities")
+			.withAliases("pa")
+			.withPermission("monumenta.command.playerabilities")
 			.withArguments(new EntitySelectorArgument.OnePlayer("player"))
-			.executes((sender, args) -> {
-				Player player = args.getUnchecked("player");
-				Player viewer = player;
-				if (sender instanceof Player playerSender) {
-					viewer = playerSender;
-				}
-				new PlayerDisplayCustomInventory(viewer, player).openInventory(viewer, plugin);
+			.executesPlayer((player, args) -> {
+				Player other = args.getUnchecked("player");
+				new ClassSelectionGui(player, false, other, true).open();
 			})
 			.register();
 		new CommandAPICommand("openmasterworkgui")
@@ -503,11 +478,7 @@ public class CustomInventoryCommands {
 			.withArguments(new EntitySelectorArgument.OnePlayer("player"))
 			.executes((sender, args) -> {
 				Player player = args.getUnchecked("player");
-				Player viewer = player;
-				if (sender instanceof Player playerSender) {
-					viewer = playerSender;
-				}
-				new SnowPerkGui(viewer).open();
+				new SnowPerkGui(player).open();
 			})
 			.register();
 	}

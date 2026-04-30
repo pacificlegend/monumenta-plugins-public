@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.classes.MonumentaClasses;
 import com.playmonumenta.plugins.classes.PlayerClass;
 import com.playmonumenta.plugins.commands.CharmsCommand;
+import com.playmonumenta.plugins.guis.classselection.ClassSelectionGui;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.itemstats.abilities.CharmsGUI;
 import com.playmonumenta.plugins.itemstats.gui.PlayerItemStatsGUI;
@@ -46,7 +47,7 @@ public class PlayerDisplayCustomInventory extends CustomInventory {
 			case CLASS_LOC -> {
 				if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.BARRIER) {
 					mInventory.close();
-					new ClassDisplayCustomInventory(mRequestingPlayer, mTargetPlayer, true).open();
+					new ClassSelectionGui(mRequestingPlayer, false, mTargetPlayer, true).open();
 				}
 			}
 			case PS_LOC -> {

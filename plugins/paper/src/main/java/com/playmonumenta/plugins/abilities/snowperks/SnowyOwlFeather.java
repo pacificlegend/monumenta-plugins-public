@@ -73,8 +73,10 @@ public class SnowyOwlFeather extends Ability {
 					ParticleUtils.drawParticleCircleExplosion(mPlayer, particleLoc, 0, 0.3, 0, 0, 12, 0.16f, true, 0, 0.25, Particle.SNOWFLAKE);
 					mOnGround = true;
 				}
-				if (!isOnCooldown() && mOnGround && !DoubleJumpManager.hasFlightSource(mPlayer, FLIGHT_SOURCE)) {
-					new PPCircle(Particle.CLOUD, LocationUtils.getEntityCenter(mPlayer), 0.5).count(6).spawnAsPlayerPassive(mPlayer);
+				if (!isOnCooldown() && mOnGround) {
+					if (!DoubleJumpManager.hasFlightSource(mPlayer, FLIGHT_SOURCE)) {
+						new PPCircle(Particle.CLOUD, LocationUtils.getEntityCenter(mPlayer), 0.5).count(6).spawnAsPlayerPassive(mPlayer);
+					}
 					DoubleJumpManager.addFlightSource(mPlayer, FLIGHT_SOURCE);
 				}
 			}

@@ -628,6 +628,7 @@ public class Plugin extends JavaPlugin {
 		manager.registerEvents(mHuntsManager, this);
 		PlayerTitleManager.getInstance().onEnable(this, manager);
 		manager.registerEvents(playerSkinManager, this);
+		manager.registerEvents(mDoubleJumpManager, this);
 
 		if (ServerProperties.getDepthsEnabled()) {
 			manager.registerEvents(new DepthsListener(), this);

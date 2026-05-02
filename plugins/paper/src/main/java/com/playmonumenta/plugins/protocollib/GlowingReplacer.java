@@ -1,6 +1,7 @@
 package com.playmonumenta.plugins.protocollib;
 
 import com.bergerkiller.bukkit.common.wrappers.ChatText;
+import com.bergerkiller.bukkit.common.wrappers.DataWatcher;
 import com.bergerkiller.generated.net.minecraft.network.protocol.game.PacketPlayOutEntityMetadataHandle;
 import com.bergerkiller.generated.net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeamHandle;
 import com.bergerkiller.generated.net.minecraft.world.entity.EntityHandle;
@@ -64,11 +65,17 @@ public class GlowingReplacer extends PacketAdapter implements Listener {
 
 			// Entity flags is a byte and is at index 0, see https://wiki.vg/Entity_metadata#Entity
 			PacketPlayOutEntityMetadataHandle handle = PacketPlayOutEntityMetadataHandle.createHandle(packet.getHandle());
-			if (handle.getMetadataItems().isEmpty()
-				|| handle.getMetadataItems().get(0) == null
-				|| !handle.getMetadataItems().get(0).isForKey(EntityHandle.DATA_FLAGS)
-				|| !(handle.getMetadataItems().get(0).value() instanceof Byte data)
-				|| (data & GLOWING_BIT) == 0) {
+			if (handle.getMetadataItems().isEmpty()) {
+				// No glowing bit is set, so there's nothing to do
+				return;
+			}
+			DataWatcher.PackedItem<Object> firstPackedItem = handle.getMetadataItems().getFirst();
+			if (
+				firstPackedItem == null ||
+			    !firstPackedItem.isForKey(EntityHandle.DATA_FLAGS) ||
+			    !(firstPackedItem.value() instanceof Byte data) ||
+			    (data & GLOWING_BIT) == 0
+			) {
 				// No glowing bit is set, so there's nothing to do
 				return;
 			}
@@ -97,7 +104,7 @@ public class GlowingReplacer extends PacketAdapter implements Listener {
 				throw e;
 			}
 			handle = PacketPlayOutEntityMetadataHandle.createHandle(packet.getHandle());
-			handle.getMetadataItems().set(0, handle.getMetadataItems().get(0).cloneWithValue((byte) (data & ~GLOWING_BIT)));
+			handle.getMetadataItems().set(0, firstPackedItem.cloneWithValue((byte) (data & ~GLOWING_BIT)));
 			event.setPacket(packet);
 
 		} else { // SCOREBOARD_TEAM
@@ -129,18 +136,28 @@ public class GlowingReplacer extends PacketAdapter implements Listener {
 	public static void sendTeamUpdate(Entity entity, Player player, @Nullable String oldTeam, @Nullable NamedTextColor newTeam) {
 		@Nullable
 		Team realTeam = ScoreboardUtils.getEntityTeam(entity);
-
-		if (oldTeam != null || realTeam != null) {
+		String oldTeamName = null;
+		if (oldTeam != null) {
+			oldTeamName = oldTeam;
+		} else if (realTeam != null) {
+			oldTeamName = realTeam.getName();
+		}
+		if (oldTeamName != null) {
 			// remove from old team first
 			PacketPlayOutScoreboardTeamHandle handle = PacketPlayOutScoreboardTeamHandle.createNew();
-			handle.setName(oldTeam != null ? oldTeam : realTeam.getName());
+			handle.setName(oldTeamName);
 			handle.setMethod(PacketPlayOutScoreboardTeamHandle.METHOD_LEAVE);
 			handle.setPlayers(List.of(ScoreboardUtils.getScoreHolderName(entity)));
 			ProtocolLibrary.getProtocolManager().sendServerPacket(player, PacketContainer.fromPacket(handle.getRaw()), false);
 		}
 
-		if (newTeam != null || realTeam != null) {
-			String newTeamName = realTeam == null ? getColoredGlowingTeamName(newTeam, entity) : realTeam.getName();
+		String newTeamName = null;
+		if (newTeam != null) {
+			newTeamName = getColoredGlowingTeamName(newTeam, entity);
+		} else if (realTeam != null) {
+			newTeamName = realTeam.getName();
+		}
+		if (newTeamName != null) {
 			if (newTeam != null && SENT_TEAMS.computeIfAbsent(player.getUniqueId(), k -> new HashSet<>()).add(newTeamName)) {
 				// new team not yet sent to player, so send the creation packet
 				PacketPlayOutScoreboardTeamHandle handle = PacketPlayOutScoreboardTeamHandle.createNew();
@@ -170,14 +187,19 @@ public class GlowingReplacer extends PacketAdapter implements Listener {
 		final PacketContainer packet = new PacketContainer(PacketType.Play.Server.ENTITY_METADATA);
 		final WrappedDataWatcher dataWatcher = WrappedDataWatcher.getEntityWatcher(entity);
 		final List<WrappedWatchableObject> dataWatcherObjects = dataWatcher.getWatchableObjects();
-		if (dataWatcherObjects.isEmpty()
-			|| dataWatcherObjects.get(0).getIndex() != 0
-			|| !(dataWatcherObjects.get(0).getValue() instanceof Byte)) {
+		if (dataWatcherObjects.isEmpty()) {
+			return;
+		}
+		final WrappedWatchableObject firstWatchedObject = dataWatcherObjects.getFirst();
+		if (
+			firstWatchedObject.getIndex() != 0 ||
+			!(firstWatchedObject.getValue() instanceof Byte)
+		) {
 			return;
 		}
 		packet.getIntegers().write(0, entity.getEntityId());
 		WrappedDataWatcher.Serializer byteSerializer = WrappedDataWatcher.Registry.get(Byte.class);
-		packet.getDataValueCollectionModifier().write(0, List.of(new WrappedDataValue(0, byteSerializer, dataWatcherObjects.get(0).getValue())));
+		packet.getDataValueCollectionModifier().write(0, List.of(new WrappedDataValue(0, byteSerializer, firstWatchedObject.getValue())));
 		ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet, true);
 	}
 

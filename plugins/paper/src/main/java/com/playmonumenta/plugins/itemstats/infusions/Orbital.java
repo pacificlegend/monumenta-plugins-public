@@ -55,7 +55,7 @@ public class Orbital implements Infusion {
 	}
 
 	private void knockDown(Player player, LivingEntity enemy) {
-		MovementUtils.knockAwayDirection(DOWNWARD_KNOCK.multiply(EntityUtils.isFlyingMob(enemy) ? 3 : 1), enemy, 0.8f);
+		MovementUtils.knockAwayDirection(DOWNWARD_KNOCK.clone().multiply(EntityUtils.isFlyingMob(enemy) ? 3 : 1), enemy, 0.8f);
 
 		final double multiplier = Math.min(1 - EntityUtils.getAttributeOrDefault(enemy, Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0), 1)
 			* Math.min(0.3 + 0.07 * player.getLocation().distance(enemy.getLocation()), 1);

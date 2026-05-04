@@ -37,6 +37,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
 import static com.playmonumenta.plugins.Constants.TICKS_PER_SECOND;
@@ -46,6 +47,7 @@ public final class Varcosa extends SerializedLocationBossAbilityGroup {
 	public static final int detectionRange = 110;
 
 	private double mCoef;
+	private @Nullable BukkitTask mCoefTask;
 
 	public Varcosa(Plugin plugin, LivingEntity boss, Location spawnLoc, Location endLoc) {
 		super(plugin, identityTag, boss, spawnLoc, endLoc);
@@ -103,12 +105,13 @@ public final class Varcosa extends SerializedLocationBossAbilityGroup {
 
 		super.constructBoss(activeSpells, passiveSpells, detectionRange, bossBar);
 
-		new BukkitRunnable() {
+		mCoefTask = new BukkitRunnable() {
 
 			@Override
 			public void run() {
 				if (mBoss.isDead() || !mBoss.isValid()) {
 					this.cancel();
+					return;
 				}
 				mCoef = BossUtils.healthScalingCoef(PlayerUtils.playersInRange(mBoss.getLocation(), detectionRange,
 					true).size(), 0.5, 0.5);
@@ -137,6 +140,15 @@ public final class Varcosa extends SerializedLocationBossAbilityGroup {
 			sendMessage("Ye thought I be the one in control here? Yarharhar! N'argh me lad, I merely be its pawn! But now me soul can rest, and ye will be its next meal! Yarharhar!", player);
 		}
 		mEndLoc.getBlock().setType(Material.REDSTONE_BLOCK);
+	}
+
+	@Override
+	public void unload() {
+		if (mCoefTask != null) {
+			mCoefTask.cancel();
+			mCoefTask = null;
+		}
+		super.unload();
 	}
 
 	//Reduce damage taken for each player by a percent

@@ -171,6 +171,11 @@ public class VitalityExtractionCS extends HeavenlyBoonCS {
 
 				Location to = LocationUtils.getHalfHeightLocation(player);
 
+				if (!to.getWorld().equals(world)) {
+					this.cancel();
+					return;
+				}
+
 				for (int i = 0; i < 4; i++) {
 					if (mT <= 2) {
 						mD = dir.clone();

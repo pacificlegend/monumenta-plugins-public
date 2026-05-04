@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 public class Recoil implements Enchantment {
@@ -58,10 +59,11 @@ public class Recoil implements Enchantment {
 	@Override
 	public void onDamage(Plugin plugin, Player player, double level, DamageEvent event, LivingEntity enemy) {
 		ItemStack item = player.getInventory().getItemInMainHand();
-		if (item.getItemMeta() == null) {
+		ItemMeta meta = item.getItemMeta();
+		if (meta == null) {
 			return;
 		}
-		Collection<AttributeModifier> modifiers = item.getItemMeta().getAttributeModifiers(Attribute.GENERIC_ATTACK_SPEED);
+		Collection<AttributeModifier> modifiers = meta.hasAttributeModifiers() ? meta.getAttributeModifiers(Attribute.GENERIC_ATTACK_SPEED) : null;
 		boolean hasCumbersome = ItemStatUtils.hasEnchantment(item, EnchantmentType.CUMBERSOME);
 		if (event.getType() == DamageEvent.DamageType.MELEE
 			&& (PlayerUtils.isFallingAttack(player) || (hasCumbersome && player.getCooledAttackStrength(0.5f) > 0.9))

@@ -134,7 +134,7 @@ public class HuntingCompanion extends Ability {
 
 			@Override
 			public void run() {
-				if (player == null || mCount == 0) {
+				if (mPlayer == null || mCount == 0) {
 					this.cancel();
 					return;
 				}
@@ -143,9 +143,9 @@ public class HuntingCompanion extends Ability {
 					return;
 				}
 
-				if (AbilityManager.getManager().getPlayerAbility(player, HuntingCompanion.class) == null
-					|| !player.isOnline()) {
-					if (!AbilityManager.getManager().getPlayerAbilities(player).isSilenced()) {
+				if (AbilityManager.getManager().getPlayerAbility(mPlayer, HuntingCompanion.class) == null
+					|| !mPlayer.isOnline()) {
+					if (!AbilityManager.getManager().getPlayerAbilities(mPlayer).isSilenced()) {
 						this.cancel();
 					}
 					return;
@@ -271,6 +271,7 @@ public class HuntingCompanion extends Ability {
 	@Override
 	public void playerQuitEvent(PlayerQuitEvent event) {
 		clearSummons();
+		mCosmeticRunnable.cancel();
 	}
 
 	@Override

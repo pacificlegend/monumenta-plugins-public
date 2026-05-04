@@ -122,6 +122,10 @@ public class TransfiguredSpikeCS extends ManaLanceCS {
 
 			@Override
 			public void run() {
+				if (!mL.isWorldLoaded() || !mL.isChunkLoaded()) {
+					this.cancel();
+					return;
+				}
 				for (int i = 0; i < distance * 1.25; i++) {
 					float size = 0.5f + (1.25f * (float) (1 - (mL.distance(loc) / distance)));
 					double offset = 0.1 * (1f - (mL.distance(loc) / distance));

@@ -15,19 +15,22 @@ public class ExceptionListener implements Listener {
 	public void serverExceptionEvent(ServerExceptionEvent event) {
 		ServerException exception = event.getException();
 
+		// Paper already logs these with full cause chain
 		if (exception instanceof ServerSchedulerException schedException) {
-
 			BukkitTask task = schedException.getTask();
 			String msg = "Caught exception in " + (task.isSync() ? "sync" : "async") +
 				" task from " + task.getOwner().getName() +
 				" in class " + task.getClass().getName() +
 				" - killing it";
-			MMLog.severe(msg, exception);
+			// Log these at warning level instead of error - paper already logs the exception itself at severe level
+			// This warning log is only to indicate the task was killed
+			MMLog.warning(msg, exception);
 			if (!task.isCancelled()) {
 				task.cancel();
 			}
 		} else {
-			MMLog.severe("Caught server exception", exception);
+			// Not taking any action here, log with debug level to avoid duplication
+			MMLog.debug("Caught server exception", exception);
 		}
 	}
 

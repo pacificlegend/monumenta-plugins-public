@@ -100,11 +100,15 @@ public class ViciousCombos extends Ability {
 						EntityUtils.applyWeaken(mPlugin, mDuration, mWeaken, mob);
 					}
 				}
-				mCosmetic.comboOnElite(world, loc, mPlayer, mRadius, killedEntity);
+				if (mPlayer.getWorld().equals(loc.getWorld())) {
+					mCosmetic.comboOnElite(world, loc, mPlayer, mRadius, killedEntity);
+				}
 
 			} else if (EntityUtils.isHostileMob(killedEntity)) {
 				mPlugin.mTimers.updateCooldowns(mPlayer, mCDR);
-				mCosmetic.comboOnKill(world, loc, mPlayer, mRadius, killedEntity);
+				if (mPlayer.getWorld().equals(loc.getWorld())) {
+					mCosmetic.comboOnKill(world, loc, mPlayer, mRadius, killedEntity);
+				}
 			}
 		}, 1);
 	}
@@ -122,7 +126,9 @@ public class ViciousCombos extends Ability {
 			&& Bukkit.getServer().getCurrentTick() < mAbilityCastTime + ENHANCEMENT_CHARGE_LIFETIME) {
 			event.updateDamageWithMultiplier(1 + mEnhancementDamage);
 			mPlugin.mTimers.updateCooldown(mPlayer, mLastAbility, ENHANCEMENT_COOLDOWN_REDUCTION);
-			mCosmetic.enhancedCombo(enemy.getWorld(), mPlayer, enemy);
+			if (mPlayer.getWorld().equals(enemy.getWorld())) {
+				mCosmetic.enhancedCombo(enemy.getWorld(), mPlayer, enemy);
+			}
 
 			clearState();
 		}

@@ -255,7 +255,10 @@ public class Grappling implements Enchantment {
 						Plugin.getInstance().mEffectManager.clearEffects(player, ItemCooldown.toSource(EnchantmentType.GRAPPLING));
 						player.setCooldown(COOLDOWN_ITEM, 0);
 						doPickupAnimation(player);
-						mPlayerCooldownMap.remove(player.getUniqueId()).cancel();
+						BukkitTask cooldownTask = mPlayerCooldownMap.remove(player.getUniqueId());
+						if (cooldownTask != null) {
+							cooldownTask.cancel();
+						}
 						decrementShotsFired(player);
 						this.cancel();
 					}

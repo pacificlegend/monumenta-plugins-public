@@ -6,6 +6,7 @@ import com.playmonumenta.plugins.utils.PlayerUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -121,12 +122,18 @@ public class SpellBombToss extends Spell {
 	public void cancel() {
 		super.cancel();
 
-		for (Entity e : mTNTList) {
-			if (e.isValid()) {
-				e.remove();
-			}
-		}
+		// Remove TNT on the next tick if still loaded to avoid modifying entities during chunk unload
+		List<TNTPrimed> toRemove = new ArrayList<>(mTNTList);
 		mTNTList.clear();
+		if (!toRemove.isEmpty()) {
+			Bukkit.getScheduler().runTask(mPlugin, () -> {
+				for (Entity e : toRemove) {
+					if (e.isValid()) {
+						e.remove();
+					}
+				}
+			});
+		}
 	}
 
 	public void launch(Player target) {

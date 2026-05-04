@@ -286,11 +286,7 @@ public class MonumentaNetworkRelayIntegration implements Listener {
 
 	@EventHandler(ignoreCancelled = false, priority = EventPriority.HIGH)
 	public void lowMemory(LowMemoryEvent event) {
-		Bukkit.getServer().dispatchCommand(
-			Bukkit.getServer().getConsoleSender(),
-			"spark heapdump"
-		);
-		sendAdminMessage("<" + NetworkRelayAPI.getShardName() + "> Automatic heap dump due to low memory");
+		sendAdminMessage("<" + NetworkRelayAPI.getShardName() + "> Low memory detected by NetworkRelay");
 
 		// TODO Consider automatic restart?
 	}

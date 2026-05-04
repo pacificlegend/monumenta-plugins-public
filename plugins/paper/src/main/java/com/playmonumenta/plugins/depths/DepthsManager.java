@@ -175,6 +175,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -375,8 +376,8 @@ public class DepthsManager {
 				mInstance = this;
 				return true;
 			}
-
-		} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException | NoSuchFileException e) {
+			// Expected on first initialization after weekly cleanup removes temp files and instances
 			MMLog.warning("Depths access file '" + mConfigPath + "' does not exist - defaulting to new depths manager");
 		} catch (Exception e) {
 			MMLog.severe("Caught depths exception", e);

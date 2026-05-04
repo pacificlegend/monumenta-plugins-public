@@ -298,7 +298,8 @@ public class WindBomb extends Ability {
 				}.runTaskTimer(mPlugin, 0, 1);
 			}
 		} else {
-			mBomb = launchBomb(direction.normalize().multiply(0.5), sourceLoc);
+			Vector launchDir = direction.lengthSquared() > 0 ? direction.normalize().multiply(0.5) : new Vector(0, 0, 0);
+			mBomb = launchBomb(launchDir, sourceLoc);
 			if (mBomb == null) {
 				return;
 			}

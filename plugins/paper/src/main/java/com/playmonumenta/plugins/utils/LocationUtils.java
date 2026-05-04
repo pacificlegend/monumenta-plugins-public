@@ -813,44 +813,49 @@ public class LocationUtils {
 	public static Location fallToGround(Location loc, double minHeight, boolean ignoreLiquids) {
 		Location clone = loc.clone();
 
-		// If below minHeight, go up to it
-		if (clone.getY() <= minHeight) {
-			clone.setY(minHeight);
-			return clone;
-		}
+		// This is basically an infinite loop that happens to have an emergency exit if it never reaches the minHeight somehow.
+		for (int i = 0; i < 1000; i++) {
+			// If below minHeight, go up to it
+			if (clone.getY() <= minHeight) {
+				clone.setY(minHeight);
+				return clone;
+			}
 
-		Block block = clone.getBlock();
-		if (block.isSolid()) {
-			// If inside a block, go to the top of the block
-			clone.setY(Math.max(block.getBoundingBox().getMaxY(), minHeight));
-			return clone;
-		} else if (!ignoreLiquids && BlockUtils.isLiquid(block)) {
-			clone.setY(Math.max(block.getY() + 1, minHeight));
-			return clone;
-		} else {
-			// If not inside a block, go one block down and try again
-			Block below = block.getRelative(BlockFace.DOWN);
-			clone.setY(below.getY() + 0.5);
-			return fallToGround(clone, minHeight, ignoreLiquids);
+			Block block = clone.getBlock();
+			if (block.isSolid()) {
+				// If inside a block, go to the top of the block
+				clone.setY(Math.max(block.getBoundingBox().getMaxY(), minHeight));
+				return clone;
+			} else if (!ignoreLiquids && BlockUtils.isLiquid(block)) {
+				clone.setY(Math.max(block.getY() + 1, minHeight));
+				return clone;
+			} else {
+				// If not inside a block, go one block down and try again
+				Block below = block.getRelative(BlockFace.DOWN);
+				clone.setY(below.getY() + 0.5);
+			}
 		}
+		throw new RuntimeException("fallToGround failed to reach minHeight=" + minHeight + " after 1000 iterations starting from " + loc.toString());
 	}
 
 	public static Location emergeFromGround(Location loc, double maxHeight) {
 		Location clone = loc.clone();
-		Block block = clone.getBlock();
-		if (!block.isSolid()) {
-			return clone;
+		for (int i = 0; i < 1000; i++) {
+			Block block = clone.getBlock();
+			if (!block.isSolid()) {
+				return clone;
+			}
+			double newY = block.getBoundingBox().getMaxY();
+			if (newY < clone.getY()) {
+				return clone;
+			}
+			if (newY >= maxHeight) {
+				clone.setY(maxHeight + 0.01);
+				return clone;
+			}
+			clone.setY(newY + 0.5);
 		}
-		double newY = block.getBoundingBox().getMaxY();
-		if (newY < clone.getY()) {
-			return clone;
-		}
-		if (newY >= maxHeight) {
-			clone.setY(maxHeight + 0.01);
-			return clone;
-		}
-		clone.setY(newY + 0.5);
-		return emergeFromGround(clone, maxHeight);
+		throw new RuntimeException("emergeFromGround failed to reach maxHeight=" + maxHeight + " after 1000 iterations starting from " + loc.toString());
 	}
 
 	public static Location mapToGround(Location startLocation, int maxVerticalRange) {

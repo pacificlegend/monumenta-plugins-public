@@ -447,7 +447,11 @@ public class SpellStarStorm extends Spell {
 			public synchronized void cancel() {
 				super.cancel();
 				if (bullet.isValid() && ChunkManager.isChunkLoaded(bullet)) {
-					bullet.remove();
+					Bukkit.getScheduler().runTask(mPlugin, () -> {
+						if (bullet.isValid()) {
+							bullet.remove();
+						}
+					});
 				}
 			}
 		};
@@ -504,7 +508,11 @@ public class SpellStarStorm extends Spell {
 			public synchronized void cancel() {
 				super.cancel();
 				if (bullet.isValid() && ChunkManager.isChunkLoaded(bullet)) {
-					bullet.remove();
+					Bukkit.getScheduler().runTask(mPlugin, () -> {
+						if (bullet.isValid()) {
+							bullet.remove();
+						}
+					});
 				}
 			}
 		};

@@ -117,17 +117,18 @@ public class GaleShotCS implements CosmeticSkill {
 		new PartialParticle(Particle.GUST_DUST, location)
 			.count(8)
 			.spawnAsPlayerActive(player);
+		double distanceFactor = player.getWorld().equals(location.getWorld()) ? player.getLocation().distance(location) / 16.0 : 0;
 		new PPExplosion(Particle.CLOUD, location)
 			.count(25)
 			.speed(0.4)
-			.extra(Math.min(0.2 + player.getLocation().distance(location) / 16, 1))
+			.extra(Math.min(0.2 + distanceFactor, 1))
 			.directionalMode(true)
 			.speedVar(0.03)
 			.spawnAsPlayerActive(player);
 		new PPExplosion(Particle.DUST_PLUME, location)
 			.count(35)
 			.speed(0.5)
-			.extra(Math.min(0.2 + player.getLocation().distance(location) / 16, 1))
+			.extra(Math.min(0.2 + distanceFactor, 1))
 			.directionalMode(true)
 			.speedVar(0.03)
 			.spawnAsPlayerActive(player);

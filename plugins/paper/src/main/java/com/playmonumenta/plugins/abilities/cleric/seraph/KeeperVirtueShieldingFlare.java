@@ -56,7 +56,7 @@ public class KeeperVirtueShieldingFlare extends MultipleChargeAbility implements
 				return;
 			}
 			// Wait a few ticks first as we don't want to fire flares at dead players
-			if (target.isValid() && mKeeperVirtue.mBoss != null && mPlayer.getLocation().distance(target.getLocation()) <= mKeeperVirtue.mActionRange) {
+			if (target.isValid() && mKeeperVirtue.mBoss != null && mPlayer.getWorld().equals(target.getWorld()) && mPlayer.getLocation().distance(target.getLocation()) <= mKeeperVirtue.mActionRange) {
 				if (consumeCharge()) {
 					mKeeperVirtue.mTarget = target;
 					mKeeperVirtue.mTicksSinceTargetChance = 0;

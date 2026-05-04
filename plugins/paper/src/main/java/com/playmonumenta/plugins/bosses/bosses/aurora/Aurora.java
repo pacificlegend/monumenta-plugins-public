@@ -408,12 +408,12 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 								.delay(delay)
 								.spawnAsBoss();
 
-							Bukkit.getScheduler().runTaskLater(plugin, () -> {
+							mActiveTasks.add(Bukkit.getScheduler().runTaskLater(plugin, () -> {
 								changePhase(new SpellManager(phase3Actives), phase3Passives, null, 3 * 20);
 								mPulsarRadiation.run();
 								mCelestialPillars.run();
 								voidSpell.setHeightLimited(true);
-							}, delay);
+							}, delay));
 						});
 						// show players after tp to not show the tp animation
 						players.forEach(player -> player.showEntity(mPlugin, mBoss));
@@ -498,7 +498,7 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 			.reversed(true)
 			.spawnAsBoss();
 
-		new BukkitRunnable() {
+		mActiveTasks.add(new BukkitRunnable() {
 			private final World mWorld = mBoss.getWorld();
 			int mTicks = 0;
 
@@ -583,7 +583,7 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 					this.cancel();
 				}
 			}
-		}.runTaskTimer(mPlugin, 20, 1);
+		}.runTaskTimer(mPlugin, 20, 1));
 	}
 
 	private void showerAndSurge() {
@@ -866,6 +866,7 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 			"ʙᴜᴛ ɪɴ ᴍʏ ꜰɪɴᴀʟ ᴍᴏᴍᴇɴᴛꜱ, ɪ ʜᴏᴘᴇ ʏᴏᴜ ᴋɴᴏᴡ ᴀʟʟ ɪ ᴡᴀɴᴛᴇᴅ ᴡᴀꜱ ᴛᴏ ᴘʀᴏᴛᴇᴄᴛ ᴛʜɪꜱ ᴡᴏʀʟᴅ."
 		), () -> {
 			mBoss.remove();
+			mEndLoc.getBlock().setBlockData(Material.REDSTONE_BLOCK.createBlockData());
 
 			new PartialParticle(Particle.EXPLOSION_NORMAL, bossLoc)
 				.count(45)
@@ -913,8 +914,6 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 		playersInRange(mSpawnLoc, true).forEach(player ->
 			ScoreboardUtils.setScoreboardValue(player, CHARGES_SCORE, 0)
 		);
-
-		mEndLoc.getBlock().setBlockData(Material.REDSTONE_BLOCK.createBlockData());
 
 		mActiveTasks.forEach(BukkitTask::cancel);
 		mAuroraMinis.cancel();

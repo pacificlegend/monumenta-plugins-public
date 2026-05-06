@@ -233,7 +233,7 @@ public final class ItemOverrides {
 			mItems.put(plate, interactableBlockOverride);
 		}
 		mItems.put(Material.LEVER, interactableBlockOverride);
-
+		mItems.put(Material.ECHO_SHARD, new LucidityOverride());
 		mItems.put(Material.PEARLESCENT_FROGLIGHT, new LoamskattarCatalystOverride());
 	}
 

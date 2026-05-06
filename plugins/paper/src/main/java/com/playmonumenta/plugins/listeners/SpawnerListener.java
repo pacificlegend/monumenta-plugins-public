@@ -38,6 +38,7 @@ import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Marker;
@@ -137,6 +138,7 @@ public class SpawnerListener implements Listener {
 	 * specific spawner on this specific world is included
 	 */
 	public static final Map<Location, List<MobInfo>> mSpawnerInfos = new HashMap<>();
+	private static final Map<Location, BlockDisplay> mLuciditySpawners = new HashMap<>();
 
 	private final BukkitRunnable mCleaner;
 
@@ -485,6 +487,11 @@ public class SpawnerListener implements Listener {
 			event.setCancelled(true);
 		} else {
 			removeProtector(block);
+			@Nullable
+			BlockDisplay blockDisplay = mLuciditySpawners.get(block.getLocation());
+			if (blockDisplay != null) {
+				blockDisplay.remove();
+			}
 		}
 
 		Location blockLoc = BlockUtils.getCenterBlockLocation(block);
@@ -661,6 +668,10 @@ public class SpawnerListener implements Listener {
 		if (shields > 0 || losPool != null || decaying > 0 || protector || !breakActions.isEmpty()) {
 			SpawnerUtils.addEffectsDisplayMarker(block);
 		}
+	}
+
+	public static void addLucidityDisplays(Map<Location, BlockDisplay> blockDisplays) {
+		mLuciditySpawners.putAll(blockDisplays);
 	}
 
 	private static List<Entity> getEntityStack(Entity baseEntity) {

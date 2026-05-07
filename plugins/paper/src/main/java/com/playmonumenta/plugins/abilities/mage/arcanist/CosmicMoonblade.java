@@ -26,7 +26,6 @@ import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.Nullable;
 
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.cooldown;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.stat;
@@ -115,7 +114,7 @@ public class CosmicMoonblade extends Ability {
 				Hitbox hitbox = Hitbox.approximateCone(mPlayer.getEyeLocation(), mRange, Math.toRadians(ANGLE));
 				List<LivingEntity> hitMobs = hitbox.getHitMobs();
 				if (!hitMobs.isEmpty()) {
-					updateCooldowns(mLevelReduction, mInfo.getLinkedSpell(), mLevelCap);
+					mPlugin.mTimers.updateCooldownsPercentCapped(mPlayer, mLevelReduction, mLevelCap, s -> s != mInfo.getLinkedSpell());
 					for (LivingEntity mob : hitMobs) {
 						DamageUtils.damage(mPlayer, mob, new DamageEvent.Metadata(DamageEvent.DamageType.MAGIC, mInfo.getLinkedSpell(), playerItemStats), damage, true, false, false);
 					}
@@ -142,22 +141,10 @@ public class CosmicMoonblade extends Ability {
 			event.getDamager() == mPlayer && !mTriggered) {
 			mTriggered = true;
 			// update all abil cd, 1 tick delay to make sure moon blade is also reduced
-			Bukkit.getScheduler().runTaskLater(mPlugin, () -> updateCooldowns(mKillCDR, null, mKillCDRCap), 1);
+			Bukkit.getScheduler().runTaskLater(mPlugin, () -> mPlugin.mTimers.updateCooldownsPercentCapped(mPlayer, mKillCDR, mKillCDRCap, s -> true), 1);
 		}
 
 		return false;
-	}
-
-	public void updateCooldowns(double percent, @Nullable ClassAbility ignoredAbil, int cap) {
-		for (Ability abil : mPlugin.mAbilityManager.getPlayerAbilities(mPlayer).getAbilities()) {
-			ClassAbility linkedSpell = abil.getInfo().getLinkedSpell();
-			if (linkedSpell == null || linkedSpell == ignoredAbil) {
-				continue;
-			}
-			int totalCD = abil.getModifiedCooldown();
-			int reducedCD = Math.min((int) (totalCD * percent), cap);
-			mPlugin.mTimers.updateCooldown(mPlayer, linkedSpell, reducedCD);
-		}
 	}
 
 	private static Description<CosmicMoonblade> getDescription1() {

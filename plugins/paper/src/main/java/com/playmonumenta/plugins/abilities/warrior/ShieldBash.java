@@ -131,8 +131,7 @@ public class ShieldBash extends Ability {
 		// Event has been successfully blockedbyshield
 		// And ShieldBash is on CD...
 		if (isEnhanced() && !mIsEnhancementUsed && event.isBlockedByShield() && isOnCooldown() && mPlayer.getHandRaisedTime() < mParryDuration) {
-			int newCooldown = (int) (getModifiedCooldown() * mCDR);
-			mPlugin.mTimers.updateCooldown(mPlayer, ClassAbility.SHIELD_BASH, newCooldown);
+			mPlugin.mTimers.updateCooldownPercent(mPlayer, ClassAbility.SHIELD_BASH, mCDR);
 			mCosmetic.onParry(mPlayer.getWorld(), mPlayer.getLocation());
 
 			mIsEnhancementUsed = true;

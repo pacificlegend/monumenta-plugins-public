@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -210,6 +211,14 @@ public class CooldownTimers {
 		updateCooldowns(player.getUniqueId(), player, ticks, true);
 	}
 
+	public void updateCooldownsPercent(Player player, Function<ClassAbility, Double> modifier, Predicate<ClassAbility> filter) {
+		updateCooldowns(player.getUniqueId(), player, filter, (c, s) -> (int) (c.getRemaining() - c.getInitial() * modifier.apply(s)), true);
+	}
+
+	public void updateCooldownsPercent(Player player, double modifier, Predicate<ClassAbility> filter) {
+		updateCooldownsPercent(player, s -> modifier, filter);
+	}
+
 	/**
 	 * Reduces the players ticks on all of their cooldowns.
 	 *
@@ -224,13 +233,17 @@ public class CooldownTimers {
 		}
 		int abilitiesReduced = cds.size();
 
-		updateCooldowns(player.getUniqueId(), player, s -> true, (c, s) -> (int) (c.getRemaining() - c.getInitial() * modifier), true);
+		updateCooldownsPercent(player, modifier, s -> true);
 
 		return abilitiesReduced;
 	}
 
 	public void updateCooldownPercent(Player player, ClassAbility spell, double modifier) {
-		updateCooldowns(player.getUniqueId(), player, s -> s == spell, (c, s) -> (int) (c.getRemaining() - c.getInitial() * modifier), true);
+		updateCooldownsPercent(player, modifier, s -> s == spell);
+	}
+
+	public void updateCooldownsPercentCapped(Player player, double modifier, int maxDecrease, Predicate<ClassAbility> filter) {
+		updateCooldowns(player.getUniqueId(), player, filter, (c, s) -> (int) (c.getRemaining() - Math.min(c.getInitial() * modifier, maxDecrease)), true);
 	}
 
 	public void updateCooldown(Player player, ClassAbility spell, int ticks) {

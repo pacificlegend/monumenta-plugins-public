@@ -2,12 +2,8 @@ package com.playmonumenta.plugins.depths.abilities.windwalker;
 
 import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
-import com.playmonumenta.plugins.abilities.Ability;
-import com.playmonumenta.plugins.abilities.AbilityInfo;
-import com.playmonumenta.plugins.abilities.AbilityManager;
 import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.DescriptionBuilder;
-import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.depths.DepthsTree;
 import com.playmonumenta.plugins.depths.abilities.DepthsAbilityInfo;
 import com.playmonumenta.plugins.depths.abilities.DepthsCombosAbility;
@@ -70,17 +66,7 @@ public class WindsweptCombos extends DepthsCombosAbility {
 			e.setVelocity(e.getVelocity().add(e.getLocation().toVector().subtract(location.subtract(0, 0.3, 0).toVector()).normalize().multiply(-pull).add(new Vector(0, 0.2, 0))));
 		}
 
-		for (Ability ability : AbilityManager.getManager().getPlayerAbilities(player).getAbilities()) {
-			AbilityInfo<?> info = ability.getInfo();
-			ClassAbility spell = info.getLinkedSpell();
-			if (spell == null) {
-				continue;
-			}
-			int totalCD = ability.getModifiedCooldown();
-			int reducedCD = Math.min((int) (totalCD * cooldownReduction), CAP_TICKS);
-			plugin.mTimers.updateCooldown(player, spell, reducedCD);
-		}
-
+		plugin.mTimers.updateCooldownsPercentCapped(player, cooldownReduction, CAP_TICKS, s -> true);
 
 		Location loc = player.getLocation().add(0, 1, 0);
 		World world = player.getWorld();

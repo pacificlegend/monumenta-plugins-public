@@ -1,9 +1,6 @@
 package com.playmonumenta.plugins.depths.abilities.windwalker;
 
 import com.playmonumenta.plugins.Plugin;
-import com.playmonumenta.plugins.abilities.Ability;
-import com.playmonumenta.plugins.abilities.AbilityInfo;
-import com.playmonumenta.plugins.abilities.AbilityManager;
 import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.DescriptionBuilder;
 import com.playmonumenta.plugins.classes.ClassAbility;
@@ -12,7 +9,6 @@ import com.playmonumenta.plugins.depths.DepthsTree;
 import com.playmonumenta.plugins.depths.abilities.DepthsAbility;
 import com.playmonumenta.plugins.depths.abilities.DepthsAbilityInfo;
 import com.playmonumenta.plugins.depths.abilities.DepthsTrigger;
-import com.playmonumenta.plugins.depths.abilities.aspects.BowAspect;
 import com.playmonumenta.plugins.depths.charmfactory.CharmEffects;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
@@ -141,16 +137,7 @@ public class Skyhook extends DepthsAbility {
 			//Refund cooldowns
 			double dist = loc.distance(playerStartLoc);
 			double percentReduction = dist * mCDRPerBlock;
-			for (Ability ability : AbilityManager.getManager().getPlayerAbilities(mPlayer).getAbilities()) {
-				AbilityInfo<?> info = ability.getInfo();
-				ClassAbility spell = info.getLinkedSpell();
-				if (spell == null || spell == mInfo.getLinkedSpell()) {
-					continue;
-				}
-				int totalCD = ability.getModifiedCooldown();
-				int reducedCD = Math.min(5 * 20, (int) (totalCD * percentReduction));
-				mPlugin.mTimers.updateCooldown(mPlayer, spell, reducedCD);
-			}
+			mPlugin.mTimers.updateCooldownsPercentCapped(mPlayer, percentReduction, 5 * 20, s -> s != getInfo().getLinkedSpell());
 		}
 		world.playSound(loc, Sound.ITEM_TRIDENT_RIPTIDE_1, SoundCategory.PLAYERS, 1, 1.5f);
 
@@ -164,7 +151,7 @@ public class Skyhook extends DepthsAbility {
 			|| !EntityUtils.isAbilityTriggeringProjectile(projectile, false)) {
 			return true;
 		}
-		putOnCooldown((int) (getModifiedCooldown() * BowAspect.getCooldownReduction(mPlayer)));
+		putOnCooldown();
 		World world = mPlayer.getWorld();
 		Location loc = mPlayer.getLocation();
 		world.playSound(loc, Sound.ITEM_CROSSBOW_QUICK_CHARGE_3, SoundCategory.PLAYERS, 1, 1.0f);

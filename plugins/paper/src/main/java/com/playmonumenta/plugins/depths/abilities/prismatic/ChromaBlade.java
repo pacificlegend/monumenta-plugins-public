@@ -96,12 +96,13 @@ public class ChromaBlade extends DepthsAbility {
 		if (isOnCooldown()) {
 			return false;
 		}
-		putOnCooldown();
 
 		ItemStack mainhand = mPlayer.getInventory().getItemInMainHand();
 		double atkSpeed = 4 + ItemStatUtils.getAttributeAmount(mainhand, AttributeType.ATTACK_SPEED, Operation.ADD, Slot.MAINHAND);
 		boolean isFast = atkSpeed >= 1.3;
 		int startup = isFast ? 2 : 5;
+
+		putOnCooldown((int) (getModifiedCooldown() * (isFast ? 1 : 1.25)));
 
 		if (mLastTree == DepthsTree.WINDWALKER) {
 			startup = 0;
@@ -130,11 +131,6 @@ public class ChromaBlade extends DepthsAbility {
 
 			mLastTree = DepthsTree.PRISMATIC;
 		}, startup);
-
-		// increased cooldown if slow
-		if (!isFast) {
-			mPlugin.mTimers.updateCooldown(mPlayer, ClassAbility.CHROMA_BLADE, (int) (-0.25 * getModifiedCooldown()));
-		}
 
 		return true;
 	}

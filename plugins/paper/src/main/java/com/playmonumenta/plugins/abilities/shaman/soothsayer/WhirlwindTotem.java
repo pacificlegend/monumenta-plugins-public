@@ -102,15 +102,7 @@ public class WhirlwindTotem extends TotemAbility {
 			}
 			if (chainLightning) {
 				double chainLightningModifier = ChainLightning.ENHANCE_SUPPORT_EFFICIENCY + CharmManager.getLevelPercentDecimal(mPlayer, ChainLightning.CHARM_SUPPORT_TOTEM_EFFICIENCY);
-				for (Ability abil : mPlugin.mAbilityManager.getPlayerAbilities(p).getAbilities()) {
-					ClassAbility linkedSpell = abil.getInfo().getLinkedSpell();
-					if (linkedSpell == null || linkedSpell == ClassAbility.WHIRLWIND_TOTEM) {
-						continue;
-					}
-					int totalCD = abil.getModifiedCooldown();
-					int reducedCD = (int) (Math.min(totalCD * mCDRPercent, mCDRMax) * chainLightningModifier);
-					mPlugin.mTimers.updateCooldown(p, linkedSpell, reducedCD);
-				}
+				mPlugin.mTimers.updateCooldownsPercentCapped(p, mCDRPercent * chainLightningModifier, (int) (mCDRMax * chainLightningModifier), s -> s != ClassAbility.WHIRLWIND_TOTEM);
 			} else {
 				mPlugin.mEffectManager.addEffect(p, "WhirlwindTotemCDR", new ShamanCooldownDecreasePerSecond(50, mCDRPercent, mCDRMax, mPlugin).deleteOnAbilityUpdate(true));
 			}

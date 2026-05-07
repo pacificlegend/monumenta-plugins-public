@@ -1,10 +1,11 @@
 package com.playmonumenta.plugins.depths.abilities.aspects;
 
 import com.playmonumenta.plugins.Plugin;
-import com.playmonumenta.plugins.abilities.AbilityManager;
+import com.playmonumenta.plugins.depths.abilities.DepthsAbility;
 import com.playmonumenta.plugins.depths.abilities.DepthsAbilityInfo;
 import com.playmonumenta.plugins.depths.abilities.DepthsTrigger;
 import com.playmonumenta.plugins.depths.abilities.WeaponAspectDepthsAbility;
+import com.playmonumenta.plugins.events.AbilityCastEvent;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.StringUtils;
 import org.bukkit.Material;
@@ -37,11 +38,12 @@ public class BowAspect extends WeaponAspectDepthsAbility {
 		return true;
 	}
 
-	public static double getCooldownReduction(Player player) {
-		if (player != null && AbilityManager.getManager().getPlayerAbility(player, BowAspect.class) != null) {
-			return 1 - COOLDOWN_REDUCTION;
+	@Override
+	public boolean abilityCastEvent(AbilityCastEvent event) {
+		if (event.getAbility() instanceof DepthsAbility ability && ability.getInfo().getDepthsTrigger() == DepthsTrigger.SHIFT_BOW) {
+			event.setCooldown((int) (event.getCooldown() * (1 - COOLDOWN_REDUCTION)));
 		}
-		return 1;
+		return true;
 	}
 
 }

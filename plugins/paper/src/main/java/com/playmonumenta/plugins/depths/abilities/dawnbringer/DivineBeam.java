@@ -9,7 +9,6 @@ import com.playmonumenta.plugins.depths.DepthsTree;
 import com.playmonumenta.plugins.depths.abilities.DepthsAbility;
 import com.playmonumenta.plugins.depths.abilities.DepthsAbilityInfo;
 import com.playmonumenta.plugins.depths.abilities.DepthsTrigger;
-import com.playmonumenta.plugins.depths.abilities.aspects.BowAspect;
 import com.playmonumenta.plugins.depths.charmfactory.CharmEffects;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.particle.PPCircle;
@@ -85,7 +84,7 @@ public class DivineBeam extends DepthsAbility {
 		}
 		projectile.remove();
 		mPlugin.mProjectileEffectTimers.removeEntity(projectile);
-		putOnCooldown((int) (getModifiedCooldown() * BowAspect.getCooldownReduction(mPlayer)));
+		putOnCooldown();
 
 		World world = mPlayer.getWorld();
 		Location startLoc = mPlayer.getEyeLocation();

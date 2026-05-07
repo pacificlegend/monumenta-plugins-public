@@ -2,7 +2,6 @@ package com.playmonumenta.plugins.effects;
 
 import com.google.gson.JsonObject;
 import com.playmonumenta.plugins.Plugin;
-import com.playmonumenta.plugins.abilities.Ability;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.utils.StringUtils;
 import net.kyori.adventure.text.Component;
@@ -26,18 +25,8 @@ public class ShamanCooldownDecreasePerSecond extends Effect {
 
 	@Override
 	public void entityTickEffect(Entity entity, boolean fourHertz, boolean twoHertz, boolean oneHertz) {
-		if (oneHertz) {
-			if (entity instanceof Player player) {
-				for (Ability abil : mPlugin.mAbilityManager.getPlayerAbilities(player).getAbilities()) {
-					ClassAbility linkedSpell = abil.getInfo().getLinkedSpell();
-					if (linkedSpell == null || linkedSpell == ClassAbility.WHIRLWIND_TOTEM) {
-						continue;
-					}
-					int totalCD = abil.getModifiedCooldown();
-					int reducedCD = Math.min((int) (totalCD * mPercent), mMaxDecrease);
-					mPlugin.mTimers.updateCooldown(player, linkedSpell, reducedCD);
-				}
-			}
+		if (oneHertz && entity instanceof Player player) {
+			mPlugin.mTimers.updateCooldownsPercentCapped(player, mPercent, mMaxDecrease, s -> s != ClassAbility.WHIRLWIND_TOTEM);
 		}
 	}
 

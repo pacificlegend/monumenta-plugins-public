@@ -1,11 +1,11 @@
 package com.playmonumenta.plugins.depths.abilities.windwalker;
 
 import com.playmonumenta.plugins.Plugin;
-import com.playmonumenta.plugins.abilities.Ability;
 import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.DescriptionBuilder;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.depths.DepthsTree;
+import com.playmonumenta.plugins.depths.DepthsUtils;
 import com.playmonumenta.plugins.depths.abilities.DepthsAbility;
 import com.playmonumenta.plugins.depths.abilities.DepthsAbilityInfo;
 import com.playmonumenta.plugins.depths.abilities.DepthsTrigger;
@@ -16,6 +16,7 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import java.util.List;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -82,20 +83,8 @@ public class LastBreath extends DepthsAbility {
 
 		putOnCooldown();
 
-		for (Ability abil : mPlugin.mAbilityManager.getPlayerAbilities(mPlayer).getAbilities()) {
-			ClassAbility linkedSpell = abil.getInfo().getLinkedSpell();
-			if (abil == this || linkedSpell == null) {
-				continue;
-			}
-			int totalCD = abil.getModifiedCooldown();
-			int reducedCD;
-			if (abil instanceof DepthsAbility da && da.getInfo().getDepthsTree() == DepthsTree.WINDWALKER) {
-				reducedCD = totalCD;
-			} else {
-				reducedCD = (int) (totalCD * mCDR);
-			}
-			mPlugin.mTimers.updateCooldown(mPlayer, linkedSpell, reducedCD);
-		}
+		List<ClassAbility> windAbilities = DepthsUtils.getClassAbilitiesInTree(DepthsTree.WINDWALKER);
+		mPlugin.mTimers.updateCooldownsPercent(mPlayer, s -> windAbilities.contains(s) ? 1 : mCDR, s -> s != getInfo().getLinkedSpell());
 
 		Location loc = mPlayer.getLocation();
 		World world = mPlayer.getWorld();

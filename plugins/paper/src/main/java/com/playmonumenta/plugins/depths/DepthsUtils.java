@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.AbilityInfo;
+import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.depths.abilities.frostborn.Avalanche;
 import com.playmonumenta.plugins.depths.rooms.DepthsRoomType;
 import com.playmonumenta.plugins.depths.rooms.DepthsRoomType.DepthsRewardType;
@@ -327,6 +328,10 @@ public class DepthsUtils {
 
 	public static boolean isGiftAbility(String s) {
 		return DepthsManager.getGiftAbilities().stream().map(AbilityInfo::getDisplayName).filter(Objects::nonNull).toList().contains(s);
+	}
+
+	public static List<ClassAbility> getClassAbilitiesInTree(DepthsTree tree) {
+		return DepthsManager.getAbilitiesOfTree(tree).stream().map(AbilityInfo::getLinkedSpell).filter(Objects::nonNull).toList();
 	}
 
 	/**

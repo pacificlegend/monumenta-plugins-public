@@ -128,12 +128,7 @@ public class Spiritualism extends Ability {
 		if (playersInTotemRange.contains(mPlayer)) {
 			ClassAbility ability = event.getSpell();
 			if (REDUCIBLE_ABILITIES.contains(ability)) {
-				Ability actualAbility = mPlugin.mAbilityManager.getPlayerAbilities(mPlayer).getAbility(ability);
-				if (actualAbility == null) {
-					return true;
-				}
-				int cooldownPercent = (int) (mNonTotemCooldownRefundPercent * actualAbility.getModifiedCooldown());
-				mPlugin.mTimers.updateCooldown(mPlayer, ability, Math.min(mNonTotemCooldownRefundCap, cooldownPercent));
+				event.setCooldown(event.getCooldown() - (int) Math.min(event.getCooldown() * mNonTotemCooldownRefundPercent, mNonTotemCooldownRefundCap));
 				mCosmetic.onCooldownRefresh(mPlayer);
 			}
 		}

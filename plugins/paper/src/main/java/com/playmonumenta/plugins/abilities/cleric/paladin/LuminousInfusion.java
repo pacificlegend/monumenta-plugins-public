@@ -95,6 +95,7 @@ public class LuminousInfusion extends Ability implements AbilityWithChargesOrSta
 		mRadius = CharmManager.getRadius(mPlayer, CHARM_RADIUS, RADIUS);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new LuminousInfusionCS());
 		mMaxCharges = CHARGES + (int) CharmManager.getLevel(mPlayer, CHARM_CHARGES);
+		mRemainingCharges = Math.min(mMaxCharges, AbilityManager.getManager().getTrackedCharges(mPlayer, ClassAbility.LUMINOUS_INFUSION));
 		mFireDuration = CharmManager.getDuration(player, CHARM_FIRE_DURATION, FIRE_DURATION);
 		mBlindRadius = CharmManager.getRadius(mPlayer, CHARM_BLIND_RADIUS, BLIND_RADIUS);
 		mBlindDuration = CharmManager.getDuration(player, CHARM_BLIND_DURATION, BLIND_DURATION);

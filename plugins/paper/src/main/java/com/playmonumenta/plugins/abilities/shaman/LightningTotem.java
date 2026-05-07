@@ -172,18 +172,23 @@ public class LightningTotem extends TotemAbility {
 
 		// Check for arrow critical
 		boolean useEliteDamage = isLevelTwo() && (EntityUtils.isElite(enemy) || EntityUtils.isBoss(enemy) || EntityUtils.getMaxHealth(enemy) == enemy.getHealth());
-		if (event.getDamager() instanceof Projectile projectile && EntityUtils.isAbilityTriggeringProjectile(projectile, true)) {
+		if (event.getType() == DamageEvent.DamageType.PROJECTILE
+			&& event.getDamager() instanceof Projectile projectile
+			&& EntityUtils.isAbilityTriggeringProjectile(projectile, true)) {
 			if (!MetadataUtils.checkOnceInRecentTicks(mPlugin, enemy, "LightningTotemHit", 5)) {
 				return false;
 			}
 
 			percentDamage = useEliteDamage ? mEliteDamagePercentProj : mDamagePercentProj;
 			meleeActivated = false;
-		} else if (event.getType() == DamageEvent.DamageType.MELEE && mPlayer.getCooledAttackStrength(0) > 0.9) {
+		} else if (event.getType() == DamageEvent.DamageType.MELEE
+			&& mPlayer.getCooledAttackStrength(0) > 0.9) {
 			if (!MetadataUtils.checkOnceInRecentTicks(mPlugin, enemy, "LightningTotemHit", 5)) {
 				return false;
 			}
 			percentDamage = useEliteDamage ? mEliteDamagePercentMelee : mDamagePercentMelee;
+		} else {
+			return false;
 		}
 
 		double damage = mDamageFlat + event.getFinalDamage(false, DamageEvent.DamageType.MAGIC) * Math.max(percentDamage, 0.0);

@@ -8,7 +8,6 @@ import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.MessagingUtils;
 import java.util.List;
 import org.bukkit.Color;
-import org.bukkit.Material;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.TextDisplay;
@@ -25,16 +24,20 @@ public class TextDisplayBoss extends BossAbilityGroup {
 		@BossParam(help = "Interpolation duration")
 		public int ANIMATION_TICKS = 1;
 
-		@BossParam(help = "Material of the display")
-		public Material MATERIAL = Material.GLASS;
 		@BossParam(help = "Display billboard mode")
-		public Display.Billboard BILLBOARD = Display.Billboard.FIXED;
+		public Display.Billboard BILLBOARD = Display.Billboard.CENTER;
 		@BossParam(help = "The text to be displayed in minimessage format")
 		public String TEXT = "<red>I am EVIL.";
 		@BossParam(help = "Whether the display glows")
 		public boolean GLOWING = false;
 		@BossParam(help = "Display glow color (glow_color_override nbt tag)")
 		public String GLOW_COLOR = "ffffff";
+
+		@BossParam(help = "Background color of the text")
+		public String BACKGROUND_COLOR = "ffffff";
+
+		@BossParam(help = "The opacity of the background. Between 0 (none) and 1 (full)")
+		public double BACKGROUND_OPACITY = 1;
 
 		@BossParam(help = "Translation is affected by rotation")
 		public float TRANSLATION_X = 0;
@@ -82,7 +85,14 @@ public class TextDisplayBoss extends BossAbilityGroup {
 			if (p.GLOWING) {
 				d.setGlowing(true);
 			}
-			d.setGlowColorOverride(Color.fromRGB(Integer.parseInt(p.GLOW_COLOR, 16)));
+
+			int glowRgb = Integer.parseInt(p.GLOW_COLOR, 16); // e.g. "FF0000"
+			d.setGlowColorOverride(Color.fromRGB(glowRgb));
+
+			int backgroundRgb = Integer.parseInt(p.BACKGROUND_COLOR, 16);
+			int backgroundArgb = (Math.clamp(Math.round(p.BACKGROUND_OPACITY * 255), 0, 255) << 24) | backgroundRgb;
+
+			d.setBackgroundColor(Color.fromARGB(backgroundArgb));
 
 			EntityUtils.setRemoveEntityOnUnload(d);
 		});

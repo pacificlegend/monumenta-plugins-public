@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.bosses.SpellManager;
 import com.playmonumenta.plugins.bosses.parameters.BossParam;
 import com.playmonumenta.plugins.bosses.parameters.EntityTargets;
+import com.playmonumenta.plugins.bosses.parameters.LoSPool;
 import com.playmonumenta.plugins.bosses.parameters.ParticlesList;
 import com.playmonumenta.plugins.bosses.parameters.SoundsList;
 import com.playmonumenta.plugins.bosses.spells.SpellSurge;
@@ -47,8 +48,20 @@ public class SurgeBoss extends BossAbilityGroup {
 		@BossParam(help = "The vertical knockback applied by the explosion")
 		public float KB_Y = 0.3f;
 
-		@BossParam(help = "The entities that can be targetted by the explosion")
-		public EntityTargets TARGETS = EntityTargets.GENERIC_PLAYER_TARGET.clone();
+		@BossParam(help = "The entities to be targeted by the projectiles")
+		public EntityTargets TARGETS = EntityTargets.GENERIC_SELF_TARGET.clone();
+
+		@BossParam(help = "Delay between projectiles (0 means instant)")
+		public int PROJECTILE_INTERVAL = 1;
+
+		@BossParam(help = "Should the boss center the surge on the target?")
+		public boolean TRACKING = false;
+
+		@BossParam(help = "Should the surge respect player's immunity frames?")
+		public boolean RESPECT_IFRAMES = true;
+
+		@BossParam(help = "LibraryOfSouls pool spawned when the explosion occurs")
+		public LoSPool SPAWNED_MOB_POOL = LoSPool.LibraryPool.EMPTY;
 
 		@BossParam(help = "Percent true damage to apply to a hit entity")
 		public double DAMAGE_PERCENTAGE = 0.0;

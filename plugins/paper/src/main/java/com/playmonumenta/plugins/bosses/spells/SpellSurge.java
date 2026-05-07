@@ -2,6 +2,7 @@ package com.playmonumenta.plugins.bosses.spells;
 
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.bosses.bosses.SurgeBoss;
+import com.playmonumenta.plugins.bosses.parameters.EntityTargets;
 import com.playmonumenta.plugins.bosses.parameters.ParticlesList;
 import com.playmonumenta.plugins.particle.PPCircle;
 import com.playmonumenta.plugins.particle.PPLine;
@@ -9,6 +10,7 @@ import com.playmonumenta.plugins.utils.BossUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.MovementUtils;
+import java.util.function.Supplier;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -21,20 +23,43 @@ public class SpellSurge extends Spell {
 	private final Plugin mPlugin;
 	private final LivingEntity mBoss;
 	private final SurgeBoss.Parameters mP;
+	private final EntityTargets mExplosionTargets;
 
 	public SpellSurge(Plugin plugin, LivingEntity boss, SurgeBoss.Parameters parameters) {
 		mPlugin = plugin;
 		mBoss = boss;
 		mP = parameters;
-		mP.TARGETS.setRange(mP.EXPLOSION_RADIUS);
+		mExplosionTargets = mP.TARGETS.clone().setRange(mP.EXPLOSION_RADIUS);
+
+		mP.PROJECTILE_INTERVAL = Math.max(0, mP.PROJECTILE_INTERVAL);
 	}
 
 	@Override
 	public void run() {
-		spawnSurge(mBoss.getLocation(), mP.PROJECTILE_COUNT, mP.RANGE);
+		mP.TARGETS.getTargetsList(mBoss).forEach(e ->
+			spawnSurge(mBoss.getLocation(), mP.TRACKING ? e::getLocation : mBoss::getLocation, mP.PROJECTILE_COUNT, mP.RANGE)
+		);
 	}
 
-	private void spawnSurge(Location origin, int count, double range) {
+	private void spawnSurge(Location origin, Supplier<Location> targetLoc, int count, double range) {
+		if (mP.PROJECTILE_INTERVAL <= 0) {
+			mP.SOUND_THROW.play(origin);
+
+			for (int i = 0; i < count; i++) {
+				Location loc = targetLoc.get();
+
+				Location fallLoc = LocationUtils.randomLocationInCircle(loc, range - mP.EXPLOSION_RADIUS);
+				if (fallLoc.getBlock().isSolid()) {
+					fallLoc = LocationUtils.emergeFromGround(fallLoc, fallLoc.getY() + 10);
+				} else {
+					fallLoc = LocationUtils.fallToGround(fallLoc, fallLoc.getY() - 10);
+				}
+
+				summonProjectile(origin, fallLoc);
+			}
+			return;
+		}
+
 		mActiveTasks.add(new BukkitRunnable() {
 			private final int mChargeTime = count;
 			int mTicks = 0;
@@ -43,7 +68,7 @@ public class SpellSurge extends Spell {
 			public void run() {
 				mP.SOUND_THROW.play(origin);
 
-				Location fallLoc = LocationUtils.randomLocationInCircle(origin, range - mP.EXPLOSION_RADIUS);
+				Location fallLoc = LocationUtils.randomLocationInCircle(targetLoc.get(), range - mP.EXPLOSION_RADIUS);
 				if (fallLoc.getBlock().isSolid()) {
 					fallLoc = LocationUtils.emergeFromGround(fallLoc, fallLoc.getY() + 10);
 				} else {
@@ -57,7 +82,7 @@ public class SpellSurge extends Spell {
 					this.cancel();
 				}
 			}
-		}.runTaskTimer(mPlugin, 0, 1));
+		}.runTaskTimer(mPlugin, 0, mP.PROJECTILE_INTERVAL));
 	}
 
 	public void summonProjectile(Location startLoc, Location fallLoc) {
@@ -84,18 +109,19 @@ public class SpellSurge extends Spell {
 					}
 					mP.SOUND_EXPLOSION.play(fallLoc);
 
-					for (LivingEntity hitEntity : mP.TARGETS.getTargetsListByLocation(mBoss, fallLoc)) {
+					for (LivingEntity hitEntity : mExplosionTargets.getTargetsListByLocation(mBoss, fallLoc)) {
 						if (mP.DAMAGE > 0) {
 							if (mP.BLOCKABLE) {
-								BossUtils.blockableDamage(mBoss, hitEntity, mP.DAMAGE_TYPE, mP.DAMAGE, false, false, mP.SPELL_NAME, fallLoc);
+								BossUtils.blockableDamage(mBoss, hitEntity, mP.DAMAGE_TYPE, mP.DAMAGE, !mP.RESPECT_IFRAMES, false, mP.SPELL_NAME, fallLoc);
 							} else {
-								DamageUtils.damage(mBoss, hitEntity, mP.DAMAGE_TYPE, mP.DAMAGE, null, false, false, mP.SPELL_NAME);
+								DamageUtils.damage(mBoss, hitEntity, mP.DAMAGE_TYPE, mP.DAMAGE, null, !mP.RESPECT_IFRAMES, false, mP.SPELL_NAME);
 							}
 						}
 						if (mP.DAMAGE_PERCENTAGE > 0) {
 							BossUtils.bossDamagePercent(mBoss, hitEntity, mP.DAMAGE_PERCENTAGE, fallLoc, false, mP.SPELL_NAME, false);
 						}
 						MovementUtils.knockAway(fallLoc, hitEntity, mP.KB_XZ, mP.KB_Y);
+						mP.SPAWNED_MOB_POOL.spawn(fallLoc);
 					}
 
 					this.cancel();

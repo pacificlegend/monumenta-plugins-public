@@ -23,7 +23,8 @@ public class AbsorbingBarrier implements Enchantment {
 	private static final double HEALTH_REQ = 0.75;
 	private static final double ABSORPTION_PERCENTAGE_PER_LEVEL = 0.1;
 
-	private static final HashMap<UUID, Integer> BARRIER_MAP = new HashMap<>();
+	private static final HashMap<UUID, Integer> BARRIER_TIME_MAP = new HashMap<>();
+	private static final HashMap<UUID, Double> BARRIER_AMOUNT_MAP = new HashMap<>();
 
 	@Override
 	public String getName() {
@@ -38,8 +39,13 @@ public class AbsorbingBarrier implements Enchantment {
 	@Override
 	public void onEquipmentUpdate(Plugin plugin, Player player) {
 		double level = plugin.mItemStatManager.getEnchantmentLevel(player, EnchantmentType.ABSORBING_BARRIER);
+
 		if (level <= 0) {
-			BARRIER_MAP.remove(player.getUniqueId());
+			Integer time = BARRIER_TIME_MAP.remove(player.getUniqueId());
+			if (time != null) {
+				Double amount = BARRIER_AMOUNT_MAP.remove(player.getUniqueId());
+				AbsorptionUtils.subtractAbsorption(player, amount != null ? amount : 0);
+			}
 		}
 	}
 
@@ -51,17 +57,20 @@ public class AbsorbingBarrier implements Enchantment {
 		}
 
 		// Ensure hit only occurs once a tick
+		UUID uuid = player.getUniqueId();
 		if (MetadataUtils.checkOnceThisTick(plugin, player, "AbsorbingBarrierHit")) {
-			UUID uuid = player.getUniqueId();
-			int tick = BARRIER_MAP.getOrDefault(uuid, 0);
+			int tick = BARRIER_TIME_MAP.getOrDefault(uuid, 0);
 			boolean isAboveReq = player.getHealth() >= EntityUtils.getMaxHealth(player) * HEALTH_REQ;
 
 			if (tick >= HIT_DURATION_REQUIREMENT && isAboveReq) { // Audio when taking damage with barrier up
-				player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1, 0.5f);
+				player.playSound(player.getLocation(), Sound.ENTITY_GUARDIAN_HURT, 1f, 1.4f);
 			}
 
-			BARRIER_MAP.put(uuid, 0);
+			BARRIER_TIME_MAP.put(uuid, 0);
 		}
+
+		double absorpDamage = event.getFinalDamage(false) - event.getFinalDamage(true);
+		BARRIER_AMOUNT_MAP.put(uuid, Math.max(0, BARRIER_AMOUNT_MAP.getOrDefault(uuid, 0.0) - absorpDamage));
 	}
 
 	@Override
@@ -69,26 +78,30 @@ public class AbsorbingBarrier implements Enchantment {
 		if (oneHertz && player.getGameMode() != GameMode.SPECTATOR) {
 			UUID uuid = player.getUniqueId();
 
-			int tick = BARRIER_MAP.merge(uuid, Constants.TICKS_PER_SECOND, Integer::sum);
+			int tick = BARRIER_TIME_MAP.merge(uuid, Constants.TICKS_PER_SECOND, Integer::sum);
 			double maxHealth = EntityUtils.getMaxHealth(player);
 
 			// Restart timer if lower than the health requirement
 			if (player.getHealth() <= maxHealth * HEALTH_REQ) {
-				BARRIER_MAP.put(uuid, 0);
+				BARRIER_TIME_MAP.put(uuid, 0);
 				return;
 			}
 
 			if (tick >= HIT_DURATION_REQUIREMENT) {
 				double maxAbsorption = maxHealth * level * ABSORPTION_PERCENTAGE_PER_LEVEL;
+				double partAmount = maxAbsorption / BARRIER_FULL_RECHARGE_TIME;
 
-				if (AbsorptionUtils.getAbsorption(player) < maxAbsorption) {
-					player.playSound(player.getLocation(), Sound.ITEM_HONEY_BOTTLE_DRINK, 0.65f, 1f);
-					player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_DRINK, 0.65f, 1f);
+				if (AbsorptionUtils.getAbsorption(player) < maxAbsorption - 0.05) {
+					player.playSound(player.getLocation(), Sound.ENTITY_GUARDIAN_AMBIENT, 1f, 2f);
+
+					// Need to track absorption so that it can be removed when attempted hot-swapping
+
+					BARRIER_AMOUNT_MAP.put(player.getUniqueId(),
+						Math.min(maxAbsorption, BARRIER_AMOUNT_MAP.getOrDefault(player.getUniqueId(), 0.0) + partAmount));
 				}
 
-				AbsorptionUtils.addAbsorption(player, maxAbsorption / BARRIER_FULL_RECHARGE_TIME, maxAbsorption, Constants.TICKS_PER_SECOND * 3);
+				AbsorptionUtils.addAbsorption(player, partAmount, maxAbsorption, Constants.TICKS_PER_SECOND * 25);
 			}
 		}
 	}
-
 }

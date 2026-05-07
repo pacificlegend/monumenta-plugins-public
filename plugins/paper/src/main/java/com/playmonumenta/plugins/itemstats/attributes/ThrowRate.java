@@ -73,6 +73,7 @@ public class ThrowRate implements Attribute {
 
 			// Only run Throw Rate if the Infinity enchantment is not on the trident
 			if (item.getEnchantmentLevel(Enchantment.ARROW_INFINITE) <= 0 && value > 0) {
+				// cancel the throw event so the trident doesn't leave inventory
 				event.setCancelled(true);
 				// If a trident made from the volley skill, don't run sound/unbreaking
 				boolean isVolley = AbilityUtils.isVolley(player, trident);
@@ -91,7 +92,7 @@ public class ThrowRate implements Attribute {
 					}
 				}.runTaskLater(plugin, cooldown);
 
-				// Duplicate the entity, then cancel the throw event so the trident doesn't leave inventory
+				// Duplicate the entity
 				Trident newProj = NmsUtils.getVersionAdapter().duplicateEntity(trident);
 
 				// Set a bunch of stuff that isn't caught by the entity duplication
@@ -105,6 +106,8 @@ public class ThrowRate implements Attribute {
 				ItemUtils.damageItemWithUnbreaking(plugin, player, player.getInventory().getItemInMainHand(), 1, true);
 
 				AbilityManager.getManager().playerShotProjectileEvent(player, newProj);
+
+				AbilityUtils.removeProjectile(trident);
 			}
 		} else if (proj instanceof Snowball oldSnowball) {
 			if (value > 0) {
@@ -136,6 +139,7 @@ public class ThrowRate implements Attribute {
 				}
 				// For clearing weapon snowballs after 10s (to prevent being stuck in bubble columns):
 				EntityListener.clearSnowballProjectile(snowball);
+				AbilityUtils.removeProjectile(oldSnowball);
 			}
 		}
 	}

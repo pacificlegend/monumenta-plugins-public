@@ -1085,6 +1085,7 @@ public class CharmManager {
 			Volley.CHARM_CHARGES,
 			Volley.CHARM_MULTISHOT_LEVEL,
 			Volley.CHARM_MULTISHOT_DURATION,
+			Volley.CHARM_ENHANCEMENT_DAMAGE,
 			WindBomb.CHARM_COOLDOWN,
 			WindBomb.CHARM_DAMAGE,
 			WindBomb.CHARM_RADIUS,

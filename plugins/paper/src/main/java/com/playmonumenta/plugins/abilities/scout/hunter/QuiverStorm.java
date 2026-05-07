@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.abilities.scout.hunter;
 
+import com.google.common.base.Preconditions;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.Ability;
 import com.playmonumenta.plugins.abilities.AbilityInfo;
@@ -16,6 +17,7 @@ import com.playmonumenta.plugins.itemstats.ItemStat;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.itemstats.enchantments.Grappling;
+import com.playmonumenta.plugins.itemstats.enums.AttributeType;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.listeners.DamageListener;
 import com.playmonumenta.plugins.network.ClientModHandler;
@@ -25,10 +27,13 @@ import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
 import com.playmonumenta.plugins.utils.MetadataUtils;
+import com.playmonumenta.plugins.utils.PlayerUtils;
+import com.playmonumenta.plugins.utils.VectorUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.EntityType;
@@ -49,9 +54,12 @@ import static com.playmonumenta.plugins.utils.DescriptionUtils.UNDERLINED;
 
 public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 	public static final String ARROW_METADATA = "QuiverStormArrow_HasConvertedDamage"; // false if the arrow is a QStorm arrow that has not hit its enemy, true if it has already hit its enemy. Used in Explosive.
-	public static final double ENCHANT_RATIO = 0.25;
+	public static final double ENCHANT_RATIO = 0.35;
 	private static final String LOCKDOWN_HIT = "LockdownHitThisTick";
 	private static final String PREDATOR_HIT = "PredatorStrikeHitThisTick";
+	private static final String SPAWN_TICK = "SpawnTick";
+	private static final String STRUCK_ENEMY_TICK = "QuiverStormStruckEnemyTick";
+	private static final String SHOT_QSTORM_THIS_TICK = "QuiverStormThisTick";
 
 	// List of Enchantments to reduce
 	// Piercing is included, but is handled separately
@@ -104,7 +112,6 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 	private final int mLockdownRefund;
 	private final QuiverStormCS mCosmetic;
 
-	private int mCastTime;
 	private @Nullable Sharpshooter mSharpshooter;
 
 	public QuiverStorm(Plugin plugin, Player player) {
@@ -118,8 +125,6 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		mLockdownRefund = Math.clamp(LD_ARROW + (int) CharmManager.getLevel(mPlayer, CHARM_LOCKDOWN_REFUND), 0, mMaxCharges);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new QuiverStormCS());
 
-		mCastTime = Bukkit.getServer().getCurrentTick();
-
 		mCharges = Math.min(AbilityManager.getManager().getTrackedCharges(mPlayer, ClassAbility.QUIVER_STORM), mMaxCharges);
 
 		Bukkit.getScheduler().runTask(plugin, () ->
@@ -128,13 +133,11 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 
 	@Override
 	public boolean playerShotProjectileEvent(Projectile projectile) {
-		int currTick = Bukkit.getServer().getCurrentTick();
-
 		if (!EntityUtils.isAbilityTriggeringProjectile(projectile, true)
 			|| projectile.hasMetadata(ARROW_METADATA)
-			|| currTick - mCastTime < 1
 			|| Grappling.playerHoldingHook(mPlayer)
-			|| PredatorStrike.hasPredatorStrikeReady(mPlayer)) {
+			|| PredatorStrike.hasPredatorStrikeReady(mPlayer)
+			|| AbilityUtils.isVolley(mPlayer, projectile)) {
 			return true;
 		}
 
@@ -164,9 +167,29 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 			}
 		}
 
-		mCastTime = currTick;
-
 		final int arrows = mPassive + consumeAllCharges();
+		final Vector projVelocity = projectile.getVelocity();
+		double gearProjSpeed = 0;
+		if (map != null) {
+			gearProjSpeed = (mSharpshooter != null)
+				? mSharpshooter.getProjectileSpeedMultWithEnhance(map)
+				: map.get(AttributeType.PROJECTILE_SPEED);
+		}
+		// 0 is the default when no gear has this stat; treat as 1 since velocity was not pre-scaled by gear
+		if (gearProjSpeed == 0) {
+			gearProjSpeed = 1;
+		}
+		projVelocity.multiply(1 / gearProjSpeed);
+		final EntityType projType = projectile.getType();
+		final ItemStack projItem = mPlayer.getEquipment().getItemInMainHand();
+		final Vector playerDirection = mPlayer.getEyeLocation().getDirection();
+		// Technically this should be wrapped in a check (disable-relative-projectile-velocity is false)
+		// But on Monumenta servers this setting is always false
+		Vector playerVelocity = mPlayer.getVelocity();
+		if (PlayerUtils.isOnGround(mPlayer)) {
+			playerVelocity.setY(0);
+		}
+		projVelocity.subtract(playerVelocity);
 
 		cancelOnDeath(new BukkitRunnable() {
 			int mArrows = arrows;
@@ -178,7 +201,7 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 					return;
 				}
 				mCosmetic.arrowLaunch(mPlayer);
-				shootProjectile(inMainHand, stats);
+				shootProjectile(projType, projVelocity, playerDirection, projItem, stats);
 				mArrows--;
 			}
 		}.runTaskTimer(mPlugin, mDelay, mDelay));
@@ -186,44 +209,68 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		return true;
 	}
 
-	private void shootProjectile(final ItemStack inMainHand, ItemStatManager.PlayerItemStats stats) {
-		float projSpeed = ItemUtils.getVanillaProjectileSpeed(inMainHand);
-		EntityType projectileType;
-		if (inMainHand.getType() == Material.TRIDENT) {
-			projectileType = EntityType.TRIDENT;
-		} else if (inMainHand.getType() == Material.SNOWBALL) {
-			projectileType = EntityType.SNOWBALL;
-		} else {
-			projectileType = EntityType.ARROW;
+	private void shootProjectile(final EntityType projectileType, Vector initVelocity, Vector initPlayerDirection, ItemStack weapon, ItemStatManager.PlayerItemStats stats) {
+		// Quiver Storm's velocity calculation is off by 0.4%. I cannot identify the source of the bug, but players won't be able to notice it for now.
+		final var projectileClass = Preconditions.checkNotNull(projectileType.getEntityClass());
+		Location loc = mPlayer.getEyeLocation();
+		Vector basisDirection = initVelocity.clone().normalize();
+		Vector quiverVelocity = new Vector(0, 0, ItemUtils.getVanillaProjectileSpeed(weapon));
+		Vector playerVelocity = mPlayer.getVelocity();
+		if (PlayerUtils.isOnGround(mPlayer)) {
+			playerVelocity.setY(0);
 		}
-		Projectile proj = EntityUtils.spawnProjectile(mPlayer, 0, 0, new Vector(0, 0, 0), projSpeed, projectileType);
 
-		proj.setMetadata(ARROW_METADATA, new FixedMetadataValue(mPlugin, false));
-		proj.setShooter(mPlayer);
-		if (proj instanceof AbstractArrow arrow && !(arrow instanceof Trident)) {
+		// Invert old player's pitch/yaw to make the pattern flat
+		double[] initPlayerDir = VectorUtils.vectorToRotation(initPlayerDirection);
+		basisDirection = VectorUtils.rotateYAxis(basisDirection, -initPlayerDir[0]); // Yaw
+		basisDirection = VectorUtils.rotateXAxis(basisDirection, -initPlayerDir[1]); // Pitch
+
+		double deltaYaw = VectorUtils.vectorToRotation(basisDirection)[0]; // Recovers the yaw pattern
+		// Apply yaw offset to get arrow pattern
+		quiverVelocity = VectorUtils.rotateYAxis(quiverVelocity, deltaYaw);
+		// Apply player pitch/yaw to rotate that pattern to match the arrow's direction
+		double[] playerDir = VectorUtils.vectorToRotation(mPlayer.getEyeLocation().getDirection());
+		quiverVelocity = VectorUtils.rotateXAxis(quiverVelocity, playerDir[1]); // Pitch
+		quiverVelocity = VectorUtils.rotateYAxis(quiverVelocity, playerDir[0]); // Yaw
+
+		loc.setDirection(quiverVelocity);
+
+		Projectile quiverProj = (Projectile) mPlayer.getWorld().spawn(loc, projectileClass);
+		quiverProj.setMetadata(ARROW_METADATA, new FixedMetadataValue(mPlugin, false));
+		quiverProj.setVelocity(quiverVelocity);
+		quiverProj.setShooter(mPlayer);
+
+		// Technically this should be wrapped in a check (disable-relative-projectile-velocity is false)
+		// But on Monumenta servers this setting is always false
+		quiverProj.setVelocity(quiverProj.getVelocity().add(playerVelocity));
+
+		if (quiverProj instanceof AbstractArrow arrow && !(arrow instanceof Trident)) {
 			arrow.setPierceLevel(mPierce);
 		}
 
 		if (mSharpshooter != null) {
-			mSharpshooter.doNotTrack(proj);
+			mSharpshooter.doNotTrack(quiverProj);
 		}
 
-		proj.setMetadata(DamageListener.DO_NOT_REPLACE_METADATA, new FixedMetadataValue(Plugin.getInstance(), 0));
-		DamageListener.addProjectileItemStats(proj.getUniqueId(), stats);
+		quiverProj.setMetadata(DamageListener.DO_NOT_REPLACE_METADATA, new FixedMetadataValue(Plugin.getInstance(), 0));
+		DamageListener.addProjectileItemStats(quiverProj.getUniqueId(), stats);
 
-		ProjectileLaunchEvent event = new ProjectileLaunchEvent(proj);
-		Bukkit.getPluginManager().callEvent(event);
+		ProjectileLaunchEvent event = new ProjectileLaunchEvent(quiverProj);
+		Bukkit.getPluginManager().callEvent(event); // ProjectileSpeed modifies the velocity here
+
 
 		if (!event.isCancelled()) {
-			mCosmetic.arrowEffect(mPlugin, proj);
+			mCosmetic.arrowEffect(mPlugin, quiverProj);
 		}
-		if (proj instanceof AbstractArrow arrow) {
+		if (quiverProj instanceof AbstractArrow arrow) {
 			arrow.setCritical(true);
 			arrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
-		} else if (proj instanceof ThrowableProjectile throwable) {
+		} else if (quiverProj instanceof ThrowableProjectile throwable) {
 			// Snowball only
-			ItemUtils.setSnowballItem(throwable, inMainHand);
+			ItemUtils.setSnowballItem(throwable, weapon);
 		}
+
+		MetadataUtils.setMetadata(quiverProj, SPAWN_TICK, Bukkit.getCurrentTick());
 	}
 
 	@Override
@@ -235,12 +282,16 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 			event.setCancelled(true);
 			proj.setMetadata(ARROW_METADATA, new FixedMetadataValue(mPlugin, true));
 
-			double dmg = AbilityUtils.projectileFinalDamage(proj, enemy, 0, mDamagePercent);
-			DamageUtils.damage(mPlayer, proj, enemy,
-				new DamageEvent.Metadata(DamageEvent.DamageType.PROJECTILE_SKILL,
-					mInfo.getLinkedSpell(),
-					DamageListener.getProjectileItemStats(proj)),
-				dmg, true, false, false);
+			int projectileSpawnTick = proj.getMetadata(SPAWN_TICK).getFirst().asInt();
+			if (enemy.getMetadata(STRUCK_ENEMY_TICK).stream().noneMatch(m -> m.asInt() == projectileSpawnTick)) {
+				double dmg = AbilityUtils.projectileFinalDamage(proj, enemy, 0, mDamagePercent);
+				DamageUtils.damage(mPlayer, proj, enemy,
+					new DamageEvent.Metadata(DamageEvent.DamageType.PROJECTILE_SKILL,
+						mInfo.getLinkedSpell(),
+						DamageListener.getProjectileItemStats(proj)),
+					dmg, true, false, false);
+				MetadataUtils.setMetadata(enemy, STRUCK_ENEMY_TICK, projectileSpawnTick);
+			}
 
 			if (proj instanceof Trident) {
 				proj.remove();
@@ -285,13 +336,17 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		}
 
 		int charges = mCharges;
-		mCharges = 0;
+		if (MetadataUtils.checkOnceThisTick(mPlugin, mPlayer, SHOT_QSTORM_THIS_TICK)) {
+			Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
+				mCharges = 0;
 
-		if (mMaxCharges > 1) {
-			showChargesMessage();
+				if (mMaxCharges > 1) {
+					showChargesMessage();
+				}
+
+				updateAbility();
+			}, 0);
 		}
-
-		updateAbility();
 
 		return charges;
 	}
@@ -306,7 +361,7 @@ public class QuiverStorm extends Ability implements AbilityWithChargesOrStacks {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 1)
 			.addDashedLine()
 			.addLine("Firing a projectile will fire extra shots that")
-			.addLine("inherits %p of non-damage enchants.")
+			.addLine("inherit %p of non-damage enchants.")
 			.statValues(stat(ENCHANT_RATIO))
 			.addLine()
 			.addStat("Damage: %p1 (of weapon damage) (p) (per shot)")

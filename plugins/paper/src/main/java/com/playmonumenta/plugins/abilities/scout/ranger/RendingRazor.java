@@ -57,7 +57,7 @@ public class RendingRazor extends Ability {
 	private static final int BLEED = 2;
 	private static final int CDR_DURATION = Constants.TICKS_PER_SECOND * 2;
 	private static final int PIERCE = 999;
-	private static final int COOLDOWN_L1 = 14 * Constants.TICKS_PER_SECOND;
+	private static final int COOLDOWN_L1 = 16 * Constants.TICKS_PER_SECOND;
 	private static final int COOLDOWN_L2 = 12 * Constants.TICKS_PER_SECOND;
 
 	public static final String CHARM_DAMAGE = "Rending Razor Damage";
@@ -263,7 +263,6 @@ public class RendingRazor extends Ability {
 			.addStat("Cooldown: %t1")
 			.statValues(cooldown(COOLDOWN_L1))
 			.addDashedLine();
-
 	}
 
 	private static Description<RendingRazor> getDescription2() {
@@ -273,8 +272,8 @@ public class RendingRazor extends Ability {
 			.addLine()
 			.addStatComparison("Radius: %r1 -> %r2")
 			.statValues(stat(RADIUS_L1), stat(a -> a.mRadius, RADIUS_L2))
-			.addStat("Cooldown: %t2")
-			.statValues(cooldown(COOLDOWN_L2))
+			.addStat("Cooldown: %t1 -> %t2")
+			.statValues(cooldown(COOLDOWN_L1), cooldown(COOLDOWN_L2))
 			.addLine()
 			.addLine("*Rending Razor* inflicts %d stacks of *Bleed*.").styles(UNDERLINED, Bleed.BLEED_COLOR)
 			.statValues(stat(a -> a.mBleed, BLEED))

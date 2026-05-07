@@ -24,9 +24,9 @@ public class PercentDamageDealt extends Effect {
 	protected int mPriority;
 	private @Nullable BiPredicate<LivingEntity, LivingEntity> mPredicate;
 
-	private PercentDamageDealt(final int duration, final double amount, final @Nullable EnumSet<DamageType> affectedDamageTypes,
-	                           final int priority, final @Nullable BiPredicate<LivingEntity, LivingEntity> predicate,
-	                           final String effectID, final boolean deleteOnAbilityRefresh) {
+	public PercentDamageDealt(final int duration, final double amount, final @Nullable EnumSet<DamageType> affectedDamageTypes,
+							  final int priority, final @Nullable BiPredicate<LivingEntity, LivingEntity> predicate,
+							  final String effectID, final boolean deleteOnAbilityRefresh) {
 		super(duration, effectID, deleteOnAbilityRefresh);
 		mAmount = amount;
 		mAffectedDamageTypes = affectedDamageTypes;

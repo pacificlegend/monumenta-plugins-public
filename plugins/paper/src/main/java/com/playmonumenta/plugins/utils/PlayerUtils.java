@@ -67,6 +67,7 @@ import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Trident;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -348,6 +349,20 @@ public class PlayerUtils {
 		NmsUtils.getVersionAdapter().runConsoleCommandSilently("execute as " + player.getUniqueId() + " at @s run " + command);
 	}
 
+	public static double calculateBowDraw(Projectile projectile) {
+		if (projectile instanceof AbstractArrow arrowlike) {
+			return calculateBowDraw(arrowlike);
+		}
+		return 1;
+	}
+
+	public static double calculateBowDraw(Projectile projectile, double projSpeed) {
+		if (projectile instanceof AbstractArrow arrowlike) {
+			return calculateBowDraw(arrowlike, projSpeed);
+		}
+		return 1;
+	}
+
 	/**
 	 * Computes the percentage "drawn" a projectile is, if shot from a bow.
 	 * Arrows not shot from bows (crossbows, throwing knives, and tridents)
@@ -371,6 +386,36 @@ public class PlayerUtils {
 		ItemStatManager.PlayerItemStats itemStats = DamageListener.getProjectileItemStats(arrowlike);
 		if (itemStats != null) {
 			double projSpeed = itemStats.getItemStats().get(AttributeType.PROJECTILE_SPEED);
+			double maxLaunchSpeed = Constants.PLAYER_BOW_INITIAL_SPEED * projSpeed;
+
+			double percentage = currentSpeed / maxLaunchSpeed;
+			// Negative projectile speed
+			if (percentage < 0) {
+				percentage *= -1;
+			}
+			// Often small deviations when fully charged
+			if (percentage >= 0.96) {
+				percentage = 1;
+			}
+			return percentage;
+		}
+		return 0;
+	}
+
+	public static double calculateBowDraw(AbstractArrow arrowlike, double projSpeed) {
+		if (arrowlike == null) {
+			return 0;
+		}
+		if (arrowlike.isShotFromCrossbow()
+			|| ThrowingKnife.isThrowingKnife(arrowlike)
+			|| arrowlike instanceof Trident
+			|| arrowlike.isCritical()) {
+			// These are always critical.
+			return 1;
+		}
+		double currentSpeed = arrowlike.getVelocity().length();
+		ItemStatManager.PlayerItemStats itemStats = DamageListener.getProjectileItemStats(arrowlike);
+		if (itemStats != null) {
 			double maxLaunchSpeed = Constants.PLAYER_BOW_INITIAL_SPEED * projSpeed;
 
 			double percentage = currentSpeed / maxLaunchSpeed;

@@ -18,7 +18,6 @@ import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.NmsUtils;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -50,7 +49,6 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 	private int mPounceCooldown = 0;
 	private double mRange = 0;
 
-	private final List<LivingEntity> mTargets = new ArrayList<>(10);
 	private int mLastPounceCast = Bukkit.getCurrentTick();
 	private boolean mIsPouncing = false;
 
@@ -116,18 +114,28 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 			mFox.setFireTicks(0);
 		}
 
-		mTargets.removeIf(entity -> !entity.isValid() || entity.getLocation().distanceSquared(mPlayer.getLocation()) >= mRange * mRange);
-		if (!mTargets.isEmpty()) {
-			LivingEntity target = mTargets.getFirst();
-			if (getTarget() != target) {
-				mCosmetic.onAggro(mFox.getWorld(), mFox.getLocation(), mPlayer, mFox);
+
+		boolean isAfk = HuntingCompanion.isAFK(mPlayer);
+
+		LivingEntity target = getTarget();
+
+		// If the companion is targeting a mob, check if it should drop the target
+		if (target != null) {
+			boolean isTooFar = (!mIsPouncing && isTooFar(target, mPlayer, mRange));
+			if (isTooFar || isAfk || !target.isValid() || target.isDead()) {
+				mFox.setTarget(null);
 			}
-			mFox.setTarget(target);
 			return true;
-		} else {
-			mFox.setTarget(null);
 		}
 
+		// Otherwise, find a new one if the player isn't afk
+		if (!isAfk) {
+			LivingEntity newTarget = HuntingCompanion.findNearestNonTargetedMob(mFox, mPlayer, mRange);
+			if (newTarget != null) {
+				mFox.setTarget(newTarget);
+				return true;
+			}
+		}
 		// If it doesn't have a target nor can find one, follow the player
 		double distanceSquared = mFox.getLocation().distanceSquared(mPlayer.getLocation());
 		if (distanceSquared > 16 * 16) {
@@ -156,9 +164,6 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 				teleportCompanion(target);
 			}
 		}
-		// Place punce target at the front
-		mTargets.remove(target);
-		mTargets.addFirst(target);
 		mFox.setTarget(target);
 
 		mFox.getPathfinder().stopPathfinding();
@@ -197,7 +202,7 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 
 				// Delay by 1s so it can do the jump effect
 				if (mT > Constants.TICKS_PER_SECOND && canAttack) {
-					boolean canPounce = !EntityUtils.getNearbyMobs(mFox.getLocation(), mPounceRadius).isEmpty();
+					boolean canPounce = !EntityUtils.getNearbyMobs(LocationUtils.getHalfHeightLocation(mFox), mPounceRadius).isEmpty();
 
 					if (canPounce) {
 						pounceAttack();
@@ -298,12 +303,6 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 		}
 	}
 
-	@Override
-	public void unload() {
-		super.unload();
-		mTargets.clear();
-	}
-
 	// Static util methods
 
 	private static boolean isApplicableTarget(Entity entity) {
@@ -333,12 +332,5 @@ public class HuntingCompanionBoss extends BossAbilityGroup {
 		newVelocity.setY(originalVelocity.getY());
 		newVelocity.setZ((originalVelocity.getZ() * 20 + targetDir.getZ() * scale) / 20);
 		summon.setVelocity(newVelocity);
-	}
-
-	public void addTarget(LivingEntity enemy) {
-		if (mTargets.size() >= 10 || mTargets.contains(enemy)) {
-			return;
-		}
-		mTargets.add(enemy);
 	}
 }

@@ -13,6 +13,7 @@ import com.playmonumenta.plugins.events.PotionEffectApplyEvent;
 import com.playmonumenta.plugins.itemstats.attributes.ProjectileSpeed;
 import com.playmonumenta.plugins.itemstats.enchantments.AntiCritScaling;
 import com.playmonumenta.plugins.itemstats.enchantments.CritScaling;
+import com.playmonumenta.plugins.itemstats.enchantments.Multishot;
 import com.playmonumenta.plugins.itemstats.enchantments.Oversized;
 import com.playmonumenta.plugins.itemstats.enchantments.SKTQuestDamageDealt;
 import com.playmonumenta.plugins.itemstats.enchantments.SKTQuestDamageTaken;
@@ -424,6 +425,10 @@ public class ItemStatManager implements Listener {
 				if ((stat instanceof SKTQuestDamageDealt || stat instanceof SKTQuestDamageTaken)
 					&& ServerProperties.getShardName().startsWith("skt")) {
 					newStats.set(stat, 1);
+				}
+				if (stat instanceof Multishot && !newStats.mMap.containsKey(stat)) {
+					// MultishotEffect requires Multishot enchantment to exist somewhere
+					newStats.set(stat, 0.4);
 				}
 			}
 

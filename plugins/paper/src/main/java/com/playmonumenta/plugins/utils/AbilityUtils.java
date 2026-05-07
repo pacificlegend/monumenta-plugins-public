@@ -807,7 +807,7 @@ public class AbilityUtils {
 			return volley != null && volley.mDepthsVolley.contains(proj);
 		} else {
 			Volley volley = AbilityManager.getManager().getPlayerAbilityIgnoringSilence(player, Volley.class);
-			return volley != null && (volley.mVolley.contains(proj) || proj.hasMetadata(Volley.ENHANCEMENT_METADATA));
+			return volley != null && volley.mVolley.contains(proj);
 		}
 	}
 

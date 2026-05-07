@@ -322,7 +322,7 @@ public class QuiverListener implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void entityLoadCrossbowEvent(EntityLoadCrossbowEvent event) {
 		ItemStack crossbow = event.getCrossbow();
-		if (event.getEntity() instanceof Player player && crossbow != null) {
+		if (event.getEntity() instanceof Player player) {
 			ItemStack quiver = NmsUtils.getVersionAdapter().getUsedProjectile(player, crossbow);
 			if (ItemStatUtils.isQuiver(quiver)) {
 				// Cancel the event as there's no way to change which projectile will be loaded
@@ -343,10 +343,6 @@ public class QuiverListener implements Listener {
 				} else {
 					if (crossbow.getItemMeta() instanceof CrossbowMeta crossbowMeta) {
 						crossbowMeta.addChargedProjectile(projectileItem);
-						if (ItemStatUtils.hasEnchantment(crossbow, EnchantmentType.MULTISHOT)) {
-							crossbowMeta.addChargedProjectile(ItemUtils.clone(projectileItem));
-							crossbowMeta.addChargedProjectile(ItemUtils.clone(projectileItem));
-						}
 						crossbow.setItemMeta(crossbowMeta);
 					}
 				}

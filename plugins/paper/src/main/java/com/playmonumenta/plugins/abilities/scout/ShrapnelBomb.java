@@ -51,10 +51,10 @@ public class ShrapnelBomb extends Ability {
 	private static final WeakHashMap<Projectile, ItemStatManager.PlayerItemStats> PROJECTILE_MAP = new WeakHashMap<>();
 
 	private static final double VELOCITY = 1;
-	private static final double[] BOMB_DAMAGE_L1 = {8, 13, 18};
-	private static final double[] BOMB_DAMAGE_L2 = {12, 18, 24};
-	private static final double[] SHRAP_DAMAGE_L1 = {5, 8, 13};
-	private static final double[] SHRAP_DAMAGE_L2 = {8, 12, 18};
+	private static final double[] BOMB_DAMAGE_L1 = {6, 13, 18};
+	private static final double[] BOMB_DAMAGE_L2 = {9, 18, 24};
+	private static final double[] SHRAP_DAMAGE_L1 = {4, 8, 13};
+	private static final double[] SHRAP_DAMAGE_L2 = {6, 12, 18};
 	private static final double BOMB_DAMAGE_ENHANCEMENT = 0.8;
 	private static final double SHRAPNEL_SPREAD = 15;
 	private static final double BOMB_RADIUS = 4;

@@ -10,6 +10,7 @@ import com.playmonumenta.plugins.abilities.AbilityTriggerInfo;
 import com.playmonumenta.plugins.abilities.AbilityWithChargesOrStacks;
 import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
+import com.playmonumenta.plugins.abilities.alchemist.UnstableAmalgam;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.scout.SteelTrapCS;
@@ -19,9 +20,11 @@ import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.MovementUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
+import com.playmonumenta.plugins.utils.ScoreboardUtils;
 import com.playmonumenta.plugins.utils.ZoneUtils;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,17 +56,18 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 
 	private static final int MAX_CHARGES = 2;
 	private static final int TRAP_COOLDOWN = 12 * Constants.TICKS_PER_SECOND;
-	private static final double[] DAMAGE = {7, 12, 16};
+	private static final double[] DAMAGE = {5, 12, 16};
+	private static final double DAMAGE_ENHANCED = 18;
 	private static final double RADIUS_L1 = 3;
 	private static final double RADIUS_L2 = 4;
 	private static final int STAGGER_DURATION = 2 * Constants.TICKS_PER_SECOND;
 	private static final int DURATION = 10 * Constants.TICKS_PER_SECOND;
 	private static final int PRIMING_DURATION_L1 = 30;
-	private static final int PRIMING_DURATION_L3 = 15;
+	private static final int PRIMING_DURATION_L3 = 10;
 	private static final double VELOCITY = 1.1;
 	private static final double TRIGGER_RADIUS = 2;
-	private static final float KNOCKBACK_HORIZONTAL = 0.75f;
-	private static final float KNOCKBACK_VERTICAL = 0.45f;
+	private static final float KNOCKBACK_HORIZONTAL = 1.5f;
+	private static final float KNOCKBACK_VERTICAL = 1.15f;
 	private static final double VULN = 0.15;
 	private static final double VULN_E = 0.1;
 	private static final int VULN_DURATION = 5 * Constants.TICKS_PER_SECOND;
@@ -118,7 +122,7 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 		super(plugin, player, INFO);
 
 		mMaxCharges = MAX_CHARGES + (int) CharmManager.getLevel(player, CHARM_CHARGES);
-		mDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, AbilityUtils.getRegionScaled(player, DAMAGE));
+		mDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, isEnhanced() ? DAMAGE_ENHANCED : AbilityUtils.getRegionScaled(player, DAMAGE));
 		mRadius = CharmManager.getRadius(mPlayer, CHARM_RADIUS, isLevelOne() ? RADIUS_L1 : RADIUS_L2);
 		mTrapDuration = CharmManager.getDuration(mPlayer, CHARM_DURATION, DURATION);
 		mPrimingDuration = CharmManager.getDuration(mPlayer, CHARM_PRIMING_DURATION, isEnhanced() ? PRIMING_DURATION_L3 : PRIMING_DURATION_L1);
@@ -274,7 +278,14 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 							: !EntityUtils.getNearbyMobs(mCenter, mTriggerRadius).isEmpty();
 
 						if (canDetonate) {
-							for (LivingEntity entity : EntityUtils.getNearbyMobs(mCenter, mRadius)) {
+							Hitbox hitbox = new Hitbox.SphereHitbox(mCenter, mRadius);
+							List<LivingEntity> mobs = hitbox.getHitMobs();
+
+							for (LivingEntity entity : mobs) {
+								if (entity.getScoreboardTags().contains(AbilityUtils.IGNORE_TAG)) {
+									continue;
+								}
+
 								DamageUtils.damage(mPlayer, entity, DamageEvent.DamageType.PROJECTILE_SKILL, mDamage, mInfo.getLinkedSpell(), true);
 								EntityUtils.applyStagger(mPlugin, mStaggerDuration, entity);
 
@@ -288,9 +299,20 @@ public class SteelTrap extends Ability implements AbilityWithChargesOrStacks {
 							}
 
 							if (isEnhanced()
-								&& mCenter.getNearbyPlayers(mRadius).contains(mPlayer)
-								&& !ZoneUtils.hasZoneProperty(mPlayer, ZoneUtils.ZoneProperty.NO_MOBILITY_ABILITIES)) {
-								MovementUtils.knockAway(mCenter, mPlayer, mKnockbackHorizontal * 2, mKnockbackVertical * 3, false);
+								&& !ZoneUtils.hasZoneProperty(mCenter, ZoneUtils.ZoneProperty.NO_MOBILITY_ABILITIES)) {
+								List<Player> players = hitbox.getHitPlayers(true);
+
+								for (Player p : players) {
+									if (ZoneUtils.hasZoneProperty(p, ZoneUtils.ZoneProperty.NO_MOBILITY_ABILITIES)) {
+										continue;
+									}
+
+									if (!p.equals(mPlayer) && ScoreboardUtils.getScoreboardValue(p, UnstableAmalgam.ROCKET_JUMP_OBJECTIVE).orElse(0) == 100) {
+										MovementUtils.knockAway(mCenter, p, mKnockbackHorizontal, mKnockbackVertical, false);
+									} else if (p.equals(mPlayer) && ScoreboardUtils.getScoreboardValue(p, UnstableAmalgam.ROCKET_JUMP_OBJECTIVE).orElse(1) > 0) {
+										MovementUtils.knockAway(mCenter, p, mKnockbackHorizontal, mKnockbackVertical, false);
+									}
+								}
 							}
 							mCosmetic.trapExplode(mWorld, mPlayer, mCenter, mTriggerRadius, mRadius);
 							this.cancel();

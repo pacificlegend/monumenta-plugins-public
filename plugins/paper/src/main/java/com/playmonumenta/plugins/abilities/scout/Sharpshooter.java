@@ -167,7 +167,7 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 				// Quiver Storm handles pierce modification (QuiverStorm.java line 159)
 				if (projectile instanceof AbstractArrow arrow
 					&& !(arrow instanceof Trident)
-					&& !arrow.hasMetadata(QuiverStorm.ARROW_METADATA)) {
+					&& !arrow.hasMetadata(QuiverStorm.ARROW_METADATA)) { // This check is redundant: all QStorm arrows are marked as NOT_TRACKED
 					int pierce = (int) (mStacks * (1.0 / mStacksPerPierce));
 					arrow.setPierceLevel(Math.clamp(arrow.getPierceLevel() + pierce, 0, 127));
 				}
@@ -188,6 +188,19 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 				}
 			}
 		}
+	}
+
+	public double getProjectileSpeedMultWithEnhance(ItemStatManager.PlayerItemStats.ItemStatsMap map) {
+		double gearProjSpeed = map.get(AttributeType.PROJECTILE_SPEED);
+		// 0 is the default when no gear has this stat; treat as 1 since velocity was not pre-scaled by gear
+		if (gearProjSpeed == 0) {
+			gearProjSpeed = 1;
+		}
+		if (isEnhanced()) {
+			double mSharpshooterMultiplier = mStacks * mProjectileSpeed;
+			return gearProjSpeed + mSharpshooterMultiplier;
+		}
+		return gearProjSpeed;
 	}
 
 	@Override
@@ -347,7 +360,9 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 
 	// Sharpshooter stack is based on the draw time, not charge rate
 	public static int checkSharpshooterType(Projectile proj, ItemStack item) {
-		if (proj instanceof Trident) { // This extends AbstractArrow, check first
+		// Trident extends AbstractArrow, check first
+		if (proj instanceof Trident
+			|| ItemStatUtils.hasEnchantment(item, EnchantmentType.OVERSIZED)) {
 			return 3;
 		}
 
@@ -372,7 +387,7 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 	private static Description<Sharpshooter> getDescription1() {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 1)
 			.addDashedLine()
-			.addLine("Hitting a mob with a projectile grants *Sharpshooter*")
+			.addLine("Hitting a mob with a projectile grants *Sharpshooter*").styles(UNDERLINED)
 			.addLine("stacks, which decay after %t of not gaining any.").styles(UNDERLINED)
 			.statValues(stat(a -> a.mDecayTime, SHARPSHOOTER_DECAY_TIMER))
 			.addLine("Each stack grants projectile damage.")

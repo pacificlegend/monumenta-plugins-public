@@ -47,7 +47,7 @@ public class Swiftness extends Ability {
 	private static final String NO_JUMP_BOOST_TAG = "SwiftnessJumpBoostDisable";
 	private static final DoubleJumpManager.FlightSource FLIGHT_SOURCE = new DoubleJumpManager.FlightSource("SwiftnessDoubleJump", 10);
 	private static final String NO_DEFAULT_TRIGGER_TAG = "SwiftnessDefaultTriggerDisable";
-	private static final int COOLDOWN = 60;
+	private static final int COOLDOWN = 4 * Constants.TICKS_PER_SECOND;
 	private static final int MAX_JUMP = 3;
 	private static final double DOUBLE_JUMP_STRENGTH = 0.4;
 	private static final double DOUBLE_JUMP_STRENGTH_MULTIPLIER = 0.35;

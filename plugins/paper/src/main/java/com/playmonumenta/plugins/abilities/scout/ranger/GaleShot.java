@@ -9,7 +9,6 @@ import com.playmonumenta.plugins.abilities.AbilityWithDuration;
 import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.abilities.scout.Sharpshooter;
-import com.playmonumenta.plugins.abilities.scout.Volley;
 import com.playmonumenta.plugins.abilities.scout.WindBomb;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
@@ -22,6 +21,7 @@ import com.playmonumenta.plugins.itemstats.ItemStat;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.itemstats.enchantments.Grappling;
+import com.playmonumenta.plugins.itemstats.enchantments.Multishot;
 import com.playmonumenta.plugins.itemstats.enums.AttributeType;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.listeners.DamageListener;
@@ -68,15 +68,15 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 			.displayItem(Material.BONE_MEAL);
 
 	public static final String GALE_SHOT_PROJECTILE_METAKEY = "GaleShotProjectile";
+	public static final String GALE_SHOT_VOLLEY_IMBUE = "GaleShotVolleyImbue";
 
 	private static final String GALE_SHOT_IMBUEMENT = "GaleShotImbuement";
-	private static final double DAMAGE_L1 = 12;
-	private static final double DAMAGE_L2 = 14;
-	private static final double DAMAGE_PERCENT_L1 = 1.2;
-	private static final double DAMAGE_PERCENT_L2 = 1.4;
+	private static final double DAMAGE_L1 = 10;
+	private static final double DAMAGE_L2 = 12;
+	private static final double DAMAGE_PERCENT_L1 = 1.0;
+	private static final double DAMAGE_PERCENT_L2 = 1.2;
 	private static final String GALE_SHOT_IFRAME_METAKEY = "GaleShotIFrame";
 	private static final int ABILITY_REQ = 2;
-	private static final int SHOT_REQ = 2;
 	private static final int DURATION = Constants.TICKS_PER_SECOND * 12;
 	private static final int SLOWNESS_DURATION = Constants.TICKS_PER_SECOND * 3;
 	private static final double SLOWNESS_AMPLIFIER = 0.25;
@@ -84,6 +84,7 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 	private static final double VERTICAL_LAUNCH = 0.55;
 	private static final double KB_VEL_BASE = 1.5;
 	private static final double KB_VEL_PUNCH_LEVEL = 0.5;
+	private static final int SHOT_REQ = 2;
 
 	public static final String CHARM_DAMAGE_FLAT = "Gale Shot Flat Damage";
 	public static final String CHARM_DAMAGE_PERCENT = "Gale Shot Damage Multiplier";
@@ -99,16 +100,16 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 	private final double mDamageFlat;
 	private final double mDamagePercent;
 	private final int mAbilityRequirement;
-	private final int mShotRequirement;
 	private final int mDuration;
 	private final double mSlownessAmplifier;
 	private final int mSlownessDuration;
 	private final int mShotCount;
+	private final int mShotRequirement;
 	private final double mSize;
-	private final WeakHashMap<LivingEntity, Integer> mMarkedMobs = new WeakHashMap<>();
 	private final GaleShotCS mCosmetic;
 	private int mAbilityCount = 0;
 
+	private final WeakHashMap<LivingEntity, Integer> mMarkedMobs = new WeakHashMap<>();
 	private @Nullable Sharpshooter mSharpshooter;
 	private int mCount;
 	private int mCastTime = Bukkit.getCurrentTick();
@@ -118,9 +119,9 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 		mDamageFlat = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE_FLAT, isLevelOne() ? DAMAGE_L1 : DAMAGE_L2);
 		mDamagePercent = CharmManager.getExtraPercent(mPlayer, CHARM_DAMAGE_PERCENT, isLevelOne() ? DAMAGE_PERCENT_L1 : DAMAGE_PERCENT_L2);
 		mAbilityRequirement = Math.max(0, ABILITY_REQ + (int) CharmManager.getLevel(mPlayer, CHARM_ABILITY_REQUIREMENT));
-		mShotRequirement = Math.max(0, SHOT_REQ + (int) CharmManager.getLevel(mPlayer, CHARM_SHOT_REQUIREMENT));
 		mDuration = CharmManager.getDuration(mPlayer, CHARM_DURATION, DURATION);
 		mSlownessDuration = CharmManager.getDuration(mPlayer, CHARM_SLOWNESS_DURATION, SLOWNESS_DURATION);
+		mShotRequirement = Math.max(0, SHOT_REQ + (int) CharmManager.getLevel(mPlayer, CHARM_SHOT_REQUIREMENT));
 		mSlownessAmplifier = CharmManager.getExtraPercent(mPlayer, CHARM_SLOWNESS_AMPLIFIER, SLOWNESS_AMPLIFIER);
 		mShotCount = 1 + (int) CharmManager.getLevel(mPlayer, CHARM_COUNT);
 		mSize = CharmManager.getRadius(mPlayer, CHARM_SIZE, SIZE);
@@ -136,27 +137,19 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 		int currTick = Bukkit.getServer().getCurrentTick();
 
 		if (!EntityUtils.isAbilityTriggeringProjectile(projectile, false)
-			|| Volley.isVolleyShot(mPlayer)
+			|| MetadataUtils.happenedThisTick(mPlayer, GALE_SHOT_VOLLEY_IMBUE)
 			|| Grappling.playerHoldingHook(mPlayer)
 			|| currTick - mCastTime < 1
-			|| !hasImbuement()) {
+			|| !hasImbuement()
+			|| projectile.hasMetadata(Multishot.MULTISHOT_SIDE_METADATA)) {
 			return true;
 		}
 
 		mCastTime = currTick;
 		mCount--;
 		mPlugin.mEffectManager.clearEffects(mPlayer, GALE_SHOT_IMBUEMENT);
-		if (mCount <= 0) {
-			mAbilityCount = 0;
-		} else {
-			mPlugin.mEffectManager.addEffect(mPlayer, GALE_SHOT_IMBUEMENT, new Aesthetics(mDuration,
-				(entity, fourHertz, twoHertz, oneHertz) -> mCosmetic.tick(mPlayer, mPlayer.getLocation()),
-				entity -> Bukkit.getScheduler().runTask(mPlugin, () -> {
-					mAbilityCount = 0;
-					mCount = 0;
-					updateAbility();
-				})
-			).deleteOnAbilityUpdate(true));
+		if (mCount > 0) {
+			galeShotImbuement();
 		}
 
 		ItemStack mainHand = mPlayer.getInventory().getItemInMainHand();
@@ -191,8 +184,6 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 		}
 
 		galeProjectile.setVisibleByDefault(false); // BEFORE the launch event
-		ProjectileLaunchEvent event = new ProjectileLaunchEvent(galeProjectile);
-		Bukkit.getPluginManager().callEvent(event);
 
 		if (galeProjectile instanceof AbstractArrow galeArrow) {
 			galeArrow.setPierceLevel(67);
@@ -200,10 +191,12 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 			galeArrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
 		}
 		galeProjectile.setShooter(mPlayer);
+		galeProjectile.setMetadata(GALE_SHOT_PROJECTILE_METAKEY, new FixedMetadataValue(mPlugin, 0));
+
+		ProjectileLaunchEvent event = new ProjectileLaunchEvent(galeProjectile);
+		Bukkit.getPluginManager().callEvent(event);
 
 		AbilityUtils.removeProjectile(projectile);
-
-		galeProjectile.setMetadata(GALE_SHOT_PROJECTILE_METAKEY, new FixedMetadataValue(mPlugin, 0));
 
 		if (mSharpshooter != null) {
 			mSharpshooter.doNotTrack(projectile);
@@ -241,7 +234,7 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 				for (Entity entity : hitMobs) {
 					if (!(entity instanceof LivingEntity enemy)) {
 						// Should never happen
-						break;
+						continue;
 					}
 
 					// This hacky iframe system needs to stay because of the current L2.
@@ -264,7 +257,6 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 						vector.setY(Math.max(vector.getY(), -VERTICAL_LAUNCH / 2));
 						vector.add(new Vector(0, VERTICAL_LAUNCH, 0));
 						MovementUtils.knockAwayDirection(vector, enemy, 0.5f);
-
 
 						if (isLevelTwo()) {
 							EntityUtils.applySlow(mPlugin, mSlownessDuration, mSlownessAmplifier, enemy);
@@ -294,11 +286,20 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 
 	@Override
 	public boolean abilityCastEvent(AbilityCastEvent event) {
+		ClassAbility ability = event.getSpell();
+
 		if (hasImbuement()) {
+			// If volley with imbuement, give the ability a tick later
+			if (ability.equals(ClassAbility.VOLLEY)) {
+				Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
+					if (mCount == 0) {
+						mAbilityCount++;
+						updateAbility();
+					}
+				}, 1);
+			}
 			return false;
 		}
-
-		ClassAbility ability = event.getSpell();
 
 		if (ability == null
 			|| ability.equals(ClassAbility.GALE_SHOT)
@@ -307,12 +308,17 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 		}
 
 		if (++mAbilityCount >= mAbilityRequirement) {
+			// Prevent Volley from instant casting Gale Shot
+			if (ability.equals(ClassAbility.VOLLEY)) {
+				MetadataUtils.markThisTick(mPlugin, mPlayer, GALE_SHOT_VOLLEY_IMBUE);
+			}
 			imbue();
 		}
 		updateAbility();
 
 		return false;
 	}
+
 
 	private void imbue() {
 		if (hasImbuement()) {
@@ -321,12 +327,18 @@ public class GaleShot extends Ability implements AbilityWithChargesOrStacks, Abi
 
 		mCosmetic.imbue(mPlayer.getLocation());
 		mCount = mShotCount;
+		galeShotImbuement();
+	}
+
+	private void galeShotImbuement() {
 		mPlugin.mEffectManager.addEffect(mPlayer, GALE_SHOT_IMBUEMENT, new Aesthetics(mDuration,
 			(entity, fourHertz, twoHertz, oneHertz) -> mCosmetic.tick(mPlayer, mPlayer.getLocation()),
 			entity -> Bukkit.getScheduler().runTask(mPlugin, () -> {
-				mAbilityCount = 0;
-				mCount = 0;
-				updateAbility();
+				if (mCount <= 0) {
+					mAbilityCount = 0;
+					mCount = 0;
+					updateAbility();
+				}
 			})
 		).deleteOnAbilityUpdate(true));
 	}

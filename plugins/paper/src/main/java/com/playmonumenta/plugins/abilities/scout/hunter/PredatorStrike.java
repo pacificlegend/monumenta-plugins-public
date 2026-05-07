@@ -233,7 +233,7 @@ public class PredatorStrike extends Ability implements AbilityWithDuration {
 				.approximateCylinder(pLoc, pLoc.clone().add(actualDir.multiply(mSplinterRequirement)), 2.5, false)
 				.accuracy(0.5);
 
-			if (!hitbox.getHitMobs().isEmpty()) {
+			if (!hitbox.getHitMobsInclude(WindBomb::isWindBomb).isEmpty()) {
 				if (mSharpshooter != null) {
 					mSharpshooter.addStacks(Sharpshooter.checkSharpshooterType(projectile, mPlayer.getInventory().getItemInMainHand()));
 				}
@@ -258,7 +258,11 @@ public class PredatorStrike extends Ability implements AbilityWithDuration {
 
 		Hitbox hitbox = Hitbox.approximateCone(pLoc, mSplinterRadius, Math.toRadians(mSplinterCone));
 
-		for (LivingEntity e : hitbox.getHitMobs()) {
+		for (LivingEntity e : hitbox.getHitMobsInclude(WindBomb::isWindBomb)) {
+			if (WindBomb.attemptHit(e)) {
+				continue;
+			}
+
 			double damage = AbilityUtils.projectileFinalDamage(stats, mPlayer, e, mSplinterDamage, mSplinterDamageMultiplier);
 
 			MovementUtils.knockAway(pLoc, e, mKnockback * 2, mKnockback * 2, true);

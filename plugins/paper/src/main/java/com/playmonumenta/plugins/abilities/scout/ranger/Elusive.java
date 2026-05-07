@@ -5,6 +5,7 @@ import com.playmonumenta.plugins.abilities.Ability;
 import com.playmonumenta.plugins.abilities.AbilityInfo;
 import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
+import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.classes.Scout;
 import com.playmonumenta.plugins.events.AbilityCastEvent;
 import com.playmonumenta.plugins.events.DamageEvent;
@@ -55,7 +56,13 @@ public class Elusive extends Ability {
 
 	@Override
 	public boolean abilityCastEvent(AbilityCastEvent event) {
-		mStacks = Math.min(++mStacks, mMaxStacks);
+		ClassAbility ability = event.getSpell();
+
+		if (ability != null &&
+			!ability.equals(ClassAbility.SWIFTNESS)) {
+			mStacks = Math.min(++mStacks, mMaxStacks);
+		}
+
 		return true;
 	}
 

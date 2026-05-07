@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkill;
 import com.playmonumenta.plugins.particle.PartialParticle;
+import com.playmonumenta.plugins.utils.MetadataUtils;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -28,10 +29,12 @@ public class QuiverStormCS implements CosmeticSkill {
 		World world = player.getWorld();
 		new PartialParticle(Particle.ELECTRIC_SPARK, player.getEyeLocation().add(player.getLocation().getDirection()), 15, 0, 0, 0, 0.6f).spawnAsPlayerActive(player);
 
-		world.playSound(player.getLocation(), Sound.BLOCK_IRON_DOOR_OPEN, SoundCategory.PLAYERS, 0.8f, 1.6f);
-		world.playSound(player.getLocation(), Sound.ITEM_CROSSBOW_SHOOT, SoundCategory.PLAYERS, 0.6f, 1.3f);
-		world.playSound(player.getLocation(), Sound.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.6f, 2f);
-		world.playSound(player.getLocation(), Sound.ITEM_TRIDENT_RETURN, SoundCategory.PLAYERS, 0.8f, 1.3f);
+		if (MetadataUtils.checkOnceThisTick(Plugin.getInstance(), player, "QuiverStormCSFiredThisTick")) {
+			world.playSound(player.getLocation(), Sound.BLOCK_IRON_DOOR_OPEN, SoundCategory.PLAYERS, 0.8f, 1.6f);
+			world.playSound(player.getLocation(), Sound.ITEM_CROSSBOW_SHOOT, SoundCategory.PLAYERS, 0.6f, 1.3f);
+			world.playSound(player.getLocation(), Sound.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 0.6f, 2f);
+			world.playSound(player.getLocation(), Sound.ITEM_TRIDENT_RETURN, SoundCategory.PLAYERS, 0.8f, 1.3f);
+		}
 	}
 
 	public void arrowLevel2Hit(Player player) {

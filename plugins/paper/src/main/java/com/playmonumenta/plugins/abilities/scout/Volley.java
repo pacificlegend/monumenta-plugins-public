@@ -3,7 +3,6 @@ package com.playmonumenta.plugins.abilities.scout;
 import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.AbilityInfo;
-import com.playmonumenta.plugins.abilities.AbilityWithDuration;
 import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.abilities.MultipleChargeAbility;
@@ -11,16 +10,19 @@ import com.playmonumenta.plugins.abilities.scout.hunter.QuiverStorm;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.scout.VolleyCS;
+import com.playmonumenta.plugins.effects.Effect;
+import com.playmonumenta.plugins.effects.EffectManager;
+import com.playmonumenta.plugins.effects.MultishotEffect;
+import com.playmonumenta.plugins.effects.PercentDamageDealt;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.itemstats.enchantments.Grappling;
-import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
+import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
-import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
 import com.playmonumenta.plugins.utils.MetadataUtils;
-import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +33,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AbstractArrow.PickupStatus;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -38,17 +41,15 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.ThrowableProjectile;
 import org.bukkit.entity.Trident;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.Nullable;
 
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.cooldown;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.stat;
 import static com.playmonumenta.plugins.utils.DescriptionUtils.UNDERLINED;
 
-public class Volley extends MultipleChargeAbility implements AbilityWithDuration {
-	public static final String ENHANCEMENT_METADATA = "VolleyMultishotEnhancement";
+public class Volley extends MultipleChargeAbility {
 	public static final String VOLLEY_METADATA = "VolleyThisTick";
+	private static final String VOLLEY_ENHANCEMENT_FIRST_MULTISHOT = "Volley Enhancement First Multishot Effect";
+	private static final String VOLLEY_ENHANCEMENT_SUBSEQUENT_MULTISHOT = "Volley Enhancement Subsequent Multishot Effect";
 
 	private static final int VOLLEY_COOLDOWN = 10 * Constants.TICKS_PER_SECOND;
 	private static final int VOLLEY_CHARGES = 2;
@@ -60,6 +61,7 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 	private static final double VOLLEY_2_DAMAGE_FLAT = 8;
 	private static final int MULTISHOT_BUFF = 1;
 	private static final int MULTISHOT_DURATION = 3 * 20;
+	private static final double ENHANCEMENT_DAMAGE = 0.15;
 
 	public Set<Projectile> mVolley;
 	private final Map<LivingEntity, Integer> mVolleyHitMap;
@@ -71,6 +73,7 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 	public static final String CHARM_CHARGES = "Volley Charges";
 	public static final String CHARM_MULTISHOT_LEVEL = "Volley Multishot Level";
 	public static final String CHARM_MULTISHOT_DURATION = "Volley Multishot Duration";
+	public static final String CHARM_ENHANCEMENT_DAMAGE = "Volley Enhancement Damage Multiplier";
 
 	public static final AbilityInfo<Volley> INFO =
 		new AbilityInfo<>(Volley.class, "Volley", Volley::new)
@@ -88,13 +91,10 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 	private final double mFlatDamage;
 	private final int mMultishotLevel;
 	private final int mMultiShotDuration;
+	private final double mEnhancementDamage;
 	private final VolleyCS mCosmetic;
 
 	private int mVolleyTime;
-	private int mMultishotTime;
-	private int mCurrDuration = -1;
-	@Nullable
-	private BukkitRunnable mMultishotRunnable;
 
 	public Volley(Plugin plugin, Player player) {
 		super(plugin, player, INFO);
@@ -104,13 +104,13 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 		mMaxCharges = 2 + (int) CharmManager.getLevel(mPlayer, CHARM_CHARGES);
 		mMultishotLevel = MULTISHOT_BUFF + (int) CharmManager.getLevel(mPlayer, CHARM_MULTISHOT_LEVEL);
 		mMultiShotDuration = CharmManager.getDuration(mPlayer, CHARM_MULTISHOT_DURATION, MULTISHOT_DURATION);
+		mEnhancementDamage = ENHANCEMENT_DAMAGE + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_ENHANCEMENT_DAMAGE);
 		mVolley = new HashSet<>();
 		mVolleyHitMap = new HashMap<>();
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new VolleyCS());
 
 		mCharges = getChargesOffCooldown();
 		mVolleyTime = Bukkit.getServer().getCurrentTick();
-		mMultishotTime = Bukkit.getServer().getCurrentTick();
 	}
 
 	@Override
@@ -125,13 +125,32 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 
 		int tick = Bukkit.getServer().getCurrentTick();
 
-		if (mMultishotRunnable != null && !mMultishotRunnable.isCancelled()
-			&& !mVolley.contains(projectile)
+		if (!mVolley.contains(projectile)
 			&& !isVolleyShot(mPlayer)
-			&& tick - mMultishotTime >= 2
 		) {
-			mMultishotTime = tick;
-			multishotEnhancement(projectile);
+			// Multishot Enhancement is being checked for now!
+			Effect firstMultishot = EffectManager.getInstance().getActiveEffect(mPlayer, VOLLEY_ENHANCEMENT_FIRST_MULTISHOT);
+			if (firstMultishot instanceof MultishotEffect realFirstMultishot) {
+				EffectManager.getInstance().clearEffects(mPlayer, VOLLEY_ENHANCEMENT_FIRST_MULTISHOT);
+				// Multishot effect, with correct duration
+				Effect realSecondMultishot = new MultishotEffect(mMultiShotDuration, mMultishotLevel).deleteOnAbilityUpdate(true);
+				EffectManager.getInstance().addEffect(mPlayer, VOLLEY_ENHANCEMENT_SUBSEQUENT_MULTISHOT, realSecondMultishot);
+				Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> {
+					ClientModHandler.updateEffect(mPlayer, realSecondMultishot, VOLLEY_ENHANCEMENT_SUBSEQUENT_MULTISHOT, false);
+					ClientModHandler.updateEffect(mPlayer, realFirstMultishot, VOLLEY_ENHANCEMENT_FIRST_MULTISHOT, true);
+				}, 1);
+				// Enhancement damage buff
+				Effect enhanceDamageBuff = new PercentDamageDealt(
+					mMultiShotDuration,
+					mEnhancementDamage,
+					EnumSet.of(DamageEvent.DamageType.PROJECTILE),
+					0,
+					null,
+					PercentDamageDealt.effectID,
+					true
+				);
+				EffectManager.getInstance().addEffect(mPlayer, VOLLEY_ENHANCEMENT_SUBSEQUENT_MULTISHOT, enhanceDamageBuff);
+			}
 		}
 
 		// Volley pre-req.
@@ -142,68 +161,52 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 			return true;
 		}
 
+		// Normal Volley is being cast now!
+		int fireticks = (projectile instanceof Arrow regularArrow) ? regularArrow.getFireTicks() : 0;
 		MetadataUtils.markThisTick(mPlugin, mPlayer, VOLLEY_METADATA);
 		mVolleyTime = tick;
 		mCosmetic.volleyEffect(mPlayer);
 
 		if (isEnhanced()) {
-			if (mMultishotRunnable != null && !mMultishotRunnable.isCancelled()) {
-				mMultishotRunnable.cancel();
-			}
-			mCurrDuration = mMultiShotDuration;
-
-			mMultishotRunnable = new BukkitRunnable() {
-
-				@Override
-				public void run() {
-					int hasMultishot = ItemStatUtils.getEnchantmentLevel(mPlayer.getInventory().getItemInMainHand(), EnchantmentType.MULTISHOT);
-					mCosmetic.volleyMultishotParticle(mPlayer, mMultiShotDuration - mCurrDuration, mMultishotLevel + hasMultishot, mMultiShotDuration);
-					mCurrDuration--;
-					if (mCurrDuration <= 0) {
-						mCurrDuration = 0;
-						updateAbility();
-						this.cancel();
-					}
-				}
-			};
-			cancelOnDeath(mMultishotRunnable.runTaskTimer(mPlugin, 0, 1));
+			Effect firstMultishot = new MultishotEffect(getModifiedCooldown(), mMultishotLevel, true).deleteOnAbilityUpdate(true);
+			EffectManager.getInstance().addEffect(mPlayer, VOLLEY_ENHANCEMENT_FIRST_MULTISHOT, firstMultishot);
 		}
 
 		float arrowSpeed = ItemUtils.getVanillaProjectileSpeed(mPlayer.getInventory().getItemInMainHand());
-		// Give time for other skills to set data
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				List<Projectile> projectiles
-					= EntityUtils.spawnVolley(mPlayer, mArrows, arrowSpeed, 8, projectile.getType());
 
-				int piercing = (projectile instanceof AbstractArrow) ? ((AbstractArrow) projectile).getPierceLevel() + (int) CharmManager.getLevel(mPlayer, CHARM_PIERCING) : 0;
+		List<Projectile> projectiles
+			= EntityUtils.spawnVolley(mPlayer, mArrows, arrowSpeed, 8, projectile.getType());
 
-				for (Projectile proj : projectiles) {
-					mVolley.add(proj);
+		int piercing = (projectile instanceof AbstractArrow) ? ((AbstractArrow) projectile).getPierceLevel() + (int) CharmManager.getLevel(mPlayer, CHARM_PIERCING) : 0;
 
-					AbilityUtils.inheritProjectileStats(mPlayer, proj, projectile);
-					ProjectileLaunchEvent event = new ProjectileLaunchEvent(proj);
-					Bukkit.getPluginManager().callEvent(event);
+		for (Projectile proj : projectiles) {
+			mVolley.add(proj);
 
-					if (proj instanceof AbstractArrow arrow) {
-						arrow.setPickupStatus(PickupStatus.CREATIVE_ONLY);
-
-						arrow.setCritical(projectile instanceof AbstractArrow projectileArrow && projectileArrow.isCritical());
-						if (!(proj instanceof Trident)) {
-							arrow.setPierceLevel(piercing);
-						}
-					} else if (proj instanceof ThrowableProjectile throwable && projectile instanceof ThrowableProjectile oldThrowable) {
-						ItemUtils.setSnowballItem(throwable, oldThrowable.getItem());
-					}
-
-					mPlugin.mProjectileEffectTimers.addEntity(proj, Particle.SMOKE_NORMAL);
-				}
-
-				// We can't just use arrow.remove() because that cancels the event and refunds the arrow
-				AbilityUtils.removeProjectile(projectile);
+			if (fireticks > 0) {
+				proj.setFireTicks(fireticks);
 			}
-		}.runTaskLater(mPlugin, 0);
+			AbilityUtils.inheritProjectileStats(mPlayer, proj, projectile);
+
+			if (proj instanceof AbstractArrow arrow) {
+				arrow.setPickupStatus(PickupStatus.CREATIVE_ONLY);
+
+				arrow.setCritical(projectile instanceof AbstractArrow projectileArrow && projectileArrow.isCritical());
+				if (!(proj instanceof Trident)) {
+					arrow.setPierceLevel(piercing);
+				}
+			} else if (proj instanceof ThrowableProjectile throwable && projectile instanceof ThrowableProjectile oldThrowable) {
+				ItemUtils.setSnowballItem(throwable, oldThrowable.getItem());
+			}
+
+			ProjectileLaunchEvent event = new ProjectileLaunchEvent(proj);
+			Bukkit.getPluginManager().callEvent(event);
+
+			mPlugin.mProjectileEffectTimers.addEntity(proj, Particle.SMOKE_NORMAL);
+		}
+
+		// We can't just use arrow.remove() because that cancels the event and refunds the arrow
+		AbilityUtils.removeProjectile(projectile);
+
 
 		updateAbility();
 		return true;
@@ -212,8 +215,8 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
 		Entity proj = event.getDamager();
-		if (proj instanceof Projectile && mVolley.contains(proj)) {
-			if (notBeenHit(enemy)) {
+		if (proj instanceof Projectile) {
+			if (mVolley.contains(proj) && notBeenHit(enemy)) {
 				event.setFlatDamage(event.getFlatDamage() * mPercentDamage + mFlatDamage);
 				event.setAbility(ClassAbility.VOLLEY);
 
@@ -243,39 +246,6 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 		if (oneSecond) {
 			mVolley.removeIf(t -> !t.isValid());
 			mVolleyHitMap.keySet().removeIf(e -> !e.isValid());
-		}
-	}
-
-	private void multishotEnhancement(Projectile projectile) {
-		boolean hasMultishot = ItemStatUtils.hasEnchantment(mPlayer.getInventory().getItemInMainHand(), EnchantmentType.MULTISHOT);
-		float arrowSpeed = ItemUtils.getVanillaProjectileSpeed(mPlayer.getInventory().getItemInMainHand());
-		int piercing = (projectile instanceof AbstractArrow) ? ((AbstractArrow) projectile).getPierceLevel() : 0;
-
-		// Multishot arrows are spaced by 10 from the main arrow
-		final List<Projectile> projectiles = new ArrayList<>();
-		int spacing = hasMultishot ? 20 : 0;
-
-		for (int i = 0; i < mMultishotLevel; i++) {
-			spacing += 20;
-			projectiles.addAll(EntityUtils.spawnVolley(mPlayer, 2, arrowSpeed, spacing, projectile.getType()));
-		}
-
-		for (Projectile proj : projectiles) {
-			proj.setMetadata(ENHANCEMENT_METADATA, new FixedMetadataValue(mPlugin, 0));
-			AbilityUtils.inheritProjectileStats(mPlayer, proj, projectile);
-
-			ProjectileLaunchEvent event = new ProjectileLaunchEvent(proj);
-			Bukkit.getPluginManager().callEvent(event);
-
-			if (proj instanceof AbstractArrow arrow) {
-				arrow.setPickupStatus(PickupStatus.CREATIVE_ONLY);
-				arrow.setCritical(projectile instanceof AbstractArrow projectileArrow && projectileArrow.isCritical());
-				if (!(proj instanceof Trident)) {
-					arrow.setPierceLevel(piercing);
-				}
-			} else if (proj instanceof ThrowableProjectile throwable && projectile instanceof ThrowableProjectile oldThrowable) {
-				ItemUtils.setSnowballItem(throwable, oldThrowable.getItem());
-			}
 		}
 	}
 
@@ -311,8 +281,8 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 	private static Description<Volley> getDescriptionEnhancement() {
 		return new FormattedDescriptionBuilder<>(() -> INFO, 3)
 			.addDashedLine()
-			.addLine("Casting *Volley* temporarily empowers your").styles(UNDERLINED)
-			.addLine("shots with Multishot.")
+			.addLine("Casting *Volley* temporarily empowers your weapon").styles(UNDERLINED)
+			.addLine("with Multishot and increased direct projectile damage.")
 			.addLine("(Works with any weapon type)")
 			.addLine()
 			.addStat("Duration: %t")
@@ -320,16 +290,8 @@ public class Volley extends MultipleChargeAbility implements AbilityWithDuration
 			.addIf((a, p) -> a != null && a.mMultishotLevel != 1,
 				desc -> desc.addStat("Multishot Level: %d")
 					.statValues(stat(a -> a.mMultishotLevel, 1)))
+			.addStat("Damage Boost: +%p (p)")
+			.statValues(stat(a -> a.mEnhancementDamage, ENHANCEMENT_DAMAGE))
 			.addDashedLine();
-	}
-
-	@Override
-	public int getInitialAbilityDuration() {
-		return mMultiShotDuration;
-	}
-
-	@Override
-	public int getRemainingAbilityDuration() {
-		return mCurrDuration;
 	}
 }

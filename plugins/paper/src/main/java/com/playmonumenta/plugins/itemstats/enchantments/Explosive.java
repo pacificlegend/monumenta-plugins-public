@@ -119,7 +119,7 @@ public class Explosive implements Enchantment {
 			float multiplier = 1f;
 			if (AbilityUtils.isVolley(player, projectile) || projectile.hasMetadata(QuiverStorm.ARROW_METADATA)) {
 				multiplier = 0.15f;
-			} else if (itemStatsMap.get(EnchantmentType.MULTISHOT) == 1) {
+			} else if (itemStatsMap.get(EnchantmentType.MULTISHOT) > 0) {
 				multiplier = 0.4f;
 			}
 			particles(location, player, multiplier);

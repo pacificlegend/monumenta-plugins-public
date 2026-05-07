@@ -74,9 +74,11 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -589,6 +591,43 @@ public class EntityUtils {
 			double yaw = spacing * (i - (numProjectiles - 1) / 2f);
 			Projectile arrow = spawnProjectile(player, yaw, 0.0, new Vector(0, 0, 0), speed, projectileType);
 			projectiles.add(arrow);
+		}
+
+		return projectiles;
+	}
+
+	/**
+	 * Spawns a Volley assigned to this player. Automatically makes safe piercing and pickup status.
+	 *
+	 * @param player Shooter
+	 * @param numProjectiles Number of projectiles to shoot
+	 * @param spacing Spacing (in degrees) between projectiles
+	 * @param baseProjectile Projectile to copy stats / textures from
+	 * @param piercing Piercing level (only works on arrows)
+	 * @return List of volleyed projectiles
+	 */
+	public static List<Projectile> spawnVolleyOfProjectile(Player player, int numProjectiles, double spacing, Projectile baseProjectile, int piercing, @Nullable Collection<String> metadataTags) {
+		List<Projectile> projectiles = spawnVolley(player, numProjectiles, (float) baseProjectile.getVelocity().length(), spacing, baseProjectile.getType());
+
+		for (Projectile proj : projectiles) {
+			AbilityUtils.inheritProjectileStats(player, proj, baseProjectile);
+			if (metadataTags != null) {
+				for (String metadata : metadataTags) {
+					proj.setMetadata(metadata, new FixedMetadataValue(Plugin.getInstance(), 0));
+				}
+			}
+			ProjectileLaunchEvent event = new ProjectileLaunchEvent(proj);
+			Bukkit.getPluginManager().callEvent(event);
+
+			if (proj instanceof AbstractArrow arrow) {
+				arrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
+				arrow.setCritical(baseProjectile instanceof AbstractArrow projectileArrow && projectileArrow.isCritical());
+				if (!(arrow instanceof Trident)) {
+					arrow.setPierceLevel(piercing);
+				}
+			} else if (proj instanceof ThrowableProjectile throwable && baseProjectile instanceof ThrowableProjectile oldThrowable) {
+				ItemUtils.setSnowballItem(throwable, oldThrowable.getItem());
+			}
 		}
 
 		return projectiles;

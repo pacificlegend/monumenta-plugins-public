@@ -70,10 +70,10 @@ public class WindBomb extends Ability {
 	private static final double DAMAGE_FLAT_L2 = 11;
 	private static final double DAMAGE_PERCENT_L1 = 0.4;
 	private static final double DAMAGE_PERCENT_L2 = 0.6;
-	private static final double PULL_VELOCITY = 0.21;
+	private static final double PULL_VELOCITY = 0.225;
 
 	private static final double VORTEX_HEIGHT = 3;
-	private static final int PULL_INTERVAL = 4;
+	private static final int PULL_INTERVAL = 3;
 	private static final double PULL_RADIUS = 10;
 	private static final int PULL_DURATION = Constants.TICKS_PER_SECOND * 5;
 	private static final double PULL_RATIO = 0.05;
@@ -101,8 +101,7 @@ public class WindBomb extends Ability {
 			.descriptions(getDescription1(), getDescription2(), getDescriptionEnhancement())
 			.simpleDescription("Throw a bomb that explodes upon being damaged.")
 			.cooldown(COOLDOWN_1, COOLDOWN_2, CHARM_COOLDOWN)
-			.addTrigger(new AbilityTriggerInfo<>("cast", "cast", WindBomb::cast, new AbilityTrigger(AbilityTrigger.Key.SWAP).sneaking(true)
-				.keyOptions(AbilityTrigger.KeyOptions.REQUIRE_PROJECTILE_WEAPON)))
+			.addTrigger(new AbilityTriggerInfo<>("cast", "cast", WindBomb::cast, new AbilityTrigger(AbilityTrigger.Key.SWAP).sneaking(true)))
 			.displayItem(Material.TNT);
 
 	private final double mRadius;
@@ -201,10 +200,10 @@ public class WindBomb extends Ability {
 		allButProj.remove(DamageEvent.DamageType.PROJECTILE);
 		mPlugin.mEffectManager.addEffect(bomb, "WindBombOnlyProjectile", new PercentDamageReceived(9999 * 20, -1, allButProj));
 
-		int invulnerabilityDuration = (mExplosionsRemaining == mExplosionsMax) ? 10 : 2;
-		// 0.5s invulnerability so it doesn't get triggered immediately.
-		// If respawning, give 0.1s invuln so that edge-case Gale Shot doesn't proc both explosions at once.
-		mPlugin.mEffectManager.addEffect(bomb, "WindBombImmunity", new PercentDamageReceived(invulnerabilityDuration, -1));
+		if (mExplosionsRemaining == mExplosionsMax) {
+			// If respawning, give 0.1s invuln so that edge-case Gale Shot doesn't proc both explosions at once.
+			mPlugin.mEffectManager.addEffect(bomb, "WindBombImmunity", new PercentDamageReceived(2, -1));
+		}
 
 		mRunnable = new BukkitRunnable() {
 			final LivingEntity mRunnableBomb = bomb;

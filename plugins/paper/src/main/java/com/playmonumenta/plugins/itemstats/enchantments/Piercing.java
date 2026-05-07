@@ -30,6 +30,11 @@ public class Piercing implements Enchantment {
 	}
 
 	@Override
+	public double getPriorityAmount() {
+		return 827; // After Multishot
+	}
+
+	@Override
 	public void onProjectileLaunch(Plugin plugin, Player player, double level, ProjectileLaunchEvent event, Projectile proj) {
 		if (proj instanceof AbstractArrow arrow && !(proj instanceof Trident)) {
 

@@ -43,7 +43,6 @@ public class Scout extends PlayerClass {
 		mClassColor = TextColor.fromHexString("#59B4EB");
 		mClassGlassFiller = Material.LIGHT_BLUE_STAINED_GLASS_PANE;
 		mDisplayItem = Material.BOW;
-		mClassDescription = "Scouts are agile masters of archery and exploration.";
 		mPassive = Fleetfooted.INFO;
 
 		mSpecOne.mAbilities.addAll(List.of(GaleShot.INFO, RendingRazor.INFO, TacticalManeuver.INFO));
@@ -51,7 +50,6 @@ public class Scout extends PlayerClass {
 		mSpecOne.mSpecialization = RANGER_SPEC_ID;
 		mSpecOne.mSpecName = "Ranger";
 		mSpecOne.mDisplayItem = Material.WHEAT;
-		mSpecOne.mDescription = "Rangers are agile experts of exploration that have unparalleled mastery of movement.";
 		mSpecOne.mPassive = Elusive.INFO;
 
 		mSpecTwo.mAbilities.addAll(List.of(Lockdown.INFO, QuiverStorm.INFO, PredatorStrike.INFO));
@@ -59,7 +57,6 @@ public class Scout extends PlayerClass {
 		mSpecTwo.mSpecialization = HUNTER_SPEC_ID;
 		mSpecTwo.mSpecName = "Hunter";
 		mSpecTwo.mDisplayItem = Material.LEATHER;
-		mSpecTwo.mDescription = "Hunters are precise masters of archery that have dedicated themselves to projectile weaponry.";
 		mSpecTwo.mPassive = Deadeye.INFO;
 
 		mTriggerOrder = ImmutableList.of(

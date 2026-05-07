@@ -24,7 +24,6 @@ public abstract class PlayerClass {
 	public Material mDisplayItem;
 	public @Nullable String mQuestReq = null;
 	public int mQuestReqMin;
-	public String mClassDescription;
 	public AbilityInfo<?> mPassive;
 
 	public PlayerSpec mSpecOne = new PlayerSpec();

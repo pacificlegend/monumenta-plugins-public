@@ -47,7 +47,6 @@ public class Shaman extends PlayerClass {
 		mClass = CLASS_ID;
 		mClassName = "Shaman";
 		mDisplayItem = Material.TOTEM_OF_UNDYING;
-		mClassDescription = "Shamans excel in strategic positioning and location defense, using their stationary totems to control the battle.";
 		mPassive = TotemicProjection.INFO;
 
 		mSpecOne.mAbilities.add(SpiritualCombos.INFO);
@@ -59,7 +58,6 @@ public class Shaman extends PlayerClass {
 		mClassGlassFiller = Material.GREEN_STAINED_GLASS_PANE;
 		mSpecOne.mSpecName = "Soothsayer";
 		mSpecOne.mDisplayItem = Material.OAK_SAPLING;
-		mSpecOne.mDescription = "Focuses on using your tools to support your team and turn the tide of battle.";
 
 		mSpecTwo.mAbilities.add(SpiritcatcherOrbs.INFO);
 		mSpecTwo.mAbilities.add(DecayedTotem.INFO);
@@ -68,7 +66,6 @@ public class Shaman extends PlayerClass {
 		mSpecTwo.mSpecialization = HEXBREAKER_ID;
 		mSpecTwo.mSpecName = "Hexbreaker";
 		mSpecTwo.mDisplayItem = Material.MAGMA_BLOCK;
-		mSpecTwo.mDescription = "Deals in dark magics, focusing on harming enemies at the cost of totems.";
 
 		mTriggerOrder = ImmutableList.of(
 			InterconnectedHavoc.INFO,

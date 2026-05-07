@@ -50,7 +50,6 @@ public class Alchemist extends PlayerClass {
 		mClassColor = TextColor.fromHexString("#81D434");
 		mClassGlassFiller = Material.LIME_STAINED_GLASS_PANE;
 		mDisplayItem = Material.POTION;
-		mClassDescription = "Alchemists employ magic potions to weaken and destroy their enemies.";
 		mPassive = AlchemistPotions.INFO;
 
 		mSpecOne.mAbilities.add(Taboo.INFO);

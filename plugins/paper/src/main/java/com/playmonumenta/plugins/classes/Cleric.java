@@ -51,7 +51,6 @@ public class Cleric extends PlayerClass {
 		mClassColor = TextColor.fromHexString("#FFC644");
 		mClassGlassFiller = Material.YELLOW_STAINED_GLASS_PANE;
 		mDisplayItem = Material.POPPY;
-		mClassDescription = "Clerics are mighty healers and specialize in fighting 'Heretics'. A Heretic is defined as a Humanoid or Undead mob.";
 		mPassive = Crusade.INFO;
 
 		mSpecOne.mAbilities.add(HolyJavelin.INFO);
@@ -61,7 +60,6 @@ public class Cleric extends PlayerClass {
 		mSpecOne.mSpecialization = PALADIN_SPEC_ID;
 		mSpecOne.mSpecName = "Paladin";
 		mSpecOne.mDisplayItem = Material.GHAST_TEAR;
-		mSpecOne.mDescription = "Paladins are forefront fighters, charging into battle and vanquishing Heretics with heavy attacks in quick succession.";
 		mSpecOne.mPassive = Unwavering.INFO;
 
 		mSpecTwo.mAbilities.add(EtherealAscension.INFO);
@@ -71,7 +69,6 @@ public class Cleric extends PlayerClass {
 		mSpecTwo.mSpecialization = SERAPH_SPEC_ID;
 		mSpecTwo.mSpecName = "Seraph";
 		mSpecTwo.mDisplayItem = Material.OCHRE_FROGLIGHT;
-		mSpecTwo.mDescription = "Seraphim are ranged, agile supporters, capable of aiding allies and smiting enemies from above with divine magic.";
 		mSpecTwo.mPassive = Rejuvenation.INFO;
 
 		mTriggerOrder = ImmutableList.of(

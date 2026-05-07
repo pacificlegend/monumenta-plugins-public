@@ -52,7 +52,6 @@ public class Mage extends PlayerClass {
 		mClassColor = TextColor.fromHexString("#A129D3");
 		mClassGlassFiller = Material.PURPLE_STAINED_GLASS_PANE;
 		mDisplayItem = Material.BLAZE_ROD;
-		mClassDescription = "Mages are masters of area control, freezing, wounding, and igniting enemies with their strikes.";
 		mPassive = Channeling.INFO;
 
 		mSpecOne.mAbilities.add(AstralOmen.INFO);
@@ -62,7 +61,6 @@ public class Mage extends PlayerClass {
 		mSpecOne.mSpecialization = ARCANIST_SPEC_ID;
 		mSpecOne.mSpecName = "Arcanist";
 		mSpecOne.mDisplayItem = Material.DRAGON_BREATH;
-		mSpecOne.mDescription = "Arcanists are mages that specialize at controlling their skill cooldowns and getting up close.";
 
 		mSpecTwo.mAbilities.add(Blizzard.INFO);
 		mSpecTwo.mAbilities.add(ElementalSpiritFire.INFO);
@@ -71,7 +69,6 @@ public class Mage extends PlayerClass {
 		mSpecTwo.mSpecialization = ELEMENTALIST_SPEC_ID;
 		mSpecTwo.mSpecName = "Elementalist";
 		mSpecTwo.mDisplayItem = Material.BLAZE_POWDER;
-		mSpecTwo.mDescription = "Elementalists are the undisputed masters of the elements. They excel at zoning and crowd control.";
 
 		mTriggerOrder = ImmutableList.of(
 			CosmicMoonblade.INFO,

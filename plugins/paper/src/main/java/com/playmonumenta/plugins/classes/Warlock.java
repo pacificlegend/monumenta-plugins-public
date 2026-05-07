@@ -49,7 +49,6 @@ public class Warlock extends PlayerClass {
 		mDisplayItem = Material.STONE_HOE;
 		mQuestReq = "Quest13";
 		mQuestReqMin = 1;
-		mClassDescription = "Warlocks use scythes in combination with dark magic to bring suffering and death to their enemies.";
 		mPassive = Culling.INFO;
 
 		mSpecOne.mAbilities.add(DarkPact.INFO);
@@ -59,7 +58,6 @@ public class Warlock extends PlayerClass {
 		mSpecOne.mSpecialization = REAPER_SPEC_ID;
 		mSpecOne.mSpecName = "Reaper";
 		mSpecOne.mDisplayItem = Material.WITHER_SKELETON_SKULL;
-		mSpecOne.mDescription = "Reapers use scythes in combination with dark magic to bring death to their enemies. They specialize in melee combat.";
 
 		mSpecTwo.mAbilities.add(HauntingShades.INFO);
 		mSpecTwo.mAbilities.add(RestlessSouls.INFO);
@@ -68,7 +66,6 @@ public class Warlock extends PlayerClass {
 		mSpecTwo.mSpecialization = TENEBRIST_SPEC_ID;
 		mSpecTwo.mSpecName = "Tenebrist";
 		mSpecTwo.mDisplayItem = Material.CRIMSON_NYLIUM;
-		mSpecTwo.mDescription = "Tenebrists use scythes in combination with dark magic to bring suffering to their enemies. They specialize in curses and status effects.";
 
 		mTriggerOrder = ImmutableList.of(
 			DarkPact.INFO,

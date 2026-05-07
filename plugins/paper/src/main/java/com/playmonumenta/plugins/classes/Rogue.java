@@ -48,7 +48,6 @@ public class Rogue extends PlayerClass {
 		mClassColor = TextColor.fromHexString("#36393D");
 		mClassGlassFiller = Material.GRAY_STAINED_GLASS_PANE;
 		mDisplayItem = Material.STONE_SWORD;
-		mClassDescription = "Rogues excel in one-on-one battles, using precise strikes to bring down dangerous elite enemies.";
 		mPassive = Dethroner.INFO;
 
 		mSpecOne.mAbilities.add(BladeDance.INFO);
@@ -58,7 +57,6 @@ public class Rogue extends PlayerClass {
 		mSpecOne.mSpecialization = SWORDSAGE_SPEC_ID;
 		mSpecOne.mSpecName = "Swordsage";
 		mSpecOne.mDisplayItem = Material.IRON_HELMET;
-		mSpecOne.mDescription = "Swordsages specialize in tackling multiple enemies through dexterous movement.";
 
 		mSpecTwo.mAbilities.add(BodkinBlitz.INFO);
 		mSpecTwo.mAbilities.add(CloakAndDagger.INFO);
@@ -67,7 +65,6 @@ public class Rogue extends PlayerClass {
 		mSpecTwo.mSpecialization = ASSASSIN_SPEC_ID;
 		mSpecTwo.mSpecName = "Assassin";
 		mSpecTwo.mDisplayItem = Material.WITHER_ROSE;
-		mSpecTwo.mDescription = "Assassins excel in precise strikes and deception to devastate their enemies.";
 
 		mTriggerOrder = ImmutableList.of(
 			BladeDance.INFO,

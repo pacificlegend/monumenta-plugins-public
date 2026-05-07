@@ -48,7 +48,6 @@ public class Warrior extends PlayerClass {
 		mClassColor = TextColor.fromHexString("#D32818");
 		mClassGlassFiller = Material.RED_STAINED_GLASS_PANE;
 		mDisplayItem = Material.STONE_AXE;
-		mClassDescription = "Warriors specialize in melee combat, being able to both deal and survive heavy damage.";
 		mPassive = Formidable.INFO;
 
 		mSpecOne.mAbilities.add(GloriousBattle.INFO);
@@ -58,7 +57,6 @@ public class Warrior extends PlayerClass {
 		mSpecOne.mSpecialization = BERSERKER_SPEC_ID;
 		mSpecOne.mSpecName = "Berserker";
 		mSpecOne.mDisplayItem = Material.WITHER_SKELETON_SKULL;
-		mSpecOne.mDescription = "Berserkers specialize in melee combat. They thrive in the heart of battle taking heavy risks for great rewards.";
 		mSpecOne.mPassive = Bloodlust.INFO;
 
 		mSpecTwo.mAbilities.add(Bodyguard.INFO);
@@ -68,7 +66,6 @@ public class Warrior extends PlayerClass {
 		mSpecTwo.mSpecialization = GUARDIAN_SPEC_ID;
 		mSpecTwo.mSpecName = "Guardian";
 		mSpecTwo.mDisplayItem = Material.SHIELD;
-		mSpecTwo.mDescription = "Guardians specialize in melee combat. Their skills are focused on taking heavy damage and drawing enemy attacks to themselves.";
 
 		mTriggerOrder = ImmutableList.of(
 			GloriousBattle.INFO,

@@ -17,7 +17,6 @@ public class PlayerSpec {
 	public String mSpecName;
 	public int mSpecialization;
 	public Material mDisplayItem;
-	public String mDescription;
 	public @Nullable AbilityInfo<?> mPassive;
 
 	public JsonObject toJson() {

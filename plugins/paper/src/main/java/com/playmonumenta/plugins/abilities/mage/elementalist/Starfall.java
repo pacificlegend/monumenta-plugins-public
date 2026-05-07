@@ -1,5 +1,6 @@
 package com.playmonumenta.plugins.abilities.mage.elementalist;
 
+import com.playmonumenta.plugins.Constants;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.Ability;
 import com.playmonumenta.plugins.abilities.AbilityInfo;
@@ -136,7 +137,7 @@ public class Starfall extends Ability {
 				}
 				mCosmetic.starfallFallEffect(world, mPlayer, loc, ogPlayerLoc, ogLoc, mT);
 
-				if (mT >= 50) {
+				if (mT >= Constants.TICKS_PER_SECOND * 10) {
 					this.cancel();
 				}
 			}

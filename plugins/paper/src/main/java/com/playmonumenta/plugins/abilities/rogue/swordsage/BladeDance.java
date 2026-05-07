@@ -13,6 +13,7 @@ import com.playmonumenta.plugins.cosmetics.skills.rogue.swordsage.BladeDanceCS;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
+import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.Hitbox;
@@ -31,14 +32,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.cooldown;
+import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.perRegion;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.stat;
 import static com.playmonumenta.plugins.utils.DescriptionUtils.UNDERLINED;
 
 
 public class BladeDance extends Ability {
 
-	private static final int DANCE_1_DAMAGE = 6;
-	private static final int DANCE_2_DAMAGE = 9;
+	private static final double[] DANCE_1_DAMAGE = {6, 10};
+	private static final double[] DANCE_2_DAMAGE = {9, 14};
 	private static final double SLOWNESS_AMPLIFIER = 1;
 	private static final int SLOW_DURATION_1 = 2 * 20;
 	private static final int SLOW_DURATION_2 = (int) (2.5 * 20);
@@ -77,8 +79,12 @@ public class BladeDance extends Ability {
 
 	public BladeDance(Plugin plugin, Player player) {
 		super(plugin, player, INFO);
+
+		double danceDamage = isLevelOne() ? AbilityUtils.getRegionScaled(player, DANCE_1_DAMAGE)
+			: AbilityUtils.getRegionScaled(player, DANCE_2_DAMAGE);
+
 		mRadius = CharmManager.getRadius(mPlayer, CHARM_RADIUS, DANCE_RADIUS);
-		mDamage = CharmManager.calculateFlatAndPercentValue(player, CHARM_DAMAGE, isLevelOne() ? DANCE_1_DAMAGE : DANCE_2_DAMAGE);
+		mDamage = CharmManager.calculateFlatAndPercentValue(player, CHARM_DAMAGE, danceDamage);
 		mSlowDuration = CharmManager.getDuration(player, CHARM_ROOT, (isLevelOne() ? SLOW_DURATION_1 : SLOW_DURATION_2));
 		mInvulnDuration = CharmManager.getDuration(mPlayer, CHARM_RESIST, INVULN_DURATION);
 		mCosmetic = CosmeticSkills.getPlayerCosmeticSkill(player, new BladeDanceCS());
@@ -148,8 +154,8 @@ public class BladeDance extends Ability {
 				.statValues(stat(a -> a.mInvulnDuration, INVULN_DURATION))
 			.addLine("deal damage and root nearby mobs.")
 			.addLine()
-			.addStat("Damage: %d1 (m)")
-				.statValues(stat(a -> a.mDamage, DANCE_1_DAMAGE))
+			.addStat("Damage: %d1R (m)")
+				.statValues(perRegion(a -> a.mDamage, DANCE_1_DAMAGE[0], DANCE_1_DAMAGE[1]))
 			.addStat("Effect: Root for %t1")
 				.statValues(stat(a -> a.mSlowDuration, SLOW_DURATION_1))
 			.addStat("Radius: %r")
@@ -165,8 +171,9 @@ public class BladeDance extends Ability {
 			.addLine("Increase *Blade Dance*'s damage and").styles(UNDERLINED)
 			.addLine("root duration, and reduce its cooldown.")
 			.addLine()
-			.addStatComparison("Damage: %d1 -> %d2 (m)")
-				.statValues(stat(DANCE_1_DAMAGE), stat(a -> a.mDamage, DANCE_2_DAMAGE))
+			.addStatComparison("Damage: %d1 -> %d2R (m)")
+				.statValues(perRegion(DANCE_1_DAMAGE[0], DANCE_1_DAMAGE[1]),
+					perRegion(a -> a.mDamage, DANCE_2_DAMAGE[0], DANCE_2_DAMAGE[1]))
 			.addStatComparison("Effect: %t1 -> %t2 Root")
 				.statValues(stat(SLOW_DURATION_1), stat(a -> a.mSlowDuration, SLOW_DURATION_2))
 			.addStatComparison("Cooldown: %t1 -> %t2")

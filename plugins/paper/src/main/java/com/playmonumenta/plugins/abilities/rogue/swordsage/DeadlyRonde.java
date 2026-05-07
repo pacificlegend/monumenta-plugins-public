@@ -15,6 +15,7 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.network.ClientModHandler;
+import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.InventoryUtils;
@@ -29,14 +30,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
+import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.perRegion;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.stat;
 import static com.playmonumenta.plugins.utils.DescriptionUtils.UNDERLINED;
 import static com.playmonumenta.plugins.utils.DescriptionUtils.WHITE;
 
 public class DeadlyRonde extends Ability implements AbilityWithChargesOrStacks {
 
-	private static final int RONDE_1_DAMAGE = 4;
-	private static final int RONDE_2_DAMAGE = 6;
+	private static final double[] RONDE_1_DAMAGE = {4, 6};
+	private static final double[] RONDE_2_DAMAGE = {6, 8};
 	private static final int RONDE_1_MAX_STACKS = 2;
 	private static final int RONDE_2_MAX_STACKS = 3;
 	private static final double RONDE_SPEED_BONUS = 0.2;
@@ -83,8 +85,12 @@ public class DeadlyRonde extends Ability implements AbilityWithChargesOrStacks {
 
 	public DeadlyRonde(Plugin plugin, Player player) {
 		super(plugin, player, INFO);
+
+		double rondeDamage = isLevelOne() ? AbilityUtils.getRegionScaled(player, RONDE_1_DAMAGE)
+			: AbilityUtils.getRegionScaled(player, RONDE_2_DAMAGE);
+
 		mRadius = CharmManager.getRadius(mPlayer, CHARM_RADIUS, RONDE_RADIUS);
-		mDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, isLevelOne() ? RONDE_1_DAMAGE : RONDE_2_DAMAGE);
+		mDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, rondeDamage);
 		mKnockback = (float) CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_KNOCKBACK, RONDE_KNOCKBACK_SPEED);
 		mMaxStacks = (isLevelOne() ? RONDE_1_MAX_STACKS : RONDE_2_MAX_STACKS) + (int) CharmManager.getLevel(mPlayer, CHARM_STACKS);
 		mSpeed = RONDE_SPEED_BONUS + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_SPEED);
@@ -233,8 +239,8 @@ public class DeadlyRonde extends Ability implements AbilityWithChargesOrStacks {
 			.addLine("damage to mobs in front of you.")
 			.addLine("(Deals less damage if attack isn't charged)")
 			.addLine()
-			.addStat("Damage: %d1 (m)")
-				.statValues(stat(a -> a.mDamage, RONDE_1_DAMAGE))
+			.addStat("Damage: %d1R (m)")
+				.statValues(perRegion(a -> a.mDamage, RONDE_1_DAMAGE[0], RONDE_1_DAMAGE[1]))
 			.addStat("Radius: %r (Cone-Shaped)")
 				.statValues(stat(a -> a.mRadius, RONDE_RADIUS))
 			.addStat("Max Rondes: %d1")
@@ -248,8 +254,9 @@ public class DeadlyRonde extends Ability implements AbilityWithChargesOrStacks {
 			.addLine("Increase *Deadly Ronde*'s").styles(UNDERLINED)
 			.addLine("damage and maximum stacks.")
 			.addLine()
-			.addStatComparison("Damage: %d1 -> %d2 (m)")
-				.statValues(stat(RONDE_1_DAMAGE), stat(a -> a.mDamage, RONDE_2_DAMAGE))
+			.addStatComparison("Damage: %d1 -> %d2R (m)")
+				.statValues(perRegion(RONDE_1_DAMAGE[0], RONDE_1_DAMAGE[1]),
+					perRegion(a -> a.mDamage, RONDE_2_DAMAGE[0], RONDE_2_DAMAGE[1]))
 			.addStatComparison("Max Stacks: %d1 -> %d2")
 				.statValues(stat(RONDE_1_MAX_STACKS), stat(a -> a.mMaxStacks, RONDE_2_MAX_STACKS))
 			.addDashedLine();

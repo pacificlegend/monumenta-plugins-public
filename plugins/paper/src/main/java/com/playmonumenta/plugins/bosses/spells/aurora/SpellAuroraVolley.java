@@ -20,7 +20,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 public class SpellAuroraVolley extends Spell {
-	private static final int DAMAGE = 45;
+	private static final int DAMAGE = 36;
 	private static final int TELEGRAPH_DURATION = 2 * 20;
 	private static final double JUMP_VELOCITY = 1.4;
 
@@ -36,7 +36,9 @@ public class SpellAuroraVolley extends Spell {
 	public void run() {
 		World world = mBoss.getWorld();
 		Location bossLoc = mBoss.getLocation();
-		world.playSound(bossLoc, Sound.ENTITY_WITHER_AMBIENT, SoundCategory.HOSTILE, 2, 1.3f);
+		world.playSound(bossLoc, Sound.ENTITY_WITHER_AMBIENT, SoundCategory.HOSTILE, 2.5f, 1.0f);
+		world.playSound(bossLoc, Sound.ITEM_CROSSBOW_QUICK_CHARGE_2, SoundCategory.HOSTILE, 2.5f, 0.1f);
+		world.playSound(bossLoc, Sound.ITEM_CROSSBOW_QUICK_CHARGE_3, SoundCategory.HOSTILE, 2.5f, 0.1f);
 		world.playSound(bossLoc, Sound.ENTITY_PHANTOM_FLAP, SoundCategory.HOSTILE, 3, 1.0f);
 		world.playSound(bossLoc, Sound.ENTITY_PHANTOM_FLAP, SoundCategory.HOSTILE, 3, 1.3f);
 		world.playSound(bossLoc, Sound.ENTITY_PHANTOM_FLAP, SoundCategory.HOSTILE, 3, 1.5f);
@@ -82,14 +84,15 @@ public class SpellAuroraVolley extends Spell {
 					AbstractArrow proj = (AbstractArrow) projectile;
 
 					proj.setPickupStatus(PickupStatus.CREATIVE_ONLY);
+					proj.setPierceLevel(10);
 					proj.setDamage(DAMAGE);
 
 					mActiveTasks.add(new BukkitRunnable() {
 						@Override
 						public void run() {
 							// spawn particle
-							new PartialParticle(Particle.END_ROD, proj.getLocation())
-								.delta(0.1)
+							new PartialParticle(Particle.CRIT_MAGIC, proj.getLocation())
+								.extra(0.25)
 								.spawnAsEnemy();
 
 							if (proj.isInBlock() || !proj.isValid()) {

@@ -19,7 +19,6 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -34,7 +33,9 @@ public class SpellStarShower extends Spell {
 	private static final String SPELL_NAME_BLOCK_BREAK = "Star Shower (✶)";
 	private static final double RADIUS = 2.5;
 	private static final double BIG_RADIUS = 3;
+	private static final double HEIGHT = 8;
 	private static final int DAMAGE = 40;
+	private static final DamageEvent.DamageType DAMAGE_TYPE = DamageEvent.DamageType.BLAST;
 	private static final int BIG_DAMAGE = 56;
 	private static final float KNOCKBACK = 0.8f;
 	private static final int STAR_INTERVAL = 30;
@@ -42,6 +43,7 @@ public class SpellStarShower extends Spell {
 	private static final int BIG_STAR_DURATION = 3 * 20;
 	private static final int CHARGE_TIME = 2 * 20;
 	private static final int DURATION = 6 * 20;
+	public static final int COMPLETE_DURATION = CHARGE_TIME + DURATION + BIG_STAR_DURATION;
 
 	private final Plugin mPlugin;
 	private final LivingEntity mBoss;
@@ -51,8 +53,6 @@ public class SpellStarShower extends Spell {
 	private final SpellCelestialPillars mPillar;
 
 	private final ChargeUpManager mChargeUpManager;
-
-	private static final DamageEvent.DamageType DAMAGE_TYPE = DamageEvent.DamageType.BLAST;
 
 	private int mPillarsBroken = 0;
 	private boolean mIsRunning = false;
@@ -83,7 +83,7 @@ public class SpellStarShower extends Spell {
 		mPillarsBroken = 0;
 		mIsRunning = true;
 
-		mPillar.glow(CHARGE_TIME + DURATION + BIG_STAR_DURATION);
+		mPillar.glow(COMPLETE_DURATION);
 		mPlugin.mBossManager.createBossInternal(mBoss, new WingedBoss(mPlugin, mBoss));
 
 		mChargeUpManager.setTime(0);
@@ -135,15 +135,20 @@ public class SpellStarShower extends Spell {
 						mChargeUpManager.setTitle(Component.text("Unleashing ", NamedTextColor.WHITE).append(Component.text(SPELL_NAME_BLOCK_BREAK, NamedTextColor.RED)));
 						this.cancel();
 
-						Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
-							if (mChargeUpManager.previousTick()) {
-								mChargeUpManager.remove();
-								mOnBreak.accept(mPillarsBroken);
-								mPillarsBroken = 0;
+						new BukkitRunnable() {
+							@Override
+							public void run() {
+								if (mChargeUpManager.previousTick()) {
+									mChargeUpManager.remove();
+									mOnBreak.accept(mPillarsBroken);
+									mPillarsBroken = 0;
 
-								this.cancel();
+									this.cancel();
+								}
+
 							}
-						}, 1); // 1 delay to accept the onBreak after all pillars are broken
+						}.runTaskTimer(mPlugin, 1, 1);
+						// delay to make sure pillars are broken first
 					} else if ((mChargeUpManager.getTime() + 1) % STAR_INTERVAL == 0) {
 						Aurora.playersInRange(bossLoc).forEach(player -> summonStar(player.getLocation()));
 					}
@@ -258,7 +263,7 @@ public class SpellStarShower extends Spell {
 					mBossWorld.playSound(loc, Sound.ENTITY_BREEZE_DEATH, 1.5f, 0.4f);
 					mBossWorld.playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, 1.7f, 1.8f);
 
-					Hitbox hitbox = new Hitbox.UprightCylinderHitbox(loc, RADIUS, RADIUS);
+					Hitbox hitbox = new Hitbox.UprightCylinderHitbox(loc, HEIGHT, RADIUS);
 					hitbox.getHitPlayers(true).forEach(player -> {
 						BossUtils.blockableDamage(mBoss, player, DAMAGE_TYPE, BIG_DAMAGE, SPELL_NAME, loc);
 						MovementUtils.knockAway(loc, player, KNOCKBACK, KNOCKBACK, false);
@@ -290,14 +295,14 @@ public class SpellStarShower extends Spell {
 			@Override
 			public void run() {
 				if (mTicks % 5 == 0) {
-					new PPCircle(Particle.WAX_OFF, loc.clone().add(0, 0.15, 0), BIG_RADIUS)
+					new PPCircle(Particle.WAX_OFF, loc.clone().add(0, 0.15, 0), RADIUS)
 						.count(20)
 						.rotateDelta(true)
 						.directionalMode(true)
 						.delta(1, 0, mTicks == 20 ? 0.5 : -0.5)
 						.extra(3)
 						.spawnAsBoss();
-					new PPCircle(Particle.SPELL_WITCH, loc.clone().add(0, 0.15, 0), BIG_RADIUS)
+					new PPCircle(Particle.SPELL_WITCH, loc.clone().add(0, 0.15, 0), RADIUS)
 						.count(10)
 						.delta(0.3, 0, 0.3)
 						.spawnAsBoss();
@@ -332,7 +337,7 @@ public class SpellStarShower extends Spell {
 					mBossWorld.playSound(loc, Sound.ITEM_TRIDENT_RETURN, 0.9f, 1.0f);
 					mBossWorld.playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, 0.7f, 2.0f);
 
-					Hitbox hitbox = new Hitbox.UprightCylinderHitbox(loc, RADIUS, RADIUS);
+					Hitbox hitbox = new Hitbox.UprightCylinderHitbox(loc, HEIGHT, RADIUS);
 					hitbox.getHitPlayers(true).forEach(player -> {
 						BossUtils.blockableDamage(mBoss, player, DAMAGE_TYPE, DAMAGE, SPELL_NAME, loc);
 						MovementUtils.knockAway(loc, player, 0.5f, 0.65f);
@@ -352,6 +357,6 @@ public class SpellStarShower extends Spell {
 
 	@Override
 	public int cooldownTicks() {
-		return CHARGE_TIME + DURATION + BIG_STAR_DURATION + Aurora.SPELL_INTERVAL;
+		return COMPLETE_DURATION + Aurora.SPELL_INTERVAL;
 	}
 }

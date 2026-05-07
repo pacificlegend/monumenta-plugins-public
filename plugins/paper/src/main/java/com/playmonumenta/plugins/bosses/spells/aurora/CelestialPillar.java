@@ -5,6 +5,7 @@ import com.playmonumenta.plugins.bosses.bosses.aurora.Aurora;
 import com.playmonumenta.plugins.bosses.spells.Spell;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.BlockUtils;
+import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.scriptedquests.growables.GrowableAPI;
@@ -55,12 +56,14 @@ public class CelestialPillar extends Spell {
 					BlockDisplay spawn = world.spawn(block.getLocation(), BlockDisplay.class, display -> {
 						display.setBlock(block.getBlockData());
 						display.setTransformation(new Transformation(
-							new Vector3f(-0.0025f),
+							new Vector3f(-0.005f),
 							new Quaternionf(),
-							new Vector3f(1.005f),
+							new Vector3f(1.01f),
 							new Quaternionf()
 						));
 						display.setGlowColorOverride(Color.fromRGB(glowColor));
+
+						EntityUtils.setRemoveEntityOnUnload(display);
 					});
 					mBlocks.add(spawn);
 				}

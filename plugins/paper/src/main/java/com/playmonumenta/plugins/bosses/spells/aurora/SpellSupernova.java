@@ -7,7 +7,6 @@ import com.playmonumenta.plugins.bosses.bosses.BossAbilityGroup;
 import com.playmonumenta.plugins.bosses.bosses.aurora.Aurora;
 import com.playmonumenta.plugins.bosses.spells.Spell;
 import com.playmonumenta.plugins.cosmetics.skills.rogue.StarCosmeticsFunctions;
-import com.playmonumenta.plugins.effects.AbilitySilence;
 import com.playmonumenta.plugins.effects.DamageImmunity;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.integrations.LibraryOfSoulsIntegration;
@@ -45,7 +44,6 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 public class SpellSupernova extends Spell {
-	private static final String SILENCE_SOURCE = "VeilTearSilence";
 	private static final int LEVITATION_TIME = 3 * 20;
 	private static final int START_DELAY = 30;
 	private static final int SPIRAL_ROTATIONS = 5;
@@ -55,7 +53,7 @@ public class SpellSupernova extends Spell {
 	private static final double DAMAGE_PERCENT = 0.08;
 	private static final int ENRAGE_TIME = 40 * 20;
 	private static final int FOCUS_RANGE = 8;
-	private static final int HEALTH = 320;
+	private static final int HEALTH = 500;
 	private static final String ENRAGE_NAME = "Supernova (☠)";
 	private static final String SPELL_NAME = "Supernova";
 	private static final List<List<Vector>> STARS = List.of(
@@ -79,7 +77,7 @@ public class SpellSupernova extends Spell {
 		mBoss = boss;
 		mCenter = center;
 		mRaisedCenter = mCenter.clone().add(0, 32, 0);
-		mStardustBlaster = new SpellStardustBlaster(plugin, boss, mRaisedCenter, Aurora.ARENA_RADIUS, true);
+		mStardustBlaster = new SpellStardustBlaster(plugin, boss, mRaisedCenter, Aurora.ARENA_RADIUS, true, 1);
 		mChargeUpManager = new ChargeUpManager(boss,
 			ENRAGE_TIME,
 			Component.text("Casting ", NamedTextColor.RED).append(Component.text(ENRAGE_NAME, NamedTextColor.LIGHT_PURPLE)),
@@ -87,7 +85,7 @@ public class SpellSupernova extends Spell {
 			BossBar.Overlay.PROGRESS,
 			Aurora.DETECTION_RANGE
 		);
-		mFocusBar = BossBar.bossBar(Component.text("Aurora's Focus"), 1, BossBar.Color.PINK, BossBar.Overlay.PROGRESS);
+		mFocusBar = BossBar.bossBar(Component.text("Delfia's Focus - 100%"), 1, BossBar.Color.PINK, BossBar.Overlay.PROGRESS);
 	}
 
 	@Override
@@ -127,10 +125,8 @@ public class SpellSupernova extends Spell {
 
 		for (int i = 0; i < players.size(); i++) {
 			Player player = players.get(i);
-			mPlugin.mEffectManager.addEffect(player, SILENCE_SOURCE, new AbilitySilence(LEVITATION_TIME + ENRAGE_TIME).deleteOnLogout(true).deleteOnDeath(true));
 			mPlugin.mEffectManager.addEffect(player, "SpaceInversionImmunity", new DamageImmunity(LEVITATION_TIME, EnumSet.allOf(DamageEvent.DamageType.class)));
 			mPlugin.mPotionManager.addPotion(player, PotionManager.PotionID.BOSS, new PotionEffect(PotionEffectType.LEVITATION, LEVITATION_TIME, 12));
-			mPlugin.mPotionManager.addPotion(player, PotionManager.PotionID.BOSS, new PotionEffect(PotionEffectType.BLINDNESS, 10, 1));
 			player.setVelocity(new Vector());
 
 			// puts people in a safe spot
@@ -147,6 +143,7 @@ public class SpellSupernova extends Spell {
 				PotionUtils.clearNegatives(mPlugin, player);
 
 				mPlugin.mPotionManager.addPotion(player, PotionManager.PotionID.BOSS, new PotionEffect(PotionEffectType.LEVITATION, ENRAGE_TIME, -1, false, false));
+				player.sendMessage(Component.text("Aurora and Delfia are preparing a devastating attack, get to the center to break their focus!", NamedTextColor.GRAY));
 				player.showBossBar(mFocusBar);
 			}, LEVITATION_TIME);
 		}
@@ -157,9 +154,9 @@ public class SpellSupernova extends Spell {
 			world.playSound(mRaisedCenter, Sound.ENTITY_ALLAY_DEATH, SoundCategory.HOSTILE, 5.0f, 0.1f);
 
 			@Nullable
-			Entity hitEntity = LibraryOfSoulsIntegration.summon(mRaisedCenter.clone().subtract(0, 1, 0), "AurorasFocus");
+			Entity hitEntity = LibraryOfSoulsIntegration.summon(mRaisedCenter.clone().subtract(0, 1, 0), "DelfiasFocus");
 			if (!(hitEntity instanceof LivingEntity livingEntity)) {
-				MMLog.severe("Aurora: soul \"AurorasFocus\" is not LivingEntity!");
+				MMLog.severe("Aurora: soul \"DelfiasFocus\" is not LivingEntity!");
 				return;
 			}
 
@@ -197,7 +194,7 @@ public class SpellSupernova extends Spell {
 					double health = livingEntity.getHealth();
 					double progress = Math.clamp(health / maxHp, 0, 1);
 					mFocusBar.progress((float) progress);
-					mFocusBar.name(Component.text(String.format("Aurora's Focus - %.0f%%", progress * 100), NamedTextColor.WHITE));
+					mFocusBar.name(Component.text(String.format("Delfia's Focus - %.0f%%", progress * 100), NamedTextColor.WHITE));
 
 					int tick = mChargeUpManager.getTime();
 					int angleOffset = DEGREE_INC * tick;
@@ -273,6 +270,7 @@ public class SpellSupernova extends Spell {
 						BossUtils.bossDamagePercent(mBoss, player, DAMAGE_PERCENT, SPELL_NAME);
 						MovementUtils.knockAway(mRaisedCenter, player, 0.2f, 0, false);
 					});
+					players.removeIf(p -> !Aurora.isAlive(p));
 
 					if (tick % BLAST_INTERVAL == 0) {
 						mStardustBlaster.run();
@@ -280,11 +278,10 @@ public class SpellSupernova extends Spell {
 
 					if (health <= 0) {
 						players.forEach(player -> {
-							mPlugin.mEffectManager.clearEffects(player, SILENCE_SOURCE);
 							mPlugin.mEffectManager.addEffect(player, "SpaceInversionImmunity", new DamageImmunity(3 * 20, EnumSet.of(DamageEvent.DamageType.FALL)));
 							mPlugin.mPotionManager.clearPotionEffectType(player, PotionEffectType.LEVITATION);
 							player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 4 * 20, 0));
-							player.setVelocity(new Vector(0, -0.6, 0));
+							player.setVelocity(new Vector(0, -1.0, 0));
 						});
 						onFinish.run();
 
@@ -343,6 +340,7 @@ public class SpellSupernova extends Spell {
 					EntityUtils.cancelSelfRoot(mBoss);
 
 					mChargeUpManager.remove();
+					mStardustBlaster.cancel();
 					mBoss.setGravity(true);
 					mBoss.setInvulnerable(false);
 

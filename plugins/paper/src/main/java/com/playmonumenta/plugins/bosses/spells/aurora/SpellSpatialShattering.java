@@ -99,7 +99,7 @@ public class SpellSpatialShattering extends Spell implements CooldownReducible {
 
 		startSlash(true, true);
 
-		mActiveTasks.add(new BukkitRunnable() {
+		BukkitRunnable runnable = new BukkitRunnable() {
 			int mTicks = 1;
 
 			@Override
@@ -117,7 +117,9 @@ public class SpellSpatialShattering extends Spell implements CooldownReducible {
 				super.cancel();
 				mBoss.setPose(Pose.STANDING);
 			}
-		}.runTaskTimer(mPlugin, FIRST_TELEGRAPH_GRACE + ATTACK_INTERVAL, ATTACK_INTERVAL));
+		};
+		mActiveRunnables.add(runnable);
+		runnable.runTaskTimer(mPlugin, FIRST_TELEGRAPH_GRACE + ATTACK_INTERVAL, ATTACK_INTERVAL);
 	}
 
 	private void startSlash(boolean invert, boolean first) {

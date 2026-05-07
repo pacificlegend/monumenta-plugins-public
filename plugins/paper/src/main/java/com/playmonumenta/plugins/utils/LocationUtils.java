@@ -989,11 +989,9 @@ public class LocationUtils {
 	 */
 	public static double rayLengthToSphereSurface(Vector center, Vector point, Vector direction, double radius) {
 		Vector p = point.clone().subtract(center);
-		double x = p.getX();
-		double y = p.getY();
-		double z = p.getZ();
-		var b = 2 * (x * direction.getX() + y * direction.getY() + z * direction.getZ());
+		var pd = p.dot(direction);
 
-		return (-b + Math.sqrt(Math.pow(b, 2) - 4 * (Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2) - Math.pow(radius, 2)))) / 2;
+		double ans = -pd + Math.sqrt(pd - p.lengthSquared() + radius * radius);
+		return Double.isFinite(ans) ? ans : 0.05;
 	}
 }

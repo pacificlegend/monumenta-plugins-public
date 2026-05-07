@@ -42,7 +42,7 @@ public class SpellAuroraVoid extends Spell {
 
 	private final Map<Player, Long> mRecentlySeenPlayers = new HashMap<>();
 	private long mTicks = 1;
-	private boolean mHeightLimited = true;
+	private boolean mSupernova = true;
 
 	public SpellAuroraVoid(Location center, Consumer<Player> onVoid) {
 		mVoidThreshold = center.getY() - 12;
@@ -52,8 +52,8 @@ public class SpellAuroraVoid extends Spell {
 		mOnVoid = onVoid;
 	}
 
-	public void setHeightLimited(boolean enabled) {
-		mHeightLimited = enabled;
+	public void setSupernova(boolean enabled) {
+		mSupernova = enabled;
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class SpellAuroraVoid extends Spell {
 			}
 		}
 
-		if (mHeightLimited) {
+		if (!mSupernova) {
 			for (Player player : players) {
 				Location pLoc = player.getLocation();
 				if (mRecentlySeenPlayers.getOrDefault(player, 0L) <= mTicks &&
@@ -97,7 +97,7 @@ public class SpellAuroraVoid extends Spell {
 		for (Player player : players) {
 			if (mRecentlySeenPlayers.getOrDefault(player, 0L) <= mTicks && LocationUtils.xzDistance(player.getLocation(), mCenter) > Aurora.ARENA_RADIUS + 1) {
 				DamageUtils.damagePercentHealth(null, player, EXIT_ARENA_DAMAGE, false, false, VOID_NAME);
-				tpCenter(player);
+				launchCenter(player);
 
 				mRecentlySeenPlayers.put(player, mTicks + VOID_IFRAMES);
 			}
@@ -105,10 +105,13 @@ public class SpellAuroraVoid extends Spell {
 		mTicks++;
 	}
 
-	private void tpCenter(Player player) {
-		player.teleport(mCenter);
-		player.setVelocity(new Vector(0, 1.0, 0));
-		EffectManager.getInstance().addEffect(player, "AstralVoidImmunity", new DamageImmunity(IMMUNITY_DURATION, EnumSet.allOf(DamageEvent.DamageType.class)));
+	private void launchCenter(Player player) {
+		Location tpLoc = player.getLocation();
+		tpLoc.setY(mCenter.getY() + 5.5);
+		player.teleport(tpLoc);
+		player.setVelocity(mCenter.subtract(tpLoc).toVector().multiply(0.1).setY(0));
+
+		EffectManager.getInstance().addEffect(player, "AstralVoidImmunity", new DamageImmunity(IMMUNITY_DURATION, EnumSet.complementOf(EnumSet.of(DamageEvent.DamageType.TRUE))));
 	}
 
 	@Override

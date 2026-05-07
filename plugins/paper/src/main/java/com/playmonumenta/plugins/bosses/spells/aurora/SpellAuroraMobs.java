@@ -6,6 +6,8 @@ import com.playmonumenta.plugins.bosses.parameters.LoSPool;
 import com.playmonumenta.plugins.bosses.spells.Spell;
 import com.playmonumenta.plugins.bosses.spells.SpellCooldownManager;
 import com.playmonumenta.plugins.effects.PercentDamageReceived;
+import com.playmonumenta.plugins.utils.EntityUtils;
+import java.util.ArrayList;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -15,6 +17,7 @@ import org.bukkit.util.Vector;
 public class SpellAuroraMobs extends Spell {
 	public static final LoSPool NORMAL_POOL = new LoSPool.LibraryPool("~AuroraNormal");
 	private static final int NORMAL_COUNT = 3;
+	private static final int NORMAL_COUNT_200_RAGE = 5;
 	private static final int SPAWN_DURATION = 2 * 20;
 	private static final double HEIGHT = 10;
 
@@ -43,7 +46,7 @@ public class SpellAuroraMobs extends Spell {
 		}
 		mSpellCooldownManager.setOnCooldown();
 
-		for (int i = 0; i < NORMAL_COUNT; i++) {
+		for (int i = 0; i < (mRage >= 200 ? NORMAL_COUNT : NORMAL_COUNT_200_RAGE); i++) {
 			spawnMob();
 		}
 	}
@@ -58,7 +61,11 @@ public class SpellAuroraMobs extends Spell {
 		}
 		mPlugin.mEffectManager.addEffect(livingSpawn, "AuroraSpawn", new PercentDamageReceived(SPAWN_DURATION, -0.5));
 		livingSpawn.setAI(false);
-		Aurora.rageBuff(livingSpawn, mRage, false);
+		ArrayList<LivingEntity> prior = new ArrayList<>();
+		EntityUtils.getStackedMobsAbove(livingSpawn, prior);
+		for (LivingEntity livingEntity : prior) {
+			Aurora.rageBuff(livingEntity, mRage, false);
+		}
 
 		new BukkitRunnable() {
 			private final Location mCurrentLoc = startLoc.clone();

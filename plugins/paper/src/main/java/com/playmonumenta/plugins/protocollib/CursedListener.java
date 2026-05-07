@@ -56,6 +56,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.entity.TextDisplay;
@@ -177,35 +178,42 @@ public class CursedListener extends PacketAdapter {
 
 		@SuppressWarnings("unused") // I need kill switches
 		public static EntityData getOrCreateEntityData(Entity entity) {
-			return entityDataMap.computeIfAbsent(entity.getEntityId(), key -> {
-				EntityData internal = null;
-				if (ScoreboardUtils.checkTag(entity, FakePlayerBoss.identityTag)) {
-					// we have to parse parameters here, because this technically gets called BEFORE entityAddToWorldEvent - who thought this was a good idea?
-					final FakePlayerBoss.Parameters parameters = BossParameters.getParameters(entity, FakePlayerBoss.identityTag, new FakePlayerBoss.Parameters());
-					final SkinData skinData = parameters.SKIN_NAME;
-					NametagData nameTagData = null;
-					if (entity.customName() != null) {
-						if (entity.isCustomNameVisible()) {
-							nameTagData = getNametagData(entity, entity.customName(), 64);
-						} else {
-							nameTagData = getNametagData(entity, entity.customName(), 4);
-						}
-					}
-					internal = EntityData.of(entity.getUniqueId(), entity.getEntityId(), skinData, parameters, nameTagData);
-				} else if (NPCS_ENABLED && WHITELISTED_ENTITIES.contains(entity.getType()) && entity.customName() != null) {
-					// do something with villager names here
-					// NPC code here
-					NametagData nameTagData;
+			return entityDataMap.computeIfAbsent(entity.getEntityId(), key -> generateEntityData(entity));
+		}
+
+		public static void updateEntityData(Entity entity) {
+			entityDataMap.compute(entity.getEntityId(), (id, data) -> generateEntityData(entity));
+		}
+
+		private static @Nullable EntityData generateEntityData(Entity entity) {
+			EntityData internal = null;
+			if (ScoreboardUtils.checkTag(entity, FakePlayerBoss.identityTag)) {
+				// we have to parse parameters here, because this technically gets called BEFORE entityAddToWorldEvent - who thought this was a good idea?
+				final FakePlayerBoss.Parameters parameters = BossParameters.getParameters(entity, FakePlayerBoss.identityTag, new FakePlayerBoss.Parameters());
+				final SkinData skinData = parameters.SKIN_NAME;
+				NametagData nameTagData = null;
+				if (entity.customName() != null) {
 					if (entity.isCustomNameVisible()) {
 						nameTagData = getNametagData(entity, entity.customName(), 64);
 					} else {
 						nameTagData = getNametagData(entity, entity.customName(), 4);
 					}
-					final SkinData skinData = PlayerSkinManager.fetchSkin(entity);
-					internal = EntityData.of(entity.getUniqueId(), entity.getEntityId(), skinData, new FakePlayerBoss.Parameters(), nameTagData);
 				}
-				return internal;
-			});
+				internal = EntityData.of(entity.getUniqueId(), entity.getEntityId(), skinData, parameters, nameTagData);
+			} else if (NPCS_ENABLED && WHITELISTED_ENTITIES.contains(entity.getType()) && entity.customName() != null) {
+				// do something with villager names here
+				// NPC code here
+				NametagData nameTagData;
+				if (entity.isCustomNameVisible()) {
+					nameTagData = getNametagData(entity, entity.customName(), 64);
+				} else {
+					nameTagData = getNametagData(entity, entity.customName(), 4);
+				}
+				final SkinData skinData = PlayerSkinManager.fetchSkin(entity);
+				internal = EntityData.of(entity.getUniqueId(), entity.getEntityId(), skinData, new FakePlayerBoss.Parameters(), nameTagData);
+			}
+			return internal;
+
 		}
 
 		private static @Nullable EntityData getEntityData(int entityId) {
@@ -664,6 +672,14 @@ public class CursedListener extends PacketAdapter {
 	 */
 	public static void scheduleRemove(int entityId) {
 		Bukkit.getScheduler().runTask(Plugin.getInstance(), () -> PlayerData.removeEntity(entityId));
+	}
+
+	/**
+	 * Updates the fake player for CustomName or Skin changes
+	 * @param entity  the fake player entity
+	 */
+	public static void updateFakePlayer(LivingEntity entity) {
+		PlayerData.updateEntityData(entity);
 	}
 
 }

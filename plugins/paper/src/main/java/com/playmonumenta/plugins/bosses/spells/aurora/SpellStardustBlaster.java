@@ -46,13 +46,15 @@ public class SpellStardustBlaster extends Spell {
 	private final LivingEntity mBoss;
 	private final Location mCenter;
 	private final boolean mTrueDamage;
+	private final int mMaxPlayers;
 
-	public SpellStardustBlaster(Plugin plugin, LivingEntity boss, Location center, double range, boolean trueDamage) {
+	public SpellStardustBlaster(Plugin plugin, LivingEntity boss, Location center, double range, boolean trueDamage, int maxPlayers) {
 		mPlugin = plugin;
 		mBoss = boss;
 		mCenter = center;
 		mRange = range;
 		mTrueDamage = trueDamage;
+		mMaxPlayers = maxPlayers;
 	}
 
 	@Override
@@ -79,7 +81,7 @@ public class SpellStardustBlaster extends Spell {
 		List<Player> players = Aurora.playersInRange(bossLoc);
 		Collections.shuffle(players);
 
-		players.stream().limit(2).forEach(player -> {
+		players.stream().limit(mMaxPlayers).forEach(player -> {
 			player.playSound(player, Sound.BLOCK_BEACON_POWER_SELECT, SoundCategory.HOSTILE, 0.8f, 2.0f);
 			player.playSound(player, "minecraft:entity.breeze.charge", SoundCategory.HOSTILE, 1.6f, 0.65f);
 			player.playSound(player, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_MOB, SoundCategory.HOSTILE, 0.8f, 0.5f);
@@ -156,38 +158,38 @@ public class SpellStardustBlaster extends Spell {
 			.spawnAsBoss();
 	}
 
-	private void summonLaser(Location bossLocation) {
-		bossLocation.clone().add(bossLocation.getDirection());
-		double length = LocationUtils.rayLengthToSphereSurface(mCenter, bossLocation, Aurora.ARENA_RADIUS);
-		Vector dir = bossLocation.getDirection();
+	private void summonLaser(Location laserCenter) {
+		laserCenter.clone().add(laserCenter.getDirection());
+		double length = LocationUtils.rayLengthToSphereSurface(mCenter, laserCenter, Aurora.ARENA_RADIUS + 4);
+		Vector dir = laserCenter.getDirection();
 		Vector displacement = dir.clone().multiply(length);
-		Location target = bossLocation.clone().add(displacement);
+		Location target = laserCenter.clone().add(displacement);
 
-		new PPLine(Particle.SPELL_WITCH, bossLocation, dir, length)
+		new PPLine(Particle.SPELL_WITCH, laserCenter, dir, length)
 			.countPerMeter(3)
 			.delta(0.1)
 			.spawnAsBoss();
 
-		World world = bossLocation.getWorld();
+		World world = laserCenter.getWorld();
 		world.playSound(mBoss.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST_FAR, SoundCategory.HOSTILE, 1.5f, 1.7f);
 		world.playSound(mBoss.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 1.2f, 2.0f);
 		world.playSound(mBoss.getLocation(), Sound.ENTITY_BREEZE_SHOOT, SoundCategory.HOSTILE, 1.8f, 0.7f);
 		world.playSound(mBoss.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, SoundCategory.HOSTILE, 1.2f, 1.8f);
 
-		new PPLine(Particle.END_ROD, bossLocation, target)
+		new PPLine(Particle.END_ROD, laserCenter, target)
 			.count((int) length)
 			.distanceFalloff(length)
 			.delay(4)
 			.extra(0.025)
 			.spawnAsBoss();
 
-		Hitbox hitbox = Hitbox.approximateCylinder(bossLocation, target, RADIUS, true);
+		Hitbox hitbox = Hitbox.approximateCylinder(laserCenter, target, RADIUS, true);
 		hitbox.getHitPlayers(true).forEach(player -> {
-			BossUtils.blockableDamage(mBoss, player, DamageEvent.DamageType.MAGIC, DAMAGE, true, false, SPELL_NAME, bossLocation, 4 * 20, 1);
+			BossUtils.blockableDamage(mBoss, player, DamageEvent.DamageType.MAGIC, DAMAGE, true, false, SPELL_NAME, laserCenter, 4 * 20, 1);
 			if (mTrueDamage) {
 				DamageUtils.damagePercentHealth(mBoss, player, TRUE_DAMAGE, false, false, SPELL_NAME);
 			}
-			MovementUtils.knockAway(bossLocation, player, 0.5f, true);
+			MovementUtils.knockAway(laserCenter, player, 0.5f, true);
 		});
 
 	}

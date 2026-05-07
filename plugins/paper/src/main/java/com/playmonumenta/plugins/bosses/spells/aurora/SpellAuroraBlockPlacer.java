@@ -79,14 +79,14 @@ public class SpellAuroraBlockPlacer extends Spell {
 		for (LivingEntity entity : EntityUtils.getNearbyMobs(mCenter, Aurora.DETECTION_RANGE)) {
 			if (EntityUtils.isBoss(entity) || EntityUtils.isElite(entity)) {
 				ascendEntity(entity);
+				tryBlockBreak(entity);
 			}
 		}
 
-		tryBlockBreak();
 	}
 
-	private void tryBlockBreak() {
-		final Location loc = mBoss.getLocation();
+	private void tryBlockBreak(LivingEntity entity) {
+		final Location loc = entity.getLocation();
 
 		final int xRad = 1;
 		final int yRad = 3;
@@ -103,7 +103,7 @@ public class SpellAuroraBlockPlacer extends Spell {
 		final List<Block> breakBlockList = new ArrayList<>();
 
 		// If the launcher is a mob with a valid player target with a GEQ 2 block height difference, reduce threshold
-		if (mBoss instanceof final Mob mob && mob.getTarget() instanceof final Player target
+		if (entity instanceof final Mob mob && mob.getTarget() instanceof final Player target
 			&& target.getLocation().getY() >= loc.getY() + 2 && PlayerUtils.isOnGround(target)) {
 			requiredScore /= 2;
 		}
@@ -155,7 +155,7 @@ public class SpellAuroraBlockPlacer extends Spell {
 		/* If the threshold has been met, attempt to break blocks */
 		if (badScore >= requiredScore) {
 			final int finalBadScore = badScore;
-			MMLog.trace(() -> "[SpellBlockBreak] Launcher " + mBoss.getName() + " has achieved " + finalBadScore +
+			MMLog.trace(() -> "[SpellBlockBreak] Launcher " + entity.getName() + " has achieved " + finalBadScore +
 				" badScore and is attempting to break blocks");
 			breakBlocks(loc, breakBlockList);
 		}

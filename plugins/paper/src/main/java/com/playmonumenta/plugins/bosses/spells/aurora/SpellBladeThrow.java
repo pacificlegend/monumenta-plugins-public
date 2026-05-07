@@ -16,6 +16,8 @@ import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.ItemUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.VectorUtils;
+import java.util.HashSet;
+import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -26,6 +28,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
@@ -35,8 +38,8 @@ import org.joml.Vector3f;
 
 public class SpellBladeThrow extends Spell {
 	private static final int DELAY = 2 * 20;
-	private static final double SPEED = 0.96;
-	private static final double HITBOX_SIZE = 1.1;
+	private static final double SPEED = 1.16;
+	private static final double HITBOX_SIZE = 1.0;
 	private static final String SPELL_NAME = "Blade Throw";
 	private static final int DAMAGE = 50;
 	private static final int VULNERABILITY_DURATION = 4 * 20;
@@ -65,11 +68,12 @@ public class SpellBladeThrow extends Spell {
 
 		mActiveTasks.add(new BukkitRunnable() {
 			private Vector mDirection = VectorUtils.randomHorizontalUnitVector();
+			private final Set<Player> mHitPlayers = new HashSet<>();
 			int mTicks = 0;
 
 			@Override
 			public void run() {
-				throwDagger(mDirection.clone());
+				throwDagger(mDirection.clone(), mHitPlayers);
 				mDirection = mDirection.rotateAroundY(2 * Math.PI / COUNT);
 				mTicks++;
 				if (mTicks >= COUNT) {
@@ -79,7 +83,7 @@ public class SpellBladeThrow extends Spell {
 		}.runTaskTimer(mPlugin, 0, 1));
 	}
 
-	private void throwDagger(Vector dir) {
+	private void throwDagger(Vector dir, Set<Player> hitPlayers) {
 		World world = mBoss.getWorld();
 
 		Location startLoc = LocationUtils.getHalfHeightLocation(mBoss);
@@ -133,11 +137,16 @@ public class SpellBladeThrow extends Spell {
 					}
 
 					Hitbox.approximateCylinder(prevLoc, mCurrentLocation, HITBOX_SIZE, false).getHitPlayers(true).forEach(player -> {
+						if (hitPlayers.contains(player)) {
+							return;
+						}
+
+						hitPlayers.add(player);
 						BossUtils.blockableDamage(mBoss, player, DamageEvent.DamageType.MELEE, DAMAGE, SPELL_NAME, mCurrentLocation.clone().subtract(mVelocity));
 						EffectManager.getInstance().addEffect(player, "DaggerThrowVulnerability", new PercentDamageReceived(VULNERABILITY_DURATION, VULNERABILITY_AMOUNT));
 						Location bossLoc = mBoss.getLocation();
 
-						world.playSound(bossLoc, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_MOB, SoundCategory.PLAYERS, 2.0f, 0.1f);
+						world.playSound(bossLoc, Sound.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 2.0f, 1.8f);
 						world.playSound(bossLoc, Sound.ENTITY_BLAZE_SHOOT, SoundCategory.PLAYERS, 1.0f, 0.8f);
 						world.playSound(bossLoc, Sound.ITEM_SHIELD_BLOCK, SoundCategory.PLAYERS, 2.0f, 0.1f);
 

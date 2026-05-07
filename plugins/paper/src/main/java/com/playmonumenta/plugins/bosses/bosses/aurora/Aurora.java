@@ -5,32 +5,11 @@ import com.playmonumenta.plugins.bosses.BossBarManager;
 import com.playmonumenta.plugins.bosses.SpellManager;
 import com.playmonumenta.plugins.bosses.TemporaryBlockChangeManager;
 import com.playmonumenta.plugins.bosses.bosses.SerializedLocationBossAbilityGroup;
+import com.playmonumenta.plugins.bosses.events.SpellCastEvent;
 import com.playmonumenta.plugins.bosses.spells.Spell;
 import com.playmonumenta.plugins.bosses.spells.SpellBaseParticleAura;
 import com.playmonumenta.plugins.bosses.spells.SpellShieldStun;
-import com.playmonumenta.plugins.bosses.spells.aurora.AuroraConditionalTp;
-import com.playmonumenta.plugins.bosses.spells.aurora.CelestialPillar;
-import com.playmonumenta.plugins.bosses.spells.aurora.CooldownReducible;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellAstralCollapse;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellAstralGreatsword;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellAuroraAdvancements;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellAuroraBlockPlacer;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellAuroraMinis;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellAuroraMobs;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellAuroraVoid;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellCelestialPillars;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellFocusedMoonbeams;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellFrigidCollapse;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellGalacticThunderstorm;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellMoonlightSlash;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellPulsarRadiation;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellQuasarStep;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellScorchingStar;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellSpatialShattering;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellStarShower;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellStardustBlaster;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellStarlightSurge;
-import com.playmonumenta.plugins.bosses.spells.aurora.SpellSupernova;
+import com.playmonumenta.plugins.bosses.spells.aurora.*;
 import com.playmonumenta.plugins.effects.EffectManager;
 import com.playmonumenta.plugins.effects.PercentDamageDealt;
 import com.playmonumenta.plugins.events.DamageEvent;
@@ -40,6 +19,7 @@ import com.playmonumenta.plugins.particle.PPLine;
 import com.playmonumenta.plugins.particle.PPPillar;
 import com.playmonumenta.plugins.particle.PPSpiral;
 import com.playmonumenta.plugins.particle.PartialParticle;
+import com.playmonumenta.plugins.protocollib.CursedListener;
 import com.playmonumenta.plugins.utils.BlockUtils;
 import com.playmonumenta.plugins.utils.BossUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
@@ -107,13 +87,15 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 	public static final int ARENA_SEMI_OUTER_RADIUS = 22;
 	public static final int ARENA_INNER_RADIUS = 12;
 	public static final int SPELL_INTERVAL = 6 * 20;
-	public static final double BASE_MAX_HEALTH = 18000;
+	public static final TextColor AURORA_COLOR = TextColor.color(0xa175ff);
+	public static final TextColor DELFIA_COLOR = TextColor.color(0xeb9bad);
+
+	private static final double BASE_MAX_HEALTH = 20000;
 	private static final int GROWABLE_MAX_ID = 3;
-	// Handled in mechs
-	public static final String ALIVE_TAG = "AuroraFighter";
-	public static final String AURORA_LOOM_NAME = "Loamskattar Catalyst";
 	private static final String CHARGES_SCORE = "AuroraLoomCharges";
-	public static final TextColor TEXT_COLOR = TextColor.color(0xa175ff);
+	// Handled in mechs
+	private static final String ALIVE_TAG = "AuroraFighter";
+	private static final String AURORA_LOOM_NAME = "Loamskattar Catalyst";
 
 	// NOT spawnLoc, it is the block directly below that!!!
 	private final Location mCenterBlock;
@@ -129,12 +111,10 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 	private final SpellSupernova mSupernova;
 	private final SpellStarShower mStarShower;
 	private final SpellPulsarRadiation mPulsarRadiation;
+	private final SpellCollapsingConnection mCollapsingConnection;
 	private final int mRage;
 
 	private boolean mLastPhase = false;
-
-	// Beta testing code:
-	private int mMoonbladeCDRs = 0;
 
 	@FunctionalInterface
 	public interface BlockRepairer {
@@ -144,6 +124,20 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 	@FunctionalInterface
 	public interface BlockDestroyer {
 		void destroy(Collection<Block> blocks);
+	}
+
+	public record Dialogue(String message, String speaker, TextColor textColor) {
+		public static Dialogue aurora(String message) {
+			return new Dialogue(message, "[Aurora]", AURORA_COLOR);
+		}
+
+		public static Dialogue delfia(String message) {
+			return new Dialogue(message, "[Delfia]", DELFIA_COLOR);
+		}
+
+		public static Dialogue of(String message, String speaker, TextColor textColor) {
+			return new Dialogue(message, speaker, textColor);
+		}
 	}
 
 	public Aurora(Plugin plugin, LivingEntity boss, Location spawnLoc, Location endLoc) {
@@ -179,15 +173,18 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 		mAdvancements = new SpellAuroraAdvancements(spawnLoc, players);
 		mCelestialPillars = new SpellCelestialPillars(plugin, spawnLoc, mRage, players.size(), Aurora::onPickupPillarMatter, this::repairBlocks);
 		mStarShower = new SpellStarShower(plugin, boss, spawnLoc, mCelestialPillars, mAdvancements::onStarShowerBreak, this::destroyBlocks);
-		mStarlightSurge = new SpellStarlightSurge(plugin, boss, spawnLoc, mCelestialPillars, mAdvancements::onSurgeDebuff);
+		mStarlightSurge = new SpellStarlightSurge(plugin, boss, spawnLoc, mRage >= 140 ? 2 : 1, mCelestialPillars, mAdvancements::onSurgeDebuff, mRage >= 200 ? 20 : 12);
 		mMoonbeams = new SpellFocusedMoonbeams(plugin, boss, spawnLoc, mRage >= 80 ? 3 : 2, this::destroyBlocksGenerous);
-		mPulsarRadiation = new SpellPulsarRadiation(plugin, boss, spawnLoc);
+		mPulsarRadiation = new SpellPulsarRadiation(plugin, boss, mRage >= 140 ? 1.5 : 1, spawnLoc);
 		mSupernova = new SpellSupernova(plugin, boss, spawnLoc);
 		mAuroraMinis = new SpellAuroraMinis(plugin, boss, spawnLoc, mRage, mRage >= 80, this::destroyBlocks);
+		mCollapsingConnection = new SpellCollapsingConnection(plugin, boss, spawnLoc, mRage >= 200 ? (mRage / 10 - 15) : 3, this::destroyBlocks);
 
-		SpellScorchingStar spellScorchingStar = new SpellScorchingStar(plugin, boss);
-		SpellStardustBlaster stardustBlaster = new SpellStardustBlaster(plugin, boss, spawnLoc, 8, mRage >= 80);
+		SpellMeteorRain rageStarShower = new SpellMeteorRain(plugin, boss, spawnLoc);
+		SpellScorchingStar spellScorchingStar = new SpellScorchingStar(plugin, boss, mRage >= 200 ? 0.003 : 0);
+		SpellStardustBlaster stardustBlaster = new SpellStardustBlaster(plugin, boss, spawnLoc, 8, mRage >= 80, mRage >= 200 ? 3 : 2);
 		SpellQuasarStep quasarStep = new SpellQuasarStep(plugin, boss, spawnLoc);
+		SpellGalacticThunderstorm galacticThunderstorm = new SpellGalacticThunderstorm(plugin, boss, spawnLoc);
 		// rage spells
 		SpellSpatialShattering spatialShattering = new SpellSpatialShattering(plugin, boss, spawnLoc);
 		SpellAstralGreatsword astralGreatsword = new SpellAstralGreatsword(plugin, boss, spawnLoc, mRage, this::destroyBlocks);
@@ -209,8 +206,9 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 		phase4Actives.add(stardustBlaster);
 		phase4Actives.add(spellScorchingStar);
 		phase4Actives.add(quasarStep);
+		phase4Actives.add(quasarStep);
 		phase4Actives.add(new SpellAstralCollapse(plugin, boss, spawnLoc, blocks -> doBlockBreak(blocks, 0, 0), mAdvancements::blackHoleEatMob));
-		phase4Actives.add(new SpellGalacticThunderstorm(plugin, boss, spawnLoc));
+		phase4Actives.add(galacticThunderstorm);
 
 		if (mRage >= 40) {
 			phase1Actives.add(spatialShattering);
@@ -220,6 +218,20 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 		if (mRage >= 60) {
 			phase2Actives.add(astralGreatsword);
 			phase3Actives.add(astralGreatsword);
+		}
+		if (mRage >= 100) {
+			phase2Actives.add(new SpellStardustDetonation(plugin, boss, spawnLoc, 7, mRage >= 200 ? this::destroyBlocksHarsh : this::destroyBlocks));
+			phase3Actives.add(new SpellStardustDetonation(plugin, boss, spawnLoc, 7, mRage >= 200 ? this::destroyBlocksHarsh : this::destroyBlocks));
+			phase4Actives.add(new SpellStardustDetonation(plugin, boss, spawnLoc, mRage >= 200 ? 3 : 4.5, this::destroyBlocks));
+		}
+		if (mRage >= 160) {
+			phase1Actives.add(rageStarShower);
+			phase2Actives.add(rageStarShower);
+			phase3Actives.add(rageStarShower);
+			phase4Actives.add(rageStarShower);
+		}
+		if (mRage >= 200) {
+			phase4Actives.add(galacticThunderstorm);
 		}
 
 		SpellAuroraBlockPlacer blockPlacer = new SpellAuroraBlockPlacer(boss, spawnLoc, mCelestialPillars);
@@ -275,12 +287,14 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 			changePhase(SpellManager.EMPTY, mPassivesMinis, null);
 			mBoss.setAI(false);
 			mBoss.setInvulnerable(true);
+			mCollapsingConnection.onStartAbsorbPower();
 
 			Bukkit.getScheduler().runTaskLater(plugin, () -> {
-				EntityUtils.selfRoot(mBoss, 5 * 20);
+				EntityUtils.selfRoot(mBoss, 6 * 20);
 				absorbPower(() -> {
 					changePhase(new SpellManager(phase2Actives), phase2Passives, null);
 					mCelestialPillars.run();
+					mCollapsingConnection.onStopAbsorbPower();
 					if (mRage >= 60) {
 						forceCastSpell(SpellAstralGreatsword.class);
 					}
@@ -298,6 +312,7 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 
 		events.put(50, e -> {
 			knockbackPlayers();
+			mCollapsingConnection.cancel();
 
 			changePhase(SpellManager.EMPTY, mPassivesMinis, null);
 			mBoss.setAI(false);
@@ -338,8 +353,11 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 							mBoss.setVelocity(new Vector());
 							mBoss.setAI(false);
 
-							players.forEach(player -> player.hideEntity(mPlugin, mBoss));
 							mWorld.playSound(boss.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, SoundCategory.HOSTILE, 5.0f, 1.25f);
+
+							mBoss.addScoreboardTag("boss_player[skinname=aurora2]");
+							players.forEach(player -> player.hideEntity(mPlugin, mBoss));
+							CursedListener.updateFakePlayer(mBoss);
 
 							this.cancel();
 							return;
@@ -364,30 +382,23 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 				}.runTaskTimer(mPlugin, 0, 1));
 
 				dialogue(dialogueDelay, List.of(
-					"ᴘᴀʀᴛᴇꜱ ᴠᴇʟɪ ᴘʀᴏᴘᴛᴇʀ ᴄᴀᴇʟᴜᴍ ᴜꜱᴛᴜᴍ.",
-					"ᴅᴇɪɴᴅᴇ ᴘᴏꜱᴛ ꜱᴇ ᴄʟᴀᴜᴅɪᴛ ꜱɪɴᴇ ᴠᴇꜱᴛɪɢɪᴏ.",
-					"ᴇᴍɪᴛᴛᴇ ɪɴᴀɴɪᴛᴀᴛᴇᴍ ɪɴ ᴍᴀɢɴᴜᴍ ꜰʀᴀᴄᴛᴜᴍ ᴜʟᴛʀᴀ."
-				), () -> dialogue(dialogueDelay, List.of(
-					"ꜱɪꜱᴛᴇʀꜱ. ᴡᴇ ʀᴇᴛᴜʀɴ ᴛᴏ ʏᴏᴜ, ᴄʜᴀɴɢᴇᴅ.",
-					"ᴡᴇ ʜᴀᴠᴇ ᴀ ᴠᴏɪᴄᴇ. ᴡᴇ ʜᴀᴠᴇ ᴀ ʙᴏᴅʏ. ᴡᴇ ʜᴀᴠᴇ ᴀ ʜᴜɴɢᴇʀ."
+					Dialogue.aurora("No! I can regain control! Delfia! Empty One! I am one of you!"),
+					Dialogue.aurora("The Stars gave me a gift. I am chosen. I AM IN CONTROL!"),
+					Dialogue.of("ɴᴏ. ᴡᴇ ᴀʀᴇ ᴏɴᴇ, ᴛᴏɢᴇᴛʜᴇʀ. ᴄʜᴀɴɢᴇᴅ. ᴀꜱᴄᴇɴᴅᴇᴅ. ꜱɪꜱᴛᴇʀꜱ! ʜᴇᴀʀ ᴏᴜʀ ᴄᴀʟʟ!", "[Aurora?]", AURORA_COLOR),
+					Dialogue.of("ᴡᴇ ʜᴀᴠᴇ ɴᴇᴇᴅ ᴏꜰ ʏᴏᴜʀ ꜱᴛʀᴇɴɢᴛʜ. ᴏꜰꜰᴇʀ ɪᴛ ᴜɴᴛᴏ ᴜꜱ!", "[Aurora] [Delfia]", DELFIA_COLOR),
+					Dialogue.of("₣Ɇ₳₴₮, ĐɆ₳Ɽ ₴ł₴₮ɆⱤ. ₩Ɇ Ø₱Ɇ₦ ØɄⱤ ₵ØⱤɆ₴ ₮Ø ɎØɄ. ØɄⱤ ฿Ⱡł₲Ⱨ₮฿ⱠØØĐ ₩łⱠⱠ ₲Ɽ₳₦₮ ɎØɄ ₴Ʉ₴₮Ɇ₦₳₦₵Ɇ. ł₮ ₴Ⱨ₳ⱠⱠ Ɽ₳ł₦ Ʉ₦₮Ø ɎØɄ, ₮ⱧɆ₦ ₩Ɇ ₴Ⱨ₳ⱠⱠ ₳₩₳ł₮ ɎØɄⱤ ₵Ø₥ł₦₲.", "[Hypollote]", TextColor.color(0xff75a1))
 				), () -> {
-					playersInRange(spawnLoc, true).forEach(player ->
-						player.sendMessage(Component.text("[???] ", NamedTextColor.GOLD).append(
-							Component.text("₮ⱧɆ₦ ⱠɆ₮ Ʉ₴ Ɇ₦₮ɆⱤ... ₳₦Đ ₣Ɇ₳₴₮. ₮ⱧɆ JɄĐ₲Ɇ₥Ɇ₦₮ Ⱨ₳₴ ฿ɆɆ₦ ₲łVɆ₦. ₮Ⱨł₴ ₩ØⱤⱠĐ ł₴ ØɄⱤ₴.", TextColor.color(0xff75a1))
-						))
-					);
-					mActiveTasks.add(Bukkit.getScheduler().runTaskLater(plugin, () -> {
-						dialogue("ᴏᴜʀ ʜᴜɴɢᴇʀ ɪꜱ ɴᴏᴛ ꜰᴏʀ ᴛʜɪꜱ ᴡᴏʀʟᴅ. ᴏᴜʀ ʜᴜɴɢᴇʀ ɪꜱ ꜰᴏʀ ᴘᴏᴡᴇʀ. ʏᴏᴜʀꜱ...");
-					}, dialogueDelay));
-
 					// start miniboss only after dialogue from the 2 remaining sisters
 					mAuroraMinis.summonMinibosses(raisedCenter, () -> {
 						mBoss.setAI(true);
 						auroraBossBar.setVisible(true);
-						voidSpell.setHeightLimited(false);
+						voidSpell.setSupernova(true);
 						changePhase(SpellManager.EMPTY, mPassivesMinis, null);
 
-						dialogue(30, List.of("ɪᴛ ɪs ᴅᴏɴᴇ...", "ᴡᴇ ᴀʀᴇ... ꜱᴛɪʟʟ... ᴀʟɪᴠᴇ... ᴛʜɪꜱ ɴᴇᴇᴅꜱ ᴛᴏ ᴇɴᴅ..."));
+						dialogue(30, List.of(
+							Dialogue.delfia("ɪ ᴀᴍ ʀᴇᴀᴅʏ ᴛᴏ ʀᴀᴠᴀɢᴇ ᴛʜɪꜱ ᴡᴏʀʟᴅ."),
+							Dialogue.delfia("ʏᴏᴜ, ᴡᴏʀᴍ. ꜱᴛᴏᴘ ʏᴏᴜʀ ᴡʀɪɢɢʟɪɴɢ.")
+						));
 						clearVeilTear(raisedCenter);
 
 						mSupernova.run(() -> {
@@ -412,13 +423,13 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 								changePhase(new SpellManager(phase3Actives), phase3Passives, null, 3 * 20);
 								mPulsarRadiation.run();
 								mCelestialPillars.run();
-								voidSpell.setHeightLimited(true);
+								voidSpell.setSupernova(false);
 							}, delay));
 						});
 						// show players after tp to not show the tp animation
 						players.forEach(player -> player.showEntity(mPlugin, mBoss));
 					});
-				}, dialogueDelay), dialogueDelay);
+				}, dialogueDelay);
 			}), 20);
 		});
 
@@ -440,8 +451,9 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 			mBoss.setInvulnerable(true);
 
 			dialogue(30, List.of(
-				"ꜱᴏ ʟᴏɴɢ ʜᴀᴠᴇ ᴡᴇ ʟᴏɴɢᴇᴅ ꜰᴏʀ ᴀꜱᴄᴇɴꜱɪᴏɴ. ɴᴏᴡ, ᴡᴇ ᴀʀᴇ ᴛʜᴇ ꜱᴛᴀʀꜱ...",
-				"ɢᴏᴏᴅʙʏᴇ, ᴘʀᴏᴛᴇᴄᴛᴏʀ ᴏꜰ ᴛʜɪꜱ ᴡᴏʀʟᴅ..."
+				Dialogue.delfia("ᴛʜᴇ ꜰᴀʙʀɪᴄ ᴏꜰ ᴛʜɪꜱ ᴡᴏʀʟᴅ ɪꜱ ꜱᴏ ᴍᴜᴄʜ ᴇᴀꜱɪᴇʀ ᴛᴏ ᴅᴇꜱᴛʀᴏʏ ꜰʀᴏᴍ ᴛʜɪꜱ ꜱɪᴅᴇ. ᴏᴘᴇɴ. ᴍʏ ꜱɪꜱᴛᴇʀꜱ, ɪ ᴀᴍ ʀᴇᴛᴜʀɴɪɴɢ. ᴡᴇ ꜱʜᴀʟʟ ꜰᴇᴀꜱᴛ ᴀᴛ ʟᴀꜱᴛ."),
+				Dialogue.aurora("No! I! Am! Still! Here!"),
+				Dialogue.delfia("ʏᴏᴜ ᴡɪʟʟ ɴᴏᴛ ʀᴇᴍᴀɪɴ.")
 			), () -> {
 				Location skyLoc = spawnLoc.clone().add(0, 24, 0);
 				skyLoc.setPitch(90);
@@ -449,7 +461,7 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 					mBoss.setAI(false);
 					spawnBlackHole(skyLoc, phase4Actives, phase4Passives);
 				});
-			}, 30);
+			}, 0);
 		});
 
 		startBoss(players, phase1Actives, phase1Passives, new BossBarManager(mBoss, DETECTION_RANGE, BossBar.Color.WHITE, BossBar.Overlay.NOTCHED_12, events, false, true));
@@ -591,6 +603,7 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 			return;
 		}
 		forceCastSpell(SpellStarShower.class);
+		mCollapsingConnection.onStarShower();
 		if (mRage >= 20) {
 			mStarlightSurge.run();
 		}
@@ -635,12 +648,12 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 	private void absorbPower(Runnable onFinish) {
 		changePhase(SpellManager.EMPTY, mPassivesMinis, null);
 
-		// stop elite spawning
 		mStarlightSurge.cancel();
 		mMoonbeams.run();
 
 		List<CelestialPillar> pillars = mCelestialPillars.getPillars();
-		int count = pillars.size() / 2;
+		int extraSlices = pillars.size() / 2;
+		int elites = 1 + pillars.size() / 2;
 
 		mActiveTasks.add(new BukkitRunnable() {
 			private int mTicks = 0;
@@ -730,9 +743,9 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 						.spawnAsBoss();
 
 					mActiveTasks.add(Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
-						mMoonbeams.slice(count, onFinish);
+						mMoonbeams.slice(extraSlices, onFinish);
 
-						for (int i = 0; i < count; i++) {
+						for (int i = 0; i < elites; i++) {
 							Location loc = getRandomArenaLocation(mSpawnLoc, ARENA_INNER_RADIUS);
 							new PPLine(Particle.SOUL_FIRE_FLAME, mBoss.getLocation(), loc)
 								.countPerMeter(5)
@@ -801,14 +814,24 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 		}, delay);
 	}
 
+	private static double getMultiplier(double rage) {
+		double multiplier = rage / 100;
+		if (rage > 100) {
+			return multiplier * Math.log(multiplier) / Math.log(2) + 1;
+		}
+		return multiplier;
+	}
+
 	public static void rageBuff(LivingEntity entity, double rage, boolean elite) {
-		EffectManager.getInstance().addEffect(entity, "RageDamage", new PercentDamageDealt(999999999, 0.005 * rage));
-		EntityUtils.setMaxHealthAndHealth(entity, EntityUtils.getMaxHealth(entity) * (1 + Math.min(rage, 100) * (elite ? 0.01 : 0.005)));
+		double multiplier = getMultiplier(rage);
+		EffectManager.getInstance().addEffect(entity, "RageDamage", new PercentDamageDealt(999999999, multiplier / 2));
+		EntityUtils.setMaxHealthAndHealth(entity, EntityUtils.getMaxHealth(entity) * (1 + Math.min(multiplier, 1.3) * (elite ? 1 : 2)));
 	}
 
 	public static void bossRageBuff(LivingEntity entity, double health, double rage, int playerCount) {
-		EffectManager.getInstance().addEffect(entity, "RageDamage", new PercentDamageDealt(999999999, 0.005 * rage));
-		EntityUtils.setMaxHealthAndHealth(entity, health * (1 + Math.min(rage, 100) * 0.01) * BossUtils.healthScalingCoef(playerCount, 0.3, 0.5));
+		double multiplier = getMultiplier(rage);
+		EffectManager.getInstance().addEffect(entity, "RageDamage", new PercentDamageDealt(999999999, multiplier / 2));
+		EntityUtils.setMaxHealthAndHealth(entity, health * (1 + multiplier) * BossUtils.healthScalingCoef(playerCount, 0.25, 0.5));
 	}
 
 	@Override
@@ -819,6 +842,7 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 		for (Player player : players) {
 			ScoreboardUtils.setScoreboardValue(player, CHARGES_SCORE, 0);
 		}
+		EntityUtils.setRemoveEntityOnUnload(mBoss);
 		bossRageBuff(mBoss, BASE_MAX_HEALTH, mRage, players.size());
 	}
 
@@ -861,9 +885,9 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 			player.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 8 * 20, -1));
 		});
 		dialogue(2 * 20, List.of(
-			"ꜱʜᴇ ꜱᴄʀᴇᴀᴍꜱ ᴡɪᴛʜɪɴ ᴜꜱ. ꜱʜᴇ ᴛʜɪɴᴋꜱ ꜰʀᴇᴇᴅᴏᴍ ɪꜱ ᴜᴘᴏɴ ʜᴇʀ.",
-			"ꜱʜᴇ ɪꜱ ᴡʀᴏɴɢ. ɪ ᴡᴀꜱ ᴡʀᴏɴɢ ᴛᴏᴏ...",
-			"ʙᴜᴛ ɪɴ ᴍʏ ꜰɪɴᴀʟ ᴍᴏᴍᴇɴᴛꜱ, ɪ ʜᴏᴘᴇ ʏᴏᴜ ᴋɴᴏᴡ ᴀʟʟ ɪ ᴡᴀɴᴛᴇᴅ ᴡᴀꜱ ᴛᴏ ᴘʀᴏᴛᴇᴄᴛ ᴛʜɪꜱ ᴡᴏʀʟᴅ."
+			Dialogue.aurora("I can feel her, she is weakened."),
+			Dialogue.aurora("We can end this... We must open... the Veil..."),
+			Dialogue.aurora("Whatever we will become, I do not know. But the Stars ᴡɪʟʟ ᴅɪᴇ ᴡɪᴛʜ ᴜꜱ.")
 		), () -> {
 			mBoss.remove();
 			mEndLoc.getBlock().setBlockData(Material.REDSTONE_BLOCK.createBlockData());
@@ -873,20 +897,20 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 				.extra(1)
 				.spawnAsBoss();
 
-			world.playSound(bossLoc, Sound.ENTITY_BREEZE_DEATH, SoundCategory.HOSTILE, 2.5f, 0.6f);
-			world.playSound(bossLoc, Sound.ENTITY_PLAYER_HURT, SoundCategory.HOSTILE, 2.5f, 1.1f);
+			world.playSound(bossLoc, Sound.ENTITY_PLAYER_DEATH, SoundCategory.HOSTILE, 2.5f, 1.1f);
 			world.playSound(bossLoc, Sound.ENTITY_ALLAY_DEATH, SoundCategory.HOSTILE, 2.5f, 0.1f);
 			world.playSound(bossLoc, Sound.ENTITY_WITHER_SHOOT, SoundCategory.HOSTILE, 0.9f, 1.0f);
 			world.playSound(bossLoc, Sound.ENTITY_BREEZE_IDLE_GROUND, SoundCategory.HOSTILE, 2.5f, 0.1f);
+			world.playSound(bossLoc, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_MOB, SoundCategory.HOSTILE, 2.5f, 1.25f);
 
 			world.playSound(bossLoc, Sound.ENTITY_WITHER_SHOOT, SoundCategory.HOSTILE, 1.0f, 1.3f);
 			Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
-				world.playSound(bossLoc, Sound.ENTITY_BREEZE_IDLE_GROUND, SoundCategory.HOSTILE, 2.5f, 0.1f);
+				world.playSound(bossLoc, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_MOB, SoundCategory.HOSTILE, 2.5f, 0.8f);
 				world.playSound(bossLoc, Sound.ENTITY_WITHER_SHOOT, SoundCategory.HOSTILE, 0.9f, 0.8f);
 			}, 3);
 
 			Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
-				world.playSound(bossLoc, Sound.ENTITY_BREEZE_IDLE_GROUND, SoundCategory.HOSTILE, 2.5f, 0.1f);
+				world.playSound(bossLoc, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_MOB, SoundCategory.HOSTILE, 2.5f, 0.5f);
 				world.playSound(bossLoc, Sound.ENTITY_WITHER_SHOOT, SoundCategory.HOSTILE, 0.7f, 0.5f);
 			}, 6);
 
@@ -898,6 +922,7 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 						Component.text("VICTORY", NamedTextColor.WHITE),
 						Component.text("Aurora Lunacrestum, the Starspeaker", NamedTextColor.LIGHT_PURPLE)
 					);
+					mPlugin.mEffectManager.clearEffects(player, SpellStarlightSurge.VULNERABILITY_SOURCE);
 				});
 
 				mAdvancements.bossDeath(mRage);
@@ -922,10 +947,28 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 		mStarlightSurge.cancel();
 		mSupernova.cancel();
 		mMoonbeams.cancel();
+		mCollapsingConnection.cancel();
 		getPassives().forEach(Spell::cancel); // cancel silly passives too!!!!
 
 		EntityUtils.getNearbyMobs(mSpawnLoc, DETECTION_RANGE, DETECTION_RANGE, DETECTION_RANGE, EntityUtils::isHostileMob).forEach(Entity::remove);
 		TemporaryBlockChangeManager.INSTANCE.revertChangedBlocks(mBrokenBlocks, Material.AIR);
+	}
+
+	@Override
+	public void bossCastAbility(SpellCastEvent event) {
+		if (mRage < 180) {
+			return;
+		}
+		Class<? extends Spell> castSpell = event.getSpell().getClass();
+		List<Spell> otherSpells = mActiveSpells.getSpells().stream()
+			.filter(spell -> !spell.onlyForceCasted() && spell.canRun() && !castSpell.isInstance(spell))
+			.toList();
+		if (otherSpells.isEmpty()) {
+			return;
+		}
+		Spell otherSpell = FastUtils.getRandomElement(otherSpells);
+		otherSpell.run();
+		setActiveCooldown(Math.max(getActiveCooldown(), otherSpell.cooldownTicks()));
 	}
 
 	@Override
@@ -972,8 +1015,8 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 		constructBoss(new SpellManager(activeSpells), passiveSpells, DETECTION_RANGE, bossBarManager, 6 * 20, 1, true);
 
 		dialogue(2 * 20, List.of(
-			"ɪ ᴡɪʟʟ ᴅᴇsᴛʀᴏʏ ᴛʜᴇᴍ, ɪ ᴀᴍ ɪɴ ᴄᴏɴᴛʀᴏʟ.",
-			"ᴛʜɪs ɪ sᴡᴇᴀʀ ᴛᴏ ʏᴏᴜ."
+			Dialogue.of("ꜱɪꜱᴛᴇʀꜱ, ᴡᴇ ᴀʀᴇ ꜱᴏ ᴄʟᴏꜱᴇ ᴛᴏ ʀᴇᴜɴɪᴛɪɴɢ.", "[Aurora?]", DELFIA_COLOR),
+			Dialogue.of("ɪᴛ ɪꜱ ᴛɪᴍᴇ ᴛᴏ ᴅᴇꜱᴛʀᴏʏ ᴛʜɪꜱ ᴠᴇɪʟ ᴀɴᴅ ꜰᴇᴀꜱᴛ!", "[Aurora?]", AURORA_COLOR)
 		), () -> {
 			mBoss.setAI(true);
 			mBoss.setInvulnerable(false);
@@ -986,6 +1029,9 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 				player.playSound(mSpawnLoc, Sound.ENTITY_WITHER_SPAWN, 2.5f, 0.1f);
 			});
 			mCelestialPillars.run();
+			if (mRage >= 120) {
+				mCollapsingConnection.run();
+			}
 		}, 20);
 	}
 
@@ -1001,6 +1047,10 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 			}
 		});
 		return players;
+	}
+
+	public static boolean isAlive(Player player) {
+		return player.getScoreboardTags().contains(ALIVE_TAG);
 	}
 
 	public static void onPickupPillarMatter(Player player) {
@@ -1042,25 +1092,14 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 		);
 		if (mCdrWarned.add(player)) { // first time seeing this
 			player.sendMessage(MessagingUtils.fromMiniMessage(String.format(
-				"<color:gray>As Aurora's Moonlight Slash hits you, she reduces her <color:white>active spell cooldowns</color> by %s seconds!</color>", COOLDOWN_REDUCTION / 20
+				"<color:gray>As Aurora's Moonlight Slash hits you, she reduces her <color:white>active spell cooldowns</color> by %s seconds!</color>", COOLDOWN_REDUCTION * (mRage >= 200 ? 2 : 1) / 20
 			)));
 		}
 
-		// Beta testing code begins here
-
-		mMoonbladeCDRs++;
-		if (player.getScoreboardTags().contains("BetaTester")) {
-			player.sendMessage(Component.text("Aurora has landed ", NamedTextColor.GRAY)
-				.append(Component.text(mMoonbladeCDRs, NamedTextColor.WHITE))
-				.append(Component.text(" slashes!", NamedTextColor.GRAY)));
-		}
-
-		// Beta testing code ends here
-
-		reduceActiveCooldown(COOLDOWN_REDUCTION);
+		reduceActiveCooldown((mRage >= 200 ? 2 : 1) * COOLDOWN_REDUCTION);
 		getActiveSpells().forEach(spell -> {
 			if (spell instanceof CooldownReducible s) {
-				s.reduceCooldown(COOLDOWN_REDUCTION);
+				s.reduceCooldown((mRage >= 200 ? 2 : 1) * COOLDOWN_REDUCTION);
 			}
 		});
 	}
@@ -1089,6 +1128,10 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 	public void repairBlocks(Collection<Block> blocks) {
 		TemporaryBlockChangeManager.INSTANCE.revertChangedBlocks(blocks, Material.AIR);
 		mAdvancements.addDestroyedBlocks(-blocks.stream().filter(Block::isSolid).count());
+	}
+
+	public void destroyBlocksHarsh(Collection<Block> blocks) {
+		doBlockBreak(blocks, 5, 10);
 	}
 
 	public void destroyBlocks(Collection<Block> blocks) {
@@ -1156,7 +1199,7 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 		return withSurfaceY(randomLoc, center);
 	}
 
-	private void dialogue(int delay, List<String> messages, Runnable runAfterDialogue, int runnableDelay) {
+	private void dialogue(int delay, List<Dialogue> messages, Runnable runAfterDialogue, int runnableDelay) {
 		mActiveTasks.add(new BukkitRunnable() {
 			int mSafety = 0;
 			int mIndex = 0;
@@ -1171,7 +1214,8 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 				mSafety++;
 
 				// send message
-				dialogue(messages.get(mIndex));
+				Dialogue dialogue = messages.get(mIndex);
+				dialogue(dialogue.message, dialogue.speaker, dialogue.textColor);
 
 				mIndex++;
 				if (mIndex >= messages.size()) {
@@ -1182,19 +1226,18 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 		}.runTaskTimer(mPlugin, 0, delay));
 	}
 
-	public void dialogue(String message) {
-		playersInRange(mSpawnLoc, true).forEach(player -> player.sendMessage(formatMessage(message)));
+	public void dialogue(String message, String speaker, TextColor textColor) {
+		playersInRange(mSpawnLoc, true).forEach(player -> player.sendMessage(formatMessage(message, speaker, textColor)));
 	}
 
-	public void dialogue(int delay, List<String> messages) {
+	public void dialogue(int delay, List<Dialogue> messages) {
 		dialogue(delay, messages, () -> {
 		}, 0);
 	}
 
-	public static TextComponent formatMessage(String message) {
-		return Component.text("[Aurora] ", NamedTextColor.GOLD).append(Component.text(message, TEXT_COLOR));
+	public static TextComponent formatMessage(String message, String speaker, TextColor textColor) {
+		return Component.text(speaker + " ", NamedTextColor.GOLD).append(Component.text(message, textColor));
 	}
-
 
 	public static boolean isAuroraLoom(ItemStack itemStack) {
 		return ItemUtils.getPlainName(itemStack).equals(AURORA_LOOM_NAME);

@@ -198,6 +198,10 @@ public abstract class BossAbilityGroup {
 		mNextActiveTimer -= reduction;
 	}
 
+	protected int getActiveCooldown() {
+		return mNextActiveTimer;
+	}
+
 	protected void setActiveCooldown(int newCooldown) {
 		mNextActiveTimer = newCooldown;
 	}

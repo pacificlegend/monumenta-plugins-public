@@ -48,10 +48,12 @@ public class SpellScorchingStar extends Spell {
 
 	private final Plugin mPlugin;
 	private final LivingEntity mBoss;
+	private final double mAcceleration;
 
-	public SpellScorchingStar(Plugin plugin, LivingEntity boss) {
+	public SpellScorchingStar(Plugin plugin, LivingEntity boss, double acceleration) {
 		mPlugin = plugin;
 		mBoss = boss;
+		mAcceleration = acceleration;
 	}
 
 	@Override
@@ -171,7 +173,7 @@ public class SpellScorchingStar extends Spell {
 				}
 
 				Location prevLoc = mCurrentLoc.clone();
-				mCurrentLoc = mCurrentLoc.add(mCurrentDir.multiply(SPEED));
+				mCurrentLoc = mCurrentLoc.add(mCurrentDir.multiply(SPEED + mTicks * mAcceleration));
 				if (mCurrentLoc.getBlock().isSolid()) {
 					this.cancel();
 					return;

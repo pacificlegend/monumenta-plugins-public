@@ -43,29 +43,32 @@ public class SpellStarlightSurge extends Spell {
 	private static final int ENERGY_RANGE = 10;
 	private static final int ENERGY_DURATION = 8 * 20;
 	private static final int CHARGE_DURATION = ENERGY_DURATION + 5;
-	public static final double GRAVITY = 30.0 / 20 / 20;
-	private static final int MAX_PROJECTILES = 12;
+	private static final double GRAVITY = 30.0 / 20 / 20;
 	private static final double PROJECTILE_RADIUS = 6;
 	private static final double ATTACK_RANGE = 18.5;
 	private static final int DAMAGE = 40;
 	private static final int EXPLODE_DELAY = 30;
 	private static final double VULNERABILITY = 0.25;
 	private static final int VULNERABILITY_DURATION = 2 * 60 * 20;
-	private static final String VULNERABILITY_SOURCE = "StarlightSurgeVulnerability";
+	public static final String VULNERABILITY_SOURCE = "StarlightSurgeVulnerability";
 
 	private final Plugin mPlugin;
 	private final LivingEntity mBoss;
 	private final Location mCenter;
+	private final double mVulnerability;
 	private final SpellCelestialPillars mCelestialPillar;
 	private final BiConsumer<Player, Double> mOnDebuff;
 	private final List<Entity> mEnergies = new ArrayList<>();
+	private final int mMaxProjectiles;
 
-	public SpellStarlightSurge(Plugin plugin, LivingEntity boss, Location center, SpellCelestialPillars celestialPillar, BiConsumer<Player, Double> onDebuff) {
+	public SpellStarlightSurge(Plugin plugin, LivingEntity boss, Location center, double vulnerabilityMult, SpellCelestialPillars celestialPillar, BiConsumer<Player, Double> onDebuff, int maxProjectiles) {
 		mPlugin = plugin;
 		mBoss = boss;
 		mCenter = center;
 		mCelestialPillar = celestialPillar;
+		mVulnerability = VULNERABILITY * vulnerabilityMult;
 		mOnDebuff = onDebuff;
+		mMaxProjectiles = maxProjectiles;
 	}
 
 	@Override
@@ -98,12 +101,12 @@ public class SpellStarlightSurge extends Spell {
 						@Nullable
 						Effect currentEffect = mPlugin.mEffectManager.getActiveEffect(player, VULNERABILITY_SOURCE);
 						double previousPower = currentEffect == null ? 0 : currentEffect.getMagnitude();
-						double newPower = previousPower + VULNERABILITY;
+						double newPower = previousPower + mVulnerability;
 						mPlugin.mEffectManager.addEffect(player, VULNERABILITY_SOURCE, new PercentDamageReceived(VULNERABILITY_DURATION, newPower).deleteOnLogout(true).deleteOnDeath(true));
 						mOnDebuff.accept(player, newPower);
 
 						player.playSound(player, Sound.AMBIENT_CAVE, SoundCategory.HOSTILE, 3.0f, 2.0f, 3);
-						player.sendMessage(Aurora.formatMessage("ɪɴᴄᴏᴍᴘᴇᴛᴇɴᴄᴇ..."));
+						player.sendMessage(Aurora.formatMessage("ɪɴᴄᴏᴍᴘᴇᴛᴇɴᴄᴇ...", "[Aurora]", Aurora.AURORA_COLOR));
 					});
 
 					this.cancel();
@@ -259,7 +262,7 @@ public class SpellStarlightSurge extends Spell {
 	private void spawnSurge(Location pillarLoc, int aliveEnergyCount, double currentRadius) {
 		mActiveTasks.add(new BukkitRunnable() {
 			private final World mWorld = pillarLoc.getWorld();
-			private final int mChargeTime = MAX_PROJECTILES * aliveEnergyCount / ENERGY_PER_PILLAR;
+			private final int mChargeTime = mMaxProjectiles * aliveEnergyCount / ENERGY_PER_PILLAR;
 			int mTicks = 0;
 
 			@Override

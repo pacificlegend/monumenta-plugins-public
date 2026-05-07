@@ -36,10 +36,9 @@ public class SpellQuasarStep extends Spell {
 	private static final double LINE_RADIUS = 1.25;
 	private static final double BOSS_RADIUS = 2;
 	private static final double PLAYER_RADIUS = 3;
-	private static final int MAX_CASTS = 10;
+	private static final int MAX_CASTS = 100;
 	private static final int MAX_OVERSHOOT = 6;
 	private static final Color DUST_COLOR = Color.fromRGB(0xff9c40);
-
 
 	private final Plugin mPlugin;
 	private final LivingEntity mBoss;
@@ -112,8 +111,8 @@ public class SpellQuasarStep extends Spell {
 	private Location getTpLoc(Location bossLoc, Player player) {
 		Location pLoc = Aurora.withSurfaceY(player.getLocation(), mCenter);
 		Vector dir = LocationUtils.getDirectionTo(pLoc, bossLoc);
-		pLoc.setDirection(dir);
-		pLoc.add(dir.multiply(Math.min(MAX_OVERSHOOT, LocationUtils.rayLengthToSphereSurface(mCenter, pLoc, Aurora.ARENA_RADIUS - 2))));
+		double overshoot = LocationUtils.rayLengthToSphereSurface(mCenter.toVector(), pLoc.toVector(), dir, Aurora.ARENA_RADIUS - 1);
+		pLoc.add(dir.multiply(Math.min(MAX_OVERSHOOT, overshoot)));
 		return Aurora.withSurfaceY(pLoc, mCenter);
 	}
 
@@ -128,8 +127,13 @@ public class SpellQuasarStep extends Spell {
 
 		Location bossCenter = bossLocation.clone().add(0, 1, 0);
 		Location playerCenter = playerLocation.clone().add(0, 1, 0);
-		new PPLine(Particle.SMALL_FLAME, bossCenter, playerCenter)
-			.countPerMeter(6)
+		new PPLine(Particle.FLAME, bossCenter, playerCenter)
+			.countPerMeter(3)
+			.delta(LINE_RADIUS / 2)
+			.spawnAsBoss();
+
+		new PPLine(Particle.TRIAL_SPAWNER_DETECTION, bossCenter, playerCenter)
+			.countPerMeter(3)
 			.delta(LINE_RADIUS / 2)
 			.spawnAsBoss();
 
@@ -154,7 +158,7 @@ public class SpellQuasarStep extends Spell {
 			.extra(0.1)
 			.spawnAsBoss();
 
-		world.playSound(bossLocation, Sound.ENTITY_BREEZE_IDLE_GROUND, SoundCategory.HOSTILE, 1.2f, 0.5f + percentComplete);
+		world.playSound(bossLocation, Sound.ENTITY_GLOW_SQUID_SQUIRT, SoundCategory.HOSTILE, 1.2f, 0.5f + percentComplete);
 
 	}
 

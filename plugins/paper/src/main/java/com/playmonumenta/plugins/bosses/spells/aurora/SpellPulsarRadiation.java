@@ -12,7 +12,9 @@ import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.MovementUtils;
 import com.playmonumenta.plugins.utils.ParticleUtils;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -29,13 +31,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class SpellPulsarRadiation extends Spell {
 	private static final String SPELL_NAME = "Pulsar Radiation";
-	private static final double RADIUS = 1.1;
+	private static final double RADIUS = 1.2;
 	private static final double SOUND_THRESHOLD = 9;
 	private static final int DAMAGE = 60;
 	private static final double DAMAGE_PERCENT = 0.2;
@@ -50,19 +51,21 @@ public class SpellPulsarRadiation extends Spell {
 	private final Location mCenter;
 	private final Location mRaisedCenter;
 
-	private double mDegreeInc = DEGREE_INC;
+	private final Set<Player> mHitPlayers = new HashSet<>();
+	private double mDegreeInc;
 	@Nullable
 	private BeamRunnable mMasterRunnable = null;
 
-	public SpellPulsarRadiation(Plugin plugin, LivingEntity boss, Location center) {
+	public SpellPulsarRadiation(Plugin plugin, LivingEntity boss, double speedMultiplier, Location center) {
 		mPlugin = plugin;
 		mBoss = boss;
 		mCenter = center;
+		mDegreeInc = DEGREE_INC * speedMultiplier;
 		mRaisedCenter = mCenter.clone().add(0, 2.5, 0);
 	}
 
 	public void onPhase4() {
-		mDegreeInc *= 1.4;
+		mDegreeInc *= 1.3;
 		if (mMasterRunnable != null) {
 			mMasterRunnable.onPhase4();
 		}
@@ -83,10 +86,9 @@ public class SpellPulsarRadiation extends Spell {
 		mMasterRunnable.runTaskTimer(mPlugin, 0, 1);
 	}
 
-	private void laser(double degrees, int tick, boolean phase4) {
+	private void laser(double degrees, int tick) {
 		double rad = Math.toRadians(degrees);
 		Vector vec = new Vector(Math.cos(rad), 0, Math.sin(rad)).multiply(Aurora.ARENA_RADIUS);
-		Vector vecParticles = new Vector(Math.cos(rad + 0.05), 0, Math.sin(rad + 0.05)).multiply(Aurora.ARENA_RADIUS);
 		if (tick % 2 == 0) {
 			Aurora.playersInRange(mCenter, true).forEach(player -> {
 				Vector playerFromCenter = player.getLocation().subtract(mCenter).toVector().setY(0);
@@ -95,36 +97,23 @@ public class SpellPulsarRadiation extends Spell {
 				double distanceToLaser = distanceToCenter * FastUtils.sin(angle);
 				if (distanceToLaser <= SOUND_THRESHOLD) {
 					Location soundLoc = mCenter.clone().add(vec.clone().multiply(distanceToCenter * FastUtils.cos(angle) / Aurora.ARENA_RADIUS));
-					player.playSound(soundLoc, Sound.ENTITY_EVOKER_CAST_SPELL, SoundCategory.HOSTILE, 0.9f, 1.5f);
+					player.playSound(soundLoc, Sound.ENTITY_EVOKER_CAST_SPELL, SoundCategory.HOSTILE, 1.0f, 1.5f);
 				}
 			});
 		}
-		for (int i = 0; i < 6; i++) {
-			Particle soulFireFlame = phase4 ? Particle.END_ROD : Particle.SOUL_FIRE_FLAME;
-			double vel0 = phase4 ? 0.2 : 0.08;
-			double vel1 = phase4 ? 0.3 : 0.12;
-			new PartialParticle(soulFireFlame, mRaisedCenter.clone().add(0, FastUtils.randomDoubleInRange(-0.5, 0.5), 0))
-				.directionalMode(true)
-				.delta(vecParticles.getX(), vecParticles.getY(), vecParticles.getZ())
-				.extraRange(vel0, vel1)
-				.spawnAsBoss();
-
-			new PartialParticle(soulFireFlame, mRaisedCenter.clone().add(0, FastUtils.randomDoubleInRange(-0.5, 0.5), 0))
-				.directionalMode(true)
-				.delta(-vecParticles.getX(), -vecParticles.getY(), -vecParticles.getZ())
-				.extraRange(vel0, vel1)
-				.spawnAsBoss();
-		}
-		if (tick % 10 == 0) {
-			Hitbox.approximateCylinder(
-				mRaisedCenter.clone().subtract(vec),
-				mRaisedCenter.clone().add(vec),
-				RADIUS, false
-			).getHitPlayers(true).forEach(this::doDamage);
-		}
+		Hitbox.approximateCylinder(
+			mRaisedCenter.clone().subtract(vec),
+			mRaisedCenter.clone().add(vec),
+			RADIUS, false
+		).getHitPlayers(true).forEach(this::doDamage);
 	}
 
 	private void doDamage(Player player) {
+		if (mHitPlayers.contains(player)) {
+			return;
+		}
+		mHitPlayers.add(player);
+		Bukkit.getScheduler().runTaskLater(mPlugin, () -> mHitPlayers.remove(player), 10);
 		DamageUtils.damage(mBoss, player, DamageEvent.DamageType.MAGIC, DAMAGE, null, false, false, SPELL_NAME);
 		DamageUtils.damagePercentHealth(mBoss, player, DAMAGE_PERCENT, false, false, SPELL_NAME);
 		MovementUtils.knockAway(mRaisedCenter, player, 0.8f, -0.1f, false);
@@ -194,7 +183,7 @@ public class SpellPulsarRadiation extends Spell {
 				display.setTransformation(new Transformation(
 					new Vector3f(),
 					new Quaternionf(),
-					new Vector3f(1.5f),
+					new Vector3f(2.0f),
 					new Quaternionf()
 				));
 				display.setBrightness(new Display.Brightness(15, 15));
@@ -208,7 +197,7 @@ public class SpellPulsarRadiation extends Spell {
 				display.setTransformation(new Transformation(
 					new Vector3f(),
 					new Quaternionf(),
-					new Vector3f(2.0f),
+					new Vector3f(2.5f),
 					new Quaternionf()
 				));
 				display.setBrightness(new Display.Brightness(15, 15));
@@ -219,6 +208,12 @@ public class SpellPulsarRadiation extends Spell {
 			});
 			mCrystalGlassOuter = mWorld.spawn(mRaisedCenter, ItemDisplay.class, display -> {
 				display.setItemStack(new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS));
+				display.setTransformation(new Transformation(
+					new Vector3f(),
+					new Quaternionf(),
+					new Vector3f(3.0f),
+					new Quaternionf()
+				));
 				display.setBrightness(new Display.Brightness(15, 15));
 				display.setInterpolationDuration(2);
 
@@ -228,7 +223,7 @@ public class SpellPulsarRadiation extends Spell {
 			mBeamCore = mWorld.spawn(mRaisedCenter, ItemDisplay.class, display -> {
 				display.setItemStack(new ItemStack(Material.SEA_LANTERN));
 				display.setBrightness(new Display.Brightness(15, 15));
-				display.setInterpolationDuration(3);
+				display.setInterpolationDuration(2);
 
 				EntityUtils.setRemoveEntityOnUnload(display);
 				display.addScoreboardTag(TAG);
@@ -236,7 +231,7 @@ public class SpellPulsarRadiation extends Spell {
 			mBeamGlow = mWorld.spawn(mRaisedCenter, ItemDisplay.class, display -> {
 				display.setItemStack(new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS));
 				display.setBrightness(new Display.Brightness(15, 15));
-				display.setInterpolationDuration(3);
+				display.setInterpolationDuration(2);
 
 				EntityUtils.setRemoveEntityOnUnload(display);
 				display.addScoreboardTag(TAG);
@@ -254,10 +249,11 @@ public class SpellPulsarRadiation extends Spell {
 				return;
 			}
 			crystalParticles(mTicks);
-			mCrystalGlassOuter.setInterpolationDelay(-1);
-			mCrystalGlassInner.setInterpolationDelay(-1);
-			mCrystalCore.setInterpolationDelay(-1);
 			if (!mPhase4) {
+				mCrystalGlassOuter.setInterpolationDelay(-1);
+				mCrystalGlassInner.setInterpolationDelay(-1);
+				mCrystalCore.setInterpolationDelay(-1);
+
 				Transformation outerTransform = mCrystalGlassOuter.getTransformation();
 				mCrystalGlassOuter.setTransformation(new Transformation(
 					new Vector3f(),
@@ -266,16 +262,17 @@ public class SpellPulsarRadiation extends Spell {
 					outerTransform.getRightRotation()
 				));
 				Transformation innerTransform = mCrystalGlassInner.getTransformation();
+				Quaternionf leftRotation = new Quaternionf().setAngleAxis((float) Math.PI / 3, SIN_45, 0, SIN_45).rotateY(mTicks * (float) Math.PI / 60);
 				mCrystalGlassInner.setTransformation(new Transformation(
 					new Vector3f(),
-					new Quaternionf().setAngleAxis((float) Math.PI / 3, SIN_45, 0, SIN_45).rotateY(mTicks * (float) Math.PI / 60),
+					leftRotation,
 					innerTransform.getScale(),
 					innerTransform.getRightRotation()
 				));
 				Transformation coreTransform = mCrystalCore.getTransformation();
 				mCrystalCore.setTransformation(new Transformation(
 					new Vector3f(),
-					new Quaternionf().setAngleAxis((float) Math.PI / 3, SIN_45, 0, SIN_45).rotateY(mTicks * (float) Math.PI / 60),
+					leftRotation,
 					coreTransform.getScale(),
 					coreTransform.getRightRotation()
 				));
@@ -286,22 +283,24 @@ public class SpellPulsarRadiation extends Spell {
 					this.cancel();
 					return;
 				}
-				laser(mDegrees, mTicks, mPhase4);
+				laser(mDegrees, mTicks);
+
+				Quaternionf leftRotation = new Quaternionf().rotateY((float) Math.toRadians(-mDegrees - mDegreeInc / 2)).rotateX((float) (Math.PI / 4));
+				float offset = oscillatedOffset();
+
 				mBeamCore.setInterpolationDelay(-1);
-				mBeamCore.setInterpolationDuration(1);
 				mBeamCore.setTransformation(new Transformation(
 					new Vector3f(),
-					new AxisAngle4f((float) Math.toRadians(-mDegrees - mDegreeInc / 2), 0, 1, 0),
-					new Vector3f(Aurora.ARENA_RADIUS * 2 + 4, 0.3f + oscillatedOffset(), 0.3f + oscillatedOffset()),
-					new AxisAngle4f()
+					leftRotation,
+					new Vector3f(Aurora.ARENA_RADIUS * 2 + 8, 0.55f + offset, 0.55f + offset),
+					new Quaternionf()
 				));
 				mBeamGlow.setInterpolationDelay(-1);
-				mBeamGlow.setInterpolationDuration(1);
 				mBeamGlow.setTransformation(new Transformation(
 					new Vector3f(),
-					new AxisAngle4f((float) Math.toRadians(-mDegrees - mDegreeInc / 2), 0, 1, 0),
-					new Vector3f(Aurora.ARENA_RADIUS * 2 + 4, 0.4f + oscillatedOffset(), 0.4f + oscillatedOffset()),
-					new AxisAngle4f()
+					leftRotation,
+					new Vector3f(Aurora.ARENA_RADIUS * 2 + 8, 0.8f + offset, 0.8f + offset),
+					new Quaternionf()
 				));
 
 				mDegrees += mDegreeInc;
@@ -360,12 +359,12 @@ public class SpellPulsarRadiation extends Spell {
 			mCrystalGlassInner.setTransformation(TRANSFORM_ZERO);
 			mCrystalGlassOuter.setTransformation(TRANSFORM_ZERO);
 			mBeamCore.setItemStack(new ItemStack(Material.PEARLESCENT_FROGLIGHT));
-			mBeamGlow.setItemStack(new ItemStack(Material.WHITE_STAINED_GLASS));
+			mBeamGlow.setItemStack(new ItemStack(Material.PINK_STAINED_GLASS));
 			mPhase4 = true;
 		}
 
 		private float oscillatedOffset() {
-			return (float) (FastUtils.sin(mTicks * 0.72) * 0.06);
+			return (float) (FastUtils.sin(mTicks * 0.66) * 0.08);
 		}
 
 		@Override

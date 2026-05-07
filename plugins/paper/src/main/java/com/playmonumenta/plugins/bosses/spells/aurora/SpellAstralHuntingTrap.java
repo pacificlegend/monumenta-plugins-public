@@ -6,6 +6,7 @@ import com.playmonumenta.plugins.bosses.bosses.aurora.Aurora;
 import com.playmonumenta.plugins.bosses.spells.SpellBaseGrenadeLauncher;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.particle.PPCircle;
+import com.playmonumenta.plugins.particle.PPPillar;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.BlockUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
@@ -44,7 +45,7 @@ public class SpellAstralHuntingTrap extends SpellBaseGrenadeLauncher {
 	public static final int LINGERING_DURATION = 15 * 20;
 	private static final float KNOCKBACK_SPEED = 2.0f;
 	private static final double TRAP_RADIUS = 2;
-	private static final int DAMAGE = 65;
+	private static final int DAMAGE = 55;
 	private static final String DISPLAY_TAG = "AstralHuntTrapDisplay";
 	private final LivingEntity mBoss;
 
@@ -177,7 +178,12 @@ public class SpellAstralHuntingTrap extends SpellBaseGrenadeLauncher {
 			},
 			(Location loc) -> {
 				// Landing Location telegraph
-				ParticleUtils.drawCircleTelegraph(loc, TRAP_RADIUS, 32, 1, 1, 0.1, false, Particle.SPELL_WITCH, plugin, boss);
+				new PPPillar(Particle.REDSTONE, loc, 2.4)
+					.count(32)
+					.data(new Particle.DustOptions(Color.RED, 1.56f))
+					.spawnAsBoss();
+
+				ParticleUtils.drawCircleTelegraph(loc, TRAP_RADIUS, 32, 1, 20, 0.1, false, Particle.END_ROD, plugin, boss);
 			}
 		);
 		mBoss = boss;

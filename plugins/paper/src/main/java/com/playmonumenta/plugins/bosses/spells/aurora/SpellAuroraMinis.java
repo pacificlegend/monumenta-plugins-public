@@ -12,6 +12,7 @@ import com.playmonumenta.plugins.managers.GlowingManager;
 import com.playmonumenta.plugins.particle.PPBezier;
 import com.playmonumenta.plugins.particle.PPSpiral;
 import com.playmonumenta.plugins.particle.PartialParticle;
+import com.playmonumenta.plugins.potion.PotionManager;
 import com.playmonumenta.plugins.utils.FastUtils;
 import com.playmonumenta.plugins.utils.MMLog;
 import com.playmonumenta.plugins.utils.VectorUtils;
@@ -28,6 +29,8 @@ import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
@@ -114,8 +117,9 @@ public class SpellAuroraMinis extends Spell {
 					world.playSound(skyCenter, Sound.AMBIENT_CRIMSON_FOREST_MOOD, SoundCategory.HOSTILE, 9.0f, 1.0f, 500);
 					world.playSound(skyCenter, Sound.AMBIENT_CRIMSON_FOREST_MOOD, SoundCategory.HOSTILE, 9.0f, 1.5f, 500);
 					world.playSound(skyCenter, Sound.AMBIENT_CRIMSON_FOREST_MOOD, SoundCategory.HOSTILE, 9.0f, 1.5f, 500);
-					
+
 					Aurora.playersInRange(mCenter, true).forEach(player -> {
+						mPlugin.mPotionManager.addPotion(player, PotionManager.PotionID.BOSS, new PotionEffect(PotionEffectType.BLINDNESS, 20, 9, true, false));
 						player.sendMessage(Component.text("You hear a noise that your mind fails to properly comprehend. Pain flashes through your head.", NamedTextColor.GRAY));
 						player.sendMessage(Component.text("You reach up and find blood dripping from your ears, your nose, your eyes... Is that Aurora?", NamedTextColor.GRAY));
 					});

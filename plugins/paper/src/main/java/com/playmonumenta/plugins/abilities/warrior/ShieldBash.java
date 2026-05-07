@@ -11,6 +11,7 @@ import com.playmonumenta.plugins.cosmetics.skills.warrior.ShieldBashCS;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
+import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.Hitbox;
@@ -28,13 +29,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.cooldown;
+import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.perRegion;
 import static com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder.StatValue.stat;
 import static com.playmonumenta.plugins.utils.DescriptionUtils.UNDERLINED;
 
 
 public class ShieldBash extends Ability {
 
-	private static final int SHIELD_BASH_DAMAGE = 8;
+	private static final double[] SHIELD_BASH_DAMAGE = {8, 12, 16};
 	private static final int SHIELD_BASH_STUN = 20;
 	private static final int SHIELD_BASH_COOLDOWN = 20 * 8;
 	private static final int SHIELD_BASH_2_RADIUS = 3;
@@ -78,7 +80,8 @@ public class ShieldBash extends Ability {
 		super(plugin, player, INFO);
 		mRange = CharmManager.getRadius(mPlayer, CHARM_RANGE, SHIELD_BASH_RANGE);
 		mRadius = CharmManager.getRadius(mPlayer, CHARM_RADIUS, SHIELD_BASH_2_RADIUS);
-		mDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE, SHIELD_BASH_DAMAGE);
+		mDamage = CharmManager.calculateFlatAndPercentValue(mPlayer, CHARM_DAMAGE,
+			AbilityUtils.getRegionScaled(player, SHIELD_BASH_DAMAGE));
 		mStunDuration = CharmManager.getDuration(mPlayer, CHARM_DURATION, SHIELD_BASH_STUN);
 		mParryDuration = CharmManager.getDuration(mPlayer, CHARM_PARRY_DURATION, ENHANCEMENT_BLOCKING_DURATION);
 		mCDR = ENHANCEMENT_CDR + CharmManager.getLevelPercentDecimal(mPlayer, CHARM_CDR);
@@ -177,8 +180,8 @@ public class ShieldBash extends Ability {
 			.addLine("mob in front of you.")
 			.addLine("(Elites/Bosses are rooted instead)")
 			.addLine()
-			.addStat("Damage: %d (m)")
-				.statValues(stat(a -> a.mDamage, SHIELD_BASH_DAMAGE))
+			.addStat("Damage: %d0R (m)")
+				.statValues(perRegion(a -> a.mDamage, SHIELD_BASH_DAMAGE[0], SHIELD_BASH_DAMAGE[1], SHIELD_BASH_DAMAGE[2]))
 			.addStat("Effect: Stun for %t")
 				.statValues(stat(a -> a.mStunDuration, SHIELD_BASH_STUN))
 			.addStat("Range: %r")

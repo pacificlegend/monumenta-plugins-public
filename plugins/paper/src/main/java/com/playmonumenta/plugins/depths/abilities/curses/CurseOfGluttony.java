@@ -5,6 +5,7 @@ import com.playmonumenta.plugins.abilities.Description;
 import com.playmonumenta.plugins.abilities.DescriptionBuilder;
 import com.playmonumenta.plugins.depths.DepthsManager;
 import com.playmonumenta.plugins.depths.DepthsPlayer;
+import com.playmonumenta.plugins.depths.DepthsRarity;
 import com.playmonumenta.plugins.depths.DepthsTree;
 import com.playmonumenta.plugins.depths.abilities.DepthsAbility;
 import com.playmonumenta.plugins.depths.abilities.DepthsAbilityInfo;
@@ -70,6 +71,8 @@ public class CurseOfGluttony extends DepthsAbility {
 
 	private static Description<CurseOfGluttony> getDescription() {
 		return new DescriptionBuilder<>(() -> INFO)
-			.add("Lose your 2 highest rarity abilities.");
+			.add("Lose your 2 highest rarity abilities (up to ")
+			.add(DepthsRarity.LEGENDARY.getDisplay())
+			.add(").");
 	}
 }

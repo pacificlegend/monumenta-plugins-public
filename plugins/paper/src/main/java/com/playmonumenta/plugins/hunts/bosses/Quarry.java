@@ -191,6 +191,9 @@ public abstract class Quarry extends SerializedLocationBossAbilityGroup {
 	}
 
 	public boolean playerIsOutOfRange(Player player) {
+		if (!player.isOnline()) {
+			return true;
+		}
 		Location loc = player.getLocation();
 		// Need to be out of the range of the fight and not close to the boss (in case the boss is near the boundary)
 		return loc.distanceSquared(mSpawnLoc) > mRadiusOuter * mRadiusOuter && loc.distanceSquared(mBoss.getLocation()) > mRadiusInner * mRadiusInner;

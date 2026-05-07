@@ -19,6 +19,8 @@ public class LichCurseEffect extends Effect {
 
 	public LichCurseEffect(int duration) {
 		super(duration, effectId);
+		deleteOnDeath(true);
+		deleteOnLogout(true);
 	}
 
 	@Override

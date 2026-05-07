@@ -42,6 +42,10 @@ public class FirstStrike implements Enchantment {
 		DamageType.PROJECTILE_SKILL
 	);
 
+	private static final EnumSet<ClassAbility> IGNORED_ABILITIES = EnumSet.of(
+		ClassAbility.HUNTING_COMPANION
+	);
+
 	private boolean mAttacked = false;
 
 	@Override
@@ -69,7 +73,7 @@ public class FirstStrike implements Enchantment {
 	@Override
 	public void onDamage(Plugin plugin, Player player, double level, DamageEvent event, LivingEntity enemy) {
 		DamageType type = event.getType();
-		if (ACTIVATION_DAMAGE_TYPES.contains(type)) {
+		if (ACTIVATION_DAMAGE_TYPES.contains(type) && !IGNORED_ABILITIES.contains(event.getAbility())) {
 			mAttacked = true;
 			Bukkit.getScheduler().runTaskLater(plugin, () -> mAttacked = false, 1);
 		}

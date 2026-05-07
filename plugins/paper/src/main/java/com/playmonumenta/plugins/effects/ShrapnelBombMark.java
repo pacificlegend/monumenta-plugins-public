@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.abilities.scout.ShrapnelBomb;
 import com.playmonumenta.plugins.cosmetics.skills.scout.ShrapnelBombCS;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
+import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -38,6 +39,7 @@ public class ShrapnelBombMark extends Effect {
 		DamageEvent.DamageType type = event.getType();
 		if (type != DamageEvent.DamageType.PROJECTILE
 			|| mPlayer != (event.getDamager() instanceof Projectile ? ((Projectile) event.getDamager()).getShooter() : event.getDamager())
+			|| AbilityUtils.isIndirectDamage(event) // ignore DoT (hunting companion)
 			|| mHits <= 0) {
 			return;
 		}

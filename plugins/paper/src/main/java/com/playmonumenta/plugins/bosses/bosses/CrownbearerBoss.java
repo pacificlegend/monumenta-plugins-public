@@ -153,7 +153,7 @@ public final class CrownbearerBoss extends SerializedLocationBossAbilityGroup {
 
 	@Override
 	public void onHurt(final DamageEvent event) {
-		event.setFlatDamage(event.getFlatDamage() / mDamageReduction);
+		event.updateFinalMultiplier(1 / mDamageReduction);
 	}
 
 	@Override

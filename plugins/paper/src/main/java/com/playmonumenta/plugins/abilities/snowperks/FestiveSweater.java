@@ -34,13 +34,9 @@ public class FestiveSweater extends Ability {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		if (event.getType() == DamageEvent.DamageType.TRUE) {
-			return false;
-		}
-
 		double festiveLevel = Math.min(mPlugin.mItemStatManager.getInfusionLevel(mPlayer, InfusionType.FESTIVE), MAX_FESTIVE);
 		if (festiveLevel > 0) {
-			event.updateDamageWithMultiplier(1 + DAMAGE_BOOST * festiveLevel);
+			event.updateDamageWithMultiplier(1 + DAMAGE_BOOST * festiveLevel, DamageEvent.DamageType.getScalableDamageType());
 		}
 		return false;
 	}

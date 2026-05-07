@@ -136,7 +136,7 @@ public final class CAxtal extends SerializedLocationBossAbilityGroup {
 
 	@Override
 	public void onHurt(final DamageEvent event) {
-		event.setFlatDamage(event.getFlatDamage() / mCoefficient);
+		event.updateFinalMultiplier(1 / mCoefficient);
 	}
 
 	@Override

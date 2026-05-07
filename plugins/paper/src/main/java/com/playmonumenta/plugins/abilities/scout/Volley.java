@@ -217,7 +217,7 @@ public class Volley extends MultipleChargeAbility {
 		Entity proj = event.getDamager();
 		if (proj instanceof Projectile) {
 			if (mVolley.contains(proj) && notBeenHit(enemy)) {
-				event.setFlatDamage(event.getFlatDamage() * mPercentDamage + mFlatDamage);
+				event.setBaseDamage(event.getBaseDamage() * mPercentDamage + mFlatDamage);
 				event.setAbility(ClassAbility.VOLLEY);
 
 				mCosmetic.volleyHit(mPlayer, enemy);

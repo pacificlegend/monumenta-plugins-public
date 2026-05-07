@@ -66,7 +66,7 @@ public class SweepingEdge implements Enchantment {
 			if (player.getCooledAttackStrength(0.5f) > 0.9) {
 				// Compute damage.
 				double damageMult = value * TRANSFER_COEFFICIENT;
-				double damage = event.getFlatDamage() * damageMult;
+				double damage = event.getBaseDamage() * damageMult;
 
 				// Compute the bounding box - find the enemy's box, then expand it
 				// If the enchantment DAMAGE stops working, check THIS SECTION

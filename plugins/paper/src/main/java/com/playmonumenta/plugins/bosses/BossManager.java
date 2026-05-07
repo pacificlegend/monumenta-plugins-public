@@ -60,6 +60,7 @@ import com.playmonumenta.plugins.bosses.bosses.sirius.SiriusNPCBoss;
 import com.playmonumenta.plugins.bosses.events.SpellCastEvent;
 import com.playmonumenta.plugins.chunk.ChunkFullLoadEvent;
 import com.playmonumenta.plugins.chunk.ChunkPartialUnloadEvent;
+import com.playmonumenta.plugins.commands.ShowMyDpsCommand;
 import com.playmonumenta.plugins.delves.mobabilities.ArcanicBoss;
 import com.playmonumenta.plugins.delves.mobabilities.DreadfulSummonBoss;
 import com.playmonumenta.plugins.delves.mobabilities.SpectralSummonBoss;
@@ -644,6 +645,7 @@ public class BossManager implements Listener {
 		Boss boss = mBosses.get(entity.getUniqueId());
 		if (boss != null) {
 			boss.death(event);
+			ShowMyDpsCommand.onDeath(entity);
 			if (entity.getHealth() <= 0) {
 				unload(boss, false);
 				mBosses.remove(entity.getUniqueId());
@@ -1094,6 +1096,7 @@ public class BossManager implements Listener {
 		if (boss != null) {
 			unload(boss, shuttingDown);
 		}
+		ShowMyDpsCommand.onUnload(entity);
 	}
 
 	public void unloadAll(boolean shuttingDown) {

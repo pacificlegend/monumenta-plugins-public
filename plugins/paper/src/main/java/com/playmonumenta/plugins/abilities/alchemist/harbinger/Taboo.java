@@ -19,6 +19,7 @@ import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.utils.AbsorptionUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import java.util.EnumSet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
@@ -240,8 +241,8 @@ public class Taboo extends Ability {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity damagee) {
-		if (mIsActive && event.getType() == DamageType.MAGIC) {
-			event.updateDamageWithMultiplier(1 + mMagicDamageIncrease);
+		if (mIsActive) {
+			event.updateDamageWithMultiplier(1 + mMagicDamageIncrease, EnumSet.of(DamageType.MAGIC));
 		}
 		return false;
 	}

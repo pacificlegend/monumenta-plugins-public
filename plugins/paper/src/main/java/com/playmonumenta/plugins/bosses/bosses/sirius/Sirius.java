@@ -288,7 +288,7 @@ public class Sirius extends SerializedLocationBossAbilityGroup {
 				if (p.isInvulnerable()) {
 					p.setInvulnerable(false);
 				}
-				DamageUtils.damage(null, p, DamageEvent.DamageType.OTHER, 999999999, null, true, false, "Devoid from Protection");
+				DamageUtils.damage(null, p, DamageEvent.DamageType.TRUE, 999999999, null, true, false, "Devoid from Protection");
 				if (p.getHealth() > 0) {
 					p.setHealth(0); // For good measure
 				}
@@ -898,7 +898,7 @@ public class Sirius extends SerializedLocationBossAbilityGroup {
 							if (p.isInvulnerable()) {
 								p.setInvulnerable(false);
 							}
-							DamageUtils.damage(mBoss, p, DamageEvent.DamageType.OTHER, 999999999, null, true, false, "crushing weight.");
+							DamageUtils.damage(mBoss, p, DamageEvent.DamageType.TRUE, 999999999, null, true, false, "crushing weight.");
 							if (p.getHealth() > 0) {
 								p.setHealth(0); // For good measure
 							}

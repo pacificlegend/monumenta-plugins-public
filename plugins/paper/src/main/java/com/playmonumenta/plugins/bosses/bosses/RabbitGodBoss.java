@@ -78,7 +78,7 @@ public final class RabbitGodBoss extends SerializedLocationBossAbilityGroup {
 			// Attack hit a player
 			(LivingEntity player) -> {
 				new PartialParticle(Particle.SWEEP_ATTACK, player.getLocation(), 20, 1, 1, 1, 0).spawnAsEntityActive(mBoss);
-				BossUtils.blockableDamage(boss, player, DamageType.OTHER, 1);
+				BossUtils.blockableDamage(boss, player, DamageType.UNSCALABLE, 1);
 			},
 			// Attack particles
 			(Location loc) -> new PartialParticle(Particle.SWEEP_ATTACK, loc).count(2).delta(0.75).extra(0).spawnAsEntityActive(mBoss),
@@ -105,7 +105,7 @@ public final class RabbitGodBoss extends SerializedLocationBossAbilityGroup {
 				new PartialParticle(Particle.SMOKE_LARGE, loc, 25, 0, 0, 0, 0.25).spawnAsEntityActive(mBoss);
 				world.playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 1.5f, 0.5f);
 				if (!blocked) {
-					BossUtils.blockableDamage(mBoss, player, DamageType.OTHER, 1);
+					BossUtils.blockableDamage(mBoss, player, DamageType.UNSCALABLE, 1);
 				}
 			}
 		);
@@ -399,7 +399,7 @@ public final class RabbitGodBoss extends SerializedLocationBossAbilityGroup {
 	@Override
 	public void onHurt(DamageEvent event) {
 		if (mPhase2) {
-			event.setFlatDamage(event.getFlatDamage() * 15);
+			event.updateFinalMultiplier(15);
 		}
 	}
 

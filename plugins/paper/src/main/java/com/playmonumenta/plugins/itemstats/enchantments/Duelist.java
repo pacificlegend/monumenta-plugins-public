@@ -39,7 +39,7 @@ public class Duelist implements Enchantment {
 	public void onDamage(Plugin plugin, Player player, double level, DamageEvent event, LivingEntity enemy) {
 		boolean isProjectile = event.getType() == DamageType.PROJECTILE;
 		if (isProjectile || event.getType() == DamageType.MELEE) {
-			event.setFlatDamage(event.getFlatDamage() + calculateDuelistDamage(isProjectile, player, level, enemy));
+			event.addBaseDamage(calculateDuelistDamage(isProjectile, player, level, enemy));
 		}
 	}
 

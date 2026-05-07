@@ -66,7 +66,7 @@ public class ArcaneThrust implements Enchantment {
 		if (event.getType() == DamageType.MELEE) {
 			if (player.getCooledAttackStrength(0.5f) > 0.9) {
 				double damageMult = (value / (value + 1));
-				double damage = 1 + (event.getFlatDamage() * damageMult);
+				double damage = 1 + (event.getBaseDamage() * damageMult);
 				int decay = plugin.mItemStatManager.getEnchantmentLevel(player, EnchantmentType.DECAY);
 
 				Location loc = player.getEyeLocation();

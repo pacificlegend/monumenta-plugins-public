@@ -53,8 +53,8 @@ public class CurseOfPride extends DepthsAbility {
 
 	@Override
 	public void onHurt(DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
-		if (DamageEvent.DamageType.getScalableDamageType().contains(event.getType()) && mVulnerability != 0) {
-			event.updateDamageWithMultiplier(1 + mVulnerability);
+		if (mVulnerability != 0) {
+			event.updateDamageWithMultiplier(1 + mVulnerability, DamageEvent.DamageType.getScalableDamageType());
 		}
 	}
 

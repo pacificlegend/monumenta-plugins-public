@@ -1,9 +1,13 @@
 package com.playmonumenta.plugins.listeners;
 
+import com.google.common.collect.ImmutableMultimap;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.mage.ElementalArrows;
 import com.playmonumenta.plugins.abilities.scout.hunter.QuiverStorm;
 import com.playmonumenta.plugins.bosses.bosses.TrainingDummyBoss;
+import com.playmonumenta.plugins.bosses.parameters.Tokenizer;
+import com.playmonumenta.plugins.commands.DamageTraceCommand;
+import com.playmonumenta.plugins.commands.ShowMyDpsCommand;
 import com.playmonumenta.plugins.depths.abilities.steelsage.RapidFire;
 import com.playmonumenta.plugins.effects.ProjectileIframe;
 import com.playmonumenta.plugins.events.DamageEvent;
@@ -29,6 +33,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -47,6 +54,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
@@ -56,6 +64,8 @@ public class DamageListener implements Listener {
 
 	private final Plugin mPlugin;
 	public static final String DO_NOT_REPLACE_METADATA = "PlayerItemStatsMapUnreplacable";
+	@SuppressWarnings("deprecation")
+	public static final DamageModifier VANILLA_IFRAMES_MODIFIER = DamageModifier.valueOf("IFRAMES");
 
 	private static final WeakHashMap<UUID, PlayerItemStats> mPlayerItemStatsMap = new WeakHashMap<>();
 
@@ -112,7 +122,7 @@ public class DamageListener implements Listener {
 		// If the damage is blocked, revert to the initial damage to make sure the shield gets proper durability damage.
 		// This also prevents knockback going through shields sometimes for some reason.
 		// Needs to check for holding a shield since the mob's attack may have disabled it.
-		if (event.getDamage(EntityDamageEvent.DamageModifier.BLOCKING) < 0
+		if (event.getDamage(DamageModifier.BLOCKING) < 0
 			&& event.getEntity() instanceof Player player
 			&& player.getActiveItem().getType() == Material.SHIELD) {
 			event.setDamage(originalDamage);
@@ -123,12 +133,12 @@ public class DamageListener implements Listener {
 			// Small amount of negative damage - can happen as the Paper damage calculation mixes floats and doubles
 			// Add the final damage to the base damage to make the calculation 0, while still damaging absorption
 			// Uses Math.nextUp to prevent a small final damage value from not affecting the addition
-			event.setDamage(EntityDamageEvent.DamageModifier.BASE, Math.nextUp(event.getDamage()) - event.getFinalDamage());
+			event.setDamage(DamageModifier.BASE, Math.nextUp(event.getDamage()) - event.getFinalDamage());
 		}
 		if (event.getDamage() < 0 || event.getFinalDamage() < 0) {
 			// (Still) negative: log and fix
 			MMLog.warning("Negative damage dealt! finalDamage=" + event.getFinalDamage() + ", "
-				+ Arrays.stream(EntityDamageEvent.DamageModifier.values()).map(mod -> mod + "=" + event.getDamage(mod)).collect(Collectors.joining(", ")));
+				+ Arrays.stream(DamageModifier.values()).map(mod -> mod + "=" + event.getDamage(mod)).collect(Collectors.joining(", ")));
 			if (!(event.getEntity() instanceof Player)) { // the negative damage bug doesn't apply to players, and can cause issues with absorption making players invulnerable
 				event.setDamage(0);
 			}
@@ -137,7 +147,7 @@ public class DamageListener implements Listener {
 		if (!Double.isFinite(event.getDamage()) || !Double.isFinite(event.getFinalDamage())) {
 			// NaN or infinite damage dealt: log and set damage to 0
 			MMLog.warning("Non-finite damage dealt! finalDamage=" + event.getFinalDamage() + ", "
-				+ Arrays.stream(EntityDamageEvent.DamageModifier.values()).map(mod -> mod + "=" + event.getDamage(mod)).collect(Collectors.joining(", ")));
+				+ Arrays.stream(EntityDamageEvent.DamageModifier.values()).map(mod -> mod + "=" + event.getDamage(mod)).collect(Collectors.joining(", ")), new Exception());
 			event.setDamage(0);
 		}
 
@@ -164,7 +174,8 @@ public class DamageListener implements Listener {
 		Entity damager = event.getDamager();
 		LivingEntity source = event.getSource();
 
-		event.updateDamageWithMultiplier(EntityUtils.vulnerabilityMult(damagee));
+		// Why does this exist?
+		event.updateDamageWithMultiplier(EntityUtils.vulnerabilityMult(damagee), DamageEvent.DamageType.getScalableDamageType());
 
 		// If this event was caused by /kill, the entity should immediately die with no further processing
 		if (event.getCause().equals(DamageCause.KILL)) {
@@ -218,34 +229,6 @@ public class DamageListener implements Listener {
 			&& !(proj.hasMetadata(RapidFire.META_DATA_TAG)
 			|| proj.hasMetadata(QuiverStorm.ARROW_METADATA));
 
-		// Projectile Iframes rework. Need to be placed at the end in order to get final damage.
-		if (!event.isCancelled() && source instanceof Player player
-			&& (isNotRapidfire || ElementalArrows.isElementalArrowDamage(event))
-			&& event.getType() != DamageEvent.DamageType.TRUE) {
-			double damage = event.getDamage();
-			// Now, set damage to 0.001 (to allow for knockback effects), and customly damage enemy using damage function.
-			event.setFlatDamage(0.001);
-			if (EntityUtils.isTrainingDummy(damagee)) {
-				TrainingDummyBoss.mNextTrueDamageReplacement = event.getType();
-			}
-			ProjectileIframe projectileIframe = mPlugin.mEffectManager.getActiveEffect(damagee, ProjectileIframe.class);
-			if (projectileIframe != null) {
-				int duration = projectileIframe.getDuration();
-				double magnitude = projectileIframe.getMagnitude();
-
-				// If incoming damage is greater than magnitude, subtract and deal damage.
-				// Otherwise, do nothing.
-				if (damage > magnitude) {
-					double extraDamage = damage - magnitude;
-					DamageUtils.damage(player, damagee, DamageEvent.DamageType.TRUE, extraDamage, event.getAbility(), true, false);
-					mPlugin.mEffectManager.addEffect(damagee, ProjectileIframe.SOURCE, new ProjectileIframe(duration, damage));
-				}
-			} else {
-				DamageUtils.damage(player, damagee, DamageEvent.DamageType.TRUE, damage, event.getAbility(), true, false);
-				mPlugin.mEffectManager.addEffect(damagee, ProjectileIframe.SOURCE, new ProjectileIframe(ProjectileIframe.IFRAME_DURATION, damage));
-			}
-		}
-
 		// Reverb custom enchant needs to calculate final damage after effects are applied.
 		if (source instanceof Player player) {
 			PlayerItemStats eventPlayerItemStats = event.getPlayerItemStats();
@@ -256,6 +239,55 @@ public class DamageListener implements Listener {
 			}
 			mPlugin.mAbilityManager.onDamageDelayed(player, event, damagee);
 		}
+
+		// Projectile Iframes rework. Need to be placed at the end in order to get final damage.
+		if (!event.isCancelled() && source instanceof Player
+			&& (isNotRapidfire || ElementalArrows.isElementalArrowDamage(event))
+			&& event.getType() != DamageEvent.DamageType.TRUE) {
+			double damage = event.getDamage();
+
+			ProjectileIframe projectileIframe = mPlugin.mEffectManager.getActiveEffect(damagee, ProjectileIframe.class);
+			if (projectileIframe != null) {
+				int duration = projectileIframe.getDuration();
+				double magnitude = projectileIframe.getMagnitude();
+
+				// If incoming damage is greater than magnitude, subtract and deal damage.
+				// Otherwise, do nothing.
+				if (damage > magnitude) {
+					double extraDamage = damage - magnitude;
+					event.getEvent().setDamage(VANILLA_IFRAMES_MODIFIER, 0);
+					event.setDamageCap(extraDamage);
+					mPlugin.mEffectManager.addEffect(damagee, ProjectileIframe.SOURCE, new ProjectileIframe(duration, damage));
+				} else {
+					event.setDamageCap(0.0);
+				}
+			} else {
+				mPlugin.mEffectManager.addEffect(damagee, ProjectileIframe.SOURCE, new ProjectileIframe(ProjectileIframe.IFRAME_DURATION, damage));
+			}
+		}
+
+		if (event.getSource() instanceof Player player && player.getScoreboardTags().contains(DamageTraceCommand.TAG)) {
+			sendDebugMessage(player, event);
+		}
+		if (event.getDamagee() instanceof Player player && player.getScoreboardTags().contains(DamageTraceCommand.TAG)) {
+			sendDebugMessage(player, event);
+		}
+
+		ShowMyDpsCommand.onDamage(event);
+	}
+
+	public static void sendDebugMessage(Player player, DamageEvent event) {
+		ImmutableMultimap<DamageEvent.DamageModifier.Stage, DamageEvent.DamageModifier> damageModifiers = event.damageModifiersCopy();
+		player.sendMessage(Component.text("[Damage Trace] Click to reveal %d damage modifiers".formatted(damageModifiers.size()), NamedTextColor.YELLOW)
+			.clickEvent(ClickEvent.callback(audience -> {
+				for (DamageEvent.DamageModifier modifier : damageModifiers.values()) {
+					// Syntax is similar to bosstag, so I will use that to pretty print it!
+					String string = modifier.toString();
+					audience.sendMessage(Component.text("-".repeat(string.indexOf("\n")), NamedTextColor.GRAY));
+					audience.sendMessage(new Tokenizer(string).getTokens().syntaxHighlight());
+				}
+			}))
+		);
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

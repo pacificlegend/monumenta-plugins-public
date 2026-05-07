@@ -650,7 +650,12 @@ public class AbilityManager {
 				if (event.isCancelled()) {
 					break;
 				}
-				abil.onDamageDelayed(event, enemy);
+				String metaKey = "LastDamageTick_" + abil.getClass().getCanonicalName();
+				if (!MetadataUtils.happenedThisTick(player, metaKey)) {
+					if (abil.onDamageDelayed(event, enemy)) {
+						MetadataUtils.checkOnceThisTick(mPlugin, player, metaKey);
+					}
+				}
 			}
 		}
 	}

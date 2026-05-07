@@ -19,7 +19,7 @@ public final class BlastResistBoss extends BossAbilityGroup {
 	@Override
 	public void onHurt(DamageEvent event) {
 		if (event.getType() == DamageType.BLAST) {
-			event.setFlatDamage(event.getFlatDamage() * 0.1);
+			event.updateFinalMultiplier(0.1);
 		}
 	}
 }

@@ -51,14 +51,14 @@ public class StatMultiplierBoss extends BossAbilityGroup {
 			// Abilities from delve modifiers only scale based on points, and not from stat compensation or region scaling (they have their own region scaling)
 			if (DelvesUtils.isDelveMob(mBoss)) {
 				// Delve mobs get point and region scaling
-				event.setFlatDamage(event.getDamage() * mDamageRegionStatMult);
+				event.updateFinalMultiplier(mDamageRegionStatMult);
 			} else {
 				// Other entity damage gets scaled according to stat compensation as well as points
-				event.setFlatDamage(event.getDamage() * mDamageStatMult);
+				event.updateFinalMultiplier(mDamageStatMult);
 			}
 
 		}
 
-		event.setFlatDamage(event.getDamage() * mDamageMultiplier);
+		event.updateFinalMultiplier(mDamageMultiplier);
 	}
 }

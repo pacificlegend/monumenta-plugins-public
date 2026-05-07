@@ -151,7 +151,7 @@ public class CoreElemental extends Quarry {
 	@Override
 	public void onDamage(DamageEvent event, LivingEntity damagee) {
 		if (mCoreInstability.mUnstable > 0 && event.getType() == DamageEvent.DamageType.MELEE) {
-			event.setFlatDamage(0);
+			event.setBaseDamage(0);
 		}
 	}
 

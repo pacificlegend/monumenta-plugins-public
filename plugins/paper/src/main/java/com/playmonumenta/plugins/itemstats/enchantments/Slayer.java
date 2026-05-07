@@ -38,7 +38,7 @@ public class Slayer implements Enchantment {
 	public void onDamage(Plugin plugin, Player player, double level, DamageEvent event, LivingEntity enemy) {
 		boolean isProjectile = event.getType() == DamageType.PROJECTILE;
 		if (isProjectile || event.getType() == DamageType.MELEE) {
-			event.setFlatDamage(event.getFlatDamage() + calculateSlayerDamage(isProjectile, player, level, enemy));
+			event.addBaseDamage(calculateSlayerDamage(isProjectile, player, level, enemy));
 		}
 	}
 

@@ -5,10 +5,12 @@ import com.playmonumenta.plugins.effects.PercentDamageReceived;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.gallery.GalleryPlayer;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import java.util.EnumSet;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public class GalleryExecutionerRageEffect extends GalleryConsumableEffect {
+	public static final EnumSet<DamageEvent.DamageType> AFFECTED_TYPES = DamageEvent.DamageType.getAllMeleeTypes();
 	/**
 	 * - Your melee attacks deal 30% more damage to targets not at full health,
 	 * killing an enemy with a melee attack grants you 20% Resistance for 3s  lasting 3 waves
@@ -22,14 +24,14 @@ public class GalleryExecutionerRageEffect extends GalleryConsumableEffect {
 
 	@Override
 	public void onPlayerDamage(GalleryPlayer galleryPlayer, DamageEvent event, LivingEntity entity) {
-		if (event.getType() == DamageEvent.DamageType.MELEE || event.getType() == DamageEvent.DamageType.MELEE_ENCH || event.getType() == DamageEvent.DamageType.MELEE_SKILL) {
+		if (AFFECTED_TYPES.contains(event.getType())) {
 			Player player = galleryPlayer.getPlayer();
 			if (player == null) {
 				return;
 			}
 			double maxHealth = EntityUtils.getMaxHealth(entity);
 			if (entity.getHealth() < maxHealth) {
-				event.updateDamageWithMultiplier(MELEE_DAMAGE_INCREASE);
+				event.updateDamageWithMultiplier(MELEE_DAMAGE_INCREASE, AFFECTED_TYPES);
 			}
 
 			if (entity.getHealth() + entity.getAbsorptionAmount() <= event.getFinalDamage(true)) {

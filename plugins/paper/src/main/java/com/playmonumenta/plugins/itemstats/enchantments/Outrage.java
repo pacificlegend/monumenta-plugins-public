@@ -7,6 +7,7 @@ import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
+import java.util.EnumSet;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -18,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class Outrage implements Enchantment {
 	private static final double DAMAGE_INCREASE = 0.002;
+	public static final EnumSet<DamageEvent.DamageType> AFFECTED_TYPES = DamageEvent.DamageType.getScalableDamageType();
 
 	@Override
 	public EnchantmentType getEnchantmentType() {
@@ -31,13 +33,7 @@ public class Outrage implements Enchantment {
 
 	@Override
 	public void onDamage(Plugin plugin, Player player, double value, DamageEvent event, LivingEntity enemy) {
-
-		DamageEvent.DamageType type = event.getType();
-		if (type == DamageEvent.DamageType.AILMENT
-			|| type == DamageEvent.DamageType.FALL
-			|| type == DamageEvent.DamageType.OTHER
-			|| type == DamageEvent.DamageType.TRUE
-		) {
+		if (!AFFECTED_TYPES.contains(event.getType())) {
 			return;
 		}
 
@@ -49,8 +45,7 @@ public class Outrage implements Enchantment {
 		double damageMultiplier = missingHealthPercentAboveLimit * value * DAMAGE_INCREASE;
 		damageMultiplier += 2 * missingHealthPercentBelowLimit * value * DAMAGE_INCREASE;
 
-		event.updateGearDamageWithMultiplier(1 + damageMultiplier);
-
+		event.updateGearDamageWithMultiplier(1 + damageMultiplier, AFFECTED_TYPES);
 	}
 
 	@Override

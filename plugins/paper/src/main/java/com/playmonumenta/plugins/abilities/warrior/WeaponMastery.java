@@ -16,6 +16,7 @@ import com.playmonumenta.plugins.itemstats.enchantments.SweepingEdge;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import java.util.EnumSet;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -40,6 +41,7 @@ public class WeaponMastery extends Ability {
 	private static final int SWORD_WEAKEN_DURATION = 4 * 20;
 	private static final double AXE_SPEED = 0.15;
 	private static final String SPEED_EFFECT = "WeaponMasterySpeedEffect";
+	private static final EnumSet<DamageType> AFFECTED_TYPES = EnumSet.of(DamageType.MELEE, DamageType.MELEE_ENCH);
 
 	public static final String CHARM_REDUCTION = "Weapon Mastery Damage Reduction";
 	public static final String CHARM_WEAKEN = "Weapon Mastery Weaken";
@@ -80,7 +82,7 @@ public class WeaponMastery extends Ability {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		if (event.getType() == DamageType.MELEE || event.getType() == DamageType.MELEE_ENCH) {
+		if (AFFECTED_TYPES.contains(event.getType())) {
 			double flatDamageRatio = 1;
 			if (event.getType() == DamageType.MELEE_ENCH) {
 				if (event.getAbility() == ClassAbility.ARCANE_THRUST) {
@@ -93,12 +95,12 @@ public class WeaponMastery extends Ability {
 			}
 			ItemStack mainHand = mPlayer.getInventory().getItemInMainHand();
 			if (ItemUtils.isAxe(mainHand)) {
-				event.addUnmodifiableDamage(flatDamageRatio * mDamageBonusAxeFlat);
-				event.updateDamageWithMultiplier(1 + mDamageBonusAxe);
+				event.addFinalDamage(flatDamageRatio * mDamageBonusAxeFlat, AFFECTED_TYPES);
+				event.updateDamageWithMultiplier(1 + mDamageBonusAxe, AFFECTED_TYPES);
 				mCosmetic.weaponMasteryAxeHit(mPlayer);
 			} else if (ItemUtils.isSword(mainHand)) {
-				event.addUnmodifiableDamage(flatDamageRatio * mDamageBonusSwordFlat);
-				event.updateDamageWithMultiplier(1 + mDamageBonusSword);
+				event.addFinalDamage(flatDamageRatio * mDamageBonusSwordFlat, AFFECTED_TYPES);
+				event.updateDamageWithMultiplier(1 + mDamageBonusSword, AFFECTED_TYPES);
 				mCosmetic.weaponMasterySwordHit(mPlayer);
 				if (isEnhanced()) {
 					EntityUtils.applyWeaken(mPlugin, mWeakenDuration, mWeaken, enemy);
@@ -122,7 +124,7 @@ public class WeaponMastery extends Ability {
 			return;
 		}
 		if (ItemUtils.isSword(mPlayer.getInventory().getItemInMainHand())) {
-			event.setFlatDamage(event.getDamage() * (1 - mDamageReduction));
+			event.updateFinalMultiplier(1 - mDamageReduction);
 		}
 	}
 

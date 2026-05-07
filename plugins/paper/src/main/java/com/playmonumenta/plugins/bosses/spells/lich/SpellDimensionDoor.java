@@ -358,7 +358,7 @@ public class SpellDimensionDoor extends Spell {
 			com.playmonumenta.plugins.Plugin.getInstance().mEffectManager.clearEffects(p, Lich.curseSource);
 		} else {
 			t = 20 * 10;
-			DamageUtils.damage(mBoss, p, DamageType.OTHER, 1);
+			DamageUtils.damage(mBoss, p, DamageType.TRUE, 1);
 			com.playmonumenta.plugins.Plugin.getInstance().mEffectManager.addEffect(p, "LichDimensionDoorWeakness",
 				new PercentDamageDealt(TICKS_PER_SECOND * 30, -0.2));
 			Lich.cursePlayer(p);
@@ -429,7 +429,7 @@ public class SpellDimensionDoor extends Spell {
 
 						p.sendMessage(Component.text("Something feels different. The shadows aren't clinging to me anymore.", NamedTextColor.AQUA));
 					} else {
-						DamageUtils.damage(mBoss, p, DamageType.OTHER, 1);
+						DamageUtils.damage(mBoss, p, DamageType.TRUE, 1);
 						p.playSound(p.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_HURT, SoundCategory.HOSTILE, 1, 1);
 					}
 				}

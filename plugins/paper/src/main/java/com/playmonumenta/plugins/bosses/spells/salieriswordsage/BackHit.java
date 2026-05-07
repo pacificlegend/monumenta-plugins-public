@@ -56,7 +56,7 @@ public class BackHit extends Spell {
 		if (damagee instanceof Player player && entityBehindPlayer(mBoss, player) && event.getType() == DamageEvent.DamageType.MELEE_SKILL) {
 			World world = mBoss.getWorld();
 
-			event.setFlatDamage(event.getDamage() * mDamageMultiplier);
+			event.updateFinalMultiplier(mDamageMultiplier);
 
 			if (!mWarned.contains(player)) {
 				MessagingUtils.sendNPCMessage(player, "Salieri", Component.text("You're being careless, never leave your back exposed.", NamedTextColor.DARK_RED));

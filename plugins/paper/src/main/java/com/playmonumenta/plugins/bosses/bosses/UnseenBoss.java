@@ -35,7 +35,7 @@ public class UnseenBoss extends BossAbilityGroup {
 
 		if (damagee instanceof Player player && !EntityUtils.isInFieldOfView(player, mBoss)) {
 			player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, SoundCategory.HOSTILE, 1f, 0.8f);
-			event.setFlatDamage(event.getDamage() * mParam.DAMAGE_INCREASE);
+			event.updateFinalMultiplier(mParam.DAMAGE_INCREASE);
 		}
 	}
 }

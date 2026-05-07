@@ -81,7 +81,7 @@ public class Trivium implements Enchantment {
 					double gearDamageMultiplier = e.getGearDamageMultiplier();
 					double multiplierWithTrivium = gearDamageMultiplier + (DAMAGE_PER_LEVEL * value);
 					double multiplier = multiplierWithTrivium / gearDamageMultiplier - 1;
-					DamageUtils.damage(p, e.getDamagee(), DamageEvent.DamageType.TRUE, e.getDamage() * multiplier, null, true, false);
+					DamageUtils.damage(p, e.getDamagee(), DamageEvent.DamageType.UNSCALABLE_ENCH, e.getDamage() * multiplier, null, true, false);
 				}
 				// Find the average location of all entities hit
 				loc.multiply((double) 1 / eventList.size());

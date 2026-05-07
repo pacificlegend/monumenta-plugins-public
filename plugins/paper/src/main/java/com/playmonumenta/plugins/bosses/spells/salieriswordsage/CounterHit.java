@@ -144,7 +144,9 @@ public class CounterHit extends Spell {
 		// If the damage type is possibly a Damage Over Time effect, its damage must be higher than a certain value in order to trigger the counter
 		final EnumSet<DamageEvent.DamageType> POSSIBLE_DOT = EnumSet.of(
 			DamageEvent.DamageType.MAGIC,
-			DamageEvent.DamageType.OTHER,
+			DamageEvent.DamageType.UNSCALABLE,
+			DamageEvent.DamageType.UNSCALABLE_SKILL,
+			DamageEvent.DamageType.UNSCALABLE_ENCH,
 			DamageEvent.DamageType.FIRE
 		);
 		// Return if the damage instance isn't a player, if it hasn't been long enough since the last counter, if a spell is currently active, if the boss would be dead after the hit, or if it's a low-damage DOT

@@ -5,6 +5,7 @@ import com.playmonumenta.plugins.cosmetics.skills.warlock.SanguineHarvestCS;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
+import java.util.EnumSet;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -47,7 +48,7 @@ public class SanguineMark extends Effect {
 		if (mLevelTwo && event.getDamager() instanceof Player player && event.getType() == DamageEvent.DamageType.MELEE && mDuration != 0) {
 			mCosmetic.onHurt(livingEntity, player);
 
-			event.updateDamageWithMultiplier(1 + mDamageBoost);
+			event.updateDamageWithMultiplier(1 + mDamageBoost, EnumSet.of(DamageEvent.DamageType.MELEE));
 
 			double maxHealth = EntityUtils.getMaxHealth(player);
 			PlayerUtils.healPlayer(mPlugin, player, mHealPercent * maxHealth, mPlayer);

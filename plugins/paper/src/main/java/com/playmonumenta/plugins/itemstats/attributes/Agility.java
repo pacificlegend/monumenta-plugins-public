@@ -35,7 +35,7 @@ public class Agility implements Attribute {
 			double damageMultiplier = Armor.getDamageMultiplier(0, Armor.getSecondaryEnchantsMod(event, plugin, player),
 				value, getSecondaryEnchantsLevel(event, plugin, player),
 				Armor.getSecondaryEnchantCap(player), Armor.getSecondaryEHPMultiplier(player), adaptability, 0, event.getType().getDefenseModifier());
-			event.setFlatDamage(event.getDamage() * damageMultiplier);
+			event.updateFinalMultiplier(damageMultiplier);
 		}
 	}
 

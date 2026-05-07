@@ -169,7 +169,7 @@ public class GenericTowerMob extends TowerAbility {
 							for (AttributeModifier mod : modifiers) {
 								realDamage += mod.getAmount();
 							}
-							event.setFlatDamage(realDamage);
+							event.setBaseDamage(realDamage);
 						}
 					}
 				}

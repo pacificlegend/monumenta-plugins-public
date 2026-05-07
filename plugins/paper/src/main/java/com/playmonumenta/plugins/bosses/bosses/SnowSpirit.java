@@ -23,6 +23,7 @@ import com.playmonumenta.plugins.utils.PlayerUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -287,7 +288,7 @@ public class SnowSpirit extends SerializedLocationBossAbilityGroup {
 			ItemStack helmet = player.getInventory().getHelmet();
 			if (ItemUtils.getPlainName(helmet).contains("The Grinch")) {
 				Location loc = mBoss.getLocation();
-				event.updateDamageWithMultiplier(1.2);
+				event.updateDamageWithMultiplier(1.2, EnumSet.allOf(DamageEvent.DamageType.class));
 				player.playSound(loc, Sound.ENTITY_WITHER_SHOOT, SoundCategory.HOSTILE, 0.75f, 1.65f);
 				player.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.HOSTILE, 0.75f, 0.5f);
 			}

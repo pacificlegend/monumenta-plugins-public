@@ -6,12 +6,14 @@ import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.Infusion;
 import com.playmonumenta.plugins.itemstats.enums.InfusionType;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
+import java.util.EnumSet;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public class Vigor implements Infusion {
 
 	public static final double[] DAMAGE_FOR_REGION = {0.01, 0.0125, 0.015}; // r1, r2, r3
+	public static final EnumSet<DamageType> AFFECTED_TYPES = DamageType.getAllMeleeTypes();
 
 	@Override
 	public String getName() {
@@ -31,9 +33,9 @@ public class Vigor implements Infusion {
 	@Override
 	public void onDamage(Plugin plugin, Player player, double value, DamageEvent event, LivingEntity enemy) {
 		DamageEvent.DamageType type = event.getType();
-		if (DamageType.getAllMeleeTypes().contains(type)) {
+		if (AFFECTED_TYPES.contains(type)) {
 			double damageBuffPct = value * getDamageForRegion(player);
-			event.updateGearDamageWithMultiplier(1.0 + damageBuffPct);
+			event.updateGearDamageWithMultiplier(1.0 + damageBuffPct, AFFECTED_TYPES);
 		}
 	}
 

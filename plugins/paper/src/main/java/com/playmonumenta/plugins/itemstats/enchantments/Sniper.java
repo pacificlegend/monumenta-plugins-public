@@ -49,7 +49,7 @@ public class Sniper implements Enchantment {
 				bowDraw = PlayerUtils.calculateBowDraw(arrow);
 			}
 
-			event.setFlatDamage(event.getFlatDamage() + bowDraw * apply(player, target, level));
+			event.addBaseDamage(bowDraw * apply(player, target, level));
 		}
 	}
 

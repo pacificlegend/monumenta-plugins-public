@@ -8,7 +8,7 @@ import com.playmonumenta.plugins.abilities.FormattedDescriptionBuilder;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.guis.SnowPerkGui;
-import com.playmonumenta.plugins.itemstats.enchantments.CritScaling;
+import com.playmonumenta.plugins.itemstats.attributes.AttackDamageAdd;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.AbilityUtils;
@@ -63,10 +63,10 @@ public class SnowLeopardClaw extends Ability {
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
 		if (event.getType() == DamageEvent.DamageType.MELEE && mPlayer.getCooledAttackStrength(0.5f) >= 0.9) {
 			// adapted from Brute Force
-			double damage = SLASH_DAMAGE * event.getFlatDamage();
+			double damage = SLASH_DAMAGE * event.getBaseDamage();
 			if (event.getIsCrit()) {
 				boolean weaponHasCumbersome = ItemStatUtils.hasEnchantment(mPlayer.getInventory().getItemInMainHand(), EnchantmentType.CUMBERSOME);
-				damage *= weaponHasCumbersome ? 1 : CritScaling.CRIT_BONUS;
+				damage *= weaponHasCumbersome ? 1 : AttackDamageAdd.CRIT_BONUS;
 			}
 
 			slashFX(event.getDamagee(), 0);

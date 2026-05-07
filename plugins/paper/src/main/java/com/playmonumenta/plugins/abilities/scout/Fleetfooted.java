@@ -68,7 +68,7 @@ public class Fleetfooted extends Ability {
 	@Override
 	public void onHurt(DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
 		if (event.getType() == DamageEvent.DamageType.FALL) {
-			event.setFlatDamage(event.getDamage() * (1 - mFallDamageDR));
+			event.updateFinalMultiplier(1 - mFallDamageDR);
 		}
 	}
 

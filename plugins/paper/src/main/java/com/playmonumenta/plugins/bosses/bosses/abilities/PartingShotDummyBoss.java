@@ -38,7 +38,7 @@ public class PartingShotDummyBoss extends BossAbilityGroup {
 
 		Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
 			if (mBoss.isValid() && !mBoss.isDead()) {
-				DamageUtils.damage(null, mBoss, DamageEvent.DamageType.OTHER, 10000);
+				DamageUtils.damage(null, mBoss, DamageEvent.DamageType.TRUE, 10000);
 			}
 		}, duration);
 	}

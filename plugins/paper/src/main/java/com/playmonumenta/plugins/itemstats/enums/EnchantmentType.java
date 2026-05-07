@@ -203,10 +203,7 @@ public enum EnchantmentType {
 	DELETE_ON_SHATTER(null, "DeleteOnShatter", false, false, false, false),
 
 	// Crit Calcs (defaults to value of 1, always active. DO NOT GIVE TO PLAYERS VIA ENCHANT)
-	ANTI_CRIT_SCALING(new AntiCritScaling(), false, false, false, false),
-	CRIT_SCALING(new CritScaling(), false, false, false, false),
 	STRENGTH_APPLY(new StrengthApply(), false, false, false, false),
-	STRENGTH_CANCEL(new StrengthCancel(), false, false, false, false),
 
 	// Durability
 	UNBREAKING(Enchantment.DURABILITY, "Unbreaking", true, false, false, false),

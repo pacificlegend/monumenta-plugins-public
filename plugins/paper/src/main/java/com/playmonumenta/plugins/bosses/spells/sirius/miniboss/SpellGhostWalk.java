@@ -4,6 +4,7 @@ import com.playmonumenta.plugins.bosses.spells.Spell;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.managers.GlowingManager;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -88,7 +89,7 @@ public class SpellGhostWalk extends Spell {
 	public void onHurt(DamageEvent event) {
 		if (mGhost) {
 			if (event.getType() == DamageEvent.DamageType.MAGIC || (event.getType() == DamageEvent.DamageType.TRUE && event.getDamager() == null)) {
-				event.updateDamageWithMultiplier(1 + MAGIC_VULN);
+				event.updateDamageWithMultiplier(1 + MAGIC_VULN, EnumSet.of(DamageEvent.DamageType.MAGIC, DamageEvent.DamageType.TRUE));
 				super.onHurt(event);
 			} else {
 				event.setCancelled(true);

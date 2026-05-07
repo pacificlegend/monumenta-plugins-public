@@ -198,7 +198,7 @@ public class BossUtils {
 			if (adjustedHealth <= 0) {
 				// Kill the player, but allow totems to trigger
 				target.setNoDamageTicks(0);
-				DamageUtils.damage(boss, target, new DamageEvent.Metadata(DamageType.OTHER, null, null, cause), toTake, false, knockback, false);
+				DamageUtils.damage(boss, target, new DamageEvent.Metadata(DamageType.UNSCALABLE, null, null, cause), toTake, false, knockback, false);
 				return false;
 			} else {
 				double originalDamage = toTake;
@@ -225,7 +225,7 @@ public class BossUtils {
 				int noDamageTicks = target.getNoDamageTicks();
 				target.setNoDamageTicks(0);
 
-				DamageUtils.damage(boss, target, new DamageEvent.Metadata(DamageType.OTHER, null, null, cause), 0.001, false, knockback, false);
+				DamageUtils.damage(boss, target, new DamageEvent.Metadata(DamageType.UNSCALABLE, null, null, cause), 0.001, false, knockback, false);
 
 				if (noDamageTicks <= target.getMaximumNoDamageTicks() / 2f) {
 					// had iframes: increase iframes by dealt damage, but keep length

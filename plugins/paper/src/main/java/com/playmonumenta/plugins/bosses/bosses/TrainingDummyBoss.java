@@ -32,8 +32,6 @@ public class TrainingDummyBoss extends BossAbilityGroup {
 	private static final DecimalFormat cutoffDigits = new DecimalFormat("0.0####"); // number of 0s/#s determines maximum digits shown
 	private static final DecimalFormat holoDigits = new DecimalFormat("0.0"); // number of 0s/#s determines maximum digits shown
 
-	public static @Nullable DamageEvent.DamageType mNextTrueDamageReplacement = null;
-
 	private final Component HOLOGRAM_DEFAULT_NAME = Component.text("DPS (10s / Max): ", NamedTextColor.YELLOW)
 		.append(Component.text("???", NamedTextColor.DARK_AQUA))
 		.append(Component.text(" (", NamedTextColor.YELLOW))
@@ -96,10 +94,6 @@ public class TrainingDummyBoss extends BossAbilityGroup {
 
 			DamageEvent.DamageType type = event.getType();
 			ClassAbility ability = event.getAbility();
-			if (mNextTrueDamageReplacement != null && type == DamageEvent.DamageType.TRUE && (ability == null || !ability.isFake())) {
-				type = mNextTrueDamageReplacement;
-			}
-			mNextTrueDamageReplacement = null;
 
 			if (mHologram == null) {
 				mHologram = (ArmorStand) mBoss.getWorld().spawnEntity(mBoss.getEyeLocation().add(0, 0.5, 0), EntityType.ARMOR_STAND);
@@ -138,7 +132,7 @@ public class TrainingDummyBoss extends BossAbilityGroup {
 				Component hover = hoverDamage.append(hoverType).append(hoverAbility).append(hoverMob).append(hoverTimestamp);
 
 				player.sendMessage(Component.text("Damage: ", NamedTextColor.GOLD)
-					.append(Component.text(damageString + " " + getTypeSymbol(type), NamedTextColor.RED))
+					.append(Component.text(damageString + " " + type.getSymbol(), NamedTextColor.RED))
 					.hoverEvent(HoverEvent.showText(hover)));
 
 				mDamageInstances.add(new DamageInstance(currentTick, damage));
@@ -191,16 +185,6 @@ public class TrainingDummyBoss extends BossAbilityGroup {
 			damageString = cutoffDigits.format(damage);
 		}
 		return damageString;
-	}
-
-	private static String getTypeSymbol(DamageEvent.DamageType type) {
-		return switch (type) {
-			case MELEE, MELEE_SKILL, MELEE_ENCH -> "🗡";
-			case PROJECTILE, PROJECTILE_SKILL, PROJECTILE_ENCH -> "🏹";
-			case MAGIC -> "⭐";
-			case AILMENT -> "☠";
-			default -> "";
-		};
 	}
 
 

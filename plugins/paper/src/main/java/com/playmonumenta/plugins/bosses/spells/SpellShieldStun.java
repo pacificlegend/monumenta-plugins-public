@@ -38,7 +38,7 @@ public class SpellShieldStun extends Spell {
 				int finalStunTicks = Sturdy.updateStunCooldown(mStunTicks, Plugin.getInstance().mItemStatManager.getInfusionLevel(player, InfusionType.STURDY));
 				NmsUtils.getVersionAdapter().stunShield(player, finalStunTicks);
 				player.playSound(player.getLocation(), Sound.ITEM_SHIELD_BREAK, 0.8f, 0.8f + FastUtils.RANDOM.nextFloat() * 0.4F);
-				event.setFlatDamage(0);
+				event.setBaseDamage(0);
 			} else if (Shielding.doesShieldingApply(player, damagee) && event.getDamage() > 0) {
 				Shielding.disable(player);
 			}

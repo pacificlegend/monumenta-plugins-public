@@ -304,7 +304,7 @@ public class Samwell extends BossAbilityGroup {
 
 	@Override
 	public void onHurt(DamageEvent event) {
-		event.setFlatDamage(event.getFlatDamage() / mDefenseScaling);
+		event.updateFinalMultiplier(1 / mDefenseScaling);
 	}
 
 	@Override
@@ -359,7 +359,7 @@ public class Samwell extends BossAbilityGroup {
 			}
 
 			// Lower damage so game breaking builds can't realistically ruin this
-			event.setFlatDamage(event.getFlatDamage() * 0.1);
+			event.updateFinalMultiplier(0.1);
 		} else if (!mPhase4Damaged) {
 			Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
 				if (mDefeated) {

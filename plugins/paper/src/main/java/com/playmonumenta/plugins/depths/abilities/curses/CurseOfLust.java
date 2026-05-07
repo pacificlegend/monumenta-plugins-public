@@ -10,6 +10,7 @@ import com.playmonumenta.plugins.depths.abilities.DepthsAbility;
 import com.playmonumenta.plugins.depths.abilities.DepthsAbilityInfo;
 import com.playmonumenta.plugins.depths.abilities.DepthsTrigger;
 import com.playmonumenta.plugins.events.DamageEvent;
+import java.util.EnumSet;
 import java.util.Objects;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
@@ -20,6 +21,7 @@ public class CurseOfLust extends DepthsAbility {
 	public static final int MIN_BLOCKS = 7;
 	public static final int MAX_BLOCKS = 17;
 	public static final double DAMAGE_REDUCTION_PER_BLOCK = 0.08;
+	public static final EnumSet<DamageEvent.DamageType> AFFECTED_TYPES = DamageEvent.DamageType.getScalableDamageType();
 
 	public static final DepthsAbilityInfo<CurseOfLust> INFO =
 		new DepthsAbilityInfo<>(CurseOfLust.class, ABILITY_NAME, CurseOfLust::new, DepthsTree.CURSE, DepthsTrigger.PASSIVE)
@@ -32,7 +34,7 @@ public class CurseOfLust extends DepthsAbility {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		if (DamageEvent.DamageType.getScalableDamageType().contains(event.getType())) {
+		if (AFFECTED_TYPES.contains(event.getType())) {
 			DepthsParty party = DepthsManager.getInstance().getDepthsParty(mPlayer);
 			if (party == null) {
 				return false;
@@ -45,7 +47,7 @@ public class CurseOfLust extends DepthsAbility {
 				.min().orElse(0);
 			if (closestSquared >= MIN_BLOCKS * MIN_BLOCKS) {
 				double mult = 1 - DAMAGE_REDUCTION_PER_BLOCK * (Math.min(Math.sqrt(closestSquared), MIN_BLOCKS + MAX_BLOCKS) - MIN_BLOCKS);
-				event.updateDamageWithMultiplier(mult);
+				event.updateDamageWithMultiplier(mult, AFFECTED_TYPES);
 			}
 		}
 		return false;

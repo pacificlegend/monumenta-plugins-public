@@ -24,6 +24,9 @@ public class Versatility implements Enchantment {
 	private static final String VERSATILITY_MAGIC_NAME = "MagicVersatilityEffect";
 	private static final int PAST_HIT_DURATION_TIME = 20 * 60;
 	private static final double DAMAGE_PER_LEVEL = 0.1;
+	public static final EnumSet<DamageType> MELEE_TYPES = DamageType.getAllMeleeTypes();
+	public static final EnumSet<DamageType> PROJECTILE_TYPES = DamageType.getAllProjectileTypes();
+	public static final EnumSet<DamageType> MAGIC_TYPES = EnumSet.of(DamageType.MAGIC);
 
 	@Override
 	public EnchantmentType getEnchantmentType() {
@@ -46,20 +49,20 @@ public class Versatility implements Enchantment {
 		NavigableSet<Effect> melee = plugin.mEffectManager.getEffects(player, VERSATILITY_MELEE_NAME);
 		NavigableSet<Effect> proj = plugin.mEffectManager.getEffects(player, VERSATILITY_PROJ_NAME);
 		NavigableSet<Effect> magic = plugin.mEffectManager.getEffects(player, VERSATILITY_MAGIC_NAME);
-		if (type == DamageType.MELEE || type == DamageType.MELEE_ENCH || type == DamageType.MELEE_SKILL) {
+		if (MELEE_TYPES.contains(type)) {
 			if (proj != null || magic != null) {
 				double bonus = DAMAGE_PER_LEVEL * level;
-				event.updateGearDamageWithMultiplier(1 + bonus);
+				event.updateGearDamageWithMultiplier(1 + bonus, MELEE_TYPES);
 
 				audioVisuals(player, enemy);
 			}
 
 			clearEffects(plugin, player);
 			plugin.mEffectManager.addEffect(player, VERSATILITY_MELEE_NAME, new OnHitTimerEffect(PAST_HIT_DURATION_TIME));
-		} else if (type == DamageType.PROJECTILE || type == DamageType.PROJECTILE_ENCH || type == DamageType.PROJECTILE_SKILL) {
+		} else if (PROJECTILE_TYPES.contains(type)) {
 			if (melee != null || magic != null) {
 				double bonus = DAMAGE_PER_LEVEL * level;
-				event.updateGearDamageWithMultiplier(1 + bonus);
+				event.updateGearDamageWithMultiplier(1 + bonus, PROJECTILE_TYPES);
 
 				audioVisuals(player, enemy);
 			}
@@ -69,7 +72,7 @@ public class Versatility implements Enchantment {
 		} else if (type == DamageType.MAGIC) {
 			if (proj != null || melee != null) {
 				double bonus = DAMAGE_PER_LEVEL * level;
-				event.updateGearDamageWithMultiplier(1 + bonus);
+				event.updateGearDamageWithMultiplier(1 + bonus, MAGIC_TYPES);
 
 				audioVisuals(player, enemy);
 			}

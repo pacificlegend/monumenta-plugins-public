@@ -47,7 +47,7 @@ public final class Regicide implements Enchantment {
 		final DamageType type = event.getType();
 		if (AFFECTED_DAMAGE_TYPES.contains(type)) {
 			final double mult = (EntityUtils.isElite(target) || EntityUtils.isBoss(target)) ? (1 + DAMAGE_BONUS_PER_LEVEL * level) : 1;
-			event.updateGearDamageWithMultiplier(mult);
+			event.updateGearDamageWithMultiplier(mult, AFFECTED_DAMAGE_TYPES);
 			if (mult > 1 && type == DamageType.MELEE) {
 				target.getWorld().playSound(target.getLocation(), Sound.ITEM_AXE_SCRAPE, SoundCategory.PLAYERS, 0.8f, 0.7f);
 			}

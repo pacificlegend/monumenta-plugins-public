@@ -55,7 +55,7 @@ public class HexEater implements Enchantment {
 	public void onDamage(Plugin plugin, Player player, double value, DamageEvent event, LivingEntity enemy) {
 		int level = plugin.mItemStatManager.getEnchantmentLevel(player, EnchantmentType.HEX_EATER);
 		if (event.getType() == DamageType.MELEE || event.getType() == DamageType.PROJECTILE || event.getAbility() == ClassAbility.ALCHEMIST_POTION) {
-			event.setFlatDamage(event.getFlatDamage() + calculateHexDamage(plugin, event.getDamager() instanceof Projectile, player, level, enemy));
+			event.addBaseDamage(calculateHexDamage(plugin, event.getDamager() instanceof Projectile, player, level, enemy));
 		}
 	}
 

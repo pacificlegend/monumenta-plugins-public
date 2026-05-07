@@ -72,7 +72,7 @@ public class Pincushion implements Enchantment {
 				List<LivingEntity> nearbyMobs = EntityUtils.getNearbyMobs(location, RADIUS * 2);
 				BoundingBox box = BoundingBox.of(location, RADIUS, RADIUS, RADIUS);
 
-				double damage = event.getFlatDamage() * value * DAMAGE_PERCENTAGE_PER_LEVEL;
+				double damage = event.getBaseDamage() * value * DAMAGE_PERCENTAGE_PER_LEVEL;
 
 				Location enemyLoc = enemy.getEyeLocation();
 				for (LivingEntity mob : nearbyMobs) {

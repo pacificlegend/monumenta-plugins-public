@@ -106,17 +106,17 @@ public class GearDamageIncrease extends Effect {
 		return mAmount > 0;
 	}
 
+	public EnumSet<DamageType> getAffectedDamageTypes() {
+		return mAffectedDamageTypes == null ? DamageType.getScalableDamageType() : mAffectedDamageTypes;
+	}
+
 	@Override
 	public void onDamage(final LivingEntity entity, final DamageEvent event, final LivingEntity enemy) {
-		if (event.getType() == DamageType.TRUE) {
-			return;
-		}
 		if (mPredicate != null && !mPredicate.test(entity, enemy)) {
 			return;
 		}
-		if (mAffectedDamageTypes == null
-			|| mAffectedDamageTypes.contains(event.getType())) {
-			event.updateGearDamageWithMultiplier(Math.max(0, 1 + mAmount));
+		if (getAffectedDamageTypes().contains(event.getType())) {
+			event.updateGearDamageWithMultiplier(Math.max(0, 1 + mAmount), getAffectedDamageTypes());
 		}
 	}
 

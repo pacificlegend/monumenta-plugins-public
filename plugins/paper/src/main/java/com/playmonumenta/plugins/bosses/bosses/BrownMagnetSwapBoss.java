@@ -145,12 +145,12 @@ public final class BrownMagnetSwapBoss extends BossAbilityGroup {
 			if (mIsPositive) {
 				// Positively charged, does less damage when player negative
 				if (ScoreboardUtils.checkTag(player, BrownPolarityDisplay.NEGATIVE_TAG)) {
-					event.setFlatDamage(event.getDamage() * mPlayerResist);
+					event.updateFinalMultiplier(mPlayerResist);
 				}
 			} else {
 				// Negatively charged, does less damage when player positive
 				if (ScoreboardUtils.checkTag(player, BrownPolarityDisplay.POSITIVE_TAG)) {
-					event.setFlatDamage(event.getDamage() * mPlayerResist);
+					event.updateFinalMultiplier(mPlayerResist);
 				}
 			}
 		}
@@ -163,13 +163,13 @@ public final class BrownMagnetSwapBoss extends BossAbilityGroup {
 			if (mIsPositive) {
 				// Positively charged, dealt more damage when player negative
 				if (ScoreboardUtils.checkTag(player, BrownPolarityDisplay.NEGATIVE_TAG)) {
-					event.setFlatDamage(event.getFlatDamage() * mBossVuln);
+					event.updateFinalMultiplier(mBossVuln);
 					playAesthetic();
 				}
 			} else {
 				// Negatively charged, dealt more damage when player positive
 				if (ScoreboardUtils.checkTag(player, BrownPolarityDisplay.POSITIVE_TAG)) {
-					event.setFlatDamage(event.getFlatDamage() * mBossVuln);
+					event.updateFinalMultiplier(mBossVuln);
 					playAesthetic();
 				}
 			}

@@ -84,9 +84,7 @@ public class Impact implements Enchantment {
 		) {
 			return;
 		}
-		if (AbilityUtils.isChargedAspectTriggeringEvent(event, player)
-			|| event.getType() == DamageEvent.DamageType.TRUE // I hate the projectile iframe system, can we please just remove them
-		) {
+		if (AbilityUtils.isChargedAspectTriggeringEvent(event, player)) {
 			mDamageInTick.computeIfAbsent(player, key -> new ImpactInstance(value, plugin)).addEvent(enemy, event);
 		} else {
 			return;
@@ -214,7 +212,7 @@ public class Impact implements Enchantment {
 
 		double finalDamage = originalDamage * DAMAGE_PER_LEVEL * level;
 
-		DamageUtils.damage(player, target, DamageEvent.DamageType.TRUE, finalDamage, ClassAbility.IMPACT, true);
+		DamageUtils.damage(player, target, DamageEvent.DamageType.UNSCALABLE_ENCH, finalDamage, ClassAbility.IMPACT, true);
 
 		World world = target.getWorld();
 		world.playSound(target.getLocation(), Sound.ENTITY_BLAZE_HURT, SoundCategory.PLAYERS, 1.5f, 1.35f);

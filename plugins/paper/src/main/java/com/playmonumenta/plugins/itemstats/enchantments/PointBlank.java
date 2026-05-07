@@ -50,7 +50,7 @@ public class PointBlank implements Enchantment {
 				effectiveness = PlayerUtils.calculateBowDraw(arrow);
 			}
 
-			event.setFlatDamage(event.getFlatDamage() + effectiveness * apply(player, target, level));
+			event.addBaseDamage(effectiveness * apply(player, target, level));
 		}
 	}
 

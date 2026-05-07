@@ -13,7 +13,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class RegionScalingDamageTaken implements Enchantment {
@@ -42,10 +41,7 @@ public class RegionScalingDamageTaken implements Enchantment {
 		if (event.getType() == DamageEvent.DamageType.FALL || event.getType() == DamageEvent.DamageType.TRUE) {
 			return;
 		}
-		event.setFlatDamage(event.getDamage() * DAMAGE_TAKEN_MULTIPLIER[Math.max(0, Math.min((int) value, DAMAGE_TAKEN_MULTIPLIER.length - 1))]);
-		if (event.getCause() == EntityDamageEvent.DamageCause.POISON) {
-			event.setFlatDamage(Math.min(event.getDamage(), Math.max(player.getHealth() - 1, 0)));
-		}
+		event.updateFinalMultiplier(DAMAGE_TAKEN_MULTIPLIER[Math.clamp((int) value, 0, DAMAGE_TAKEN_MULTIPLIER.length - 1)]);
 	}
 
 	@Override

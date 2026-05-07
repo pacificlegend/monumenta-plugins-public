@@ -189,7 +189,7 @@ public final class HeavenlyBoon extends Ability implements KillTriggeredAbility 
 	}
 
 	@Override
-	public boolean onDamage(final DamageEvent event, final LivingEntity enemy) {
+	public boolean onDamageDelayed(final DamageEvent event, final LivingEntity enemy) {
 		if (event.getType().equals(DamageType.TRUE)) {
 			return false; // don't count true damage
 		}

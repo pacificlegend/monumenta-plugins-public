@@ -23,17 +23,20 @@ public class StrengthApply implements Enchantment {
 	}
 
 	@Override
+	public double getDefaultValue() {
+		return 1;
+	}
+
+	@Override
 	public double getPriorityAmount() {
 		return 1001; // after default item stats to multiply most damage
 	}
 
 	@Override
 	public void onDamage(Plugin plugin, Player player, double level, DamageEvent event, LivingEntity enemy) {
-		if (event.getType() != DamageEvent.DamageType.OTHER
-			&& event.getType() != DamageEvent.DamageType.TRUE
-			&& player.hasPotionEffect(PotionEffectType.INCREASE_DAMAGE)) {
+		if (player.hasPotionEffect(PotionEffectType.INCREASE_DAMAGE)) {
 			int potLevel = player.getPotionEffect(PotionEffectType.INCREASE_DAMAGE).getAmplifier();
-			event.updateDamageWithMultiplier(1 + (potLevel + 1) * DAMAGE_ADD_PER_LEVEL);
+			event.updateDamageWithMultiplier(1 + (potLevel + 1) * DAMAGE_ADD_PER_LEVEL, DamageEvent.DamageType.getScalableDamageType());
 		}
 	}
 }

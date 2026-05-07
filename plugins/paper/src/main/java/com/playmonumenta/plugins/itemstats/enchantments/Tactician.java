@@ -67,7 +67,7 @@ public final class Tactician implements Enchantment {
 		} else {
 			return;
 		}
-		event.updateGearDamageWithMultiplier(mult);
+		event.updateGearDamageWithMultiplier(mult, AFFECTED_DAMAGE_TYPES);
 		if (type == DamageType.MELEE) {
 			target.getWorld().playSound(target.getLocation(), Sound.BLOCK_NETHERITE_BLOCK_HIT, SoundCategory.PLAYERS, 0.8f, 0.55f);
 		}

@@ -53,7 +53,7 @@ public class CurseOfShrapnel implements Enchantment {
 				return;
 			}
 			new PartialParticle(Particle.VILLAGER_ANGRY, player.getLocation().add(0, 1, 0), 8, 0.4, 0.4, 0.4, 0.1).spawnAsPlayerActive(player);
-			DamageUtils.damage(null, player, DamageEvent.DamageType.TRUE, level * PICKAXE_DAMAGE, null, true, false);
+			DamageUtils.damage(null, player, DamageType.UNSCALABLE_ENCH, level * PICKAXE_DAMAGE, null, true, false);
 		}
 	}
 
@@ -61,7 +61,7 @@ public class CurseOfShrapnel implements Enchantment {
 	public void onProjectileLaunch(Plugin plugin, Player player, double level, ProjectileLaunchEvent event, Projectile proj) {
 		// need once per tick check for multishot and volley
 		if (MetadataUtils.checkOnceThisTick(plugin, player, "ShrapnelProjectileThisTick")) {
-			DamageUtils.damage(null, player, DamageType.TRUE, level * PROJECTILE_DAMAGE, null, true, false);
+			DamageUtils.damage(null, player, DamageType.UNSCALABLE_ENCH, level * PROJECTILE_DAMAGE, null, true, false);
 		}
 	}
 
@@ -71,7 +71,7 @@ public class CurseOfShrapnel implements Enchantment {
 			return;
 		}
 
-		DamageUtils.damage(null, player, DamageType.TRUE, level * MELEE_DAMAGE, null, true, false);
+		DamageUtils.damage(null, player, DamageType.UNSCALABLE_ENCH, level * MELEE_DAMAGE, null, true, false);
 	}
 
 }

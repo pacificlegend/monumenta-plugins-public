@@ -121,7 +121,7 @@ public class HolyJavelin extends Ability implements AbilityWithDuration {
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
 		if (getRemainingAbilityDuration() > 0 && event.getAbility() != null && event.getAbility() == ClassAbility.DIVINE_JUSTICE) {
-			event.updateDamageWithMultiplier(1 + mDJDamageBonus);
+			event.updateDamageWithMultiplier(1 + mDJDamageBonus, DamageType.getAllMagicTypes());
 			mRemainingPrimeDuration = 0;
 			ClientModHandler.updateAbility(mPlayer, ClassAbility.HOLY_JAVELIN);
 			return false;
@@ -131,7 +131,7 @@ public class HolyJavelin extends Ability implements AbilityWithDuration {
 			&& mCustomTriggers.getFirst().check(mPlayer, AbilityTrigger.Key.LEFT_CLICK)) {
 			double sharedPassiveDamage = 0;
 			if (mDivineJustice != null && Crusade.enemyTriggersAbilities(enemy)) {
-				sharedPassiveDamage += mDivineJustice.calculateDamage(event, true);
+				sharedPassiveDamage += mDivineJustice.calculateDamage(event);
 			}
 			execute(sharedPassiveDamage, enemy);
 		}

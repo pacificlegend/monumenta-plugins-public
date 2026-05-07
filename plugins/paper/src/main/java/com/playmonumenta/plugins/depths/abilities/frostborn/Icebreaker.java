@@ -14,6 +14,7 @@ import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.itemstats.enchantments.Inferno;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.PotionUtils;
+import java.util.EnumSet;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
@@ -24,6 +25,7 @@ public class Icebreaker extends DepthsAbility {
 	public static final String ABILITY_NAME = "Icebreaker";
 	public static final double[] ICE_DAMAGE = {0.20, 0.27, 0.33, 0.40, 0.46, 0.60};
 	public static final double[] EFFECT_DAMAGE = {0.10, 0.135, 0.165, 0.20, 0.23, 0.30};
+	public static final EnumSet<DamageEvent.DamageType> AFFECTED_TYPES = DamageEvent.DamageType.getScalableDamageType();
 
 	public static final DepthsAbilityInfo<Icebreaker> INFO =
 		new DepthsAbilityInfo<>(Icebreaker.class, ABILITY_NAME, Icebreaker::new, DepthsTree.FROSTBORN, DepthsTrigger.PASSIVE)
@@ -42,11 +44,10 @@ public class Icebreaker extends DepthsAbility {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		DamageEvent.DamageType type = event.getType();
-		if (type == DamageEvent.DamageType.TRUE || type == DamageEvent.DamageType.OTHER) {
+		if (!AFFECTED_TYPES.contains(event.getType())) {
 			return false;
 		}
-		event.updateDamageWithMultiplier(Math.max(getIceMultiplier(enemy), getDebuffMultiplier(enemy)));
+		event.updateDamageWithMultiplier(Math.max(getIceMultiplier(enemy), getDebuffMultiplier(enemy)), AFFECTED_TYPES);
 		return false; // only changes event damage
 	}
 

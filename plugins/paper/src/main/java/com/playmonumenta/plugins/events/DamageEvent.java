@@ -1,17 +1,23 @@
 package com.playmonumenta.plugins.events;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.playmonumenta.plugins.classes.ClassAbility;
+import com.playmonumenta.plugins.events.DamageEvent.DamageModifier.Stage;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.listeners.AuditListener;
 import com.playmonumenta.plugins.utils.ItemUtils;
 import com.playmonumenta.plugins.utils.MMLog;
+import it.unimi.dsi.fastutil.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EvokerFangs;
 import org.bukkit.entity.LivingEntity;
@@ -24,31 +30,36 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.projectiles.ProjectileSource;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DamageEvent extends Event implements Cancellable {
 
 	public enum DamageType {
-		MELEE(1, true, "Melee"),
-		MELEE_SKILL(1, true, "Melee Skill"),
-		MELEE_ENCH(1, true, "Melee Enchantment"),
-		PROJECTILE(1, true, "Projectile"),
-		PROJECTILE_SKILL(1, true, "Projectile Skill"),
-		PROJECTILE_ENCH(1, true, "Projectile Enchantment"),
-		MAGIC(1, true, "Magic"),
-		THORNS(1, true, "Thorns"),
-		BLAST(1, true, "Blast"),
-		FIRE(0.5, true, "Fire"),
-		FALL(0.5, true, "Fall"),
-		AILMENT(0, false, "Ailment"),
-		TRUE(0, false, "True"),
-		OTHER(0, false, "Other");
+		MELEE(1, true, "Melee", "🗡"),
+		MELEE_SKILL(1, true, "Melee Skill", "🗡"),
+		MELEE_ENCH(1, true, "Melee Enchantment", "🗡"),
+		PROJECTILE(1, true, "Projectile", "🏹"),
+		PROJECTILE_SKILL(1, true, "Projectile Skill", "🏹"),
+		PROJECTILE_ENCH(1, true, "Projectile Enchantment", "🏹"),
+		MAGIC(1, true, "Magic", "⭐"),
+		OTHER(1, true, "Other", ""),
+		THORNS(1, true, "Thorns", "\uD83C\uDF35"),
+		BLAST(1, true, "Blast", "\uD83D\uDCA5"),
+		FIRE(0.5, true, "Fire", "\uD83D\uDD25"),
+		FALL(0.5, false, "Fall", "☠"),
+		AILMENT(0, true, "Ailment", "☠"),
+		TRUE(0, false, "True", ""),
+		UNSCALABLE(0, false, "Unscalable", ""),
+		UNSCALABLE_SKILL(0, false, "Unscalable Skill", ""),
+		UNSCALABLE_ENCH(0, false, "Unscalable Enchantment", ""),
+		;
 
 		public static DamageType getType(DamageCause cause) {
 			// List every cause for completeness
 			return switch (cause) {
 				case WORLD_BORDER, CONTACT, MELTING, DROWNING, STARVATION, LIGHTNING, FALLING_BLOCK, CUSTOM, DRYOUT,
-				     FREEZE, CRAMMING, SONIC_BOOM, SUFFOCATION -> OTHER;
+				     FREEZE, CRAMMING, SONIC_BOOM, SUFFOCATION -> UNSCALABLE;
 				case ENTITY_ATTACK -> MELEE;
 				case ENTITY_SWEEP_ATTACK -> MELEE_ENCH;
 				case PROJECTILE -> PROJECTILE;
@@ -73,39 +84,58 @@ public class DamageEvent extends Event implements Cancellable {
 		}
 
 		private final double mDefenseModifier;
-		private final boolean mIsDefendable;
+		private final boolean mIsScalable;
 		private final String mDisplay;
+		private final String mSymbol;
 
-		DamageType(double defenseModifier, boolean isDefendable, String display) {
+		DamageType(double defenseModifier, boolean isScalable, String display, String symbol) {
 			mDefenseModifier = defenseModifier;
-			mIsDefendable = isDefendable;
+			mIsScalable = isScalable;
 			mDisplay = display;
+			mSymbol = symbol;
+		}
+
+
+		public boolean isDefendable() {
+			return mDefenseModifier > 0;
 		}
 
 		public double getDefenseModifier() {
 			return mDefenseModifier;
 		}
 
-		public boolean isDefendable() {
-			return mIsDefendable;
+		public boolean isScalable() {
+			return mIsScalable;
 		}
 
 		public String getDisplay() {
 			return mDisplay;
 		}
 
+		public String getSymbol() {
+			return mSymbol;
+		}
+
 		public static EnumSet<DamageType> getEnumSet() {
-			return EnumSet.copyOf(List.of(values()));
+			return EnumSet.allOf(DamageType.class);
+		}
+
+		public static EnumSet<DamageType> getNonTrueTypes() {
+			EnumSet<DamageType> enumSet = getEnumSet();
+			enumSet.remove(TRUE);
+			return enumSet;
 		}
 
 		public static EnumSet<DamageType> getScalableDamageType() {
 			EnumSet<DamageType> enumSet = getEnumSet();
-			enumSet.removeAll(getUnscalableDamageType());
+			enumSet.removeIf(damageType -> !damageType.isScalable());
 			return enumSet;
 		}
 
 		public static EnumSet<DamageType> getUnscalableDamageType() {
-			return EnumSet.of(AILMENT, FALL, OTHER, TRUE);
+			EnumSet<DamageType> enumSet = getEnumSet();
+			enumSet.removeIf(DamageType::isScalable);
+			return enumSet;
 		}
 
 		public static EnumSet<DamageType> getAllMeleeTypes() {
@@ -137,6 +167,42 @@ public class DamageEvent extends Event implements Cancellable {
 			EnumSet<DamageType> enumSet = getAllMeleeAndProjectileTypes();
 			enumSet.addAll(getAllMagicTypes());
 			return enumSet;
+		}
+	}
+
+	public record DamageModifier(double modifier, boolean multiplicative, Stage stage,
+								 EnumSet<DamageType> damageTypes) {
+		public enum Stage {
+			// NOTE: ordinal (definition order) decides priority!
+			BASE,
+			GEAR,
+			EFFECT_POSITIVE,
+			EFFECT_NEGATIVE,
+			CRITICAL,
+			FINAL,
+		}
+
+		public static DamageModifier add(double add, Stage stage, EnumSet<DamageType> damageTypes) {
+			return new DamageModifier(add, false, stage, damageTypes);
+		}
+
+		public static DamageModifier add(double add, Stage stage) {
+			return new DamageModifier(add, false, stage, EnumSet.allOf(DamageType.class));
+		}
+
+		public static DamageModifier percent(double add, Stage stage, EnumSet<DamageType> damageTypes) {
+			return new DamageModifier(add, true, stage, damageTypes);
+		}
+
+		public static DamageModifier percent(double add, Stage stage) {
+			return new DamageModifier(add, true, stage, EnumSet.allOf(DamageType.class));
+		}
+
+		@Override
+		public @NotNull String toString() {
+			return "modifier=%.2f, multiplicative=%s, stage=%s, simpleTypes=%s,\ndetailedTypes=%s".formatted(
+				modifier, multiplicative, stage, damageTypes.stream().map(DamageType::getSymbol).distinct().collect(Collectors.joining()), damageTypes
+			);
 		}
 	}
 
@@ -185,16 +251,13 @@ public class DamageEvent extends Event implements Cancellable {
 	private final @Nullable Entity mDamager;
 	private final @Nullable LivingEntity mSource;
 	private final EntityDamageEvent mEvent;
-
 	private final Metadata mMetadata;
+
 	private boolean mLifelineCancel;
+	private boolean mDirty = true;
 
 	private final double mOriginalDamage;
-	private double mDamageMultiplier = 1;
-	private double mGearDamageMultiplier = 1;
-	private double mDamageReductionMultiplier = 1;
-	private double mFlatDamage;
-	private double mUnmodifiableDamage = 0;
+	private final Multimap<Stage, DamageModifier> mDamageModifiers;
 	private @Nullable Double mDamageCap = null;
 	private boolean mIsCrit = false;
 
@@ -215,7 +278,8 @@ public class DamageEvent extends Event implements Cancellable {
 		mDamager = event instanceof EntityDamageByEntityEvent entityDamageByEntityEvent ? entityDamageByEntityEvent.getDamager() : null;
 		mMetadata = metadata;
 		mOriginalDamage = event.getDamage();
-		mFlatDamage = event.getDamage();
+		mDamageModifiers = Multimaps.newMultimap(new EnumMap<>(Stage.class), ArrayList::new);
+		setBaseDamage(event.getDamage());
 		mEvent = event;
 		mLifelineCancel = false;
 
@@ -236,8 +300,29 @@ public class DamageEvent extends Event implements Cancellable {
 		}
 	}
 
+	public void addDamageModifier(DamageModifier damageModifier) {
+		if (!damageModifier.damageTypes.contains(mMetadata.getType())) {
+			return;
+		}
+		mDirty = true;
+		mDamageModifiers.put(damageModifier.stage(), damageModifier);
+	}
+
+	public ImmutableMultimap<Stage, DamageModifier> damageModifiersCopy() {
+		return ImmutableMultimap.copyOf(mDamageModifiers);
+	}
+
+	// TODO: merge with getFinalDamage() after removing vanilla armor completely
 	public double getDamage() {
+		if (mDirty) {
+			mEvent.setDamage(recalculateDamage(null));
+			mDirty = false;
+		}
 		return mEvent.getDamage();
+	}
+
+	public double getFinalDamage(boolean includeAbsorption) {
+		return getFinalDamage(includeAbsorption, null);
 	}
 
 	/**
@@ -247,11 +332,15 @@ public class DamageEvent extends Event implements Cancellable {
 	 *
 	 * @param includeAbsorption Whether to deduct existing absorption from the result (same behaviour as {@link EntityDamageEvent#getFinalDamage()}),
 	 *                          useful to check if an attack would be lethal
+	 * @param excludedType      Excludes damage modifiers if it also buffs this damage type
 	 * @return The final damage that will be dealt
 	 */
 	// Bukkit deprecates EntityDamageEvent.DamageModifier
 	@SuppressWarnings("deprecation")
-	public double getFinalDamage(boolean includeAbsorption) {
+	public double getFinalDamage(boolean includeAbsorption, @Nullable DamageType excludedType) {
+		recalculateDamage(excludedType);
+		mDirty = false;
+
 		if (includeAbsorption) {
 			return Math.max(0, mEvent.getFinalDamage());
 		} else {
@@ -263,44 +352,51 @@ public class DamageEvent extends Event implements Cancellable {
 		return mOriginalDamage;
 	}
 
-	public void setFlatDamage(double damage) {
-		if (damage < 0) {
-			MMLog.debug("Negative damage dealt: " + damage, new Exception());
-		}
-		if (!Double.isFinite(damage)) {
-			MMLog.warning("Non-finite damage dealt: " + damage, new Exception());
-			damage = 0;
+	/**
+	 * Calculates damage for various purposes.
+	 *
+	 * @param excludedType used for on hit damages to prevent double-dipping effects. (does not add modifier if it also buffs this damage type)
+	 */
+	private double calculateRawDamage(@Nullable DamageType excludedType) {
+		double damage = 0;
+		Stage[] values = Stage.values(); // this is in order of declaration!!
+
+		for (Stage value : values) {
+			double add = 0;
+			double multiplier = 1;
+			double weakenMultiplier = 1;
+			for (DamageModifier damageModifier : mDamageModifiers.get(value)) {
+				EnumSet<DamageType> damageTypes = damageModifier.damageTypes;
+				if (excludedType == null || !damageTypes.contains(excludedType)) {
+					if (damageModifier.multiplicative) {
+						if (damageModifier.modifier > 1) {
+							multiplier += Math.max(damageModifier.modifier - 1, 0);
+						} else {
+							weakenMultiplier *= damageModifier.modifier;
+						}
+					} else {
+						add += damageModifier.modifier;
+					}
+				}
+			}
+			damage += add;
+			damage *= multiplier * weakenMultiplier;
 		}
 
-		// Update flat damage, since we're setting a new base
-		// In case something goes horribly wrong, log the stack trace when set to finest
-		mFlatDamage = damage;
-		MMLog.trace(() -> Arrays.toString(Thread.currentThread().getStackTrace()));
-
-		recalculateDamage();
+		return damage;
 	}
 
-	public void updateDamageWithMultiplier(double damageMultiplier) {
-		if (damageMultiplier < 0) {
-			MMLog.debug("Negative damage multiplier: " + damageMultiplier, new Exception());
+	private Pair<Double, Double> getStageDamage(Stage stage) {
+		double add = 0;
+		double multiplier = 1;
+		for (DamageModifier damageModifier : mDamageModifiers.get(stage)) {
+			if (damageModifier.multiplicative) {
+				multiplier += Math.max(damageModifier.modifier - 1, 0);
+			} else {
+				add += damageModifier.modifier;
+			}
 		}
-		if (damageMultiplier > 1) {
-			// Accumulate damage multiplier (Additively)
-			mDamageMultiplier += (damageMultiplier - 1);
-		} else {
-			// Accumulate weakness / reduction multiplier (Multiplicatively)
-			mDamageReductionMultiplier *= Math.max(0, damageMultiplier);
-		}
-		recalculateDamage();
-	}
-
-	public void updateGearDamageWithMultiplier(double damageGearMultiplier) {
-		if (damageGearMultiplier < 0) {
-			MMLog.debug("Negative damage multiplier: " + damageGearMultiplier, new Exception());
-		}
-		// Accumulate damage multiplier
-		mGearDamageMultiplier += (damageGearMultiplier - 1);
-		recalculateDamage();
+		return Pair.of(add, multiplier);
 	}
 
 	static final int DAMAGE_CAP = 1000000;
@@ -308,9 +404,10 @@ public class DamageEvent extends Event implements Cancellable {
 	private boolean mHasBeenWarned = false;
 	private final UUID mEventIdentifier = UUID.randomUUID();
 
-	private void recalculateDamage() {
+	private double recalculateDamage(@Nullable DamageType excludedType) {
 		// Never set damage above 1000000 (arbitrary high amount) so that it doesn't go over the limit of what can actually be dealt
-		double damage = Math.max(Math.min(mFlatDamage * mGearDamageMultiplier * mDamageMultiplier * mDamageReductionMultiplier * critModifier() + mUnmodifiableDamage, DAMAGE_CAP), 0);
+		double damage = Math.min(calculateRawDamage(excludedType), DAMAGE_CAP);
+
 		if (mDamageCap != null) {
 			damage = Math.min(damage, mDamageCap);
 		}
@@ -320,9 +417,10 @@ public class DamageEvent extends Event implements Cancellable {
 		}
 		if (getCause() == DamageCause.POISON && mDamagee instanceof Player && mDamagee.getHealth() - damage <= 0) {
 			mEvent.setDamage(Math.max(mDamagee.getHealth() - 1, 0));
-			return;
+		} else {
+			mEvent.setDamage(damage);
 		}
-		mEvent.setDamage(damage);
+		return damage;
 	}
 
 	private void damageCapWarn(double damage) {
@@ -330,6 +428,7 @@ public class DamageEvent extends Event implements Cancellable {
 			return;
 		}
 		if (!mHasBeenWarned) {
+			mHasBeenWarned = true;
 			final var inventory = player.getInventory();
 			// grab current charms
 			final var charms = CharmManager.getInstance().getCharms(player, CharmManager.getInstance().mEnabledCharmType);
@@ -346,7 +445,7 @@ public class DamageEvent extends Event implements Cancellable {
 			} catch (Exception ex) {
 				equipment = "error";
 			}
-			final String string = String.join(" ", "Player dealt damage higher than " + DAMAGE_WARN, "[" + String.join(",", "player=" + player.getName(), "damage=" + damage, "originalDamage=" + mOriginalDamage, "flatDamage=" + mFlatDamage, "damageEventId=" + mEventIdentifier, "equipment=[" + equipment + "]") + "]");
+			final String string = String.join(" ", "Player dealt damage higher than " + DAMAGE_WARN, "[" + String.join(",", "player=" + player.getName(), "damage=" + damage, "originalDamage=" + mOriginalDamage, "damageEventId=" + mEventIdentifier, "equipment=[" + equipment + "]") + "]");
 			// now craft the stacktrace
 			MMLog.severe(() -> string + parseStackTracesFromMonumentaPlugin());
 			AuditListener.logPlayer(string);
@@ -381,52 +480,101 @@ public class DamageEvent extends Event implements Cancellable {
 				continue;
 			}
 
-			s = s + stackTraceElement.toString() + "\n";
+			s = s + stackTraceElement + "\n";
 		}
 		return s;
 	}
 
-	public double getFlatDamage() {
-		return mFlatDamage;
+	public void setBaseDamage(double damage) {
+		if (damage < 0) {
+			MMLog.debug("Negative damage dealt: " + damage, new Exception());
+		}
+		if (!Double.isFinite(damage)) {
+			MMLog.warning("Non-finite damage dealt: " + damage, new Exception());
+			damage = 0;
+		}
+
+		// In case something goes horribly wrong, log the stack trace when set to finest
+		mDamageModifiers.removeAll(Stage.BASE);
+		addDamageModifier(DamageModifier.add(damage, Stage.BASE, EnumSet.of(mMetadata.getType())));
+		MMLog.trace(() -> Arrays.toString(Thread.currentThread().getStackTrace()));
 	}
 
-	public double getDamageMultiplier() {
-		return mDamageMultiplier;
+	public void addBaseDamage(double damage) {
+		addDamageModifier(DamageModifier.add(damage, Stage.BASE, EnumSet.of(mMetadata.getType())));
+	}
+
+	public void addFinalDamage(double damage, EnumSet<DamageType> damageTypes) {
+		addDamageModifier(DamageModifier.add(damage, Stage.FINAL, damageTypes));
+	}
+
+	public void updateDamageWithMultiplier(double damageMultiplier, EnumSet<DamageType> damageTypes) {
+		if (damageMultiplier < 0) {
+			MMLog.debug("Negative damage multiplier: " + damageMultiplier, new Exception());
+		}
+		if (damageMultiplier > 1) {
+			// Accumulate damage multiplier (Additively)
+			addDamageModifier(DamageModifier.percent(damageMultiplier, Stage.EFFECT_POSITIVE, damageTypes));
+		} else {
+			// Accumulate weakness / reduction multiplier (Multiplicatively)
+			addDamageModifier(DamageModifier.percent(damageMultiplier, Stage.EFFECT_NEGATIVE, damageTypes));
+		}
+	}
+
+	public void updateGearDamageWithMultiplier(double damageGearMultiplier, EnumSet<DamageType> damageTypes) {
+		if (damageGearMultiplier < 0) {
+			MMLog.debug("Negative damage multiplier: " + damageGearMultiplier, new Exception());
+		}
+		// Accumulate damage multiplier
+		addDamageModifier(DamageModifier.percent(damageGearMultiplier, Stage.GEAR, damageTypes));
+	}
+
+	public void updateFinalMultiplier(double damageMultiplier) {
+		addDamageModifier(DamageModifier.percent(damageMultiplier, Stage.FINAL, EnumSet.of(mMetadata.getType())));
+	}
+
+
+	public double getBaseDamage() {
+		return getStageDamage(Stage.BASE).first();
 	}
 
 	public double getGearDamageMultiplier() {
-		return mGearDamageMultiplier;
+		return getStageDamage(Stage.GEAR).second();
+	}
+
+	public double getEffectDamage() {
+		return getStageDamage(Stage.EFFECT_POSITIVE).second();
 	}
 
 	public double getWeaknessMultiplier() {
-		return mDamageReductionMultiplier;
+		return getStageDamage(Stage.EFFECT_NEGATIVE).second();
+	}
+
+	public double getResistanceMultiplier() {
+		return getStageDamage(Stage.FINAL).second();
 	}
 
 	public void setIsCrit(boolean crit) {
+		if (mIsCrit && !crit) {
+			mDamageModifiers.removeAll(Stage.CRITICAL);
+		} else if (!mIsCrit && crit) {
+			mDamageModifiers.put(Stage.CRITICAL, DamageModifier.percent(1.5, Stage.CRITICAL, EnumSet.of(DamageType.MELEE)));
+		}
 		mIsCrit = crit;
-		recalculateDamage();
 	}
 
 	public boolean getIsCrit() {
 		return mIsCrit;
 	}
 
-	private double critModifier() {
-		return mIsCrit ? 1.5 : 1;
-	}
-
 	// Will override an existing cap!
 	public void setDamageCap(@Nullable Double cap) {
 		mDamageCap = cap;
-		recalculateDamage();
+		recalculateDamage(null);
 	}
 
 	public @Nullable Double getDamageCap() {
 		return mDamageCap;
-	}
-
-	public void addUnmodifiableDamage(double damage) {
-		mUnmodifiableDamage += damage;
 	}
 
 	public DamageType getType() {

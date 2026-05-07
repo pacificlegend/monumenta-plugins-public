@@ -122,7 +122,7 @@ public class Bloodlust extends Ability implements AbilityWithChargesOrStacks {
 	}
 
 	@Override
-	public void onDamageDelayed(final DamageEvent event, final LivingEntity enemy) {
+	public boolean onDamageDelayed(final DamageEvent event, final LivingEntity enemy) {
 		if (!ZoneUtils.hasZoneProperty(mPlayer, ZoneUtils.ZoneProperty.RESIST_5)) {
 			mCombatTime = Bukkit.getServer().getCurrentTick();
 		}
@@ -143,6 +143,7 @@ public class Bloodlust extends Ability implements AbilityWithChargesOrStacks {
 			}
 			damageDealt(damage);
 		}
+		return false;
 	}
 
 	/*

@@ -20,7 +20,7 @@ public class TwoHanded implements Enchantment {
 
 	private static final String PERCENT_SPEED_EFFECT_NAME = "TwoHandedPercentSpeedEffect";
 	private static final double PERCENT_SPEED = -0.4;
-	private static final double PERCENT_DAMAGE_REDUCTION = 0.6;
+	private static final double OFFHAND_MULTIPLIER = 0.4;
 
 	@Override
 	public String getName() {
@@ -90,7 +90,7 @@ public class TwoHanded implements Enchantment {
 			return;
 		}
 		if (checkForOffhand(plugin, player)) {
-			event.setFlatDamage(event.getFlatDamage() * (1 - PERCENT_DAMAGE_REDUCTION));
+			event.updateFinalMultiplier(OFFHAND_MULTIPLIER);
 		}
 	}
 

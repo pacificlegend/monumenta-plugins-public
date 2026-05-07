@@ -381,6 +381,8 @@ public class Plugin extends JavaPlugin {
 		HuntsCommand.register(this);
 		FunctionCooldownCommand.register();
 		RotateCommand.register();
+		DamageTraceCommand.register();
+		ShowMyDpsCommand.register();
 
 		try {
 			mHttpManager = new HttpManager(this);

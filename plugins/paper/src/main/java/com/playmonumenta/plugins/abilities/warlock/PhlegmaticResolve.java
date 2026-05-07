@@ -126,7 +126,7 @@ public class PhlegmaticResolve extends Ability {
 					double damage = mLastPreMitigationDamage * mEnhancementDamage;
 					Hitbox hitbox = new Hitbox.SphereHitbox(LocationUtils.getHalfHeightLocation(mPlayer), mEnhanceRadius);
 					for (LivingEntity mob : hitbox.getHitMobs()) {
-						DamageUtils.damage(mPlayer, mob, DamageEvent.DamageType.OTHER, damage, mInfo.getLinkedSpell(), true);
+						DamageUtils.damage(mPlayer, mob, DamageEvent.DamageType.UNSCALABLE_SKILL, damage, mInfo.getLinkedSpell(), true);
 						mCosmetic.enhanceDamageMob(mPlayer, mob);
 					}
 
@@ -218,7 +218,7 @@ public class PhlegmaticResolve extends Ability {
 				}
 			}
 			// Only set damage to 0 so that kb occurs.
-			event.setFlatDamage(0);
+			event.setBaseDamage(0);
 		}
 	}
 

@@ -166,7 +166,7 @@ public class Reverb implements Enchantment {
 							if (!reverbInstance.mIsChain) {
 								finalDamage += value * highestDamage * HIGHEST_DAMAGE_MULTIPLIER_PER_LEVEL;
 							}
-							DamageUtils.damage(player, hitMob, new DamageEvent.Metadata(DamageEvent.DamageType.OTHER, ClassAbility.REVERB, playerItemStats), finalDamage, true, false, false);
+							DamageUtils.damage(player, hitMob, new DamageEvent.Metadata(DamageEvent.DamageType.UNSCALABLE_ENCH, ClassAbility.REVERB, playerItemStats), finalDamage, true, false, false);
 
 							this.cancel();
 							return;

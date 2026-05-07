@@ -982,7 +982,7 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 				.extra(0.2)
 				.spawnAsBoss();
 
-			event.setFlatDamage(event.getFlatDamage() * 0.1);
+			event.updateFinalMultiplier(0.1);
 		}
 	}
 

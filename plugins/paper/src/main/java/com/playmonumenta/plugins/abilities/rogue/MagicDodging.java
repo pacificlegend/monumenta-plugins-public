@@ -48,7 +48,7 @@ public class MagicDodging extends Ability {
 		if (event.getType() == DamageEvent.DamageType.MAGIC && !event.isBlocked() && dodge()) {
 			mPlayer.setNoDamageTicks(20);
 			mPlayer.setLastDamage(event.getDamage());
-			event.setFlatDamage(0);
+			event.setBaseDamage(0);
 			event.setCancelled(true);
 		}
 	}

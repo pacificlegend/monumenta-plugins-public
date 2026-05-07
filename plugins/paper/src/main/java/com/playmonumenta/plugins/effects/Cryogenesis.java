@@ -20,7 +20,7 @@ public class Cryogenesis extends PercentDamageReceived {
 	@Override
 	public void onHurt(LivingEntity entity, DamageEvent event) {
 		Plugin plugin = Plugin.getInstance();
-		if (event.getFlatDamage() > HEALTH_THRESHOLD) {
+		if (event.getBaseDamage() > HEALTH_THRESHOLD) {
 			super.onHurt(entity, event);
 			if (entity instanceof Player player) {
 				player.playSound(player, Sound.BLOCK_GLASS_BREAK, 1f, 1f);

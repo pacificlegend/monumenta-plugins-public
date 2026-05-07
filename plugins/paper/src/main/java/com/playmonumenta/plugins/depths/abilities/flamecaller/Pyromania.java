@@ -12,6 +12,7 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
+import java.util.EnumSet;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
@@ -30,6 +31,7 @@ public class Pyromania extends DepthsAbility {
 			.displayItem(Material.CAMPFIRE)
 			.descriptions(Pyromania::getDescription)
 			.singleCharm(false);
+	public static final EnumSet<DamageEvent.DamageType> AFFECTED_TYPES = DamageEvent.DamageType.getScalableDamageType();
 
 	private final double mRadius;
 	private final double mDamagePerMob;
@@ -42,8 +44,7 @@ public class Pyromania extends DepthsAbility {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		DamageEvent.DamageType type = event.getType();
-		if (type == DamageEvent.DamageType.TRUE || type == DamageEvent.DamageType.OTHER) {
+		if (!AFFECTED_TYPES.contains(event.getType())) {
 			return false;
 		}
 
@@ -61,7 +62,7 @@ public class Pyromania extends DepthsAbility {
 		}
 
 		if (fireCount > 0) {
-			event.updateDamageWithMultiplier(1 + (mDamagePerMob * Math.min(MAX_ENTITIES, fireCount)));
+			event.updateDamageWithMultiplier(1 + (mDamagePerMob * Math.min(MAX_ENTITIES, fireCount)), AFFECTED_TYPES);
 		}
 		return false;
 	}

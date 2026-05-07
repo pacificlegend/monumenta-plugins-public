@@ -46,7 +46,7 @@ public class Fueled implements Infusion {
 			}
 
 			double multiplier = 1 - (DR_PER_MOB * count * value);
-			event.setFlatDamage(event.getDamage() * multiplier);
+			event.updateFinalMultiplier(multiplier);
 		}
 	}
 

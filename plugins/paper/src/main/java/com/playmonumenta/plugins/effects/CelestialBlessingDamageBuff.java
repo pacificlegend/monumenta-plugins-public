@@ -49,7 +49,7 @@ public class CelestialBlessingDamageBuff extends PercentDamageDealt {
 	@Override
 	public void onDamage(LivingEntity entity, DamageEvent event, LivingEntity enemy) {
 		super.onDamage(entity, event, enemy);
-		if (event.getFlatDamage() >= 1) {
+		if (event.getBaseDamage() >= 1) {
 			if (event.getType() == DamageEvent.DamageType.MELEE && event.getDamager() instanceof final Player player && player.getCooledAttackStrength(0.5f) > 0.9) {
 				melee();
 			}

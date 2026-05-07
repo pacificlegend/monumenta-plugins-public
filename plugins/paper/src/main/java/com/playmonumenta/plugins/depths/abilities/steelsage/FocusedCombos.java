@@ -12,6 +12,7 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import java.util.EnumSet;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -49,7 +50,7 @@ public class FocusedCombos extends DepthsCombosAbility {
 	@Override
 	public void activate(DamageEvent event, LivingEntity enemy) {
 		EntityUtils.applyBleed(mPlugin, mPlayer, enemy, BLEED_LEVEL);
-		event.updateDamageWithMultiplier(1 + mDamage);
+		event.updateDamageWithMultiplier(1 + mDamage, EnumSet.of(DamageType.PROJECTILE));
 
 		Location playerLoc = mPlayer.getLocation();
 		mPlayer.playSound(playerLoc, Sound.BLOCK_WEEPING_VINES_BREAK, SoundCategory.PLAYERS, 2, 0.8f);

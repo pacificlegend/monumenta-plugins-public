@@ -360,7 +360,7 @@ public class TealSpirit extends SerializedLocationBossAbilityGroup {
 	@Override
 	public void onHurt(DamageEvent event) {
 		if (hasRunningSpellOfType(Rewind.class)) {
-			event.setFlatDamage(event.getFlatDamage() * 0.1);
+			event.updateFinalMultiplier(0.1);
 		}
 	}
 

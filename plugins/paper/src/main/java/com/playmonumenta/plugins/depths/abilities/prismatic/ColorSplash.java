@@ -35,6 +35,7 @@ import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.ParticleUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
@@ -664,11 +665,11 @@ public class ColorSplash extends DepthsAbility {
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
 		if (mShadowdancerActive && AbilityUtils.isStealthed(mPlayer)) {
-			event.updateDamageWithMultiplier(1 + SHADOWDANCER_DAMAGE_MULTIPLIER[mRarity - 1]);
+			event.updateDamageWithMultiplier(1 + SHADOWDANCER_DAMAGE_MULTIPLIER[mRarity - 1], DamageEvent.DamageType.getScalableDamageType());
 			AbilityUtils.removeStealth(Plugin.getInstance(), mPlayer, false, null);
 		}
-		if (mSteelsageRunnable != null && (event.getType().equals(DamageEvent.DamageType.PROJECTILE) || event.getType().equals(DamageEvent.DamageType.PROJECTILE_SKILL))) {
-			event.updateDamageWithMultiplier(1 + STEELSAGE_PROJ_DAMAGE_MULTIPLIER[mRarity - 1]);
+		if (mSteelsageRunnable != null) {
+			event.updateDamageWithMultiplier(1 + STEELSAGE_PROJ_DAMAGE_MULTIPLIER[mRarity - 1], EnumSet.of(DamageEvent.DamageType.PROJECTILE, DamageEvent.DamageType.PROJECTILE_SKILL));
 		}
 		return false;
 	}

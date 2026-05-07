@@ -187,7 +187,7 @@ public class Kaul extends SerializedLocationBossAbilityGroup {
 			public void run() {
 				for (Player player : getArenaParticipants()) {
 					if (player.isSleeping()) {
-						DamageUtils.damage(mBoss, player, DamageType.OTHER, 22);
+						DamageUtils.damage(mBoss, player, DamageType.TRUE, 22);
 						EffectType.applyEffect(EffectType.SLOW, player, 15 * 20, 0.3, "KaulAntiSleepSlowness", false);
 						player.sendMessage(Component.text("THE JUNGLE FORBIDS YOU TO DREAM.", NamedTextColor.DARK_GREEN));
 						player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_DEATH, SoundCategory.HOSTILE, 1, 0.85f);
@@ -845,7 +845,7 @@ public class Kaul extends SerializedLocationBossAbilityGroup {
 
 	@Override
 	public void onHurt(DamageEvent event) {
-		event.setFlatDamage(event.getFlatDamage() / mDefenseScaling);
+		event.updateFinalMultiplier(1 / mDefenseScaling);
 	}
 
 	@Override

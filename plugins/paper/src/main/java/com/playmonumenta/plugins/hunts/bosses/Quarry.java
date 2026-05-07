@@ -434,10 +434,10 @@ public abstract class Quarry extends SerializedLocationBossAbilityGroup {
 		// Get all players even if they are not part of the hunt so that the bosses cannot be cheesed by people entering late
 		List<Player> players = PlayerUtils.playersInRange(mBoss.getLocation(), mRadiusOuter, true);
 		double mult = BossUtils.healthScalingCoef(players.size(), 0.6, 0.3);
-		event.setFlatDamage(event.getFlatDamage() / mult);
+		event.updateFinalMultiplier(1 / mult);
 
 		if (event.getSource() instanceof Player player && (mSpoiledPlayers.contains(player.getUniqueId()) || !mPlayers.contains(player.getUniqueId()))) {
-			event.setFlatDamage(event.getFlatDamage() * 0.8);
+			event.updateFinalMultiplier(0.8);
 		}
 		// keep quarry above 25% during banish
 		if (mBanishSpell != null && mBanishSpell.isRunning() && event.getCause() != EntityDamageEvent.DamageCause.VOID) {

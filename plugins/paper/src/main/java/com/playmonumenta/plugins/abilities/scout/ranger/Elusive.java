@@ -39,11 +39,7 @@ public class Elusive extends Ability {
 
 	@Override
 	public void onHurt(DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
-		if (mStacks < 1
-			|| event.isBlocked()
-			|| !event.getType().isDefendable()
-			|| event.getType() == DamageEvent.DamageType.FIRE
-			|| event.getType() == DamageEvent.DamageType.FALL) {
+		if (mStacks < 1 || !event.getType().isDefendable()) {
 			return;
 		}
 
@@ -51,7 +47,7 @@ public class Elusive extends Ability {
 
 		mStacks = 0;
 
-		event.setFlatDamage(event.getDamage() * dmgReduction);
+		event.setBaseDamage(event.getBaseDamage() * dmgReduction);
 	}
 
 	@Override

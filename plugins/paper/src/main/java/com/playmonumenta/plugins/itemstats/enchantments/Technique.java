@@ -21,6 +21,11 @@ import org.jetbrains.annotations.Nullable;
 public class Technique implements Enchantment {
 	private static final double DAMAGE_PER_LEVEL = 0.1;
 	private static final double DISTANCE = 2.7;
+	private static final EnumSet<DamageType> AFFECTED_TYPES = DamageType.getAllProjectileAndMagicTypes();
+
+	static {
+		AFFECTED_TYPES.add(DamageType.MELEE_SKILL);
+	}
 
 	public static boolean withinDistance(@NotNull Player player, @Nullable LivingEntity source) {
 		if (source == null || player.getWorld() != source.getWorld()) {
@@ -33,10 +38,9 @@ public class Technique implements Enchantment {
 	@Override
 	public void onDamage(Plugin plugin, Player player, double level, DamageEvent event, LivingEntity enemy) {
 		DamageType type = event.getType();
-		if ((type == DamageType.MELEE_SKILL || DamageType.getAllProjectileAndMagicTypes().contains(type)) &&
-			withinDistance(player, enemy)) {
+		if (AFFECTED_TYPES.contains(type) && withinDistance(player, enemy)) {
 			double bonus = DAMAGE_PER_LEVEL * level;
-			event.updateGearDamageWithMultiplier(1 + bonus);
+			event.updateGearDamageWithMultiplier(1 + bonus, AFFECTED_TYPES);
 
 			player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THROW, SoundCategory.PLAYERS, 0.5f, 1f);
 			player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, SoundCategory.PLAYERS, 0.9f, 0.8f);

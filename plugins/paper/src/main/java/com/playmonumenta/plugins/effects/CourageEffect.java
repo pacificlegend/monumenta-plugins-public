@@ -51,7 +51,7 @@ public class CourageEffect extends Effect {
 			if (currentTick - mTickWhenHit > 10) {
 				mCharges -= 1;
 
-				event.setFlatDamage(event.getDamage() * (1 - amount));
+				event.updateFinalMultiplier(1 - amount);
 				mTickWhenHit = currentTick;
 
 				if (mCharges == 0) {
@@ -60,7 +60,7 @@ public class CourageEffect extends Effect {
 			} else {
 				// Therefore this should mean that the last hit is within the 0.5 seconds, so mitigate it
 				// without spending charges
-				event.setFlatDamage(event.getDamage() * (1 - amount));
+				event.updateFinalMultiplier(1 - amount);
 			}
 		}
 	}

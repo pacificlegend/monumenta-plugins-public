@@ -11,6 +11,7 @@ import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
 import com.playmonumenta.plugins.itemstats.attributes.SpellPower;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
+import java.util.EnumSet;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -35,10 +36,10 @@ public class WandAspect extends WeaponAspectDepthsAbility {
 		ItemStatManager.PlayerItemStats playerItemStats = event.getPlayerItemStats() != null ? event.getPlayerItemStats() : mPlugin.mItemStatManager.getPlayerItemStats(mPlayer);
 		if (playerItemStats.getItemStats().get(EnchantmentType.MAGIC_WAND) > 0) {
 			if (event.getType() == DamageType.MELEE) {
-				event.setFlatDamage(event.getFlatDamage() + DAMAGE);
+				event.addBaseDamage(DAMAGE);
 			} else if (event.getAbility() != null && !event.getAbility().isFake() && event.getType() == DamageType.MAGIC) {
 				float spellMultiplier = SpellPower.getSpellDamage(playerItemStats, 1);
-				event.updateDamageWithMultiplier(1 + (spellMultiplier - 1) * SPELL_MOD);
+				event.updateDamageWithMultiplier(1 + (spellMultiplier - 1) * SPELL_MOD, EnumSet.of(DamageType.MAGIC));
 			}
 		}
 		return false; // only changes event damage

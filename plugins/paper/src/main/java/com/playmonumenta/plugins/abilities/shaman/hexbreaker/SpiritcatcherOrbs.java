@@ -221,7 +221,7 @@ public class SpiritcatcherOrbs extends Ability implements AbilityWithChargesOrSt
 
 		decrementStack();
 		mCosmetic.spiritflamesApplied(enemy, mPlayer);
-		event.updateDamageWithMultiplier(1 + mImbuedDamageBonus);
+		event.updateDamageWithMultiplier(1 + mImbuedDamageBonus, EnumSet.of(DamageEvent.DamageType.MELEE, DamageEvent.DamageType.PROJECTILE));
 		if (mPlugin.mEffectManager.getActiveEffect(enemy, SPIRITFLAME_EFFECT_NAME) instanceof SpiritcatcherOrbsSpiritflames flames) {
 			flames.extendDuration(mFlameDuration);
 		} else {

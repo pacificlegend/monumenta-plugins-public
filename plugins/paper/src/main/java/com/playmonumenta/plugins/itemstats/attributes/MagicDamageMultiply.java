@@ -6,6 +6,7 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.Attribute;
 import com.playmonumenta.plugins.itemstats.enums.AttributeType;
+import java.util.EnumSet;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -33,15 +34,11 @@ public class MagicDamageMultiply implements Attribute {
 
 	@Override
 	public void onDamage(Plugin plugin, Player player, double value, DamageEvent event, LivingEntity enemy) {
-		DamageType type = event.getType();
-
 		if (DepthsManager.getInstance().isInSystem(player)) {
 			// Handled in DepthsListener
 			return;
 		}
 
-		if (DamageType.getAllMagicTypes().contains(type)) {
-			event.updateGearDamageWithMultiplier(value);
-		}
+		event.updateGearDamageWithMultiplier(value, EnumSet.of(DamageType.MAGIC));
 	}
 }

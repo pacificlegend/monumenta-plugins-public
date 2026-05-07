@@ -66,7 +66,7 @@ public class DamageTransferBoss extends BossAbilityGroup {
 	public void onHurt(DamageEvent event) {
 		if (mTarget != null && !mTarget.isDead() && event.getSource() != null) {
 			mBossDamageThisTick += event.getDamage();
-			event.setFlatDamage(0);
+			event.setBaseDamage(0);
 			// Do this at the end of the tick so we can't miss the passenger being damaged
 			Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
 				DamageUtils.damage(null, mTarget, event.getType(), mBossDamageThisTick, null, false);

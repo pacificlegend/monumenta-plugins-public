@@ -50,15 +50,12 @@ public final class PercentDamageDealtSingle extends PercentDamageDealt {
 		if (mHasDoneDamage) {
 			return;
 		}
-		if (event.getType() == DamageType.TRUE) {
-			return;
-		}
-		if (mAffectedDamageTypes == null || mAffectedDamageTypes.contains(event.getType())) {
+		if (mAffectedDamageTypes.contains(event.getType())) {
 			mHasDoneDamage = true;
 			if (mMultiplicative) {
-				event.setFlatDamage(event.getFlatDamage() * (1 + mAmount));
+				event.updateFinalMultiplier(1 + mAmount);
 			} else {
-				event.updateDamageWithMultiplier(Math.max(0, 1 + mAmount));
+				event.updateDamageWithMultiplier(Math.max(0, 1 + mAmount), mAffectedDamageTypes);
 			}
 
 			if (mOnUse != null) {
@@ -90,13 +87,11 @@ public final class PercentDamageDealtSingle extends PercentDamageDealt {
 		object.addProperty("duration", mDuration);
 		object.addProperty("amount", mAmount);
 
-		if (mAffectedDamageTypes != null) {
-			JsonArray jsonArray = new JsonArray();
-			for (DamageType damageType : mAffectedDamageTypes) {
-				jsonArray.add(damageType.name());
-			}
-			object.add("type", jsonArray);
+		JsonArray jsonArray = new JsonArray();
+		for (DamageType damageType : mAffectedDamageTypes) {
+			jsonArray.add(damageType.name());
 		}
+		object.add("type", jsonArray);
 
 		object.addProperty("hasDoneDamage", mHasDoneDamage);
 		return object;

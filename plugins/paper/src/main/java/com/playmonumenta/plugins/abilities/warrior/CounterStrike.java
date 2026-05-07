@@ -12,6 +12,7 @@ import com.playmonumenta.plugins.effects.PercentKnockbackResist;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +88,7 @@ public class CounterStrike extends Ability {
 		if (source != null) {
 			if (isEnhanced() && mLastHurtTicks.containsKey(source)) {
 				double resistance = (mAbsorptionMobs.contains(source) ? mAbsorptionResistance : mResistance);
-				event.setFlatDamage(event.getDamage() * (1 - resistance));
+				event.updateFinalMultiplier(1 - resistance);
 			}
 
 
@@ -100,7 +101,7 @@ public class CounterStrike extends Ability {
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
 		if (event.getType() == DamageEvent.DamageType.MELEE && mLastHurtTicks.remove(enemy) != null) {
 
-			event.updateDamageWithMultiplier(1 + mDamage);
+			event.updateDamageWithMultiplier(1 + mDamage, EnumSet.of(DamageEvent.DamageType.MELEE));
 
 			mLastHurtTicks.remove(enemy);
 			boolean recalculationNeeded = mAbsorptionMobs.remove(enemy);

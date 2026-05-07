@@ -11,6 +11,7 @@ import com.playmonumenta.plugins.depths.charmfactory.CharmEffects;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import java.util.EnumSet;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
@@ -21,6 +22,7 @@ public class DepthsDethroner extends DepthsAbility {
 	public static final String ABILITY_NAME = "Dethroner";
 	public static final double[] ELITE_DAMAGE = {0.14, 0.21, 0.28, 0.35, 0.42, 0.56};
 	public static final double[] BOSS_DAMAGE = {0.10, 0.15, 0.20, 0.25, 0.30, 0.40};
+	public static final EnumSet<DamageEvent.DamageType> AFFECTED_TYPES = DamageEvent.DamageType.getScalableDamageType();
 
 	public static final DepthsAbilityInfo<DepthsDethroner> INFO =
 		new DepthsAbilityInfo<>(DepthsDethroner.class, ABILITY_NAME, DepthsDethroner::new, DepthsTree.SHADOWDANCER, DepthsTrigger.PASSIVE)
@@ -39,15 +41,10 @@ public class DepthsDethroner extends DepthsAbility {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		DamageEvent.DamageType type = event.getType();
-		if (type == DamageEvent.DamageType.TRUE || type == DamageEvent.DamageType.OTHER) {
-			return false;
-		}
-
 		if (EntityUtils.isBoss(enemy)) {
-			event.updateDamageWithMultiplier(1 + mBossDamage);
+			event.updateDamageWithMultiplier(1 + mBossDamage, AFFECTED_TYPES);
 		} else if (EntityUtils.isElite(enemy)) {
-			event.updateDamageWithMultiplier(1 + mEliteDamage);
+			event.updateDamageWithMultiplier(1 + mEliteDamage, AFFECTED_TYPES);
 		}
 		return false; // only changes event damage
 	}

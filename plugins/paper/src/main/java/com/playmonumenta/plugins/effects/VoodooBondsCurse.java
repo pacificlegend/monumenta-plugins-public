@@ -46,7 +46,7 @@ public class VoodooBondsCurse extends Effect {
 			cursedMobs.removeIf(e -> !Plugin.getInstance().mEffectManager.hasEffect(e, VoodooBonds.CURSE_EFFECT));
 			for (LivingEntity mob : cursedMobs) {
 				mCosmetic.curseSpread(mPlayer, mob, entity);
-				DamageUtils.damage(mPlayer, mob, DamageType.OTHER, damage, ClassAbility.VOODOO_BONDS, true, false);
+				DamageUtils.damage(mPlayer, mob, DamageType.UNSCALABLE_SKILL, damage, ClassAbility.VOODOO_BONDS, true, false);
 			}
 		}
 

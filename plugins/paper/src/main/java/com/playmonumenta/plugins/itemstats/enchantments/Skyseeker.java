@@ -35,8 +35,8 @@ public class Skyseeker implements Enchantment {
 
 	@Override
 	public void onDamage(Plugin plugin, Player player, double level, DamageEvent event, LivingEntity enemy) {
-		if (enemy.getLocation().getY() > player.getLocation().getY() && AFFECTED_DAMAGE_TYPES.contains(event.getType())) {
-			event.updateGearDamageWithMultiplier(1 + DAMAGE_BONUS_PER_LEVEL * level);
+		if (enemy.getLocation().getY() > player.getLocation().getY()) {
+			event.updateGearDamageWithMultiplier(1 + DAMAGE_BONUS_PER_LEVEL * level, AFFECTED_DAMAGE_TYPES);
 		}
 	}
 }

@@ -105,7 +105,7 @@ public class IdolatryBoss extends BossAbilityGroup {
 			damagedEntity.setMetadata(ORIGINAL_DAMAGE_METADATA, new FixedMetadataValue(mPlugin, originalDamage));
 			damagedEntity.setMetadata(metadataKey, new FixedMetadataValue(mPlugin, true));
 			// amount that the mob still takes
-			event.setFlatDamage(event.getFlatDamage() * mParams.DAMAGE_PASSTHROUGH_PERCENTAGE);
+			event.updateFinalMultiplier(mParams.DAMAGE_PASSTHROUGH_PERCENTAGE);
 			Bukkit.getScheduler().runTask(mPlugin, () -> {
 				damagedEntity.removeMetadata(metadataKey, mPlugin);
 				damagedEntity.removeMetadata(ORIGINAL_DAMAGE_METADATA, mPlugin);

@@ -186,7 +186,7 @@ public class ElementalArrows extends Ability {
 		Consumer<LivingEntity> finalEffectAction = effectAction;
 		Bukkit.getScheduler().runTask(mPlugin, () -> finalEffectAction.accept(enemy));
 
-		event.setFlatDamage(0);
+		event.setBaseDamage(0);
 		DamageUtils.damage(mPlayer, enemy, new DamageEvent.Metadata(DamageType.MAGIC, ability, playerItemStats, NAME), targetDamage, false, true, false);
 
 		double areaDamage = baseDamage * mAOEMultiplier;

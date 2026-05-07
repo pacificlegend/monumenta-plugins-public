@@ -47,7 +47,7 @@ public class Vengeful implements Infusion {
 			return;
 		}
 		if (checkLastDamage(player, enemy)) {
-			event.updateGearDamageWithMultiplier(getDamageDealtMultiplier(value));
+			event.updateGearDamageWithMultiplier(getDamageDealtMultiplier(value), AFFECTED_DAMAGE_TYPES);
 			Location halfHeightLocation = LocationUtils.getHalfHeightLocation(enemy);
 			double widerWidthDelta = PartialParticle.getWidthDelta(enemy) * 1.5;
 			PartialParticle partialParticle = new PartialParticle(

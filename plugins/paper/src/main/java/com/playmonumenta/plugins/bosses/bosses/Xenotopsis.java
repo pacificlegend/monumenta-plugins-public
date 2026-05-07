@@ -352,16 +352,16 @@ public class Xenotopsis extends SerializedLocationBossAbilityGroup {
 		double part1Cap = DAMAGE_CAP_PERCENT * mMaxHealthPart1;
 		double part2Cap = DAMAGE_CAP_PERCENT * mMaxHealthPart2;
 		if (mPhase < 3 && eventDamage > part1Cap) {
-			event.setFlatDamage(part1Cap + (eventDamage - part1Cap) * (1 - DAMAGE_CAP_REDUCTION));
+			event.setBaseDamage(part1Cap + (eventDamage - part1Cap) * (1 - DAMAGE_CAP_REDUCTION));
 		} else if (eventDamage > part2Cap) {
-			event.setFlatDamage(part2Cap + (eventDamage - part2Cap) * (1 - DAMAGE_CAP_REDUCTION));
+			event.setBaseDamage(part2Cap + (eventDamage - part2Cap) * (1 - DAMAGE_CAP_REDUCTION));
 		}
 
 		double newBossHealth = event.getDamagee().getHealth() - event.getDamage();
 
 		if (newBossHealth / mMaxHealthPart1 < 0.05 && mPhase < 3) {
 			event.getDamagee().setHealth(mMaxHealthPart1 * 0.05 - 1); // set health to just under 5%, resulting in phase 3 trigger
-			event.setFlatDamage(0);
+			event.setBaseDamage(0);
 		}
 
 		if (event.getDamager() instanceof Player player) {
@@ -376,7 +376,7 @@ public class Xenotopsis extends SerializedLocationBossAbilityGroup {
 		super.onDamage(event, damagee);
 
 		if (damagee instanceof Player player) {
-			event.setFlatDamage(scaleDamage(event.getDamage()));
+			event.setBaseDamage(scaleDamage(event.getDamage()));
 
 			Bukkit.getScheduler().runTask(mPlugin, () -> mPlugin.mPotionManager.clearPotionEffectType(player, PotionEffectType.WITHER));
 

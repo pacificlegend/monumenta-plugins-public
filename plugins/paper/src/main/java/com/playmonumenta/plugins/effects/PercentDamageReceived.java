@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.playmonumenta.plugins.Plugin;
-import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.utils.EntityUtils;
@@ -21,12 +20,17 @@ public class PercentDamageReceived extends Effect {
 	public static final String GENERIC_NAME = "PercentDamageReceived";
 
 	protected final double mAmount;
-	protected final @Nullable EnumSet<DamageType> mAffectedDamageTypes;
+	protected final EnumSet<DamageType> mAffectedDamageTypes;
 
-	public PercentDamageReceived(final int duration, final double amount, final @Nullable EnumSet<DamageType> affectedDamageTypes) {
+	protected PercentDamageReceived(final int duration, final double amount, final @Nullable EnumSet<DamageType> affectedDamageTypes,
+	                             final String effectID) {
 		super(duration, effectID);
 		mAmount = amount;
-		mAffectedDamageTypes = affectedDamageTypes;
+		mAffectedDamageTypes = affectedDamageTypes == null ? DamageType.getScalableDamageType() : affectedDamageTypes;
+	}
+
+	public PercentDamageReceived(final int duration, final double amount, final @Nullable EnumSet<DamageType> affectedDamageTypes) {
+		this(duration, amount, affectedDamageTypes, effectID);
 	}
 
 	public PercentDamageReceived(final int duration, final double amount) {
@@ -48,18 +52,18 @@ public class PercentDamageReceived extends Effect {
 		return mAmount < 0;
 	}
 
-	public @Nullable EnumSet<DamageType> getAffectedDamageTypes() {
+	public EnumSet<DamageType> getAffectedDamageTypes() {
 		return mAffectedDamageTypes;
 	}
 
 	@Override
 	public void onHurt(final LivingEntity entity, final DamageEvent event) {
-		if (event.getType() != DamageType.TRUE && (mAffectedDamageTypes == null || mAffectedDamageTypes.contains(event.getType())) && event.getAbility() != ClassAbility.REVERB) {
+		if (mAffectedDamageTypes.contains(event.getType())) {
 			double amount = mAmount;
 			if (EntityUtils.isBoss(entity) && isDebuff()) {
 				amount /= 2;
 			}
-			event.updateDamageWithMultiplier(1 + amount);
+			event.updateDamageWithMultiplier(1 + amount, mAffectedDamageTypes);
 		}
 	}
 
@@ -70,13 +74,11 @@ public class PercentDamageReceived extends Effect {
 		object.addProperty("duration", mDuration);
 		object.addProperty("amount", mAmount);
 
-		if (mAffectedDamageTypes != null) {
-			final JsonArray jsonArray = new JsonArray();
-			for (DamageType damageType : mAffectedDamageTypes) {
-				jsonArray.add(damageType.name());
-			}
-			object.add("type", jsonArray);
+		final JsonArray jsonArray = new JsonArray();
+		for (DamageType damageType : mAffectedDamageTypes) {
+			jsonArray.add(damageType.name());
 		}
+		object.add("type", jsonArray);
 
 		return object;
 	}
@@ -113,15 +115,12 @@ public class PercentDamageReceived extends Effect {
 
 	@Override
 	public String toString() {
-		StringBuilder types = new StringBuilder("any");
-		if (mAffectedDamageTypes != null) {
-			types = new StringBuilder();
-			for (final DamageType type : mAffectedDamageTypes) {
-				if (!types.isEmpty()) {
-					types.append(",");
-				}
-				types.append(type.name());
+		StringBuilder types = new StringBuilder();
+		for (final DamageType type : mAffectedDamageTypes) {
+			if (!types.isEmpty()) {
+				types.append(",");
 			}
+			types.append(type.name());
 		}
 		return String.format("PercentDamageReceived duration:%d types:%s amount:%f", this.getDuration(), types, mAmount);
 	}

@@ -64,12 +64,12 @@ public class PlayerScalingBoss extends BossAbilityGroup {
 		if (event.getType() == DamageType.TRUE) {
 			return;
 		}
-		event.setFlatDamage(event.getDamage() * mDamageMultiplier);
+		event.updateFinalMultiplier(mDamageMultiplier);
 	}
 
 	@Override
 	public void onHurt(DamageEvent event) {
-		event.setFlatDamage(event.getFlatDamage() / mHealthMultiplier);
+		event.updateFinalMultiplier(1 / mHealthMultiplier);
 	}
 
 }

@@ -24,13 +24,10 @@ public class BoonOfThePit extends ZeroArgumentEffect {
 
 	@Override
 	public void onDamage(LivingEntity entity, DamageEvent event, LivingEntity enemy) {
-		if (event.getType() == DamageEvent.DamageType.TRUE) {
-			return;
-		}
 		if (mEffectedMobs.contains(enemy)) {
 			return;
 		}
-		event.updateDamageWithMultiplier(DAMAGE_BONUS);
+		event.updateDamageWithMultiplier(DAMAGE_BONUS, DamageEvent.DamageType.getScalableDamageType());
 		mEffectedMobs.add(enemy);
 	}
 

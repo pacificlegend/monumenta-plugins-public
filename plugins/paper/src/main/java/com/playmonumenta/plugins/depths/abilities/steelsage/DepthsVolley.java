@@ -15,6 +15,7 @@ import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.ItemUtils;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -138,7 +139,7 @@ public class DepthsVolley extends DepthsAbility {
 		Entity damager = event.getDamager();
 		if (event.getType() == DamageType.PROJECTILE && damager instanceof Projectile proj && EntityUtils.isAbilityTriggeringProjectile(proj, false) && mDepthsVolley.contains(proj)) {
 			if (notBeenHit(enemy)) {
-				event.updateDamageWithMultiplier(mDamageMultiplier);
+				event.updateDamageWithMultiplier(mDamageMultiplier, EnumSet.of(DamageType.PROJECTILE));
 			} else {
 				// Only let one Volley arrow hit a given mob
 				event.setCancelled(true);

@@ -20,6 +20,7 @@ import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.ItemUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
 import com.playmonumenta.plugins.utils.MovementUtils;
+import java.util.EnumSet;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -63,6 +64,7 @@ public class Riposte extends Ability implements AbilityWithDuration {
 			.simpleDescription("While wielding a sword or axe, block a mob's melee attack to stun the mob or gain damage.")
 			.cooldown(RIPOSTE_1_COOLDOWN, RIPOSTE_2_COOLDOWN, CHARM_COOLDOWN)
 			.displayItem(Material.SKELETON_SKULL);
+	private static final EnumSet<DamageType> AFFECTED_TYPES = EnumSet.of(DamageType.MELEE, DamageType.MELEE_ENCH);
 
 	private final double mSwordDamage;
 	private final int mMaxSwordDuration;
@@ -135,7 +137,7 @@ public class Riposte extends Ability implements AbilityWithDuration {
 		ClientModHandler.updateAbility(mPlayer, this);
 		mPlayer.setNoDamageTicks(20);
 		mPlayer.setLastDamage(event.getDamage());
-		event.setFlatDamage(0);
+		event.setBaseDamage(0);
 		event.setCancelled(true);
 
 		if (isEnhanced()) {
@@ -149,10 +151,10 @@ public class Riposte extends Ability implements AbilityWithDuration {
 
 	@Override
 	public boolean onDamage(final DamageEvent event, final LivingEntity enemy) {
-		if ((event.getType() == DamageType.MELEE || event.getType() == DamageType.MELEE_ENCH)
+		if (AFFECTED_TYPES.contains(event.getType())
 			&& ItemUtils.isSword(mPlayer.getInventory().getItemInMainHand())
 			&& mCurrDuration != -1) {
-			event.updateDamageWithMultiplier(1 + mSwordDamage);
+			event.updateDamageWithMultiplier(1 + mSwordDamage, AFFECTED_TYPES);
 			if (mRunnable != null && !mRunnable.isCancelled() && !mHasTriggeredSwordL2) {
 				// Disable next tick, buff only for this tick
 				Bukkit.getScheduler().runTaskLater(mPlugin, () -> {

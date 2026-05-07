@@ -122,7 +122,7 @@ public class AlchemicalAberrationBoss extends BossAbilityGroup {
 
 	@Override
 	public void onDamage(DamageEvent event, LivingEntity damagee) {
-		event.setFlatDamage(0);
+		event.setBaseDamage(0);
 	}
 
 	@Override

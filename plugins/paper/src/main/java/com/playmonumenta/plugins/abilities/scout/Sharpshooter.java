@@ -123,13 +123,8 @@ public class Sharpshooter extends Ability implements AbilityWithChargesOrStacks 
 
 	@Override
 	public boolean onDamage(final DamageEvent event, final LivingEntity enemy) {
-		final DamageEvent.DamageType type = event.getType();
-
-		if (DamageEvent.DamageType.getAllProjectileTypes().contains(type)) {
-			double multiplier = 1;
-			multiplier += mStacks * mDamagePerStack;
-			event.updateDamageWithMultiplier(multiplier);
-		}
+		double multiplier = 1 + mStacks * mDamagePerStack;
+		event.updateDamageWithMultiplier(multiplier, DamageEvent.DamageType.getAllProjectileTypes());
 
 		return false; // only changes event damage
 	}

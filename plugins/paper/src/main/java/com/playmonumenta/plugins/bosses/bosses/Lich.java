@@ -918,13 +918,13 @@ public final class Lich extends SerializedLocationBossAbilityGroup {
 
 	@Override
 	public void onHurt(DamageEvent event) {
-		event.setFlatDamage(event.getFlatDamage() / mDefenseScaling);
+		event.updateFinalMultiplier(1 / mDefenseScaling);
 		mGotHit = true;
 
 		// death check
 		if (mBoss.getHealth() - event.getDamage() <= 0) {
 			event.setCancelled(true);
-			event.setFlatDamage(0);
+			event.setBaseDamage(0);
 			mBoss.setHealth(100);
 			if (!mActivated) {
 				if (mKey != null && mKey.isValid()) {

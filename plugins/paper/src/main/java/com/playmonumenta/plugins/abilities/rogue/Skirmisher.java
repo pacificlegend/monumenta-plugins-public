@@ -85,7 +85,7 @@ public class Skirmisher extends Ability {
 					LivingEntity selectedEnemy = EntityUtils.getNearestMob(loc, nearbyEntities);
 
 					if (selectedEnemy != null) {
-						DamageUtils.damage(mPlayer, selectedEnemy, DamageType.OTHER, event.getDamage() * mSplashDamage, mInfo.getLinkedSpell(), true);
+						DamageUtils.damage(mPlayer, selectedEnemy, DamageType.UNSCALABLE_SKILL, event.getDamage() * mSplashDamage, mInfo.getLinkedSpell(), true);
 						Location eLoc = selectedEnemy.getLocation();
 						mCosmetic.aesthetics(mPlayer, eLoc, world, enemy);
 					}
@@ -94,11 +94,11 @@ public class Skirmisher extends Ability {
 				}
 			}
 
-			if (event.getAbility() != mInfo.getLinkedSpell() && DamageType.getAllMeleeTypes().contains(event.getType())) {
+			if (event.getAbility() != mInfo.getLinkedSpell()) {
 				if (EntityUtils.getNearbyMobs(loc, mFriendlyRadius, enemy).size() >= MOB_COUNT_CUTOFF
 					|| (isLevelTwo() && enemy instanceof Mob mob && !mPlayer.equals(mob.getTarget()))) {
-					event.addUnmodifiableDamage(mGroupedFlatDamage);
-					event.updateDamageWithMultiplier(1 + mGroupedPercentDamage);
+					event.addFinalDamage(mGroupedFlatDamage, DamageType.getAllMeleeTypes());
+					event.updateDamageWithMultiplier(1 + mGroupedPercentDamage, DamageType.getAllMeleeTypes());
 					mCosmetic.aesthetics(mPlayer, loc, world, enemy);
 				}
 			}

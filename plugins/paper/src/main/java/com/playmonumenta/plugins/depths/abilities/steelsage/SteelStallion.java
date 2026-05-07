@@ -95,7 +95,7 @@ public class SteelStallion extends DepthsAbility implements AbilityWithDuration 
 					mPlayer.getWorld().playSound(mPlayer.getLocation(), Sound.ENTITY_HORSE_HURT, SoundCategory.NEUTRAL, 0.8f, 1.0f);
 				}
 			}
-			event.setFlatDamage(0);
+			event.setBaseDamage(0);
 			event.setCancelled(true);
 			return;
 		}
@@ -131,7 +131,7 @@ public class SteelStallion extends DepthsAbility implements AbilityWithDuration 
 			//Horse absorbs the damage from the hit that triggers it
 			mHorse.setHealth(Math.max(0, EntityUtils.getMaxHealth(mHorse) - event.getFinalDamage(false)));
 			mHorse.setInvulnerable(true);
-			event.setFlatDamage(0);
+			event.setBaseDamage(0);
 			event.setCancelled(true);
 			putOnCooldown();
 		}

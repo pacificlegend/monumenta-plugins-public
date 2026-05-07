@@ -28,6 +28,7 @@ import com.playmonumenta.plugins.utils.MetadataUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import com.playmonumenta.plugins.utils.PotionUtils;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import net.kyori.adventure.text.format.TextColor;
@@ -55,6 +56,7 @@ public class CursedWound extends Ability {
 	private static final String DOT_EFFECT_NAME = "CursedWoundDamageOverTimeEffect";
 	private static final double DAMAGE_PER_EFFECT_RATIO = 0.03;
 	private static final String ATTACKED_THIS_TICK = "CursedWoundAttackedThisTick";
+	private static final EnumSet<DamageType> AFFECTED_TYPES = EnumSet.of(DamageType.MELEE, DamageType.MELEE_ENCH);
 
 	public static final String CHARM_DAMAGE = "Cursed Wound Damage Modifier";
 	public static final String CHARM_RADIUS = "Cursed Wound Radius";
@@ -98,7 +100,7 @@ public class CursedWound extends Ability {
 		}
 
 		DamageType type = event.getType();
-		if (type == DamageType.MELEE || type == DamageType.MELEE_ENCH) {
+		if (AFFECTED_TYPES.contains(type)) {
 			World world = mPlayer.getWorld();
 
 			if (isEnhanced()) {
@@ -148,7 +150,7 @@ public class CursedWound extends Ability {
 
 			int cooldowns = mPlugin.mTimers.countAbilitiesOnCooldown(mPlayer);
 
-			event.updateDamageWithMultiplier(1 + (Math.min(cooldowns, mAbilityCap) * mCursedWoundDamage));
+			event.updateDamageWithMultiplier(1 + (Math.min(cooldowns, mAbilityCap) * mCursedWoundDamage), AFFECTED_TYPES);
 
 			if (type == DamageType.MELEE && PlayerUtils.isFallingAttack(mPlayer)) {
 				mCosmetic.onCriticalAttack(world, mPlayer, enemy, cooldowns);

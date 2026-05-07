@@ -25,15 +25,12 @@ public final class BluePercentDamageDealt extends PercentDamageDealt {
 
 	@Override
 	public String toString() {
-		StringBuilder types = new StringBuilder("any");
-		if (mAffectedDamageTypes != null) {
-			types = new StringBuilder();
-			for (DamageEvent.DamageType type : mAffectedDamageTypes) {
-				if (!types.isEmpty()) {
-					types.append(",");
-				}
-				types.append(type.name());
+		StringBuilder types = new StringBuilder();
+		for (DamageEvent.DamageType type : mAffectedDamageTypes) {
+			if (!types.isEmpty()) {
+				types.append(",");
 			}
+			types.append(type.name());
 		}
 		return String.format("BluePercentDamageDealt duration:%d types:%s amount:%f", this.getDuration(), types, mAmount);
 	}

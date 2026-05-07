@@ -75,7 +75,7 @@ public class ScytheAspect extends WeaponAspectDepthsAbility {
 			return;
 		}
 		if (ItemUtils.isHoe(mPlayer.getInventory().getItemInMainHand())) {
-			event.setFlatDamage(event.getDamage() * DAMAGE_MODIFIER);
+			event.updateFinalMultiplier(DAMAGE_MODIFIER);
 		}
 	}
 

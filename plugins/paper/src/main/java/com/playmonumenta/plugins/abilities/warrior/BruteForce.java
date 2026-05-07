@@ -11,7 +11,7 @@ import com.playmonumenta.plugins.cosmetics.skills.warrior.BruteForceCS;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
-import com.playmonumenta.plugins.itemstats.enchantments.CritScaling;
+import com.playmonumenta.plugins.itemstats.attributes.AttackDamageAdd;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
@@ -90,7 +90,7 @@ public final class BruteForce extends Ability {
 
 		// Event's flat damage does not include any multipliers, readd crit scaling if Cumbersome is not present
 		final boolean weaponHasCumbersome = ItemStatUtils.hasEnchantment(mPlayer.getInventory().getItemInMainHand(), EnchantmentType.CUMBERSOME);
-		final double baseDamage = mMultiplier * (event.getFlatDamage() * (weaponHasCumbersome ? 1 : CritScaling.CRIT_BONUS)) + mFlatDamage;
+		final double baseDamage = mMultiplier * (event.getBaseDamage() * (weaponHasCumbersome ? 1 : AttackDamageAdd.CRIT_BONUS)) + mFlatDamage;
 		final int waveCount = 1 + (isEnhanced() ? mEnhanceWaves : 0);
 		final float kbMultiplier = 1 + (0.25f * ItemStatUtils.getEnchantmentLevel(mPlayer.getEquipment().getItemInMainHand(), EnchantmentType.KNOCKBACK));
 

@@ -33,13 +33,11 @@ public class Dethroner extends Ability {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		if (enemy != null
-			&& (event.getType() == DamageEvent.DamageType.MELEE || event.getType() == DamageEvent.DamageType.MELEE_ENCH || event.getType() == DamageEvent.DamageType.MELEE_SKILL)
-			&& InventoryUtils.rogueTriggerCheck(mPlugin, mPlayer)) {
+		if (enemy != null && InventoryUtils.rogueTriggerCheck(mPlugin, mPlayer)) {
 			if (EntityUtils.isElite(enemy)) {
-				event.updateDamageWithMultiplier(PASSIVE_DAMAGE_ELITE_MODIFIER);
+				event.updateDamageWithMultiplier(PASSIVE_DAMAGE_ELITE_MODIFIER, DamageEvent.DamageType.getAllMeleeTypes());
 			} else if (EntityUtils.isBoss(enemy)) {
-				event.updateDamageWithMultiplier(PASSIVE_DAMAGE_BOSS_MODIFIER);
+				event.updateDamageWithMultiplier(PASSIVE_DAMAGE_BOSS_MODIFIER, DamageEvent.DamageType.getAllMeleeTypes());
 			}
 		}
 		return false; // increases event damage and does not cause another damage instance, so no recursion

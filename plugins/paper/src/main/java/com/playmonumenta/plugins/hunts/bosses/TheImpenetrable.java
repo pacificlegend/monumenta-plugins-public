@@ -337,7 +337,7 @@ public class TheImpenetrable extends Quarry {
 		super.onHurt(event);
 
 		if (mTeleportRemnant.hasExistingRemnant() && event.getDamager() instanceof Player player) {
-			event.setFlatDamage(event.getDamage() * 0.5);
+			event.updateFinalMultiplier(0.5);
 
 			player.playSound(mBoss.getLocation(), Sound.ITEM_TRIDENT_HIT, SoundCategory.HOSTILE, 1f, 2f);
 		}

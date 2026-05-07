@@ -65,7 +65,7 @@ public class Eruption implements Enchantment {
 			double damage = DAMAGE_PER_LEVEL * level;
 			//Damage any mobs in the area
 			for (LivingEntity mob : mobs) {
-				DamageUtils.damage(player, mob, DamageType.OTHER, damage, ClassAbility.ERUPTION, false, true);
+				DamageUtils.damage(player, mob, DamageType.UNSCALABLE_ENCH, damage, ClassAbility.ERUPTION, false, true);
 			}
 
 			//Sapper Interaction

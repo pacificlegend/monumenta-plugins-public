@@ -409,7 +409,7 @@ public class EntityListener implements Listener {
 	public void damageEvent(DamageEvent event) {
 		// Prevent shop shulkers from taking damage, no matter what
 		if (EntityUtils.isShopShulker(event.getDamagee())) {
-			event.setFlatDamage(0);
+			event.setBaseDamage(0);
 		}
 	}
 

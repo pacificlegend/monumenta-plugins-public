@@ -35,13 +35,14 @@ public class FlatDamageDealt extends Effect {
 		return Math.abs(mAmount);
 	}
 
+	public EnumSet<DamageType> getAffectedDamageTypes() {
+		return mAffectedDamageTypes == null ? DamageType.getScalableDamageType() : mAffectedDamageTypes;
+	}
+
 	@Override
 	public void onDamage(LivingEntity entity, DamageEvent event, LivingEntity enemy) {
-		if (event.getType() == DamageEvent.DamageType.TRUE) {
-			return;
-		}
-		if (mAffectedDamageTypes == null || mAffectedDamageTypes.contains(event.getType())) {
-			event.setFlatDamage(event.getFlatDamage() + mAmount);
+		if (getAffectedDamageTypes().contains(event.getType())) {
+			event.addBaseDamage(mAmount);
 		}
 	}
 

@@ -114,7 +114,7 @@ public class Dodging extends Ability {
 		if (event.getType() == DamageType.PROJECTILE && !event.isBlocked() && dodge()) {
 			mPlayer.setNoDamageTicks(20);
 			mPlayer.setLastDamage(event.getDamage());
-			event.setFlatDamage(0);
+			event.setBaseDamage(0);
 			event.setCancelled(true);
 		}
 	}

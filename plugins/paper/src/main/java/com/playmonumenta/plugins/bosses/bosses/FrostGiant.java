@@ -763,7 +763,7 @@ public final class FrostGiant extends SerializedLocationBossAbilityGroup {
 
 		/* Allow Armor of Frost to have priority when setting the event's damage */
 		if (!mFrostArmorActive) {
-			event.setFlatDamage(event.getFlatDamage() / mDefenseScaling);
+			event.updateFinalMultiplier(1 / mDefenseScaling);
 		}
 
 		if (!mFrostArmorActive && source instanceof Player) {

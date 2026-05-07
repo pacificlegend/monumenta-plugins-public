@@ -103,7 +103,7 @@ public class FirstStrike implements Enchantment {
 	}
 
 	public void triggerFirstStrike(Plugin plugin, Player player, double bonus, DamageEvent event, LivingEntity enemy) {
-		event.updateGearDamageWithMultiplier(1 + bonus);
+		event.updateGearDamageWithMultiplier(1 + bonus, SAME_TICK_DAMAGE_TYPES);
 
 		double widthDelta = PartialParticle.getWidthDelta(enemy);
 		double doubleWidthDelta = widthDelta * 2;

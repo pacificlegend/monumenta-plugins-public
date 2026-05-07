@@ -179,11 +179,13 @@ public abstract class Ability {
 	/**
 	 * Called after all damage modifiers have been applied.
 	 *
-	 * @param event The damage event
-	 * @param enemy The entity that was damaged
+	 * @param  event The damage event
+	 * @param  enemy The entity that was damaged
+	 * @return Whether this ability should no longer receive damage event in the same tick.
+	 * For abilities with no cooldown or ignoring cooldown, this should generally return true unless the code prevents recursion.
 	 */
-	public void onDamageDelayed(DamageEvent event, LivingEntity enemy) {
-
+	public boolean onDamageDelayed(DamageEvent event, LivingEntity enemy) {
+		return false;
 	}
 
 	public void onHurt(DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {

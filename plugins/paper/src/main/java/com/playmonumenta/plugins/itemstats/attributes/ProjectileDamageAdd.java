@@ -35,7 +35,7 @@ public class ProjectileDamageAdd implements Attribute {
 			if (proj instanceof AbstractArrow arrow && !(arrow instanceof Trident) && !arrow.isCritical()) {
 				value *= Math.clamp(arrow.getVelocity().length() / Constants.PLAYER_BOW_INITIAL_SPEED / Math.abs(ProjectileSpeed.getProjectileSpeedModifier(arrow)), 0, 1);
 			}
-			event.setFlatDamage(value);
+			event.setBaseDamage(value);
 		}
 	}
 

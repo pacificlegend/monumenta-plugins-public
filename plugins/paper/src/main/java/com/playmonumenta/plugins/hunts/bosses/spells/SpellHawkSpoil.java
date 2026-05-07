@@ -78,7 +78,7 @@ public class SpellHawkSpoil extends Spell {
 		if (!(damagee instanceof Player player && isStill(player)) || event.getBossSpellName() == null) {
 			return;
 		}
-		event.setFlatDamage(event.getFlatDamage() * 1.25);
+		event.updateFinalMultiplier(1.25);
 		if (mHawk.spoil(player)) {
 			player.sendMessage(Component.text("You were an easy target, so the Hawk landed a critical hit with its plume, spoiling your loot.", SteelWingHawk.COLOR));
 		}

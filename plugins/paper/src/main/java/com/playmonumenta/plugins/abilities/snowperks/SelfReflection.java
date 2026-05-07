@@ -123,7 +123,7 @@ public class SelfReflection extends Ability {
 			return false;
 		}
 		if (event.getAbility() != null && !event.getAbility().isFake()) {
-			event.setFlatDamage(event.getDamage() * (1 + DAMAGE_PENALTY));
+			event.updateFinalMultiplier(1 + DAMAGE_PENALTY);
 		}
 		return false;
 	}

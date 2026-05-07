@@ -143,7 +143,7 @@ public class SpellBarrier extends Spell {
 	@Override
 	public void onDamage(final DamageEvent event, final LivingEntity damagee) {
 		if (mActive && mIsCarapace) {
-			event.setFlatDamage(event.getFlatDamage() * mCarapaceDamageModifier);
+			event.updateFinalMultiplier(mCarapaceDamageModifier);
 		}
 	}
 

@@ -42,7 +42,7 @@ public class Abyssal implements Enchantment {
 		}
 		if (EntityUtils.isInWater(enemy) || EntityUtils.isInWater(player) || ZoneUtils.hasZoneProperty(player.getLocation(), ZoneUtils.ZoneProperty.ABYSSAL_FORCED)) {
 			double multiplier = 1 + DAMAGE_BONUS_PER_LEVEL * value;
-			event.updateGearDamageWithMultiplier(multiplier);
+			event.updateGearDamageWithMultiplier(multiplier, AFFECTED_DAMAGE_TYPES);
 		}
 	}
 }

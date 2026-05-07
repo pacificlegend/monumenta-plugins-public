@@ -49,7 +49,7 @@ public class Fractal implements Enchantment {
 			plugin.mEffectManager.addEffect(enemy, SOURCE + player.getName(), new FractalVuln(DURATION));
 		} else if (plugin.mEffectManager.getEffects(enemy, SOURCE + player.getName()) != null) {
 			double bonus = DAMAGE_PER_LEVEL * level;
-			event.updateGearDamageWithMultiplier(1 + bonus);
+			event.updateGearDamageWithMultiplier(1 + bonus, EnumSet.of(DamageEvent.DamageType.MAGIC));
 
 			player.playSound(player.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, SoundCategory.PLAYERS, 0.3f, 2f);
 			player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_HIT, SoundCategory.PLAYERS, 0.5f, 1.2f);

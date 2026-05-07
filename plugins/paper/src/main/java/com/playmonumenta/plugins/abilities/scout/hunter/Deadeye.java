@@ -9,9 +9,6 @@ import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.classes.Scout;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.utils.AbilityUtils;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -30,12 +27,6 @@ public class Deadeye extends Ability {
 	private final double mDamageBonusPerBlock;
 	private final int mMaxDistance;
 
-	private static final Set<DamageEvent.DamageType> PROJECTILE_TYPES = new HashSet<>(List.of(
-		DamageEvent.DamageType.PROJECTILE,
-		DamageEvent.DamageType.PROJECTILE_SKILL,
-		DamageEvent.DamageType.PROJECTILE_ENCH
-	));
-
 	public Deadeye(Plugin plugin, Player player) {
 		super(plugin, player, INFO);
 		mDamageBonusPerBlock = DAMAGE_BONUS;
@@ -44,10 +35,6 @@ public class Deadeye extends Ability {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		if (!PROJECTILE_TYPES.contains(event.getType())) {
-			return false;
-		}
-
 		double distance = mPlayer.getLocation().distance(enemy.getLocation());
 		double dmgBoost = mDamageBonusPerBlock * Math.min(distance, mMaxDistance);
 
@@ -57,7 +44,7 @@ public class Deadeye extends Ability {
 
 		dmgBoost += 1;
 
-		event.updateDamageWithMultiplier(dmgBoost);
+		event.updateDamageWithMultiplier(dmgBoost, DamageEvent.DamageType.getAllProjectileTypes());
 
 		return false;
 	}

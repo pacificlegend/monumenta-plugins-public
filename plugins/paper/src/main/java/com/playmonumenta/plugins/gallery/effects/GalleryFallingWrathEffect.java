@@ -49,7 +49,7 @@ public class GalleryFallingWrathEffect extends GalleryConsumableEffect {
 		new PartialParticle(Particle.EXPLOSION_NORMAL, loc).delta(EXPLOSION_RADIUS, EXPLOSION_RADIUS, EXPLOSION_RADIUS).count(10).spawnAsPlayerActive(player.getPlayer());
 		loc.getWorld().playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 2, 10);
 		for (LivingEntity entity : EntityUtils.getNearbyMobs(loc, EXPLOSION_RADIUS)) {
-			DamageUtils.damage(player, entity, DamageEvent.DamageType.OTHER, event.getDamage() * DAMAGE);
+			DamageUtils.damage(player, entity, DamageEvent.DamageType.UNSCALABLE_SKILL, event.getDamage() * DAMAGE);
 		}
 	}
 }

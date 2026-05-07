@@ -154,7 +154,7 @@ public final class Varcosa extends SerializedLocationBossAbilityGroup {
 	//Reduce damage taken for each player by a percent
 	@Override
 	public void onHurt(DamageEvent event) {
-		event.setFlatDamage(event.getFlatDamage() / mCoef);
+		event.updateFinalMultiplier(1 / mCoef);
 	}
 
 	private void sendMessage(String message) {

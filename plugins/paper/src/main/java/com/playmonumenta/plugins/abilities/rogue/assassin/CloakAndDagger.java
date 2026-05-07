@@ -116,13 +116,14 @@ public class CloakAndDagger extends Ability implements KillTriggeredAbility, Abi
 	}
 
 	@Override
-	public void onDamageDelayed(DamageEvent event, LivingEntity enemy) {
+	public boolean onDamageDelayed(DamageEvent event, LivingEntity enemy) {
 		// Prevent Cloak and Dagger's damage from counting towards boss damage thresholds
 		if (event.getAbility() == ClassAbility.CLOAK_AND_DAGGER) {
-			return;
+			return false;
 		}
 
 		mTracker.updateDamageDealtToBosses(event);
+		return false;
 	}
 
 	@Override

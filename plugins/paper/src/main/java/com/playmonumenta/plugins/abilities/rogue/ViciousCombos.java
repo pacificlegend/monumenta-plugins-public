@@ -14,6 +14,7 @@ import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.MessagingUtils;
+import java.util.EnumSet;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -124,7 +125,7 @@ public class ViciousCombos extends Ability {
 			&& event.getType() == DamageEvent.DamageType.MELEE
 			&& mLastAbility != null
 			&& Bukkit.getServer().getCurrentTick() < mAbilityCastTime + ENHANCEMENT_CHARGE_LIFETIME) {
-			event.updateDamageWithMultiplier(1 + mEnhancementDamage);
+			event.updateDamageWithMultiplier(1 + mEnhancementDamage, EnumSet.of(DamageEvent.DamageType.MELEE));
 			mPlugin.mTimers.updateCooldown(mPlayer, mLastAbility, ENHANCEMENT_COOLDOWN_REDUCTION);
 			if (mPlayer.getWorld().equals(enemy.getWorld())) {
 				mCosmetic.enhancedCombo(enemy.getWorld(), mPlayer, enemy);

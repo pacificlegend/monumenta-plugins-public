@@ -13,6 +13,7 @@ import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
 import com.playmonumenta.plugins.utils.AbilityUtils;
+import java.util.EnumSet;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -53,8 +54,9 @@ public class Channeling extends Ability {
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
 		if (event.getType() == DamageType.MELEE
 			&& mCast > 0
-			&& mPlugin.mItemStatManager.getEnchantmentLevel(mPlayer, EnchantmentType.MAGIC_WAND) > 0) {
-			event.updateDamageWithMultiplier(1 + mDamage);
+			&& mPlugin.mItemStatManager.getEnchantmentLevel(mPlayer, EnchantmentType.MAGIC_WAND) > 0
+		) {
+			event.updateDamageWithMultiplier(1 + mDamage, EnumSet.of(DamageType.MELEE));
 			mCast--;
 		}
 		return false; // only changes event damage

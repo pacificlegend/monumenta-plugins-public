@@ -35,7 +35,7 @@ public class PrecisionStrikeDamage extends Effect {
 
 	@Override
 	public void onDamage(LivingEntity entity, DamageEvent event, LivingEntity enemy) {
-		if (event.getType() != DamageEvent.DamageType.TRUE && event.getType() != DamageEvent.DamageType.OTHER && event.getAbility() != ClassAbility.PRECISION_STRIKE
+		if (event.getType().isScalable() && event.getAbility() != ClassAbility.PRECISION_STRIKE
 			&& entity.getLocation().distanceSquared(enemy.getLocation()) >= mDistanceSquared && entity instanceof Player player) {
 
 			World world = player.getWorld();

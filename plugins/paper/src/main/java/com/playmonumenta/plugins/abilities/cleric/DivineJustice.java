@@ -16,15 +16,11 @@ import com.playmonumenta.plugins.effects.Effect;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
-import com.playmonumenta.plugins.itemstats.enchantments.CritScaling;
-import com.playmonumenta.plugins.itemstats.enums.AttributeType;
-import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.particle.PartialParticle;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
-import com.playmonumenta.plugins.utils.ItemStatUtils;
 import com.playmonumenta.plugins.utils.MetadataUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
 import java.util.List;
@@ -105,11 +101,11 @@ public class DivineJustice extends Ability implements AbilityWithChargesOrStacks
 	}
 
 	@Override
-	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
+	public boolean onDamageDelayed(DamageEvent event, LivingEntity enemy) {
 		if (mEnhanceIsReady) {
 			ClassAbility ability = event.getAbility();
 			if (ability != null && ability != ABILITY && ability != ClassAbility.ETHEREAL_ASCENSION && !ability.isFake()) {
-				event.updateDamageWithMultiplier(1 + mEnhanceDamage);
+				event.updateDamageWithMultiplier(1 + mEnhanceDamage, DamageType.getAllMagicTypes());
 			}
 		}
 
@@ -178,7 +174,7 @@ public class DivineJustice extends Ability implements AbilityWithChargesOrStacks
 				// Only trigger once in a tick per orb
 				return true;
 			}
-			DamageUtils.damage(mPlayer, enemy, DamageType.MAGIC, calculateDamage(event, isMeleeCrit), mInfo.getLinkedSpell(), true, false);
+			DamageUtils.damage(mPlayer, enemy, DamageType.MAGIC, calculateDamage(event), mInfo.getLinkedSpell(), true, false);
 		}
 		return false; // keep the ability open for more Multishot crits this tick
 	}
@@ -210,10 +206,8 @@ public class DivineJustice extends Ability implements AbilityWithChargesOrStacks
 		}
 	}
 
-	public double calculateDamage(final DamageEvent event, final boolean isMeleeCrit) {
-		final boolean weaponHasCumbersome = ItemStatUtils.hasEnchantment(mPlayer.getInventory().getItemInMainHand(), EnchantmentType.CUMBERSOME);
-		return mDamage + event.getFlatDamage() * (event.getType() == DamageType.MELEE ? mPlugin.mItemStatManager.getAttributeAmount(mPlayer, AttributeType.ATTACK_DAMAGE_MULTIPLY) * (isMeleeCrit && !weaponHasCumbersome ? CritScaling.CRIT_BONUS : 1.0) : mPlugin.mItemStatManager.getAttributeAmount(mPlayer, AttributeType.PROJECTILE_DAMAGE_MULTIPLY)) *
-			Math.max(mPercentDamage, 0.0);
+	public double calculateDamage(final DamageEvent event) {
+		return mDamage + event.getFinalDamage(false, DamageType.MAGIC) * Math.max(mPercentDamage, 0.0);
 	}
 
 	private static Description<DivineJustice> getDescription1() {

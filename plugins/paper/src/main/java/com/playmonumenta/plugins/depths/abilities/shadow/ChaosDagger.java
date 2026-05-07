@@ -179,7 +179,7 @@ public class ChaosDagger extends DepthsAbility {
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
 		if (enemy == mHitMob && (event.getType() == DamageType.MELEE || event.getType() == DamageType.PROJECTILE)) {
-			event.setFlatDamage(event.getFlatDamage() * (1 + mDamageMultiplier));
+			event.updateFinalMultiplier(1 + mDamageMultiplier);
 			mHitMob = null;
 			GlowingManager.clear(enemy, "ChaosDagger" + mPlayer.getName());
 			Bukkit.getScheduler().runTaskLater(mPlugin, () -> {

@@ -171,7 +171,7 @@ public class Spellshock extends Ability {
 
 		if (isEnhanced() && existingStatic != null) {
 			if (FIRE_ABILITIES.contains(eventAbility)) {
-				event.updateDamageWithMultiplier(1 + mEnhanceDamageMult);
+				event.updateDamageWithMultiplier(1 + mEnhanceDamageMult, DamageType.getAllMagicTypes());
 			} else if (ICE_ABILITIES.contains(eventAbility)) {
 				EntityUtils.applySlow(mPlugin, ENHANCEMENT_EFFECT_DURATION, mEnhanceSlowPotency, enemy);
 				EntityUtils.applyVulnerability(mPlugin, ENHANCEMENT_EFFECT_DURATION, mEnhanceVulnPotency, enemy);
@@ -191,7 +191,7 @@ public class Spellshock extends Ability {
 		if (type == DamageType.MELEE
 			&& mPlugin.mItemStatManager.getPlayerItemStats(mPlayer).getItemStats().get(EnchantmentType.MAGIC_WAND) > 0
 			&& existingStatic != null) {
-			event.updateDamageWithMultiplier(1 + mMeleeBonusMult);
+			event.updateDamageWithMultiplier(1 + mMeleeBonusMult, EnumSet.of(DamageType.MELEE));
 			EntityUtils.applySlow(mPlugin, SLOW_DURATION, mSlowPotency, enemy);
 			existingStatic.trigger();
 			mCosmetic.meleeClearStatic(mPlayer, enemy);
@@ -232,7 +232,7 @@ public class Spellshock extends Ability {
 					}
 					// Only damage a mob once per tick
 					if (MetadataUtils.checkOnceThisTick(mPlugin, hitMob, DAMAGED_THIS_TICK_METAKEY)) {
-						DamageUtils.damage(mPlayer, hitMob, DamageType.OTHER, spellShockDamage, ClassAbility.SPELLSHOCK, true);
+						DamageUtils.damage(mPlayer, hitMob, DamageType.UNSCALABLE_SKILL, spellShockDamage, ClassAbility.SPELLSHOCK, true);
 					}
 				}
 			} else { // no static on the mob, apply new static

@@ -10,15 +10,13 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageShieldedEvent;
 import com.playmonumenta.plugins.events.HemorrhageEvent;
 import com.playmonumenta.plugins.events.PotionEffectApplyEvent;
+import com.playmonumenta.plugins.itemstats.attributes.AttackDamageAdd;
 import com.playmonumenta.plugins.itemstats.attributes.ProjectileSpeed;
-import com.playmonumenta.plugins.itemstats.enchantments.AntiCritScaling;
-import com.playmonumenta.plugins.itemstats.enchantments.CritScaling;
 import com.playmonumenta.plugins.itemstats.enchantments.Multishot;
 import com.playmonumenta.plugins.itemstats.enchantments.Oversized;
 import com.playmonumenta.plugins.itemstats.enchantments.SKTQuestDamageDealt;
 import com.playmonumenta.plugins.itemstats.enchantments.SKTQuestDamageTaken;
 import com.playmonumenta.plugins.itemstats.enchantments.StrengthApply;
-import com.playmonumenta.plugins.itemstats.enchantments.StrengthCancel;
 import com.playmonumenta.plugins.itemstats.enums.AttributeType;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.itemstats.enums.InfusionType;
@@ -415,11 +413,13 @@ public class ItemStatManager implements Listener {
 					newStats.set(stat, newAdd * (1 + newMultiply) + Phylactery.BASE_POTION_KEEP_LEVEL);
 				} else if (stat instanceof Infusion infusion && infusion.getInfusionType().isDelveInfusion() && newAdd > 0) {
 					newStats.set(stat, Math.min(newAdd, delveInfusionsWithRevelation.contains(infusion.getInfusionType()) ? DelveInfusionUtils.MAX_LEVEL + 1 : DelveInfusionUtils.MAX_LEVEL));
+				} else if (stat instanceof AttackDamageAdd) {
+					// base of 1 attack damage
+					newStats.set(stat, (1 + newAdd) * (1 + newMultiply));
 				} else {
 					newStats.set(stat, newAdd * (1 + newMultiply));
 				}
-				if (stat instanceof CritScaling || stat instanceof AntiCritScaling ||
-					stat instanceof StrengthApply || stat instanceof StrengthCancel) {
+				if (stat instanceof StrengthApply) {
 					newStats.set(stat, 1);
 				}
 				if ((stat instanceof SKTQuestDamageDealt || stat instanceof SKTQuestDamageTaken)

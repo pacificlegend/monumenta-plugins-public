@@ -394,7 +394,7 @@ public class TowerGameUtils {
 
 		finalDamage = finalDamage + (finalDamage * damageMult);
 
-		event.setFlatDamage(finalDamage);
+		event.setBaseDamage(finalDamage);
 
 		return finalDamage;
 

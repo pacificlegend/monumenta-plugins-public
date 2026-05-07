@@ -8,8 +8,6 @@ import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.ItemStatManager.PlayerItemStats;
 import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
-import java.util.EnumSet;
-import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -17,13 +15,6 @@ import org.bukkit.entity.Projectile;
 
 public class ScorchedEarthDamage extends Effect {
 	public static final String effectID = "ScorchedEarthDamage";
-	private static final Set<DamageType> mIgnoredDamageTypes = EnumSet.of(
-		DamageType.AILMENT,
-		DamageType.FIRE,
-		DamageType.OTHER,
-		DamageType.TRUE,
-		DamageType.FALL
-	);
 
 	private final double mDamage;
 	private final Player mAlchemist;
@@ -57,7 +48,7 @@ public class ScorchedEarthDamage extends Effect {
 
 		final DamageType type = event.getType();
 		/* Only allow 1 application every 2 ticks, disregard certain damage types, and prevent effect from procing on low damage attacks */
-		if (Bukkit.getCurrentTick() - mLastDamageTick < 2 || mIgnoredDamageTypes.contains(type) || event.getFlatDamage() <= 1) {
+		if (Bukkit.getCurrentTick() - mLastDamageTick < 2 || !type.isScalable() || event.getBaseDamage() <= 1) {
 			return;
 		}
 

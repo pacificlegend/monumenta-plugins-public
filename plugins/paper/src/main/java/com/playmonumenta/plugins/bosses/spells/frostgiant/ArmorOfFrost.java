@@ -73,7 +73,7 @@ public final class ArmorOfFrost extends Spell {
 	@Override
 	public void onHurtByEntityWithSource(final DamageEvent event, final Entity damager, final LivingEntity source) {
 		if (mFrostGiant.mFrostArmorActive) {
-			event.setFlatDamage(0.0001);
+			event.setBaseDamage(0.0001);
 			if (source instanceof final Player player) {
 				player.playSound(player.getLocation(), Sound.ITEM_SHIELD_BLOCK, SoundCategory.HOSTILE, 2.0f, 0.5f);
 				if (!mWarned.contains(player.getUniqueId())) {

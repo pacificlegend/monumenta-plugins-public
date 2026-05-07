@@ -138,8 +138,8 @@ public class BladeDance extends Ability {
 
 	@Override
 	public void onHurt(DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
-		if (mIsActive && event.getType().isDefendable()) {
-			event.setFlatDamage(0);
+		if (mIsActive && event.getType() != DamageType.TRUE) {
+			event.setBaseDamage(0);
 			event.setCancelled(true);
 
 			mPlayer.playSound(mPlayer, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.PLAYERS, 1f, 1.3f);

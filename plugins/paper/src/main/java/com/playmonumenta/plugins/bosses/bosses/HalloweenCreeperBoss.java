@@ -96,7 +96,7 @@ public class HalloweenCreeperBoss extends BossAbilityGroup {
 	@Override
 	public void onHurt(DamageEvent event) {
 		// Reduce the damage but don't cancel the hit
-		event.setFlatDamage(0);
+		event.setBaseDamage(0);
 	}
 
 	private void summonFirework(Location loc, boolean first) {

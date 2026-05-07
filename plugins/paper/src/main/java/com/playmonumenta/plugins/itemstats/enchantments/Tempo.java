@@ -29,10 +29,7 @@ public class Tempo implements Enchantment {
 
 	@Override
 	public void onHurt(Plugin plugin, Player player, double value, DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
-		if (event.isBlocked()
-			|| !event.getType().isDefendable()
-			|| event.getType() == DamageEvent.DamageType.FIRE
-			|| event.getType() == DamageEvent.DamageType.FALL) {
+		if (event.isBlocked() || event.getType().isDefendable()) {
 			return;
 		}
 		plugin.mEffectManager.clearEffects(player, TEMPO_EFFECT_NAME);

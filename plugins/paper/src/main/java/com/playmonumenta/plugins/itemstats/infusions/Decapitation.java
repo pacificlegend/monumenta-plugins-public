@@ -6,6 +6,7 @@ import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.Infusion;
 import com.playmonumenta.plugins.itemstats.enums.InfusionType;
 import com.playmonumenta.plugins.utils.PlayerUtils;
+import java.util.EnumSet;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -31,7 +32,7 @@ public class Decapitation implements Infusion {
 	@Override
 	public void onDamage(Plugin plugin, Player player, double value, DamageEvent event, LivingEntity enemy) {
 		if (event.getType() == DamageType.MELEE && PlayerUtils.isFallingAttack(player)) {
-			event.updateGearDamageWithMultiplier(getDamageDealtMultiplier(value));
+			event.updateGearDamageWithMultiplier(getDamageDealtMultiplier(value), EnumSet.of(DamageType.MELEE));
 		}
 	}
 

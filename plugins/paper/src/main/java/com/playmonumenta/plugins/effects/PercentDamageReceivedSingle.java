@@ -15,18 +15,14 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
-public class PercentDamageReceivedSingle extends Effect {
+public class PercentDamageReceivedSingle extends PercentDamageReceived {
 	public static final String effectID = "PercentDamageReceivedSingle";
 	public static final String GENERIC_NAME = "PercentDamageReceivedSingle";
 
-	protected final double mAmount;
-	protected final @Nullable EnumSet<DamageType> mAffectedDamageTypes;
 	private boolean mCleared = false;
 
 	public PercentDamageReceivedSingle(final int duration, final double amount, final @Nullable EnumSet<DamageType> affectedDamageTypes) {
-		super(duration, effectID);
-		mAmount = amount;
-		mAffectedDamageTypes = affectedDamageTypes;
+		super(duration, amount, affectedDamageTypes, effectID);
 	}
 
 	public PercentDamageReceivedSingle(final int duration, final double amount) {
@@ -34,53 +30,16 @@ public class PercentDamageReceivedSingle extends Effect {
 	}
 
 	@Override
-	public double getMagnitude() {
-		return Math.abs(mAmount);
-	}
-
-	@Override
-	public boolean isDebuff() {
-		return mAmount > 0;
-	}
-
-	@Override
-	public boolean isBuff() {
-		return mAmount < 0;
-	}
-
-	public @Nullable EnumSet<DamageType> getAffectedDamageTypes() {
-		return mAffectedDamageTypes;
-	}
-
-	@Override
 	public void onHurt(final LivingEntity entity, final DamageEvent event) {
-		if (event.getType() != DamageType.TRUE && (mAffectedDamageTypes == null || mAffectedDamageTypes.contains(event.getType()))) {
+		if (mAffectedDamageTypes.contains(event.getType())) {
 			double amount = mAmount;
 			if (EntityUtils.isBoss(entity) && isDebuff()) {
 				amount /= 2;
 			}
-			event.updateDamageWithMultiplier(1 + amount);
+			event.updateDamageWithMultiplier(1 + amount, mAffectedDamageTypes);
 			mCleared = true;
 			clearEffect();
 		}
-	}
-
-	@Override
-	public JsonObject serialize() {
-		final JsonObject object = new JsonObject();
-		object.addProperty("effectID", mEffectID);
-		object.addProperty("duration", mDuration);
-		object.addProperty("amount", mAmount);
-
-		if (mAffectedDamageTypes != null) {
-			final JsonArray jsonArray = new JsonArray();
-			for (DamageType damageType : mAffectedDamageTypes) {
-				jsonArray.add(damageType.name());
-			}
-			object.add("type", jsonArray);
-		}
-
-		return object;
 	}
 
 	public static @Nullable PercentDamageReceivedSingle deserialize(JsonObject object, Plugin plugin) {
@@ -128,16 +87,13 @@ public class PercentDamageReceivedSingle extends Effect {
 
 	@Override
 	public String toString() {
-		StringBuilder types = new StringBuilder("any");
-		if (mAffectedDamageTypes != null) {
-			types = new StringBuilder();
-			for (final DamageType type : mAffectedDamageTypes) {
-				if (!types.isEmpty()) {
-					types.append(",");
-				}
-				types.append(type.name());
+		StringBuilder types = new StringBuilder();
+		for (final DamageType type : mAffectedDamageTypes) {
+			if (!types.isEmpty()) {
+				types.append(",");
 			}
+			types.append(type.name());
 		}
-		return String.format("PercentDamageReceived duration:%d types:%s amount:%f", this.getDuration(), types, mAmount);
+		return String.format("PercentDamageReceivedSingle duration:%d types:%s amount:%f", this.getDuration(), types, mAmount);
 	}
 }

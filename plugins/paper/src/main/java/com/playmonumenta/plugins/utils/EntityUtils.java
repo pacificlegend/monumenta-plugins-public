@@ -1181,7 +1181,7 @@ public class EntityUtils {
 
 			// Damage the taunted enemy to keep focus on the player who casted the taunt.
 			// Damage bypasses iframes & doesn't affect velocity
-			DamageUtils.damage(targetedEntity, tauntedMob, DamageType.OTHER, 0.001, null, true, false);
+			DamageUtils.damage(targetedEntity, tauntedMob, DamageType.UNSCALABLE_SKILL, 0.001, null, true, false);
 
 		}
 	}

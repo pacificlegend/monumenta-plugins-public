@@ -17,7 +17,7 @@ import com.playmonumenta.plugins.effects.PercentKnockbackResist;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
-import com.playmonumenta.plugins.itemstats.enchantments.CritScaling;
+import com.playmonumenta.plugins.itemstats.attributes.AttackDamageAdd;
 import com.playmonumenta.plugins.itemstats.enums.AttributeType;
 import com.playmonumenta.plugins.itemstats.enums.EnchantmentType;
 import com.playmonumenta.plugins.itemstats.enums.Operation;
@@ -252,7 +252,7 @@ public class GloriousBattle extends Ability {
 		mCanCritAttack = false;
 
 		final boolean weaponHasCumbersome = ItemStatUtils.hasEnchantment(mPlayer.getInventory().getItemInMainHand(), EnchantmentType.CUMBERSOME);
-		double baseDamage = event.getFlatDamage() * (weaponHasCumbersome ? 1 : CritScaling.CRIT_BONUS);
+		double baseDamage = event.getBaseDamage() * (weaponHasCumbersome ? 1 : AttackDamageAdd.CRIT_BONUS);
 
 		mCosmetic.gloryOnLand(mPlayer.getWorld(), mPlayer, enemy, mRadius);
 

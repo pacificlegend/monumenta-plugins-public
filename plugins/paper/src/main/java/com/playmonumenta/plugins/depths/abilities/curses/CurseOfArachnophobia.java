@@ -10,6 +10,7 @@ import com.playmonumenta.plugins.depths.abilities.DepthsTrigger;
 import com.playmonumenta.plugins.depths.bosses.Broodmother;
 import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.utils.ScoreboardUtils;
+import java.util.EnumSet;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -21,6 +22,7 @@ public class CurseOfArachnophobia extends DepthsAbility {
 	public static final String ABILITY_NAME = "Curse of Arachnophobia";
 	public static final double DAMAGE_DEALT = 0.50;
 	public static final double DAMAGE_TAKEN = 0.50;
+	public static final EnumSet<DamageEvent.DamageType> AFFECTED_TYPES = DamageEvent.DamageType.getScalableDamageType();
 
 	public static final DepthsAbilityInfo<CurseOfArachnophobia> INFO =
 		new DepthsAbilityInfo<>(CurseOfArachnophobia.class, ABILITY_NAME, CurseOfArachnophobia::new, DepthsTree.CURSE, DepthsTrigger.PASSIVE)
@@ -33,18 +35,16 @@ public class CurseOfArachnophobia extends DepthsAbility {
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		if (DamageEvent.DamageType.getScalableDamageType().contains(event.getType()) &&
-			(enemy instanceof Spider || ScoreboardUtils.checkTag(enemy, Broodmother.identityTag) || enemy.getName().equals(Broodmother.LIMB_PLAIN_NAME))) {
-			event.updateDamageWithMultiplier(1 - DAMAGE_DEALT);
+		if (enemy instanceof Spider || ScoreboardUtils.checkTag(enemy, Broodmother.identityTag) || enemy.getName().equals(Broodmother.LIMB_PLAIN_NAME)) {
+			event.updateDamageWithMultiplier(1 - DAMAGE_DEALT, AFFECTED_TYPES);
 		}
 		return false;
 	}
 
 	@Override
 	public void onHurt(DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
-		if (DamageEvent.DamageType.getScalableDamageType().contains(event.getType()) && source != null &&
-			(source instanceof Spider || ScoreboardUtils.checkTag(source, Broodmother.identityTag))) {
-			event.updateDamageWithMultiplier(1 + DAMAGE_TAKEN);
+		if (source != null && (source instanceof Spider || ScoreboardUtils.checkTag(source, Broodmother.identityTag))) {
+			event.updateDamageWithMultiplier(1 + DAMAGE_TAKEN, AFFECTED_TYPES);
 		}
 	}
 

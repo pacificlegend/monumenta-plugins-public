@@ -31,7 +31,7 @@ public class AxeAspect extends WeaponAspectDepthsAbility {
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
 		if (event.getType() == DamageType.MELEE && ItemUtils.isAxe(mPlayer.getInventory().getItemInMainHand())) {
-			event.setFlatDamage(event.getFlatDamage() + DAMAGE);
+			event.addBaseDamage(DAMAGE);
 		}
 		return false; // only changes event damage
 	}

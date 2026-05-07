@@ -82,7 +82,7 @@ public class IcicleBurst extends Ability {
 				List<LivingEntity> mobs = new Hitbox.SphereHitbox(loc, RADIUS).getHitMobs();
 				mobs.removeIf(mob -> ScoreboardUtils.checkTag(mob, AbilityUtils.IGNORE_TAG));
 				for (LivingEntity mob : mobs) {
-					DamageUtils.damage(mPlayer, mob, DamageEvent.DamageType.OTHER, DAMAGE, mInfo.getLinkedSpell(), true);
+					DamageUtils.damage(mPlayer, mob, DamageEvent.DamageType.UNSCALABLE_SKILL, DAMAGE, mInfo.getLinkedSpell(), true);
 					EntityUtils.applyFreeze(mPlugin, FREEZE_DURATION, mob);
 					EntityUtils.applyVulnerability(mPlugin, VULN_DURATION, VULN_AMOUNT, mob);
 				}

@@ -104,7 +104,7 @@ public class Explosive implements Enchantment {
 			BoundingBox box = BoundingBox.of(location, RADIUS, RADIUS, RADIUS);
 			nearbyMobs.remove(enemy);
 
-			double damage = event.getFlatDamage() * value * DAMAGE_PERCENTAGE_PER_LEVEL;
+			double damage = event.getBaseDamage() * value * DAMAGE_PERCENTAGE_PER_LEVEL;
 			for (LivingEntity mob : nearbyMobs) {
 				BoundingBox mobBox = mob.getBoundingBox();
 				if (box.overlaps(mobBox)) {

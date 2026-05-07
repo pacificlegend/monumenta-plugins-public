@@ -96,12 +96,17 @@ public class ImmortalMountBoss extends BossAbilityGroup {
 			// Do this at the end of the tick so we can't miss the passenger being damaged
 			Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
 				if (mPassengerDamageThisTick < mMountDamageThisTick) {
-					DamageUtils.damage(null, mPassenger, DamageEvent.DamageType.OTHER, mMountDamageThisTick - mPassengerDamageThisTick, null, false);
+					Entity damager = event.getDamager();
+					LivingEntity livingDamager = null;
+					if (damager instanceof LivingEntity livingEntity) {
+						livingDamager = livingEntity;
+					}
+					DamageUtils.damage(livingDamager, mPassenger, DamageEvent.DamageType.UNSCALABLE, mMountDamageThisTick - mPassengerDamageThisTick, null, false);
 				}
 				mMountDamageThisTick = 0;
 			}, 0);
 		}
-		event.setFlatDamage(0);
+		event.setBaseDamage(0);
 	}
 
 	@Override

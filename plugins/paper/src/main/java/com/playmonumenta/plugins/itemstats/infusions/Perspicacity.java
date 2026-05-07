@@ -6,12 +6,14 @@ import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.Infusion;
 import com.playmonumenta.plugins.itemstats.enums.InfusionType;
 import com.playmonumenta.plugins.server.properties.ServerProperties;
+import java.util.EnumSet;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public class Perspicacity implements Infusion {
 
 	public static final double[] DAMAGE_FOR_REGION = {0.01, 0.0125, 0.015}; // r1, r2, r3
+	public static final EnumSet<DamageType> AFFECTED_TYPES = DamageType.getAllMagicTypes();
 
 	@Override
 	public String getName() {
@@ -32,9 +34,9 @@ public class Perspicacity implements Infusion {
 	public void onDamage(Plugin plugin, Player player, double value, DamageEvent event, LivingEntity enemy) {
 		DamageType type = event.getType();
 
-		if (DamageType.getAllMagicTypes().contains(type)) {
+		if (AFFECTED_TYPES.contains(type)) {
 			double abilityDmgBuffPct = value * getDamageForRegion(player);
-			event.updateGearDamageWithMultiplier(1.0 + abilityDmgBuffPct);
+			event.updateGearDamageWithMultiplier(1.0 + abilityDmgBuffPct, AFFECTED_TYPES);
 		}
 	}
 

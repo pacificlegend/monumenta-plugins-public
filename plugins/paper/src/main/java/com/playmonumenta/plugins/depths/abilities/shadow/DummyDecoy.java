@@ -145,7 +145,7 @@ public class DummyDecoy extends DepthsAbility {
 
 		Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
 			if (e.isValid() && !e.isDead()) {
-				DamageUtils.damage(null, e, DamageType.OTHER, 10000);
+				DamageUtils.damage(null, e, DamageType.TRUE, 10000);
 			}
 		}, mDummyDuration);
 	}

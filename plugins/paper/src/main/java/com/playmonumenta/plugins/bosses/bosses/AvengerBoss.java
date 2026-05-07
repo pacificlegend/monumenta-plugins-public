@@ -91,7 +91,7 @@ public final class AvengerBoss extends BossAbilityGroup {
 		}
 
 		if (mStacks > 0) {
-			event.setFlatDamage(event.getDamage() * (1 + mStacks * mParam.DAMAGE_PERCENT_INCREMENT));
+			event.updateFinalMultiplier(1 + mStacks * mParam.DAMAGE_PERCENT_INCREMENT);
 		}
 	}
 

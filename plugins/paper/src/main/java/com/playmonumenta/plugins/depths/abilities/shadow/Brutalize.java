@@ -16,6 +16,7 @@ import com.playmonumenta.plugins.utils.DamageUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
 import com.playmonumenta.plugins.utils.MovementUtils;
 import com.playmonumenta.plugins.utils.PlayerUtils;
+import java.util.EnumSet;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -53,7 +54,7 @@ public class Brutalize extends DepthsAbility {
 		if (event.getType() == DamageType.MELEE && PlayerUtils.isFallingAttack(mPlayer)) {
 			double originalDamage = event.getDamage();
 			double brutalizeDamage = mDamage * originalDamage;
-			event.updateDamageWithMultiplier(1 + mDamage);
+			event.updateDamageWithMultiplier(1 + mDamage, EnumSet.of(DamageType.MELEE));
 			Location loc = enemy.getLocation();
 			World world = mPlayer.getWorld();
 			world.playSound(loc, Sound.ENTITY_WITHER_SHOOT, SoundCategory.PLAYERS, 0.75f, 1.65f);
@@ -61,7 +62,7 @@ public class Brutalize extends DepthsAbility {
 			new PartialParticle(Particle.SPELL_WITCH, loc, 5, 0.5, 0.2, 0.5, 0.65).spawnAsPlayerActive(mPlayer);
 			for (LivingEntity mob : EntityUtils.getNearbyMobs(loc, mRadius)) {
 				if (mob != enemy) {
-					DamageUtils.damage(mPlayer, mob, DamageType.OTHER, brutalizeDamage, null, false, true);
+					DamageUtils.damage(mPlayer, mob, DamageType.UNSCALABLE_SKILL, brutalizeDamage, null, false, true);
 				}
 				MovementUtils.knockAway(mPlayer.getLocation(), mob, 0.5f, true);
 				new PartialParticle(Particle.SPELL_WITCH, mob.getLocation(), 10, 0.5, 0.2, 0.5, 0.65).spawnAsPlayerActive(mPlayer);

@@ -251,18 +251,18 @@ public class DepthsListener implements Listener {
 			int scalingFactor = (floor - 1) / 3;
 			if (floor > 15) {
 				double multiplier = 1 + (0.1 * (scalingFactor - 4));
-				event.setFlatDamage(event.getDamage() * multiplier);
+				event.updateFinalMultiplier(multiplier);
 			}
 			if (source != null && EntityUtils.isBoss(source) && floor > 3) {
 				double multiplier = 1 + (0.05 * scalingFactor);
-				event.setFlatDamage(event.getDamage() * multiplier);
+				event.updateFinalMultiplier(multiplier);
 			}
 		}
 
 		ClassAbility ability = event.getAbility();
 		DamageEvent.DamageType type = event.getType();
-		if (ability != null && !ability.isFake() && type != DamageEvent.DamageType.TRUE && type != DamageEvent.DamageType.OTHER && event.getSource() instanceof Player player) {
-			event.setFlatDamage(event.getFlatDamage() * DepthsUtils.getDamageMultiplier());
+		if (ability != null && !ability.isFake() && type.isScalable() && event.getSource() instanceof Player player) {
+			event.updateFinalMultiplier(DepthsUtils.getDamageMultiplier());
 
 			ItemStatManager.PlayerItemStats playerItemStats = event.getPlayerItemStats();
 			if (playerItemStats == null) {
@@ -270,7 +270,7 @@ public class DepthsListener implements Listener {
 			}
 			double adaptiveMultiplier = DepthsUtils.getAdaptiveDamageMultiplier(playerItemStats, type);
 			if (adaptiveMultiplier > 0) {
-				event.updateGearDamageWithMultiplier(adaptiveMultiplier);
+				event.updateGearDamageWithMultiplier(adaptiveMultiplier, DamageEvent.DamageType.getScalableDamageType());
 			}
 		}
 

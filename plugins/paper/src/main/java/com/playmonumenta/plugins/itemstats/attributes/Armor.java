@@ -39,7 +39,7 @@ public class Armor implements Attribute {
 			double damageMultiplier = getDamageMultiplier(value, getSecondaryEnchantsMod(event, plugin, player),
 				plugin.mItemStatManager.getAttributeAmount(player, AttributeType.AGILITY), Agility.getSecondaryEnchantsLevel(event, plugin, player),
 				getSecondaryEnchantCap(player), getSecondaryEHPMultiplier(player), adaptability, 0, event.getType().getDefenseModifier());
-			event.setFlatDamage(event.getDamage() * damageMultiplier);
+			event.updateFinalMultiplier(damageMultiplier);
 		}
 	}
 

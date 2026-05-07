@@ -6,6 +6,7 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.ItemStatManager;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.LocationUtils;
+import java.util.EnumSet;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -36,8 +37,7 @@ public class ShrapnelBombMark extends Effect {
 
 	@Override
 	public void onHurt(LivingEntity livingEntity, DamageEvent event) {
-		DamageEvent.DamageType type = event.getType();
-		if (type != DamageEvent.DamageType.PROJECTILE
+		if (event.getType() != DamageEvent.DamageType.PROJECTILE
 			|| mPlayer != (event.getDamager() instanceof Projectile ? ((Projectile) event.getDamager()).getShooter() : event.getDamager())
 			|| AbilityUtils.isIndirectDamage(event) // ignore DoT (hunting companion)
 			|| mHits <= 0) {
@@ -47,7 +47,7 @@ public class ShrapnelBombMark extends Effect {
 		mCosmetic.firstStrike(livingEntity.getWorld(), mPlayer, livingEntity);
 
 		if (mBomb.isLevelTwo()) {
-			event.updateDamageWithMultiplier(1 + mDamageBoost);
+			event.updateDamageWithMultiplier(1 + mDamageBoost, EnumSet.of(DamageEvent.DamageType.PROJECTILE));
 		}
 
 		if (mEnhancementMarked) {

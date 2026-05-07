@@ -84,7 +84,7 @@ public class Quake implements Enchantment {
 			for (LivingEntity mob : mobs) {
 				List<MetadataValue> metadata = target.getMetadata(DAMAGE_IS_PROJ_METADATA);
 				ClassAbility ca = !metadata.isEmpty() && metadata.getFirst().asBoolean() ? ClassAbility.QUAKE_PROJ : ClassAbility.QUAKE_MELEE;
-				DamageUtils.damage(player, mob, DamageType.TRUE, finalDamage, ca, false, true);
+				DamageUtils.damage(player, mob, DamageType.UNSCALABLE_ENCH, finalDamage, ca, false, true);
 			}
 
 			if (fire + ice + thunder + decay + bleed + wind == 0) {

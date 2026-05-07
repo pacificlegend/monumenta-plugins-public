@@ -91,7 +91,7 @@ public class DepthsSplitArrow extends DepthsAbility {
 					if (proj instanceof SpectralArrow) {
 						nearestMob.addPotionEffect(SPECTRAL_ARROW_EFFECT);
 					}
-					DamageUtils.damage(mPlayer, nearestMob, DamageType.OTHER, damage, mInfo.getLinkedSpell(), true);
+					DamageUtils.damage(mPlayer, nearestMob, DamageType.UNSCALABLE_SKILL, damage, mInfo.getLinkedSpell(), true);
 					MovementUtils.knockAway(enemy, nearestMob, 0.125f, 0.35f, true);
 					EntityUtils.applyArrowIframes(mPlugin, IFRAMES, nearestMob);
 				}

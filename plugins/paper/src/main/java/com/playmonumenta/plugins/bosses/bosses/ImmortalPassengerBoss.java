@@ -70,12 +70,17 @@ public class ImmortalPassengerBoss extends BossAbilityGroup {
 			// Do this at the end of the tick so we can't miss the passenger being damaged
 			Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
 				if (mVehicleDamageThisTick < mPassengerDamageThisTick) {
-					DamageUtils.damage(null, vehicle, DamageEvent.DamageType.OTHER, mPassengerDamageThisTick - mVehicleDamageThisTick, null, false);
+					Entity damager = event.getDamager();
+					LivingEntity livingDamager = null;
+					if (damager instanceof LivingEntity livingEntity) {
+						livingDamager = livingEntity;
+					}
+					DamageUtils.damage(livingDamager, vehicle, DamageEvent.DamageType.UNSCALABLE, mVehicleDamageThisTick - mPassengerDamageThisTick, null, false);
 				}
 				mPassengerDamageThisTick = 0;
 			}, 0);
 		}
-		event.setFlatDamage(0);
+		event.setBaseDamage(0);
 	}
 
 	@Override

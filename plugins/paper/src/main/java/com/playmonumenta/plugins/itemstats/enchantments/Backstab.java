@@ -48,7 +48,7 @@ public final class Backstab implements Enchantment {
 		}
 		final double mult;
 		mult = 1 + DAMAGE_BONUS_PER_LEVEL * level;
-		event.updateGearDamageWithMultiplier(mult);
+		event.updateGearDamageWithMultiplier(mult, AFFECTED_DAMAGE_TYPES);
 		target.getWorld().playSound(target.getLocation(), Sound.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 1f, 1.35f);
 		target.getWorld().playSound(target.getLocation(), Sound.ITEM_SHIELD_BREAK, SoundCategory.PLAYERS, 1f, 0.85f);
 	}

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class RetaliationEffect extends Effect {
 	public static final String effectID = "RetaliationEffect";
+	private static final EnumSet<DamageType> AFFECTED_TYPES = DamageType.getScalableDamageType();
 	private static final EnumSet<DamageType> SOUND_AND_DEBUFF_DAMAGE_TYPES = EnumSet.of(DamageType.MELEE, DamageType.PROJECTILE);
 	private static final EnumSet<DamageType> HALVED_BONUS_DAMAGE_TYPES = DamageEvent.DamageType.getAllProjectileAndMagicTypes();
 
@@ -78,10 +79,10 @@ public class RetaliationEffect extends Effect {
 
 	@Override
 	public void onDamage(LivingEntity entity, DamageEvent event, LivingEntity enemy) {
-		if (!DamageType.getScalableDamageType().contains(event.getType())) {
+		if (!AFFECTED_TYPES.contains(event.getType())) {
 			return;
 		}
-		event.updateGearDamageWithMultiplier(1 + (HALVED_BONUS_DAMAGE_TYPES.contains(event.getType()) ? mAmount * 0.5 : mAmount));
+		event.updateGearDamageWithMultiplier(1 + (HALVED_BONUS_DAMAGE_TYPES.contains(event.getType()) ? mAmount * 0.5 : mAmount), AFFECTED_TYPES);
 
 		Plugin plugin = Plugin.getInstance();
 		if (SOUND_AND_DEBUFF_DAMAGE_TYPES.contains(event.getType()) && entity instanceof Player player) {

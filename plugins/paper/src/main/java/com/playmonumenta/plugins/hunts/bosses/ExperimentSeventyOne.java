@@ -469,7 +469,7 @@ public class ExperimentSeventyOne extends Quarry {
 	public void onHurt(DamageEvent event) {
 		super.onHurt(event);
 
-		double damage = event.getFlatDamage() * (1 - DAMAGE_REDUCTION_PER_WORM * Math.min(mWorms.size(), 20));
+		double damage = event.getBaseDamage() * (1 - DAMAGE_REDUCTION_PER_WORM * Math.min(mWorms.size(), 20));
 		if (!mWorms.isEmpty()) {
 			new PartialParticle(Particle.FALLING_DUST, mBoss.getLocation().clone().add(0, 0.5, 0))
 				.data(Material.SOUL_SAND.createBlockData())
@@ -499,7 +499,7 @@ public class ExperimentSeventyOne extends Quarry {
 			damage *= 0.5;
 		}
 
-		event.setFlatDamage(damage);
+		event.setBaseDamage(damage);
 	}
 
 	@Override

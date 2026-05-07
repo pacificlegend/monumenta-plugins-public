@@ -15,6 +15,7 @@ import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.utils.EntityUtils;
+import java.util.EnumSet;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
@@ -29,6 +30,7 @@ public class DepthsSharpshooter extends DepthsAbility implements AbilityWithChar
 	private static final int SHARPSHOOTER_DECAY_TIMER = 20 * 4;
 	private static final int TWISTED_SHARPSHOOTER_DECAY_TIMER = 20 * 6;
 	private static final int MAX_STACKS = 8;
+	public static final EnumSet<DamageEvent.DamageType> AFFECTED_TYPES = DamageEvent.DamageType.getAllProjectileTypes();
 
 	public static final DepthsAbilityInfo<DepthsSharpshooter> INFO =
 		new DepthsAbilityInfo<>(DepthsSharpshooter.class, ABILITY_NAME, DepthsSharpshooter::new, DepthsTree.STEELSAGE, DepthsTrigger.PASSIVE)
@@ -56,9 +58,9 @@ public class DepthsSharpshooter extends DepthsAbility implements AbilityWithChar
 
 	@Override
 	public boolean onDamage(DamageEvent event, LivingEntity enemy) {
-		if (event.getType() == DamageEvent.DamageType.PROJECTILE || event.getType() == DamageEvent.DamageType.PROJECTILE_SKILL || event.getType() == DamageEvent.DamageType.PROJECTILE_ENCH) {
+		if (AFFECTED_TYPES.contains(event.getType())) {
 			double mult = 1 + mPassiveDamage + mStacks * mStackDamage;
-			event.updateDamageWithMultiplier(mult);
+			event.updateDamageWithMultiplier(mult, AFFECTED_TYPES);
 
 			// Critical arrow and mob is actually going to take damage
 			if (event.getDamager() instanceof Projectile projectile && EntityUtils.isAbilityTriggeringProjectile(projectile, true)

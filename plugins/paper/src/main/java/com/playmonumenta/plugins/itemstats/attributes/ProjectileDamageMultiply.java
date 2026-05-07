@@ -33,16 +33,12 @@ public class ProjectileDamageMultiply implements Attribute {
 
 	@Override
 	public void onDamage(Plugin plugin, Player player, double value, DamageEvent event, LivingEntity enemy) {
-		DamageType type = event.getType();
-
-		if (type == DamageType.PROJECTILE_SKILL && DepthsManager.getInstance().isInSystem(player)) {
+		if (event.getType() == DamageType.PROJECTILE_SKILL && DepthsManager.getInstance().isInSystem(player)) {
 			// Handled in DepthsListener
 			return;
 		}
 
-		if (DamageType.getAllProjectileTypes().contains(type)) {
-			event.updateGearDamageWithMultiplier(value);
-		}
+		event.updateGearDamageWithMultiplier(value, DamageType.getAllProjectileTypes());
 	}
 
 }

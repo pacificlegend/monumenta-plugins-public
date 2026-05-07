@@ -44,7 +44,7 @@ public class PassiveSporeDefense extends Spell {
 	@Override
 	public void onHurt(DamageEvent event) {
 		if (!isVulnerable()) {
-			event.setFlatDamage(event.getFlatDamage() * RESISTANCE_MULTI);
+			event.updateFinalMultiplier(RESISTANCE_MULTI);
 		}
 		double health = mBoss.getHealth();
 		double damage = event.getFinalDamage(false);

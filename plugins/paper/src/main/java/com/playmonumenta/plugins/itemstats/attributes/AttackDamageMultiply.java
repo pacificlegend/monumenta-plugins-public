@@ -33,16 +33,12 @@ public class AttackDamageMultiply implements Attribute {
 
 	@Override
 	public void onDamage(Plugin plugin, Player player, double value, DamageEvent event, LivingEntity enemy) {
-		DamageType type = event.getType();
-
-		if (type == DamageType.MELEE_SKILL && DepthsManager.getInstance().isInSystem(player)) {
+		if (event.getType() == DamageType.MELEE_SKILL && DepthsManager.getInstance().isInSystem(player)) {
 			// Handled in DepthsListener
 			return;
 		}
 
-		if (DamageType.getAllMeleeTypes().contains(type)) {
-			event.updateGearDamageWithMultiplier(value);
-		}
+		event.updateGearDamageWithMultiplier(value, DamageType.getAllMeleeTypes());
 	}
 
 }

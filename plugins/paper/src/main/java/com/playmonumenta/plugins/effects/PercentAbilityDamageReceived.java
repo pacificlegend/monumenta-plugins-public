@@ -35,15 +35,12 @@ public class PercentAbilityDamageReceived extends Effect {
 
 	@Override
 	public void onHurt(final LivingEntity entity, final DamageEvent event) {
-		if (event.getType() == DamageEvent.DamageType.TRUE) {
-			return;
-		}
 		if (event.getAbility() != null && mAffectedAbilities.contains(event.getAbility())) {
 			double amount = mAmount;
 			if (EntityUtils.isBoss(entity) && isDebuff()) {
 				amount /= 2;
 			}
-			event.updateDamageWithMultiplier(1 + amount);
+			event.updateDamageWithMultiplier(1 + amount, DamageEvent.DamageType.getNonTrueTypes());
 		}
 	}
 

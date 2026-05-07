@@ -41,7 +41,7 @@ public class Infernal {
 		}
 
 		if (event.getType() == DamageType.FIRE) {
-			event.setFlatDamage(event.getDamage() * (1 + BURNING_DAMAGE_TAKEN_MULTIPLIER_PER_LEVEL * level));
+			event.updateFinalMultiplier(1 + BURNING_DAMAGE_TAKEN_MULTIPLIER_PER_LEVEL * level);
 		}
 	}
 

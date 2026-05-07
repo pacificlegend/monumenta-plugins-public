@@ -93,7 +93,9 @@ public class Taunt extends Spell {
 		// If the damage type is possibly a Damage Over Time effect, its damage must be higher than a certain value in order to trigger the parry
 		final EnumSet<DamageEvent.DamageType> POSSIBLE_DOT = EnumSet.of(
 			DamageEvent.DamageType.MAGIC,
-			DamageEvent.DamageType.OTHER
+			DamageEvent.DamageType.UNSCALABLE,
+			DamageEvent.DamageType.UNSCALABLE_SKILL,
+			DamageEvent.DamageType.UNSCALABLE_ENCH
 		);
 
 		//Return if not a player or if damage type is invalid
@@ -118,6 +120,6 @@ public class Taunt extends Spell {
 		mBoss.setVelocity(mBoss.getLocation().subtract(player.getLocation()).toVector().setY(0).normalize().multiply(2));
 		BossUtils.blockableDamage(mBoss, player, DamageEvent.DamageType.MELEE_SKILL, mDamage);
 		EntityUtils.selfRoot(mBoss, 20);
-		event.setFlatDamage(0);
+		event.setBaseDamage(0);
 	}
 }

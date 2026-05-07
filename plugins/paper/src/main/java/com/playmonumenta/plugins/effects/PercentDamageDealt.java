@@ -20,7 +20,7 @@ public class PercentDamageDealt extends Effect {
 	public static final String effectID = "PercentDamageDealt";
 
 	protected final double mAmount;
-	protected @Nullable EnumSet<DamageType> mAffectedDamageTypes;
+	protected EnumSet<DamageType> mAffectedDamageTypes;
 	protected int mPriority;
 	private @Nullable BiPredicate<LivingEntity, LivingEntity> mPredicate;
 
@@ -29,7 +29,7 @@ public class PercentDamageDealt extends Effect {
 							  final String effectID, final boolean deleteOnAbilityRefresh) {
 		super(duration, effectID, deleteOnAbilityRefresh);
 		mAmount = amount;
-		mAffectedDamageTypes = affectedDamageTypes;
+		mAffectedDamageTypes = affectedDamageTypes == null ? DamageType.getScalableDamageType() : affectedDamageTypes;
 		mPriority = priority;
 		mPredicate = predicate;
 	}
@@ -59,7 +59,7 @@ public class PercentDamageDealt extends Effect {
 	 * @return Modified PercentDamageDealt instance
 	 */
 	public PercentDamageDealt damageTypes(final @Nullable EnumSet<DamageType> affectedDamageTypes) {
-		mAffectedDamageTypes = affectedDamageTypes;
+		mAffectedDamageTypes = affectedDamageTypes == null ? DamageType.getScalableDamageType() : affectedDamageTypes;
 		return this;
 	}
 
@@ -112,21 +112,12 @@ public class PercentDamageDealt extends Effect {
 		return mAmount > 0;
 	}
 
-	public @Nullable EnumSet<DamageType> getAffectedDamageTypes() {
-		return mAffectedDamageTypes;
-	}
-
 	@Override
 	public void onDamage(final LivingEntity entity, final DamageEvent event, final LivingEntity enemy) {
-		if (event.getType() == DamageEvent.DamageType.TRUE) {
-			return;
-		}
 		if (mPredicate != null && !mPredicate.test(entity, enemy)) {
 			return;
 		}
-		if (mAffectedDamageTypes == null || mAffectedDamageTypes.contains(event.getType())) {
-			event.updateDamageWithMultiplier(Math.max(0, 1 + mAmount));
-		}
+		event.updateDamageWithMultiplier(Math.max(0, 1 + mAmount), mAffectedDamageTypes);
 	}
 
 	@Override
@@ -148,13 +139,11 @@ public class PercentDamageDealt extends Effect {
 		object.addProperty("duration", mDuration);
 		object.addProperty("amount", mAmount);
 
-		if (mAffectedDamageTypes != null) {
-			final JsonArray jsonArray = new JsonArray();
-			for (final DamageType damageType : mAffectedDamageTypes) {
-				jsonArray.add(damageType.name());
-			}
-			object.add("type", jsonArray);
+		final JsonArray jsonArray = new JsonArray();
+		for (final DamageType damageType : mAffectedDamageTypes) {
+			jsonArray.add(damageType.name());
 		}
+		object.add("type", jsonArray);
 
 		object.addProperty("priority", mPriority);
 		object.addProperty("hasPredicate", mPredicate != null);
@@ -188,15 +177,12 @@ public class PercentDamageDealt extends Effect {
 
 	@Override
 	public String toString() {
-		StringBuilder types = new StringBuilder("any");
-		if (mAffectedDamageTypes != null) {
-			types = new StringBuilder();
-			for (final DamageType type : mAffectedDamageTypes) {
-				if (!types.isEmpty()) {
-					types.append(",");
-				}
-				types.append(type.name());
+		StringBuilder types = new StringBuilder();
+		for (final DamageType type : mAffectedDamageTypes) {
+			if (!types.isEmpty()) {
+				types.append(",");
 			}
+			types.append(type.name());
 		}
 		return String.format("PercentDamageDealt duration:%d types:%s amount:%f", this.getDuration(), types, mAmount);
 	}

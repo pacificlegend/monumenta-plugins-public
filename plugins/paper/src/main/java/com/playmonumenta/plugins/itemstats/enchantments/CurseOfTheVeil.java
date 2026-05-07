@@ -86,11 +86,8 @@ public class CurseOfTheVeil implements Enchantment {
 
 				// Check if the player should be damaged, or if just an indicator should be shown
 				if (shouldActivate(player)) {
-					double newPlayerHealth = player.getHealth() - DAMAGE_PER_TICK * level;
-					if (newPlayerHealth < 1) {
-						newPlayerHealth = 1;
-					}
-					player.setHealth(newPlayerHealth);
+					double reducedHealth = player.getHealth() - DAMAGE_PER_TICK * level;
+					player.setHealth(Math.clamp(reducedHealth, 1, EntityUtils.getMaxHealth(player)));
 
 					new PartialParticle(Particle.DUST_COLOR_TRANSITION, LocationUtils.getHalfHeightLocation(player))
 						.count(10)

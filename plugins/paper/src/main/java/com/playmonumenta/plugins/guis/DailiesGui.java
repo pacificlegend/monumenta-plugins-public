@@ -29,7 +29,7 @@ public class DailiesGui extends Gui {
 		Material.RED_STAINED_GLASS_PANE,
 		"Uncompleted Today",
 		NamedTextColor.RED,
-		false,
+		true,
 		""
 		);
 
@@ -37,15 +37,22 @@ public class DailiesGui extends Gui {
 		Material.YELLOW_STAINED_GLASS_PANE,
 		"Partially Completed Today",
 		NamedTextColor.YELLOW,
-		false,
+		true,
 		""
 	);
+
+	private static final ItemStack CLAIMABLE_COMPLETION_ITEM = GUIUtils.createBasicItem(
+		Material.ORANGE_STAINED_GLASS_PANE,
+		"Available to Claim",
+		NamedTextColor.GOLD,
+		true,
+		"");
 
 	private static final ItemStack FULL_COMPLETION_ITEM = GUIUtils.createBasicItem(
 		Material.LIME_STAINED_GLASS_PANE,
 		"Completed Today",
 		NamedTextColor.GREEN,
-		false,
+		true,
 		""
 	);
 
@@ -64,7 +71,7 @@ public class DailiesGui extends Gui {
 		// R2:
 		DAILY2("Isles Bounty", Location.OVERWORLD2.getColor(), 2, ItemUtils.createPlayerHeadFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTMzOThhYjNjYjY5NmIzNDQzMGJlOTQ0YjE0YWZiZDIyN2ZkODdlOTkwMjZiY2ZjOGI3Mzg3YTg2MWJkZSJ9fX0="), null, "Quest101", 12, "Daily2Completed", null, null, 0),
 		HORSEMAN(Location.HORSEMAN, 2, ItemUtils.createPlayerHeadFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGM2NTcwZjEyNDI5OTJmNmViYTIzZWU1ODI1OThjMzllM2U3NDUzODMyNzNkZWVmOGIzOTc3NTgzZmUzY2Y1In19fQ=="), null, "TP_Horseman", 1, "HorsemanWins", "horseman_daily_artifact", "DailyLimitHorse", 8),
-		MIST(Location.MIST, 2, ItemUtils.createPlayerHeadFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODZjZTliMThjYTIzOGVhZDY1MTViMDE3MzUzNGE3ZjM0ZDI4YmM1MWMwMTg4ZTJkYjA2ODQ1YzE3ZTYyZjEwYSJ9fX0="), null, "TP_Mist", 1, "MistClears", "mist_artifact_daily", null, 0),
+		MIST(Location.MIST, 2, ItemUtils.createPlayerHeadFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMThhYjVmOWVlOWUyZDNkYzY2NjdmZTM4YjA3ZWNhMzQ0OTc1NDA5ZGFlZjRmY2RlMTk4MTRjNTYzZjQxZTc3NiJ9fX0="), null, "TP_Mist", 1, "MistClears", "mist_artifact_daily", null, 0),
 		REMORSE(Location.REMORSE, 2, ItemUtils.createPlayerHeadFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODZjZTliMThjYTIzOGVhZDY1MTViMDE3MzUzNGE3ZjM0ZDI4YmM1MWMwMTg4ZTJkYjA2ODQ1YzE3ZTYyZjEwYSJ9fX0="), "monumenta:challenges/r2/sr/find", null, 0, "SealedRemorse", "sr_artifact_daily", null, 0),
 		ELDRASK("Eldrask, the Frost Giant", Location.FROSTGIANT.getColor(), 2, ItemUtils.createPlayerHeadFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGRiYTY0MmVmZmZhMTNlYzM3MzBlYWZjNTkxNGFiNjgxMTVjMWY5OTg4MDNmNzQ0NTJlMmUwY2QyNmFmMGI4In19fQ=="), null, "Quest124", 19, "FGWins", "fg_daily_artifact", "DailyLimitGiant", 8),
 		HEKAWT(Location.LICH, 2, ItemUtils.createPlayerHeadFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2Y0MGFmODE4MDdiYzE0ZDk4ZWJjNzBkNDc4MTRiODNmNjZmZWM4ZmE5ZjY1MWFjY2RlYWU0ODY5Y2M0ZjY4ZSJ9fX0="), null, "Fred", 1, "LichWins", "lich_daily_artifact", "DailyLimitLich", 8),
@@ -75,6 +82,7 @@ public class DailiesGui extends Gui {
 		GODSPORE(Location.GODSPORE, 3, ItemUtils.createPlayerHeadFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGI3NWU2OWIyMTNjNTI5NzgzMzk0ODUxNTBmMTViZGUwZDFmNjU0ZmU0N2Q1MWE2YTE5ZWY0Yjc0OWVjIn19fQ=="), null, "GodsporeLobby", 1, "GodsporeWins", "godspore_daily_artifact", null, 0),
 		FISHINGCOMBAT("Fishing Combat", Location.FISHING.getColor(), 3, new ItemStack(Material.PUFFERFISH), null, "R3Access", 1, "FishCombatsCompleted", null, "DailyLimitRingFishingCombat", 4),
 		FISHINGQUEST("Fishing Quest", Location.FISHING.getColor(), 3, new ItemStack(Material.FISHING_ROD), null, "R3Access", 1, "FishQuestsCompleted", null, null, 0),
+		ZENITH("Celestial Zenith", Location.ZENITH.getColor(), 3, new ItemStack(Material.SCULK_SENSOR), "monumenta:dungeons/zenith/find", null, 0, "Zenith", "zenith_daily", null, 0),
 		SIRIUS("Sirius, the Final Blight", Location.SIRIUS.getColor(), 3, ItemUtils.createPlayerHeadFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWQzZDI1MGUyNWJiY2EzYTYyYmU1YjNlZjAyY2ZjYWI2ZGNkYzQyNDg4NGM5YTdkNWNjOTVjOWQwIn19fQ=="), null, "SiriusWins", 1, "SiriusWins", "sirius_daily_artifact", "DailyLimitSirius", 8),
 		INTRUDER(Location.TWISTED_INTRUDER, 3, ItemUtils.createPlayerHeadFromBase64("e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTJjMmJhNTc1YTQzMGZiOWY2ODBlMzZjNTBkYzgyNDE4YjY1MmZhOTczZDM3NTY2M2MzYTViOTUzNmQ0MzM2ZCJ9fX0="), null, "TwistedXWins", 1, "TwistedXWins", "twistedx_daily_artifact", null, 0),
 		AURORA(Location.AURORA, 3, ItemUtils.createPlayerHeadFromBase64("ewogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWU2ODBmOWIxNDBhZTljMWNiZGMzZDFmNzE0ZWQzYWVlMTkyOWVhZjBiNzA4NDUzYTM1YWRmNTk5NDE1ODA2IgogICAgfQogIH0KfQ=="), null, "Aurora", 1, "Aurora", "aurora_daily_artifact", null, 0);
@@ -98,7 +106,7 @@ public class DailiesGui extends Gui {
 					   int scoreboardReqValue, String completionScore,
 					   @Nullable String scoreboardDailyTag, @Nullable String scoreboardMaxDailiesName, int scoreboardMaxDailiesValue) {
 			mLocation = loc;
-			mName = mLocation.getDisplay();
+			mName = mLocation.getDisplay().decoration(TextDecoration.BOLD, true);
 			mRegion = region;
 			mIcon = icon;
 			mAdvancementReqPath = advancementReqPath;
@@ -116,7 +124,7 @@ public class DailiesGui extends Gui {
 					   int scoreboardReqValue, String completionScore,
 					   @Nullable String scoreboardDailyTag, @Nullable String scoreboardMaxDailiesName, int scoreboardMaxDailiesValue) {
 			mLocation = Location.NONE;
-			mName = Component.text(name, color);
+			mName = Component.text(name, color).decoration(TextDecoration.BOLD, true);
 			mRegion = region;
 			mIcon = icon;
 			mAdvancementReqPath = advancementReqPath;
@@ -132,7 +140,6 @@ public class DailiesGui extends Gui {
 	    Page 1: Region 1 Dailies
 	    Page 2: Region 2 Dailies
 	    Page 3: Region 3 Dailies
-	    Page 4: Dungeon weeklies
 	 */
 
 	public DailiesGui(Player player, int page) {
@@ -235,24 +242,14 @@ public class DailiesGui extends Gui {
 			}
 		}
 
-		// Dungeons:
-		if (mPage == 4) {
-			setItem(5, 0, GUIUtils.createBasicItem(Material.EMERALD_BLOCK, "Dungeons",
-				NamedTextColor.GRAY,
-				true,
-				"You have this page open already!",
-				NamedTextColor.RED
-			));
-		} else {
-			setItem(5, 0, GUIUtils.createBasicItem(Material.SPAWNER, "Dungeons", NamedTextColor.GRAY, true,
-				"View weekly dungeon completions."))
+		// Dungeons GUI (DungeonsGui.java):
+		setItem(5, 0, GUIUtils.createBasicItem(Material.SPAWNER, "Switch to Dungeons GUI", NamedTextColor.GRAY, true,
+				"View weekly dungeons status."))
 				.onLeftClick(() -> {
-					//mPage = 4;
 					mPlayer.playSound(mPlayer, Sound.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.PLAYERS, 1.0f, 0.5f);
-					runConsoleCommand("execute as @S run clickable peb_dungeoninfo"); // Temporary, will be gone with implementation of Dungeons page
+					new DungeonsGui(mPlayer, mPage).open();
 					close();
 				});
-		}
 
 		// Page Entries for Regional Content:
 		// Parse through the TrackedDailies enum and add items that match
@@ -278,7 +275,7 @@ public class DailiesGui extends Gui {
 						setItem(editingRow, editingColumn, editedIcon);
 						// Step 2: Place the glass item for the daily entry
 						if (dailyEntry.equals(TrackedDailies.SNOWSPIRIT) && !mPlayer.hasPermission("monumenta.event.winter")) { // Hardcoded glass for snow spirit permission locked
-							setItem(editingRow + 1, editingColumn, GUIUtils.createBasicItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, "Daily Unavailable", NamedTextColor.DARK_AQUA, false,
+							setItem(editingRow + 1, editingColumn, GUIUtils.createBasicItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, "Daily Unavailable", NamedTextColor.DARK_AQUA, true,
 								"This daily reward is unavailable outside of the Winter Event!", NamedTextColor.AQUA));
 						} else if (dailyEntry.equals(TrackedDailies.FISHINGQUEST)) { // Hardcoded glass for Daily Ring Fish. Assigned = incomplete, Not assigned = complete
 							if (ScoreboardUtils.getScoreboardValue(mPlayer, "DailyRingFish").orElse(0) == 0) {
@@ -287,27 +284,55 @@ public class DailiesGui extends Gui {
 								setItem(editingRow + 1, editingColumn, NO_COMPLETION_ITEM);
 							}
 						} else if (dailyEntry.equals(TrackedDailies.DAILY1) || dailyEntry.equals(TrackedDailies.DAILY2) || dailyEntry.equals(TrackedDailies.DAILY3)) { // Hardcoded glass for regional dailies for POIs in progress
+							ItemStack editedGlass;
 							String questScoreboard = switch (dailyEntry) {
 								case TrackedDailies.DAILY1 -> "DailyQuest";
 								case TrackedDailies.DAILY2 -> "Daily2Quest";
 								case TrackedDailies.DAILY3 -> "Daily3Quest";
 								default -> "";
 							};
-							if (ScoreboardUtils.getScoreboardValue(mPlayer, questScoreboard).orElse(0) < 1000) {
-								setItem(editingRow + 1, editingColumn, NO_COMPLETION_ITEM);
-							} else if (dailyEntry.mScoreboardMaxDailiesName != null && ScoreboardUtils.getScoreboardValue(mPlayer, questScoreboard).orElse(0) >= 1000) {
-								ItemStack editedGlass = PARTIAL_COMPLETION_ITEM.clone();
+							String rewardScoreboard = switch (dailyEntry) {
+								case TrackedDailies.DAILY1 -> "DailyReward";
+								case TrackedDailies.DAILY2 -> "Daily2Reward";
+								case TrackedDailies.DAILY3 -> "Daily3Reward";
+								default -> "";
+							};
+							int playerBountyScore = ScoreboardUtils.getScoreboardValue(mPlayer, questScoreboard).orElse(0);
+							int playerRewardScore = ScoreboardUtils.getScoreboardValue(mPlayer, rewardScoreboard).orElse(0);
+							if (playerBountyScore >= 1 && playerBountyScore <= 999) {
+								// daily in progress
+								editedGlass = PARTIAL_COMPLETION_ITEM.clone();
+								ItemMeta glassMeta = editedGlass.getItemMeta();
+								glassMeta.displayName(Component.text("Bounty Started", NamedTextColor.YELLOW).decoration(TextDecoration.BOLD, true).decoration(TextDecoration.ITALIC, false));
+								editedGlass.setItemMeta(glassMeta);
+							} else if (playerRewardScore != 0) {
+								// daily ready to claim
+								editedGlass = CLAIMABLE_COMPLETION_ITEM.clone();
+							} else if (playerBountyScore >= 1000) {
+								// daily completed
+								editedGlass = FULL_COMPLETION_ITEM.clone();
+							} else {
+								// daily not completed, bounty score is 0
+								editedGlass = NO_COMPLETION_ITEM.clone();
+							}
+							if (dailyEntry.mScoreboardMaxDailiesName != null && ScoreboardUtils.getScoreboardValue(mPlayer, dailyEntry.mScoreboardMaxDailiesName).orElse(0) >= 1) { // multiple dailies exist
 								ItemMeta glassMeta = editedGlass.getItemMeta();
 								List<Component> glassLore = new ArrayList<>();
 								glassLore.add(Component.text("Bounties left for today: ", NamedTextColor.BLUE)
-									.append(Component.text(String.format("%d", ScoreboardUtils.getScoreboardValue(mPlayer, dailyEntry.mScoreboardMaxDailiesName).orElse(0)), NamedTextColor.GOLD)
-										.append(Component.text(".", NamedTextColor.BLUE))).decoration(TextDecoration.ITALIC, false));
+										.append(Component.text(String.format("%d", ScoreboardUtils.getScoreboardValue(mPlayer, dailyEntry.mScoreboardMaxDailiesName).orElse(0)), NamedTextColor.GOLD)
+												.append(Component.text(".", NamedTextColor.BLUE))).decoration(TextDecoration.ITALIC, false));
 								glassMeta.lore(glassLore);
 								editedGlass.setItemMeta(glassMeta);
-								setItem(editingRow + 1, editingColumn, editedGlass);
-							} else {
-								setItem(editingRow + 1, editingColumn, FULL_COMPLETION_ITEM);
+							} else if (playerRewardScore != 0 && playerBountyScore == 0) { // Case if player didn't claim a prior day's bounty in R2/R3
+								ItemMeta glassMeta = editedGlass.getItemMeta();
+								List<Component> glassLore = new ArrayList<>();
+								glassLore.add(Component.text("Bounties left for today: ", NamedTextColor.BLUE)
+										.append(Component.text("1", NamedTextColor.GOLD)
+												.append(Component.text(".", NamedTextColor.BLUE))).decoration(TextDecoration.ITALIC, false));
+								glassMeta.lore(glassLore);
+								editedGlass.setItemMeta(glassMeta);
 							}
+							setItem(editingRow + 1, editingColumn, editedGlass);
 						} else if ((dailyEntry.mScoreboardDailyTag != null && !ScoreboardUtils.checkTag(mPlayer, dailyEntry.mScoreboardDailyTag))
 						|| (dailyEntry.mScoreboardMaxDailiesName != null && ScoreboardUtils.getScoreboardValue(mPlayer, dailyEntry.mScoreboardMaxDailiesName).orElse(0) == dailyEntry.mScoreboardMaxDailiesValue)) { // Automated Glass Placement
 							// Has no daily tag OR is at max daily completes - not completed today
@@ -343,13 +368,6 @@ public class DailiesGui extends Gui {
 				}
 			}
 		}
-
-		// TODO: Dungeons Page, will come later
-		// Page Entries for Dungeons:
-		// Dungeons have different values and are formatted differently, hence
-		// why they are parsed separately from dailies, in the TrackedDungeons
-		// enum instead.
-		// mPage = 4
 	}
 
 	// Utilized from other GUIs, runs a command for the player

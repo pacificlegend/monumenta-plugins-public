@@ -31,7 +31,7 @@ final class PlayerInfoPage extends PebPage {
 			Material.WHITE_WOOL,
 			"Dungeon Instances",
 			"Click to view what dungeon instances you have open, and how old they are."
-		).command("clickable peb_dungeoninfo").set(2, 6);
+		).command("dungeons").set(2, 6);
 
 		entry(
 			Material.GLOWSTONE_DUST,

@@ -47,7 +47,7 @@ final class MainPage extends PebPage {
 			Material.WHITE_WOOL,
 			"Dungeon Instances",
 			"Click to view what dungeon instances you have open, and how old they are."
-		).command("clickable peb_dungeoninfo").set(2, 7);
+		).command("dungeons").set(2, 7);
 
 		entry(
 			Material.DIAMOND_SWORD,

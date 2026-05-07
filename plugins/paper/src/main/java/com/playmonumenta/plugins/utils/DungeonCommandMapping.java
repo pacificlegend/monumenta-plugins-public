@@ -134,6 +134,10 @@ public enum DungeonCommandMapping {
 		return mLocation.getName();
 	}
 
+	public TextColor getLocationColor() {
+		return mLocation.getColor();
+	}
+
 	public String getDisplayName() {
 		return mLocation.getDisplayName();
 	}

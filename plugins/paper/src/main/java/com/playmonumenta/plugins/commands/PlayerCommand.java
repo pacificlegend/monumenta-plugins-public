@@ -58,7 +58,7 @@ public class PlayerCommand {
 				.withSubcommand(new CommandAPICommand("dungeons")
 					.withPermission("monumenta.command.player.status.dungeons")
 					.executesPlayer((PlayerCommandExecutor) (player, args) ->
-						player.performCommand("clickable peb_dungeoninfo")
+						player.performCommand("dungeons")
 					)
 				)
 			)

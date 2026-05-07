@@ -275,6 +275,7 @@ public class Plugin extends JavaPlugin {
 		DelvesCommands.register(this);
 		DiscoveryCommand.register();
 		DungeonAccessCommand.register();
+		DungeonsGuiCommand.register();
 		Effect.register(this);
 		Eggify.register();
 		EventCommand.register();

@@ -59,30 +59,23 @@ public class Generosity extends DepthsAbility {
 		Player removedPlayer = depthsPlayer.getPlayer();
 		boolean foundPlayer = false;
 		if (party != null && removedAbilityInfo != null && removedPlayer != null) {
-			DepthsAbilityInfo<?> finalRemovedAbilityInfo = removedAbilityInfo;
-			boolean hasLevels = finalRemovedAbilityInfo.getHasLevels();
 			for (DepthsPlayer dp : party.mPlayersInParty) {
 				Player otherPlayer = dp.getPlayer();
 				if (otherPlayer == null || dp == depthsPlayer) {
 					continue;
 				}
 				int currentLevel = dp.getLevelInAbility(removedAbility);
-				if (((hasLevels && currentLevel < generosityLevel) || currentLevel == 0) &&
-					DepthsManager.getInstance().getPlayerAbilities(dp).stream()
-						.filter(abilityInfo -> abilityInfo != finalRemovedAbilityInfo)
-						.filter(abilityInfo -> !abilityInfo.getDepthsTrigger().equals(DepthsTrigger.PASSIVE))
-						.noneMatch(abilityInfo -> abilityInfo.getDepthsTrigger().equals(finalRemovedAbilityInfo.getDepthsTrigger()))
-				) {
+				if (canGetGift(dp, otherPlayer, removedAbilityInfo, generosityLevel, currentLevel)) {
 					foundPlayer = true;
 					dp.addReward(DepthsRoomType.DepthsRewardType.GENEROSITY);
 					dp.mGenerosityGifts.add(removedAbilityInfo.getAbilityItem(generosityLevel, otherPlayer, currentLevel));
 					otherPlayer.playSound(otherPlayer.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1.0f, 1.0f);
 					Component abilityName = removedAbilityInfo.getNameWithHover(generosityLevel, 0, otherPlayer, false);
 					Component atLevel;
-					if (hasLevels) {
+					if (removedAbilityInfo.getHasLevels()) {
 						atLevel = Component.text(" at ").append(DepthsUtils.getRarityComponent(generosityLevel)).append(Component.text(" level"));
 					} else {
-						atLevel = Component.text(" ");
+						atLevel = Component.empty();
 					}
 					dp.sendMessage(removedPlayer.displayName().append(Component.text(" has generously gifted you: ")).append(abilityName).append(atLevel).append(Component.text("! You can accept the gift in the rewards in your trinket.")));
 				}
@@ -91,5 +84,21 @@ public class Generosity extends DepthsAbility {
 		if (foundPlayer) {
 			depthsPlayer.mUsedGenerosity = true;
 		}
+	}
+
+	private static boolean canGetGift(DepthsPlayer dp, Player otherPlayer, DepthsAbilityInfo<?> removedAbilityInfo, int genososityLevel, int currentLevel) {
+		if (currentLevel > 0) {
+			return removedAbilityInfo.getHasLevels() && currentLevel < genososityLevel;
+		}
+
+		// If we are here, the potential receiver does not have this ability yet
+		// We can always get passive abilities, convergence, or wildcards if we have convergence with space remaining
+		DepthsTrigger trigger = removedAbilityInfo.getDepthsTrigger();
+		if (trigger == DepthsTrigger.PASSIVE || removedAbilityInfo.equals(Convergence.INFO) || (trigger == DepthsTrigger.WILDCARD && Convergence.canGainWildcards(otherPlayer))) {
+			return true;
+		}
+
+		// If they have something else in this slot, they cannot get the ability
+		return DepthsManager.getInstance().getPlayerAbilities(dp).stream().noneMatch(abilityInfo -> abilityInfo.getDepthsTrigger() == trigger);
 	}
 }

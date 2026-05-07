@@ -72,15 +72,15 @@ public class SoulStrainCS extends DivineJusticeCS {
 				double delta = 0.1 * i;
 				final Particle.DustOptions RED = new Particle.DustOptions(Color.fromRGB(180 - 60 * i, 0, 60 - 20 * i), 1.0f - i * 0.2f);
 				// Axe
-				new PPLine(Particle.REDSTONE, loc1, loc1.clone().subtract(front.clone().multiply(2))).data(RED).countPerMeter(12).delta(delta, 0, delta).spawnAsPlayerActive(player);
-				new PPLine(Particle.REDSTONE, loc1.clone().subtract(front), loc.clone().subtract(front.clone().multiply(1.5))).data(RED).countPerMeter(12).delta(delta, 0, delta).spawnAsPlayerActive(player);
-				new PPLine(Particle.REDSTONE, loc1.clone().subtract(front.clone().multiply(2)), loc.clone().subtract(front.clone().multiply(1.5))).data(RED).countPerMeter(12).delta(delta, 0, delta).spawnAsPlayerActive(player);
+				new PPLine(Particle.REDSTONE, loc1, loc1.clone().subtract(front.clone().multiply(2))).data(RED).countPerMeter(12).delta(delta, 0, delta).spawnAsPlayerPassive(player);
+				new PPLine(Particle.REDSTONE, loc1.clone().subtract(front), loc.clone().subtract(front.clone().multiply(1.5))).data(RED).countPerMeter(12).delta(delta, 0, delta).spawnAsPlayerPassive(player);
+				new PPLine(Particle.REDSTONE, loc1.clone().subtract(front.clone().multiply(2)), loc.clone().subtract(front.clone().multiply(1.5))).data(RED).countPerMeter(12).delta(delta, 0, delta).spawnAsPlayerPassive(player);
 				// Head
-				new PPLine(Particle.REDSTONE, loc2, loc2.clone().subtract(front.clone().multiply(2))).data(RED).countPerMeter(12).delta(delta, 0, delta).spawnAsPlayerActive(player);
-				new PPCircle(Particle.REDSTONE, loc.clone().add(right.clone().multiply(0.5)).subtract(front.clone().multiply(1.5)), width / 2).data(RED).countPerMeter(12).delta(delta, 0, delta).spawnAsPlayerActive(player);
+				new PPLine(Particle.REDSTONE, loc2, loc2.clone().subtract(front.clone().multiply(2))).data(RED).countPerMeter(12).delta(delta, 0, delta).spawnAsPlayerPassive(player);
+				new PPCircle(Particle.REDSTONE, loc.clone().add(right.clone().multiply(0.5)).subtract(front.clone().multiply(1.5)), width / 2).data(RED).countPerMeter(12).delta(delta, 0, delta).spawnAsPlayerPassive(player);
 			}
 			new PPCircle(Particle.ENCHANTMENT_TABLE, enemyLoc, hieroglyphRadius).countPerMeter(8).extraRange(0.1, 0.15).innerRadiusFactor(1)
-				.directionalMode(true).delta(-2, 0.2, 8).rotateDelta(true).spawnAsPlayerActive(player);
+				.directionalMode(true).delta(-2, 0.2, 8).rotateDelta(true).spawnAsPlayerPassive(player);
 		}
 
 		if (enemyLoc.getY() + 1 > enemy.getEyeLocation().getY()) {
@@ -90,13 +90,13 @@ public class SoulStrainCS extends DivineJusticeCS {
 		}
 		enemyLoc.setDirection(dir);
 
-		new PartialParticle(Particle.SCULK_CHARGE_POP, enemyLoc, 8, 0.1, 0.2 * enemy.getHeight(), 0.1, 0.05).spawnAsPlayerActive(player);
-		new PartialParticle(Particle.GLOW, enemyLoc, 6, 0.1, 0.2 * enemy.getHeight(), 0.1, 0.05).spawnAsPlayerActive(player);
+		new PartialParticle(Particle.SCULK_CHARGE_POP, enemyLoc, 8, 0.1, 0.2 * enemy.getHeight(), 0.1, 0.05).spawnAsPlayerPassive(player);
+		new PartialParticle(Particle.GLOW, enemyLoc, 6, 0.1, 0.2 * enemy.getHeight(), 0.1, 0.05).spawnAsPlayerPassive(player);
 
 		ParticleUtils.drawHalfArc(enemyLoc.clone().subtract(dir.clone().multiply(2.25)), 2, ANGLE[combo], 0, 155, 1, 0.1, (Location l, int ring, double angleProgress) -> {
-			new PartialParticle(Particle.DUST_COLOR_TRANSITION, l, 2, 0.06, 0.06, 0.06, 0).data(CYAN).spawnAsPlayerActive(player);
-			new PartialParticle(Particle.SPELL_MOB, l, FastUtils.roundRandomly(0.25)).delta(0, 0.96, 0.96).extra(1).directionalMode(true).spawnAsPlayerActive(player);
-			new PartialParticle(Particle.SPELL_MOB_AMBIENT, l, FastUtils.roundRandomly(0.35)).delta(0, 0.9, 0.8).extra(1).directionalMode(true).spawnAsPlayerActive(player);
+			new PartialParticle(Particle.DUST_COLOR_TRANSITION, l, 2, 0.06, 0.06, 0.06, 0).data(CYAN).spawnAsPlayerPassive(player);
+			new PartialParticle(Particle.SPELL_MOB, l, FastUtils.roundRandomly(0.25)).delta(0, 0.96, 0.96).extra(1).directionalMode(true).spawnAsPlayerPassive(player);
+			new PartialParticle(Particle.SPELL_MOB_AMBIENT, l, FastUtils.roundRandomly(0.35)).delta(0, 0.9, 0.8).extra(1).directionalMode(true).spawnAsPlayerPassive(player);
 		});
 	}
 
@@ -104,8 +104,8 @@ public class SoulStrainCS extends DivineJusticeCS {
 	public void justiceKill(Player player, Location loc) {
 		World world = loc.getWorld();
 		world.playSound(loc, Sound.ENTITY_WARDEN_LISTENING_ANGRY, SoundCategory.PLAYERS, 1.25f, 1.2f);
-		new PartialParticle(Particle.SOUL, loc, 20, 0.5, 0.8, 0.5, 0.1).spawnAsPlayerActive(player);
-		new PartialParticle(Particle.SHRIEK, loc.clone().add(0, 1.5, 0), 3, 0.0, 0.0, 0.0, 0.0).data(0).spawnAsPlayerActive(player);
+		new PartialParticle(Particle.SOUL, loc, 20, 0.5, 0.8, 0.5, 0.1).spawnAsPlayerPassive(player);
+		new PartialParticle(Particle.SHRIEK, loc.clone().add(0, 1.5, 0), 3, 0.0, 0.0, 0.0, 0.0).data(0).spawnAsPlayerPassive(player);
 	}
 
 	@Override

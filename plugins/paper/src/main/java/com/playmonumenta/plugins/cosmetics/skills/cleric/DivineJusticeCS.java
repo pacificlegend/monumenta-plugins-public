@@ -48,9 +48,9 @@ public class DivineJusticeCS implements CosmeticSkill {
 			PartialParticle.getHeightDelta(enemy),
 			widerWidthDelta,
 			0.08
-		).spawnAsPlayerActive(player);
+		).spawnAsPlayerPassive(player);
 		partialParticle.mParticle = Particle.FLAME;
-		partialParticle.spawnAsPlayerActive(player);
+		partialParticle.spawnAsPlayerPassive(player);
 
 		world.playSound(enemyLoc, Sound.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.15f, 1.5f);
 		world.playSound(enemyLoc, Sound.ENTITY_ILLUSIONER_CAST_SPELL, SoundCategory.PLAYERS, 0.5f, 2.0f);
@@ -72,7 +72,7 @@ public class DivineJusticeCS implements CosmeticSkill {
 			.count(20)
 			.extra(1)
 			.spawnAsPlayerActive(player);
-		new PartialParticle(Particle.HEART, loc.clone().add(0, 1, 0), 2, 0.1, 0.1, 0.1, 0.001).spawnAsPlayerActive(player);
+		new PartialParticle(Particle.HEART, loc.clone().add(0, 1, 0), 2, 0.1, 0.1, 0.1, 0.001).spawnAsPlayerPassive(player);
 	}
 
 	public void justiceHealSound(List<Player> players, float pitch) {

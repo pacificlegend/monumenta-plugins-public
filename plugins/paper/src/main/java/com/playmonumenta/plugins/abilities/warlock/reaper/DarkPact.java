@@ -22,9 +22,9 @@ import com.playmonumenta.plugins.network.ClientModHandler;
 import com.playmonumenta.plugins.utils.AbilityUtils;
 import com.playmonumenta.plugins.utils.AbsorptionUtils;
 import com.playmonumenta.plugins.utils.DamageUtils;
-import com.playmonumenta.plugins.utils.EntityUtils;
+import com.playmonumenta.plugins.utils.Hitbox;
 import com.playmonumenta.plugins.utils.ItemUtils;
-import java.util.List;
+import com.playmonumenta.plugins.utils.LocationUtils;
 import java.util.NavigableSet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -117,27 +117,27 @@ public class DarkPact extends Ability {
 	}
 
 	public boolean cast() {
-		if (isOnCooldown()) {
-			if (mPlugin.mEffectManager.hasEffect(mPlayer, PERCENT_DAMAGE_DEALT_EFFECT_NAME) && Bukkit.getServer().getCurrentTick() - mStartingTick >= mRestrictionDuration) {
-				mActive = false;
-				ClientModHandler.updateAbility(mPlayer, this);
+		if (mPlugin.mEffectManager.hasEffect(mPlayer, PERCENT_DAMAGE_DEALT_EFFECT_NAME) && Bukkit.getServer().getCurrentTick() - mStartingTick >= mRestrictionDuration) {
+			mActive = false;
+			ClientModHandler.updateAbility(mPlayer, this);
 
-				mPlugin.mEffectManager.clearEffects(mPlayer, PERCENT_DAMAGE_DEALT_EFFECT_NAME);
-				mPlugin.mEffectManager.clearEffects(mPlayer, PERCENT_HEAL_EFFECT_NAME);
-				mPlugin.mEffectManager.clearEffects(mPlayer, AESTHETICS_EFFECT_NAME);
+			mPlugin.mEffectManager.clearEffects(mPlayer, PERCENT_DAMAGE_DEALT_EFFECT_NAME);
+			mPlugin.mEffectManager.clearEffects(mPlayer, PERCENT_HEAL_EFFECT_NAME);
+			mPlugin.mEffectManager.clearEffects(mPlayer, AESTHETICS_EFFECT_NAME);
 
-				if (mDamageOnDeactivation > 0) {
-					mCosmetic.deactivationDamageApplied(mPlayer, mPlayer.getWorld(), mPlayer.getLocation(), mDeactivationDamageRadius);
-					List<LivingEntity> mobs = EntityUtils.getNearbyMobs(mPlayer.getLocation(), mDeactivationDamageRadius);
-					for (LivingEntity le : mobs) {
-						DamageUtils.damage(mPlayer, le, DamageEvent.DamageType.MAGIC, mDamageOnDeactivation * mAddedAbsorption, ClassAbility.DARK_PACT, true, false);
-						mCosmetic.deactivationDamageAppliedPerMob(mPlayer, le);
-					}
+			if (mDamageOnDeactivation > 0) {
+				mCosmetic.deactivationDamageApplied(mPlayer, mPlayer.getWorld(), mPlayer.getLocation(), mDeactivationDamageRadius);
+				Hitbox hitbox = new Hitbox.SphereHitbox(LocationUtils.getHalfHeightLocation(mPlayer), mDeactivationDamageRadius);
+				for (LivingEntity le : hitbox.getHitMobs()) {
+					DamageUtils.damage(mPlayer, le, DamageEvent.DamageType.MELEE, mDamageOnDeactivation * mAddedAbsorption, ClassAbility.DARK_PACT, true, false);
+					mCosmetic.deactivationDamageAppliedPerMob(mPlayer, le);
 				}
-
-				return true;
 			}
 
+			return true;
+		}
+
+		if (isOnCooldown()) {
 			return false;
 		}
 
@@ -175,7 +175,7 @@ public class DarkPact extends Ability {
 		Effect aestheticsEffect = mPlugin.mEffectManager.getActiveEffect(mPlayer, AESTHETICS_EFFECT_NAME);
 		if (aestheticsEffect != null) {
 			double absorptionAdded = AbsorptionUtils.addAbsorption(mPlayer, mAbsorption, mMaxAbsorption, aestheticsEffect.getDuration());
-			mAddedAbsorption += absorptionAdded;
+			trackAddedAbsorption(absorptionAdded);
 			aestheticsEffect.setDuration(aestheticsEffect.getDuration() + mDurationIncreaseOnKill);
 			mCosmetic.onKill(mPlayer, event.getEntity());
 		}
@@ -189,6 +189,10 @@ public class DarkPact extends Ability {
 			Effect extendedAntiheal = antiHealEffects.first();
 			extendedAntiheal.setDuration(extendedAntiheal.getDuration() + mDurationIncreaseOnKill);
 		}
+	}
+
+	public void trackAddedAbsorption(double absorption) {
+		mAddedAbsorption += absorption;
 	}
 
 	@Override

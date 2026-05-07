@@ -186,7 +186,11 @@ public class SoulRend extends Ability {
 		if (absorption <= 0) {
 			return;
 		}
-		AbsorptionUtils.addAbsorption(player, absorption, mAbsorptionCap, mAbsorptionDuration);
+		double absorptionAdded = AbsorptionUtils.addAbsorption(player, absorption, mAbsorptionCap, mAbsorptionDuration);
+		if (mPlayer == player && absorptionAdded > 0 && mDarkPact != null) {
+			// for Dark Pact Deactivation Damage artifact charm
+			mDarkPact.trackAddedAbsorption(absorptionAdded);
+		}
 		mCosmetic.rendAbsorptionEffect(mPlayer, player, enemy);
 	}
 

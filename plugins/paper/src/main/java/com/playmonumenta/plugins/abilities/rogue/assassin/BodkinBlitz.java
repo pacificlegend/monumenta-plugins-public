@@ -160,7 +160,10 @@ public class BodkinBlitz extends MultipleChargeAbility {
 				if (mTick >= TELEPORT_TICKS) {
 					// passthrough damage (ARTIFACT CHARM STAT)
 					if (mPassthroughDamage > 0) {
-						for (LivingEntity mob : Hitbox.approximateCylinder(loc, tpLoc, 0.7, true).accuracy(0.5).getHitMobs()) {
+						double halfHeight = mPlayer.getHeight() / 2;
+						Location startLoc = loc.clone().add(0, halfHeight, 0);
+						Location endLoc = tpLoc.clone().add(0, halfHeight, 0);
+						for (LivingEntity mob : Hitbox.approximateCylinder(startLoc, endLoc, 1, true).accuracy(0.5).getHitMobs()) {
 							DamageUtils.damage(mPlayer, mob, DamageType.MELEE_SKILL, mPassthroughDamage, mInfo.getLinkedSpell(), true);
 							Location entityLoc = mob.getLocation().clone().add(0, 1, 0);
 							mCosmetic.blitzOnDamage(mob.getWorld(), mPlayer, entityLoc, true);

@@ -57,7 +57,7 @@ public class TotemicConsecration extends MultipleChargeAbility {
 	private static final int SILENCE_DURATION = 5 * 20;
 	private static final String CONSECRATION_RESISTANCE_SOURCE = "Totemic Consecration Resistance";
 	private static final String CONSECRATION_STRENGTH_SOURCE = "Totemic Consecration Strength";
-	private static final String CONSECRATION_SPEED_SOURCE = "Totemic Consecration Strength";
+	private static final String CONSECRATION_SPEED_SOURCE = "Totemic Consecration Speed";
 
 	public static final String CHARM_CHARGES = "Totemic Consecration Charges";
 	public static final String CHARM_COOLDOWN = "Totemic Consecration Cooldown";

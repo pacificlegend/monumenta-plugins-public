@@ -10,6 +10,7 @@ import com.playmonumenta.plugins.abilities.MultipleChargeAbility;
 import com.playmonumenta.plugins.classes.ClassAbility;
 import com.playmonumenta.plugins.cosmetics.skills.CosmeticSkills;
 import com.playmonumenta.plugins.cosmetics.skills.rogue.swordsage.WindWalkCS;
+import com.playmonumenta.plugins.effects.PercentDamageReceived;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.utils.BlockUtils;
 import com.playmonumenta.plugins.utils.EntityUtils;
@@ -46,6 +47,7 @@ public class WindWalk extends MultipleChargeAbility {
 	private static final double WIND_WALK_Y_VELOCITY_MULTIPLIER = 0.16;
 	private static final double WIND_WALK_VELOCITY_BONUS = 1.4;
 	private static final int WIND_WALK_CDR = 20 * 4;
+	private static final String WIND_WALK_VULN_SOURCE = "WindWalkVuln";
 	private static final String WIND_WALK_VULN_AESTHETICS_SOURCE = "WindWalkVulnAesthetics";
 
 	public static final String CHARM_COOLDOWN = "Wind Walk Cooldown";
@@ -148,7 +150,9 @@ public class WindWalk extends MultipleChargeAbility {
 						}
 
 						if (mVulnerability > 0) {
-							EntityUtils.applyVulnerability(mPlugin, mVulnerabilityDuration, mVulnerability, mob);
+							// intentionally does not use EntityUtils.applyVulnerability so it can stack with dagger throw vuln
+							mPlugin.mEffectManager.addEffect(mob, WIND_WALK_VULN_SOURCE,
+								new PercentDamageReceived(mVulnerabilityDuration, mVulnerability));
 							mPlugin.mEffectManager.addEffect(mob, WIND_WALK_VULN_AESTHETICS_SOURCE, mCosmetic.getArtifactVulnAesthetics(mVulnerabilityDuration));
 						}
 						iter.remove();

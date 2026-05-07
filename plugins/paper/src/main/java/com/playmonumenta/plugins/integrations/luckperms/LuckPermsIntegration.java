@@ -86,7 +86,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 public class LuckPermsIntegration implements Listener {
-	public static final int MAX_TAG_LENGTH = 10;
+	public static final int MAX_TAG_LENGTH = 6;
 	public static final int META_VALUE_SECTION_SIZE = 64;
 	public static final char META_KEY_NODE_SEPARATOR = ':';
 	public static final String META_KEY_LENGTH_INDICATOR = "length";

@@ -27,8 +27,8 @@ import org.bukkit.metadata.MetadataValue;
 
 public class Quake implements Enchantment {
 
-	private static final float RADIUS = 3.0f;
-	private static final float DAMAGE_MODIFIER_PER_LEVEL = 0.05f;
+	private static final float RADIUS = 3.5f;
+	private static final float DAMAGE_MODIFIER_PER_LEVEL = 0.1f;
 	private static final Particle.DustOptions YELLOW_1_COLOR = new Particle.DustOptions(Color.fromRGB(255, 255, 20), 1.0f);
 	private static final Particle.DustOptions YELLOW_2_COLOR = new Particle.DustOptions(Color.fromRGB(255, 255, 120), 1.0f);
 	private static final Particle.DustOptions BLEED_COLOR = new Particle.DustOptions(Color.fromRGB(210, 44, 44), 1.0f);

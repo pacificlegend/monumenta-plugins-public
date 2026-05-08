@@ -191,7 +191,7 @@ public class LightningTotem extends TotemAbility {
 			return false;
 		}
 
-		double damage = mDamageFlat + event.getFinalDamage(false, DamageEvent.DamageType.MAGIC) * Math.max(percentDamage, 0.0);
+		double damage = mDamageFlat + event.calculateDamageUpTo(DamageEvent.DamageModifier.Stage.BASE, null) * Math.max(percentDamage, 0.0);
 		damage *= mLightningTotemDamageMultiplier;
 		damage += mDecayedTotemBuff;
 		damage *= mSpiritualismMultiplier;

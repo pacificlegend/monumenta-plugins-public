@@ -26,7 +26,7 @@ public class PercentDamageReceived extends Effect {
 	                             final String effectID) {
 		super(duration, effectID);
 		mAmount = amount;
-		mAffectedDamageTypes = affectedDamageTypes == null ? DamageType.getScalableDamageType() : affectedDamageTypes;
+		mAffectedDamageTypes = affectedDamageTypes == null ? DamageType.getNonTrueTypes() : affectedDamageTypes;
 	}
 
 	public PercentDamageReceived(final int duration, final double amount, final @Nullable EnumSet<DamageType> affectedDamageTypes) {

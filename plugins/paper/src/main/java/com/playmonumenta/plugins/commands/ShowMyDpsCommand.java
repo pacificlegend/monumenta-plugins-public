@@ -86,7 +86,7 @@ public class ShowMyDpsCommand {
 
 	public static void onDamage(DamageEvent event) {
 		LivingEntity damagee = event.getDamagee();
-		if (EntityUtils.isBoss(damagee) && event.getDamager() instanceof Player player) {
+		if (EntityUtils.isBoss(damagee) && event.getSource() instanceof Player player) {
 			Map<UUID, DPS> playerDPS = PLAYER_DPS_MAP.computeIfAbsent(damagee.getUniqueId(), uuid -> new HashMap<>());
 			playerDPS.compute(player.getUniqueId(), (uuid, oldDps) -> {
 				double finalDamage = event.getFinalDamage(true);

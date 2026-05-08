@@ -207,7 +207,7 @@ public class DivineJustice extends Ability implements AbilityWithChargesOrStacks
 	}
 
 	public double calculateDamage(final DamageEvent event) {
-		return mDamage + event.getFinalDamage(false, DamageType.MAGIC) * Math.max(mPercentDamage, 0.0);
+		return mDamage + event.getDamage(DamageType.MAGIC) * Math.max(mPercentDamage, 0.0);
 	}
 
 	private static Description<DivineJustice> getDescription1() {

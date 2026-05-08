@@ -174,12 +174,23 @@ public class DamageEvent extends Event implements Cancellable {
 								 EnumSet<DamageType> damageTypes) {
 		public enum Stage {
 			// NOTE: ordinal (definition order) decides priority!
-			BASE,
-			GEAR,
-			EFFECT_POSITIVE,
-			EFFECT_NEGATIVE,
-			CRITICAL,
-			FINAL,
+			BASE(false),
+			GEAR(false),
+			EFFECT_POSITIVE(false),
+			EFFECT_NEGATIVE(false),
+			CRITICAL(false),
+			FINAL(true),
+
+			;
+			private final boolean mMultiplicativeModifier;
+
+			Stage(boolean multiplicativeModifier) {
+				mMultiplicativeModifier = multiplicativeModifier;
+			}
+
+			public boolean isMultiplicativeModifier() {
+				return mMultiplicativeModifier;
+			}
 		}
 
 		public static DamageModifier add(double add, Stage stage, EnumSet<DamageType> damageTypes) {
@@ -254,7 +265,6 @@ public class DamageEvent extends Event implements Cancellable {
 	private final Metadata mMetadata;
 
 	private boolean mLifelineCancel;
-	private boolean mDirty = true;
 
 	private final double mOriginalDamage;
 	private final Multimap<Stage, DamageModifier> mDamageModifiers;
@@ -279,9 +289,9 @@ public class DamageEvent extends Event implements Cancellable {
 		mMetadata = metadata;
 		mOriginalDamage = event.getDamage();
 		mDamageModifiers = Multimaps.newMultimap(new EnumMap<>(Stage.class), ArrayList::new);
-		setBaseDamage(event.getDamage());
 		mEvent = event;
 		mLifelineCancel = false;
+		setBaseDamage(event.getDamage());
 
 		if (mDamager instanceof Projectile proj) {
 			ProjectileSource source = proj.getShooter();
@@ -304,21 +314,26 @@ public class DamageEvent extends Event implements Cancellable {
 		if (!damageModifier.damageTypes.contains(mMetadata.getType())) {
 			return;
 		}
-		mDirty = true;
 		mDamageModifiers.put(damageModifier.stage(), damageModifier);
+		mEvent.setDamage(recalculateDamage(null));
 	}
 
 	public ImmutableMultimap<Stage, DamageModifier> damageModifiersCopy() {
 		return ImmutableMultimap.copyOf(mDamageModifiers);
 	}
 
-	// TODO: merge with getFinalDamage() after removing vanilla armor completely
 	public double getDamage() {
-		if (mDirty) {
-			mEvent.setDamage(recalculateDamage(null));
-			mDirty = false;
-		}
-		return mEvent.getDamage();
+		return getDamage(null);
+	}
+
+
+	/**
+	 * Gets the damage Monumenta tries to do to the entity, excludes iframes
+	 * @param excludedType      Excludes damage modifiers if it also buffs this damage type
+	 * @return The final damage that will be dealt
+	 */
+	public double getDamage(@Nullable DamageType excludedType) {
+		return recalculateDamage(excludedType);
 	}
 
 	public double getFinalDamage(boolean includeAbsorption) {
@@ -339,7 +354,6 @@ public class DamageEvent extends Event implements Cancellable {
 	@SuppressWarnings("deprecation")
 	public double getFinalDamage(boolean includeAbsorption, @Nullable DamageType excludedType) {
 		recalculateDamage(excludedType);
-		mDirty = false;
 
 		if (includeAbsorption) {
 			return Math.max(0, mEvent.getFinalDamage());
@@ -361,18 +375,18 @@ public class DamageEvent extends Event implements Cancellable {
 		double damage = 0;
 		Stage[] values = Stage.values(); // this is in order of declaration!!
 
-		for (Stage value : values) {
+		for (Stage stage : values) {
 			double add = 0;
 			double multiplier = 1;
-			double weakenMultiplier = 1;
-			for (DamageModifier damageModifier : mDamageModifiers.get(value)) {
+			double multiplicativeMultiplier = 1;
+			for (DamageModifier damageModifier : mDamageModifiers.get(stage)) {
 				EnumSet<DamageType> damageTypes = damageModifier.damageTypes;
 				if (excludedType == null || !damageTypes.contains(excludedType)) {
 					if (damageModifier.multiplicative) {
-						if (damageModifier.modifier > 1) {
-							multiplier += Math.max(damageModifier.modifier - 1, 0);
+						if (damageModifier.modifier <= 1 || stage.isMultiplicativeModifier()) {
+							multiplicativeMultiplier *= damageModifier.modifier;
 						} else {
-							weakenMultiplier *= damageModifier.modifier;
+							multiplier += Math.max(damageModifier.modifier - 1, 0);
 						}
 					} else {
 						add += damageModifier.modifier;
@@ -380,7 +394,44 @@ public class DamageEvent extends Event implements Cancellable {
 				}
 			}
 			damage += add;
-			damage *= multiplier * weakenMultiplier;
+			damage *= multiplier * multiplicativeMultiplier;
+		}
+
+		return damage;
+	}
+
+	/**
+	 * Calculates damage for lightning totem temporarily.
+	 * @param lastStage    calculates all stages up till and including this stage
+	 * @param excludedType used for on hit damages to prevent double-dipping effects. (does not add modifier if it also buffs this damage type)
+	 */
+	public double calculateDamageUpTo(Stage lastStage, @Nullable DamageType excludedType) {
+		double damage = 0;
+		Stage[] values = Stage.values(); // this is in order of declaration!!
+
+		for (Stage stage : values) {
+			double add = 0;
+			double multiplier = 1;
+			double multiplicativeMultiplier = 1;
+			for (DamageModifier damageModifier : mDamageModifiers.get(stage)) {
+				EnumSet<DamageType> damageTypes = damageModifier.damageTypes;
+				if (excludedType == null || !damageTypes.contains(excludedType)) {
+					if (damageModifier.multiplicative) {
+						if (damageModifier.modifier <= 1 || stage.isMultiplicativeModifier()) {
+							multiplicativeMultiplier *= damageModifier.modifier;
+						} else {
+							multiplier += Math.max(damageModifier.modifier - 1, 0);
+						}
+					} else {
+						add += damageModifier.modifier;
+					}
+				}
+			}
+			damage += add;
+			damage *= multiplier * multiplicativeMultiplier;
+			if (stage == lastStage) {
+				break;
+			}
 		}
 
 		return damage;

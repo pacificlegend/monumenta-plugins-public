@@ -109,7 +109,7 @@ public class SpellAuroraVoid extends Spell {
 		Location tpLoc = player.getLocation();
 		tpLoc.setY(mCenter.getY() + 5.5);
 		player.teleport(tpLoc);
-		player.setVelocity(mCenter.subtract(tpLoc).toVector().multiply(0.1).setY(0));
+		player.setVelocity(mCenter.clone().subtract(tpLoc).toVector().multiply(0.1).setY(0));
 
 		EffectManager.getInstance().addEffect(player, "AstralVoidImmunity", new DamageImmunity(IMMUNITY_DURATION, EnumSet.complementOf(EnumSet.of(DamageEvent.DamageType.TRUE))));
 	}

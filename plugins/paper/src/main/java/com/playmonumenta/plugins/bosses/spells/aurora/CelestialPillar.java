@@ -133,7 +133,9 @@ public class CelestialPillar extends Spell {
 				}
 			}
 		}
-		mBlocks.forEach(Entity::remove);
+		if (mLocation.getChunk().isLoaded()) {
+			mBlocks.forEach(Entity::remove);
+		}
 		mBlocks.clear();
 
 		new PartialParticle(Particle.EXPLOSION_LARGE, mLocation.clone().add(0, 1, 0))

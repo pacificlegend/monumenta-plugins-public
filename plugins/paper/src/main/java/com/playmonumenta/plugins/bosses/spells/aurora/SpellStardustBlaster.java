@@ -122,7 +122,9 @@ public class SpellStardustBlaster extends Spell {
 
 				@Override
 				public synchronized void cancel() throws IllegalStateException {
-					mDisplay.remove();
+					if (mDisplay.getChunk().isLoaded()) {
+						mDisplay.remove();
+					}
 					new PartialParticle(Particle.EXPLOSION_NORMAL, mDisplay.getLocation().clone().add(0, 1.5, 0))
 						.count(5)
 						.extra(.1);

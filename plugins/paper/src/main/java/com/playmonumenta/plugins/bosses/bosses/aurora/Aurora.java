@@ -825,7 +825,7 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 	public static void rageBuff(LivingEntity entity, double rage, boolean elite) {
 		double multiplier = getMultiplier(rage);
 		EffectManager.getInstance().addEffect(entity, "RageDamage", new PercentDamageDealt(999999999, multiplier / 2));
-		EntityUtils.setMaxHealthAndHealth(entity, EntityUtils.getMaxHealth(entity) * (1 + Math.min(multiplier, 1.3) * (elite ? 1 : 2)));
+		EntityUtils.setMaxHealthAndHealth(entity, EntityUtils.getMaxHealth(entity) * (1 + Math.min(multiplier, 1.3) * (elite ? 0.5 : 1)));
 	}
 
 	public static void bossRageBuff(LivingEntity entity, double health, double rage, int playerCount) {
@@ -936,9 +936,10 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 
 		clearPillarItems(mSpawnLoc);
 
-		playersInRange(mSpawnLoc, true).forEach(player ->
-			ScoreboardUtils.setScoreboardValue(player, CHARGES_SCORE, 0)
-		);
+		playersInRange(mSpawnLoc, true).forEach(player -> {
+			ScoreboardUtils.setScoreboardValue(player, CHARGES_SCORE, 0);
+			player.removeScoreboardTag(ALIVE_TAG);
+		});
 
 		mActiveTasks.forEach(BukkitTask::cancel);
 		mAuroraMinis.cancel();

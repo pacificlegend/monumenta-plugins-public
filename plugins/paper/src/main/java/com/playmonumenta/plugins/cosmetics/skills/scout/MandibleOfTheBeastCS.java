@@ -128,6 +128,9 @@ public class MandibleOfTheBeastCS extends SteelTrapCS implements IntruderCS {
 	@Override
 	public void trapPrimingTick(World world, Player player, SteelTrap.Trap.Displays trap, Location loc, int ticks, int maxTicks, double triggerRadius, double explosionRadius) {
 		double smallerRadius = triggerRadius - 0.5;
+		if (maxTicks < 8) {
+			return;
+		}
 		if (ticks % (maxTicks / 8) == 0) {
 			new PPCircle(Particle.REDSTONE, loc.clone().subtract(0, 0.1, 0), smallerRadius)
 				.countPerMeter(3)

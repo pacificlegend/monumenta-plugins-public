@@ -190,7 +190,7 @@ public class PartingShot extends Ability implements AbilityWithDuration {
 	@Override
 	public void onHurt(DamageEvent event, @Nullable Entity damager, @Nullable LivingEntity source) {
 		if (event.isUnblockable()
-			|| event.getType() != DamageEvent.DamageType.TRUE
+			|| event.getType() == DamageEvent.DamageType.TRUE
 			|| event.isBlocked()
 			|| isOnCooldown()) {
 			return;

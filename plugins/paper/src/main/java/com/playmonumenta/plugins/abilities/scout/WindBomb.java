@@ -196,7 +196,7 @@ public class WindBomb extends Ability {
 		bomb.setVelocity(direction);
 		EntityUtils.selfRoot(bomb, 9999 * 20);
 
-		EnumSet<DamageEvent.DamageType> allButProj = DamageEvent.DamageType.getEnumSet();
+		EnumSet<DamageEvent.DamageType> allButProj = DamageEvent.DamageType.getNonTrueTypes();
 		allButProj.remove(DamageEvent.DamageType.PROJECTILE);
 		mPlugin.mEffectManager.addEffect(bomb, "WindBombOnlyProjectile", new PercentDamageReceived(9999 * 20, -1, allButProj));
 

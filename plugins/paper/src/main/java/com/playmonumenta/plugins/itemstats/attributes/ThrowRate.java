@@ -3,6 +3,7 @@ package com.playmonumenta.plugins.itemstats.attributes;
 import com.playmonumenta.plugins.Plugin;
 import com.playmonumenta.plugins.abilities.AbilityManager;
 import com.playmonumenta.plugins.abilities.scout.hunter.QuiverStorm;
+import com.playmonumenta.plugins.abilities.scout.ranger.GaleShot;
 import com.playmonumenta.plugins.effects.Effect;
 import com.playmonumenta.plugins.effects.PercentThrowRate;
 import com.playmonumenta.plugins.itemstats.Attribute;
@@ -55,7 +56,9 @@ public class ThrowRate implements Attribute {
 
 	@Override
 	public void onProjectileLaunch(Plugin plugin, Player player, double value, ProjectileLaunchEvent event, Projectile proj) {
-		if (proj.hasMetadata(QuiverStorm.ARROW_METADATA)) {
+		if (proj.hasMetadata(QuiverStorm.ARROW_METADATA) ||
+			proj.hasMetadata(GaleShot.GALE_SHOT_PROJECTILE_METAKEY)
+		) {
 			return;
 		}
 

@@ -938,7 +938,6 @@ public class Aurora extends SerializedLocationBossAbilityGroup {
 
 		playersInRange(mSpawnLoc, true).forEach(player -> {
 			ScoreboardUtils.setScoreboardValue(player, CHARGES_SCORE, 0);
-			player.removeScoreboardTag(ALIVE_TAG);
 		});
 
 		mActiveTasks.forEach(BukkitTask::cancel);

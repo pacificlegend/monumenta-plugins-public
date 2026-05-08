@@ -15,7 +15,6 @@ import com.playmonumenta.plugins.effects.Aesthetics;
 import com.playmonumenta.plugins.effects.Effect;
 import com.playmonumenta.plugins.effects.PercentDamageDealt;
 import com.playmonumenta.plugins.effects.PercentHeal;
-import com.playmonumenta.plugins.events.DamageEvent;
 import com.playmonumenta.plugins.events.DamageEvent.DamageType;
 import com.playmonumenta.plugins.itemstats.abilities.CharmManager;
 import com.playmonumenta.plugins.network.ClientModHandler;
@@ -129,7 +128,7 @@ public class DarkPact extends Ability {
 				mCosmetic.deactivationDamageApplied(mPlayer, mPlayer.getWorld(), mPlayer.getLocation(), mDeactivationDamageRadius);
 				Hitbox hitbox = new Hitbox.SphereHitbox(LocationUtils.getHalfHeightLocation(mPlayer), mDeactivationDamageRadius);
 				for (LivingEntity le : hitbox.getHitMobs()) {
-					DamageUtils.damage(mPlayer, le, DamageEvent.DamageType.MELEE, mDamageOnDeactivation * mAddedAbsorption, ClassAbility.DARK_PACT, true, false);
+					DamageUtils.damage(mPlayer, le, DamageType.MELEE_SKILL, mDamageOnDeactivation * mAddedAbsorption, ClassAbility.DARK_PACT, true, false);
 					mCosmetic.deactivationDamageAppliedPerMob(mPlayer, le);
 				}
 			}
